@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#000">
+    <title>EUR/USD Trading Chart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- شاشة التحميل -->
+    <div id="sk" class="on"></div>
+
+    <!-- حاوية الشارت الرئيسية -->
+    <div class="chartWrap">
+        <div class="chartFrame">
+            <div class="tc">
+                <!-- خط المنتصف -->
+                <div class="centerLine"></div>
+
+                <!-- معلومات الزوج -->
+                <div class="pair-box" id="pairHud">
+                    <span id="pairHudTxt">EUR/USD</span>
+                    <span class="otc" id="otcHud">OTC</span>
+                    <span class="flags" id="pairFlags"></span>
+                    <span style="opacity:.7">▾</span>
+                </div>
+
+                <!-- الشارت (Canvas) -->
+                <canvas id="c"></canvas>
+
+                <!-- مؤقت الشمعة -->
+                <div class="candleTimer" id="candleTimer">59</div>
+
+                <!-- مقياس السعر -->
+                <div class="ps" id="ps"></div>
+
+                <!-- تسميات الوقت -->
+                <div class="timeLabels" id="timeLabels"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- رسالة حالة Firebase -->
+    <div class="fbStatus" id="fbStatus"></div>
+
+    <!-- علامة الدور (مدير/مشاهد) -->
+    <div class="roleTag" id="roleTag" style="display:none"></div>
+
+    <!-- الوقت المنصة -->
+    <div class="platformTime" id="platTime">UTC+3 00:00:00</div>
+
+    <!-- شريط المؤشرات العلوي -->
+    <div class="indBar" id="indBar"></div>
+
+    <!-- لوحة إعدادات المؤشر -->
+    <div class="indSet" id="indSet">
+        <div class="hd">
+            <b id="indSetTitle">Indicator</b>
+            <button class="btn" id="indSetClose">إغلاق</button>
+        </div>
+        <div class="row">
+            <label>اللون</label>
+            <input type="color" id="indColor" value="#ffff00">
+        </div>
+        <div class="row">
+            <label>السمك</label>
+            <input type="number" id="indWidth" min="1" max="8" step="1" value="2">
+        </div>
+        <div class="row" id="periodRow" style="display:none">
+            <label>الفترة</label>
+            <input type="number" id="indPeriod" min="2" max="200" step="1" value="20">
+        </div>
+        <div class="row" id="stdRow" style="display:none">
+            <label>الانحراف المعياري</label>
+            <input type="number" id="indStd" min="0.1" max="5" step="0.1" value="2">
+        </div>
+        <div class="btns">
+            <button class="btn" id="indRemove">حذف</button>
+        </div>
+    </div>
+
+    <!-- عرض التاريخ والوقت -->
+    <div class="datetime" id="datetime"></div>
+
+    <!-- أيقونات المؤشرات -->
+    <div class="indicatorIcons">
+        <div class="indIcon" id="indBtn1">
+            <img src="https://cdn-icons-png.flaticon.com/128/742/742130.png">
+        </div>
+        <div class="indIcon" id="indBtn2">
+            <img src="https://cdn-icons-png.flaticon.com/128/561/561184.png">
+        </div>
+        <div class="eyeIcon" id="eyeBtn">👁</div>
+        <div class="indNamesList" id="indNamesList"></div>
+    </div>
+
+    <!-- لوحة الأزواج -->
+    <div class="pairPanel" id="pairPanel">
+        <div class="pairHead">
+            <b>الأزواج</b>
+            <button class="pairClose" id="pairClose">×</button>
+        </div>
+        <div class="pairList" id="pairList"></div>
+    </div>
+
+    <!-- لوحة المؤشرات -->
+    <div class="indicatorsPanel" id="indicatorsPanel">
+        <div class="indPanelHead">
+            <h3>المؤشرات</h3>
+            <button class="closeIndBtn" id="closeIndBtn">×</button>
+        </div>
+        <div class="indItem" data-ind="bb">
+            <span>Bollinger Bands</span>
+        </div>
+        <div class="indItem" data-ind="tl">
+            <span>Trendline</span>
+        </div>
+    </div>
+
+    <!-- لوحة الصفقات النشطة -->
+    <div class="tradesPanel" id="tradesPanel">
+        <div class="tradesPanelHeader">
+            <h3>📊 الصفقات النشطة</h3>
+            <button class="closeTrPanel" id="closeTrPanel">×</button>
+        </div>
+        <div class="tradesContent" id="tradesContent"></div>
+    </div>
+
+    <!-- أدوات التحكم بالتداول -->
+    <div class="trading-controls">
+        <div class="control-row">
+            <!-- حقل المبلغ -->
+            <div class="input-wrapper">
+                <button class="ctrl-btn" id="minus">-</button>
+                <input class="input-field" value="$ 1" id="amountInput">
+                <button class="ctrl-btn" id="plus">+</button>
+            </div>
+
+            <!-- حقل الوقت -->
+            <div class="input-wrapper" id="timeWrapper">
+                <input class="input-field" value="00:01:00" id="timeInput" readonly>
+                <div class="timePickerPopup" id="timePickerPopup">
+                    <div class="timeGrid">
+                        <button class="timeBtn" data-time="00:00:15">15s</button>
+                        <button class="timeBtn" data-time="00:00:10">10s</button>
+                        <button class="timeBtn" data-time="00:00:05">5s</button>
+                        <button class="timeBtn" data-time="00:02:00">2m</button>
+                        <button class="timeBtn" data-time="00:01:00">1m</button>
+                        <button class="timeBtn" data-time="00:00:30">30s</button>
+                        <button class="timeBtn" data-time="00:15:00">15m</button>
+                        <button class="timeBtn" data-time="00:10:00">10m</button>
+                        <button class="timeBtn" data-time="00:05:00">5m</button>
+                        <button class="timeBtn" data-time="02:00:00">2h</button>
+                        <button class="timeBtn" data-time="01:00:00">1h</button>
+                        <button class="timeBtn" data-time="00:30:00">30m</button>
+                    </div>
+                    <button class="manualBtn" id="manualBtn">ضبط يدوياً</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- أزرار التداول -->
+    <div class="tradeDock">
+        <div class="trading-buttons">
+            <button class="trade-btn trade-higher" id="buy">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 14l5-5 5 5z"></path>
+                </svg>
+                <span>شراء</span>
+            </button>
+            <button class="trade-btn trade-lower" id="sell">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"></path>
+                </svg>
+                <span>بيع</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- تحميل السكريبت -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
