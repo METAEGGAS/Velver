@@ -1,0 +1,1120 @@
+/* ===========================
+   إعدادات عامة
+   =========================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: system-ui, -apple-system, Arial;
+    background: #000;
+    color: #fff;
+    direction: rtl;
+}
+
+button, input, select {
+    font: inherit;
+    border: 0;
+    outline: 0;
+}
+
+button {
+    cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* ===========================
+   متغيرات CSS
+   =========================== */
+:root {
+    --gg: #00c853;
+    --psw: 48px;
+    --bg-primary: #000;
+    --bg-secondary: #0d1117;
+    --bg-card: #101a2f;
+    --bg-overlay: rgba(10, 22, 40, 0.72);
+    --border-primary: rgba(255, 255, 255, 0.10);
+    --border-secondary: #1f2937;
+    --text-primary: #fff;
+    --text-secondary: #d9e6ff;
+    --accent-green: #00ff41;
+    --accent-red: #ff0000;
+    --accent-blue: #4299e1;
+}
+
+/* ===========================
+   حاوية الشارت الرئيسية
+   =========================== */
+.chartWrap {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ===========================
+   شاشة التحميل
+   =========================== */
+#sk {
+    position: absolute;
+    inset: 0;
+    z-index: 2500;
+    pointer-events: auto;
+    background: #000;
+    display: none;
+}
+
+#sk.on {
+    display: block;
+}
+
+#sk:before, #sk:after {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    filter: blur(2px);
+    animation: sk 1.35s linear infinite;
+}
+
+#sk:after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+    animation-duration: 1.75s;
+    transform: rotate(90deg);
+}
+
+@keyframes sk {
+    0% {
+        transform: translateX(-40%) rotate(0);
+    }
+    100% {
+        transform: translateX(40%) rotate(0);
+    }
+}
+
+/* ===========================
+   الشارت (Canvas)
+   =========================== */
+.chartFrame, .tc {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+#c {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+    cursor: grab;
+}
+
+#c:active {
+    cursor: grabbing;
+}
+
+/* ===========================
+   مقياس السعر
+   =========================== */
+.ps {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 120px;
+    width: var(--psw);
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 10;
+}
+
+.pl {
+    position: absolute;
+    right: 2px;
+    transform: translateY(-50%);
+    font-size: 10px;
+    font-weight: 900;
+    color: rgba(240, 230, 210, 0.92);
+    text-align: right;
+    padding: 0 3px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* ===========================
+   مؤشر السعر الحالي
+   =========================== */
+.priceIndicator {
+    position: absolute;
+    right: 0;
+    transform: translateY(-50%);
+    background: rgba(255, 215, 0, 0.95);
+    color: #000;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 900;
+    border-radius: 4px 0 0 4px;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    border: 1.5px solid #ffd700;
+    border-right: none;
+    pointer-events: none;
+}
+
+.priceScaleMark {
+    position: absolute;
+    right: 0;
+    width: var(--psw);
+    height: 1px;
+    background: rgba(255, 215, 0, 0.45);
+    transform: translateY(-50%);
+    z-index: 11;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(255, 215, 0, 0.2);
+}
+
+/* ===========================
+   خط المنتصف
+   =========================== */
+.centerLine {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 120px;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+    z-index: 5;
+    transform: translateX(-50%);
+}
+
+/* ===========================
+   عرض التاريخ والوقت
+   =========================== */
+.datetime {
+    position: absolute;
+    left: 9px;
+    bottom: 130px;
+    font-size: 11px;
+    color: var(--text-primary);
+    background: var(--bg-overlay);
+    padding: 3px 8px;
+    border-radius: 7px;
+    z-index: 22;
+    border: 1px solid var(--border-primary);
+    pointer-events: none;
+}
+
+/* ===========================
+   وقت المنصة
+   =========================== */
+.platformTime {
+    position: absolute;
+    left: 9px;
+    top: 10px;
+    z-index: 18;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 4px 8px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* ===========================
+   أيقونات المؤشرات
+   =========================== */
+.indicatorIcons {
+    position: absolute;
+    left: 9px;
+    top: 50px;
+    z-index: 22;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.indIcon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(250, 240, 220, 0.88);
+    border: 1.5px solid rgba(255, 215, 100, 0.7);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.indIcon:hover {
+    transform: scale(1.08);
+    border-color: var(--accent-blue);
+}
+
+.indIcon img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.eyeIcon {
+    width: 22px;
+    height: 22px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(250, 240, 220, 0.88);
+    border: 1.5px solid rgba(255, 215, 100, 0.7);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    font-size: 13px;
+}
+
+.eyeIcon:hover {
+    transform: scale(1.08);
+    border-color: var(--accent-blue);
+}
+
+/* ===========================
+   قائمة أسماء المؤشرات
+   =========================== */
+.indNamesList {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.indNamesList .nmIt {
+    min-width: 18px;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 900;
+    line-height: 1.1;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 5px;
+    padding: 3px 5px;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.indNamesList .nmIt:hover {
+    background: rgba(66, 153, 225, 0.3);
+    border-color: rgba(66, 153, 225, 0.6);
+}
+
+/* ===========================
+   لوحة المؤشرات
+   =========================== */
+.indicatorsPanel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    max-width: 400px;
+    background: var(--bg-overlay);
+    backdrop-filter: blur(10px);
+    border-right: 1.5px solid var(--border-primary);
+    z-index: 9998;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.indicatorsPanel.show {
+    transform: translateX(0);
+}
+
+.indPanelHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.indPanelHead h3 {
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.closeIndBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-primary);
+    font-size: 24px;
+    color: var(--text-secondary);
+}
+
+.indItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-primary);
+    border-radius: 10px;
+    transition: 0.2s;
+    cursor: pointer;
+}
+
+.indItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.indItem span {
+    font-size: 14px;
+    font-weight: 900;
+}
+
+/* ===========================
+   أدوات التحكم بالتداول
+   =========================== */
+.trading-controls {
+    position: fixed;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    padding: 7px 9px;
+    z-index: 1000;
+    background: var(--bg-primary);
+}
+
+.control-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 9px;
+    padding: 3px 7px;
+    height: 37px;
+    position: relative;
+}
+
+.input-field {
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 900;
+    text-align: center;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.ctrl-btn {
+    background: transparent;
+    color: var(--accent-blue);
+    font-size: 18px;
+    padding: 2px 6px;
+    font-weight: 1000;
+}
+
+/* ===========================
+   منتقي الوقت
+   =========================== */
+.timePickerPopup {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin-bottom: 4px;
+    background: #000;
+    border: 1.5px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 8px;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+}
+
+.timePickerPopup.show {
+    display: block;
+}
+
+.timeGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.timeBtn {
+    background: #2a3442;
+    border: 0;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.manualBtn {
+    width: 100%;
+    background: #2a3442;
+    border: 0;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* ===========================
+   منطقة التداول
+   =========================== */
+.tradeDock {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    padding: 7px 0;
+    z-index: 1000;
+}
+
+.trading-buttons {
+    display: flex;
+}
+
+.trade-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px 9px;
+    font-size: 15px;
+    font-weight: 1000;
+    transition: transform 0.15s;
+    height: 48px;
+}
+
+.trade-higher {
+    background: linear-gradient(135deg, var(--accent-green) 0%, #00cc33 100%);
+    color: var(--bg-primary);
+    border-radius: 0 11px 11px 0;
+}
+
+.trade-lower {
+    background: linear-gradient(135deg, var(--accent-red) 0%, #cc0000 100%);
+    color: var(--text-primary);
+    border-radius: 11px 0 0 11px;
+}
+
+.trade-higher:active, .trade-lower:active {
+    transform: scale(0.95);
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* ===========================
+   شريط المؤشرات العلوي
+   =========================== */
+.indBar {
+    position: fixed;
+    top: 10px;
+    right: 0;
+    left: 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 6px 9px;
+    z-index: 2600;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0));
+    pointer-events: none;
+}
+
+.indBadge {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    font-weight: 1000;
+    font-size: 11px;
+    color: #fff;
+}
+
+.indBadge button {
+    background: transparent;
+    color: #fff;
+    font-weight: 1000;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+}
+
+.indBadge .name {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* ===========================
+   إعدادات المؤشر
+   =========================== */
+.indSet {
+    position: fixed;
+    top: 90px;
+    right: 9px;
+    width: min(320px, calc(100vw - 18px));
+    background: rgba(10, 22, 40, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    z-index: 99999;
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    display: none;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+}
+
+.indSet.show {
+    display: block;
+}
+
+.indSet .hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.indSet .hd b {
+    font-size: 12px;
+}
+
+.indSet .row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+.indSet label {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+.indSet input[type="color"] {
+    width: 44px;
+    height: 30px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.indSet input[type="range"],
+.indSet input[type="number"] {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px;
+    font-size: 11px;
+}
+
+.indSet .btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.indSet .btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-weight: 1000;
+}
+
+.indSet .btn.primary {
+    background: rgba(66, 153, 225, 0.22);
+    border-color: rgba(66, 153, 225, 0.5);
+}
+
+/* ===========================
+   تسميات الوقت
+   =========================== */
+.timeLabels {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: var(--psw);
+    height: 24px;
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-primary);
+    pointer-events: none;
+    z-index: 20;
+}
+
+.timeLabel {
+    position: absolute;
+    bottom: 2px;
+    font-size: 9px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.6);
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+/* ===========================
+   صندوق الزوج
+   =========================== */
+.pair-box {
+    position: absolute;
+    left: 9px;
+    bottom: 165px;
+    z-index: 22;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    border-radius: 11px;
+    padding: 6px 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.flag-icon-small {
+    width: 20px;
+    height: 13px;
+    border-radius: 2px;
+}
+
+.pair-box .flags {
+    display: flex;
+    align-items: center;
+    margin-inline: 2px;
+}
+
+.pair-box .flags img {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 2px solid var(--bg-card);
+    margin-left: -9px;
+    background: var(--bg-card);
+}
+
+.pair-box .otc {
+    margin-inline-start: 7px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 11px;
+    font-weight: 1000;
+    letter-spacing: 0.44px;
+}
+
+/* ===========================
+   لوحة الأزواج
+   =========================== */
+.pairPanel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 18vw;
+    min-width: 280px;
+    max-width: 420px;
+    background: var(--bg-overlay);
+    border-right: 1.5px solid var(--border-primary);
+    backdrop-filter: blur(10px);
+    z-index: 99998;
+    transform: translateX(-105%);
+    transition: transform 0.25s ease;
+    pointer-events: auto;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.pairPanel.on {
+    transform: translateX(0);
+}
+
+.pairHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1.5px solid var(--border-primary);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent);
+    user-select: none;
+}
+
+.pairHead b {
+    font-size: 15px;
+    font-weight: 1000;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+}
+
+.pairClose {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-secondary);
+    font-weight: 1000;
+    transition: 0.2s;
+}
+
+.pairList {
+    padding: 10px 12px;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+.pit {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 11px;
+    padding: 11px 13px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-secondary);
+    margin: 7px 0;
+    transition: 0.2s;
+}
+
+.pit:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.pitL {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.star {
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
+    background: rgba(255, 159, 42, 0.10);
+    border: 1px solid rgba(255, 159, 42, 0.30);
+    display: grid;
+    place-items: center;
+    color: #ffb357;
+    font-size: 13px;
+    flex: 0 0 auto;
+}
+
+.fg {
+    display: flex;
+    align-items: center;
+}
+
+.fg img {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 2px solid var(--bg-card);
+    margin-left: -9px;
+    background: var(--bg-card);
+}
+
+.nm {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 1000;
+}
+
+.bad {
+    margin-inline-start: 7px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-primary);
+    font-size: 11px;
+    font-weight: 1000;
+}
+
+/* ===========================
+   مؤقت الشمعة
+   =========================== */
+.candleTimer {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffd700;
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 900;
+    z-index: 25;
+    pointer-events: none;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    display: none;
+}
+
+/* ===========================
+   لوحة الصفقات
+   =========================== */
+.tradesPanel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40vh;
+    background: linear-gradient(to top, rgba(10, 22, 40, 0.98), rgba(10, 22, 40, 0.92));
+    backdrop-filter: blur(12px);
+    border-top: 2px solid var(--border-primary);
+    z-index: 9999;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.tradesPanel.open {
+    transform: translateY(0);
+}
+
+.tradesPanelHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1.5px solid var(--border-primary);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.tradesPanelHeader h3 {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.closeTrPanel {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1.5px solid var(--border-primary);
+    color: var(--text-secondary);
+    font-size: 20px;
+    font-weight: 900;
+    transition: 0.2s;
+}
+
+.tradesContent {
+    padding: 12px;
+    overflow-y: auto;
+    height: calc(40vh - 60px);
+}
+
+.tradeCard {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid var(--border-primary);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.tradeCard:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.trL {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.trTimer {
+    font-size: 20px;
+    font-weight: 1000;
+    color: #ffd700;
+}
+
+.trAmt {
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.trAmt.buy {
+    color: #00ff88;
+}
+
+.trAmt.sell {
+    color: #ff5a4f;
+}
+
+.trPair {
+    font-size: 13px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.trProfit {
+    font-size: 16px;
+    font-weight: 1000;
+}
+
+.trProfit.positive {
+    color: #00ff41;
+}
+
+.trProfit.negative {
+    color: #ff0000;
+}
+
+.trDetails {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    margin-top: 0;
+}
+
+.trDetails.open {
+    max-height: 500px;
+    margin-top: 12px;
+}
+
+.trDRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+}
+
+.trDRow:last-child {
+    border-bottom: none;
+}
+
+.trDRow .label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.trDRow .value {
+    font-weight: 900;
+}
+
+.miniChart {
+    width: 100%;
+    height: 80px;
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    position: relative;
+}
+
+/* ===========================
+   حالة Firebase
+   =========================== */
+.fbStatus {
+    position: fixed;
+    top: 10px;
+    left: 9px;
+    z-index: 9999;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 900;
+    backdrop-filter: blur(10px);
+    border: 1.5px solid;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.fbStatus.show {
+    opacity: 1;
+}
+
+.fbStatus.success {
+    background: rgba(0, 255, 65, 0.15);
+    border-color: #00ff41;
+    color: #00ff41;
+}
+
+.fbStatus.error {
+    background: rgba(255, 0, 0, 0.15);
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+/* ===========================
+   علامة الدور
+   =========================== */
+.roleTag {
+    position: fixed;
+    left: 9px;
+    top: 50px;
+    padding: 4px 10px;
+    background: rgba(66, 153, 225, 0.22);
+    border: 1.5px solid rgba(66, 153, 225, 0.5);
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 900;
+    color: #4299e1;
+    z-index: 25;
+    backdrop-filter: blur(10px);
+}
