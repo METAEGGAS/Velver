@@ -1,679 +1,380 @@
-<!doctype html><html lang="ar"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial;overflow:hidden}body{background:#0b1220;color:#d9e6ff}button,input{font:inherit;border:0;outline:0}button{cursor:pointer}:root{--t:#d9e6ff;--o:#ff9f2a;--gg:#00e676;--rr:#ff1744;--yy:#ffd54f;--psw:45px;--psMode:1}.wrap{position:relative;width:100vw;height:100vh;overflow:hidden;isolation:isolate}.top{position:fixed;left:0;right:0;top:0;height:54px;display:flex;align-items:center;gap:10px;padding:0 10px;background:linear-gradient(#0d1630,#0b1220);border-bottom:1px solid rgba(255,255,255,.06);z-index:99999}.top.hide{display:none}.btnI{height:34px;border-radius:12px;background:#0fbf63;border:2px solid rgba(0,230,118,.55);color:#06210f;display:inline-flex;align-items:center;gap:8px;padding:0 12px;font-weight:1000;font-size:12px;box-shadow:0 10px 22px rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.15) inset}.iconBtn{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:grid;place-items:center}.iconBtn img{width:18px;height:18px;display:block}.bal{display:flex;align-items:center;gap:8px;margin-left:auto;width:100%;justify-content:flex-end;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:6px 12px}.bal .money{color:var(--o);font-weight:1000;font-size:13px}.bal .live{color:var(--gg);font-weight:1000;font-size:12px}.bal .live.demo{color:var(--yy)}.accBtn{width:26px;height:26px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#bcd0ff;display:grid;place-items:center;font-size:14px;line-height:1}.accMenu{display:none;position:absolute;right:0;top:44px;min-width:190px;background:#0a1628;border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:8px;z-index:9999;box-shadow:0 12px 30px rgba(0,0,0,.35)}.accTitle{font-weight:1000;font-size:12px;opacity:.85;margin:2px 4px 8px}.accOpt{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#d9e6ff;font-weight:1000;font-size:12px;margin:6px 0;direction:rtl}.chk{width:18px;height:18px;border-radius:999px;border:2px solid rgba(0,230,118,.55);display:grid;place-items:center;color:var(--gg);font-size:12px;visibility:hidden}.accOpt.active .chk{visibility:visible}.uidRow{margin-top:6px;padding:8px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;gap:10px}.uidRow .k{opacity:.65;font-weight:900;font-size:11px}.uidRow .v{font-weight:1000;font-size:11px}.chartHost{position:fixed;inset:0;background:linear-gradient(180deg,#2f3a52 0%,#111a2b 45%,#3a465f 100%);overflow:hidden;z-index:1}.tc{position:absolute;inset:0;overflow:hidden;background:transparent;z-index:1}#c{display:block;width:100%;height:100%;background:transparent;cursor:grab;position:relative;z-index:1;touch-action:none}#c:active{cursor:grabbing}.ps{position:absolute;right:0;top:0;width:var(--psw);height:100%;z-index:10;pointer-events:none;transition:background .15s,box-shadow .15s}.pl{color:rgba(240,230,210,.85);font-size:9px;font-weight:800;text-align:right;padding:0 3px;position:absolute;right:2px;transform:translateY(-50%);transition:opacity .15s}:root{--psbg:rgba(0,0,0,0);--psshadow:none;--plshadow:none}:root[data-psmode="0"]{--psbg:rgba(0,0,0,.35);--psshadow:inset 1px 0 0 rgba(255,255,255,.10),0 0 18px rgba(0,0,0,.35);--plshadow:0 1px 3px rgba(0,0,0,.6)}.ps{background:var(--psbg)!important;box-shadow:var(--psshadow)!important}.pl{text-shadow:var(--plshadow)!important}.cpl{position:absolute;right:0;background:rgba(255,255,255,.9);height:1px;width:100%;z-index:15}.cpt{position:absolute;right:2px;background:#fff;color:#000;padding:2px 6px;border-radius:2px;font-size:9px;font-weight:700;transform:translateY(-50%);z-index:16}#skeleton{position:absolute;inset:0;z-index:100;background:#070707;display:flex;align-items:center;justify-content:center;overflow:hidden}#skeleton:before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,#0a0a0a 0%,#0e0e0e 25%,#0a0a0a 50%,#0e0e0e 75%,#0a0a0a 100%);background-size:220% 100%;opacity:.55;animation:sk 6.5s ease-in-out 2}#skeleton:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.035),transparent 60%);opacity:.8}@keyframes sk{0%{background-position:210% 0}100%{background-position:-210% 0}}.skfade{transition:opacity .16s linear;opacity:0}.zoomInd{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.85);color:#ffd700;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:900;z-index:20;pointer-events:none;opacity:0;transition:opacity .2s;border:1px solid rgba(255,215,0,.4)}.zoomInd.show{opacity:1}.pairHud{position:absolute;left:10px;bottom:190px;z-index:40;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.30);backdrop-filter:blur(4px);color:#eaf1ff;font-weight:1000;font-size:12px;cursor:pointer;user-select:none}.pairHud .flags{display:flex;align-items:center}.pairHud .flags img{width:18px;height:18px;border-radius:4px;border:2px solid rgba(0,0,0,.4);margin-left:-6px}.otc{margin-left:6px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);font-size:10px;font-weight:1000;letter-spacing:.4px;opacity:.95}.selBar{position:fixed;left:0;right:0;top:54px;height:40px;display:flex;align-items:center;gap:8px;padding:0 10px;background:linear-gradient(#0b1220,#0a1325);border-bottom:1px solid rgba(255,255,255,.06);z-index:99998;overflow:auto}.selBar.hide{display:none}.selChip{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);color:#d9e6ff;font-weight:1000;font-size:12px;white-space:nowrap}.selChip.active{background:rgba(255,213,79,.14);border-color:rgba(255,213,79,.55);color:#ffd54f}.selChip .flags{display:flex;align-items:center}.selChip .flags img{width:16px;height:16px;border-radius:4px;border:2px solid rgba(0,0,0,.4);margin-left:-6px}.selChip .x{width:18px;height:18px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:grid;place-items:center;font-size:12px;line-height:1}
+<!DOCTYPE html>
+<html lang="en">
 
-/* NEW TRADING CONTROLS */
-.trading-controls{position:fixed;left:10px;right:10px;bottom:120px;z-index:1500;padding:6px;display:flex;flex-direction:column;gap:5px}.control-row{display:grid;grid-template-columns:1fr 1fr;gap:5px}.input-wrapper{background:rgba(8,14,26,.92);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:5px;display:flex;align-items:center;gap:4px;backdrop-filter:blur(6px)}.ctrl-btn{width:24px;height:24px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:16px;display:grid;place-items:center;cursor:pointer}.input-field{flex:1;background:rgba(10,22,40,.95);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#d9e6ff;font-weight:1000;text-align:center;font-size:11px;padding:5px 6px;min-width:0}.timePickerPopup{display:none;position:absolute;bottom:100%;left:0;right:0;background:rgba(8,14,26,.98);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:8px;margin-bottom:5px;backdrop-filter:blur(8px);z-index:100}.timePickerPopup.show{display:block}.timeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:6px}.timeBtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#d9e6ff;font-weight:900;font-size:10px;padding:6px 4px;cursor:pointer}.timeBtn:hover{background:rgba(255,255,255,.14)}.manualBtn{width:100%;background:rgba(24,209,123,.14);border:1px solid rgba(24,209,123,.35);border-radius:8px;color:#18d17b;font-weight:900;font-size:10px;padding:6px;cursor:pointer}.tradeDock{position:fixed;left:0;right:0;bottom:62px;padding:6px;display:flex;justify-content:center;z-index:1500}.trading-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}.trade-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;border-radius:12px;border:2px solid;font-weight:1000;font-size:12px;box-shadow:0 8px 18px rgba(0,0,0,.35);cursor:pointer;transition:all .2s}.btn-icon{width:20px;height:20px}.trade-higher{background:linear-gradient(180deg,#00e676,#00b85c);color:#06210f;border-color:#00ff80}.trade-higher:active{transform:scale(.97)}.trade-lower{background:linear-gradient(180deg,#ff1744,#c90b2e);color:#fff;border-color:#ff4444}.trade-lower:active{transform:scale(.97)}
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
 
-.bottomBar{position:fixed;left:0;right:0;bottom:0;height:62px;border-top:1px solid rgba(255,255,255,.10);background:linear-gradient(#2a4477,#1f355f);display:flex;align-items:center;justify-content:space-around;padding:6px 10px;z-index:2000}.bbItem{display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(235,245,255,.9);font-weight:900;font-size:10px;min-width:56px;cursor:pointer}.bbItem img{width:22px;height:22px;display:block;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35))}.ctrlPanel{position:fixed;right:10px;top:70px;z-index:1800;width:min(360px,calc(100vw - 20px));background:rgba(10,22,40,.72);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:10px;pointer-events:auto;box-shadow:0 12px 30px rgba(0,0,0,.35)}.ctrlTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.ctrlTitle b{font-size:12px;font-weight:1000;opacity:.9}.pills{display:flex;gap:6px;flex-wrap:wrap}.pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);color:#d9e6ff;font-weight:1000;font-size:11px}.pill.primary{background:rgba(24,209,123,.14);border-color:rgba(24,209,123,.55);color:var(--gg)}.gridBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}.gbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);color:#d9e6ff;font-weight:1000;font-size:11px}.gbtn small{opacity:.7;font-weight:900}.card{background:rgba(8,14,26,.92);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:8px;pointer-events:auto;backdrop-filter:blur(6px)}.row{display:flex;align-items:center;justify-content:space-between;gap:8px}.lbl{color:rgba(255,255,255,.6);font-size:10.5px}.val{color:var(--t);font-weight:1000;font-size:12px}.ctrl{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:7px}.ctrl button{width:28px;height:28px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:18px;display:grid;place-items:center}.ctrl input{width:100%;background:rgba(10,22,40,.95);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--t);font-weight:1000;text-align:center;font-size:12px;padding:6px 8px;min-width:0}.ov{position:fixed;inset:0;z-index:3000;display:none;background:rgba(0,0,0,.45);backdrop-filter:blur(2px)}.ov.on{display:block}.ovBox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,calc(100vw - 24px));max-height:min(560px,calc(100vh - 120px));background:#101a2f;border:1px solid rgba(255,255,255,.10);border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden}.ovHead{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08);background:linear-gradient(#0d1630,#0b1220)}.ovHead b{font-size:13px;font-weight:1000;opacity:.95}.ovClose{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);color:#d9e6ff;font-weight:1000}.ovCols{display:flex;justify-content:space-between;padding:10px 14px;color:rgba(255,255,255,.65);font-size:12px;font-weight:1000}.ovList{max-height:calc(560px - 96px);overflow:auto;padding:6px}.it{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#d9e6ff;margin:6px 0}.it:hover{background:rgba(255,255,255,.05)}.l{display:flex;align-items:center;gap:10px;min-width:0}.star{width:18px;height:18px;border-radius:6px;background:rgba(255,159,42,.10);border:1px solid rgba(255,159,42,.30);display:grid;place-items:center;color:#ffb357;font-size:12px;line-height:1;flex:0 0 auto}.fg{display:flex;align-items:center}.fg img{width:22px;height:22px;border-radius:999px;border:2px solid #101a2f;margin-left:-8px;background:#101a2f}.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:1000;letter-spacing:.2px}.bad{margin-inline-start:6px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);font-size:10px;font-weight:1000;opacity:.95}.ic{width:18px;height:18px;border-radius:6px;display:block;object-fit:cover}.r{font-weight:1000;color:#d9e6ff}.toast{position:fixed;left:12px;bottom:78px;z-index:4000;background:rgba(0,0,0,.78);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px);color:#eaf1ff;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:900;display:none;max-width:min(520px,calc(100vw - 24px))}.toast.on{display:block}.trSheet{position:fixed;left:0;right:0;bottom:0;height:40vh;min-height:200px;max-height:70vh;background:#2a3446;border-top:1px solid rgba(255,255,255,.12);z-index:2600;transform:translateY(100%);transition:transform .22s ease;display:flex;flex-direction:column}.trSheet.on{transform:translateY(0)}.trHead{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;color:#eaf1ff;font-weight:1000}.trHead .ttl{display:flex;align-items:center;gap:8px}.trHead .ttl b{font-size:13px}.trHead .ttl .b{width:20px;height:20px;border-radius:999px;background:rgba(255,255,255,.10);display:grid;place-items:center;font-size:11px;font-weight:1000}.trHead .date{opacity:.75;font-size:11px}.trList{flex:1;overflow:auto}.trRow{display:flex;flex-direction:column;border-top:1px solid rgba(255,255,255,.10)}.trRowMain{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px}.trL{display:flex;flex-direction:column;gap:4px;min-width:120px}.trT{display:flex;align-items:center;gap:8px;font-weight:1000;font-size:15px;color:#eaf1ff}.trT .chev{opacity:.7;font-size:16px;transform:translateY(-1px)}.trP{font-weight:1000;font-size:17px}.trP.g{color:#18d17b}.trP.r{color:#ff4a55}.trR{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:170px}.trPair{display:flex;align-items:center;gap:8px;font-weight:1000;font-size:16px;color:#eaf1ff}.trPair .fl{display:flex;align-items:center}.trPair .fl img{width:22px;height:22px;border-radius:999px;border:2px solid #2a3446;margin-left:-8px;background:#2a3446}.trAmt{display:flex;align-items:center;gap:8px;font-weight:1000;font-size:17px}.trAmt .circ{width:22px;height:22px;border-radius:999px;background:rgba(0,0,0,.18);display:grid;place-items:center;border:1px solid rgba(255,255,255,.12);font-size:12px}.g{color:#18d17b}.r{color:#ff4a55}.trAmt .circ.g{color:#18d17b}.trAmt .circ.r{color:#ff4a55}.trDet{display:none;padding:10px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.10)}.trRow.open .trDet{display:block}.trGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.trBox{background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:8px}.trK{opacity:.75;font-size:10px;font-weight:900}.trV{margin-top:3px;font-weight:1000;font-size:12px;direction:ltr;text-align:left}.spark{width:100%;height:48px;display:block;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10)}.trIcon{position:absolute;left:12px;top:110px;z-index:60;pointer-events:auto}.trIcon button{width:38px;height:38px;border-radius:999px;background:rgba(0,0,0,.15);display:grid;place-items:center;padding:0;border:2px solid #fff;box-shadow:0 10px 18px rgba(0,0,0,.35);position:relative}.trIcon img{width:26px;height:26px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}.trBadge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 6px;border-radius:999px;background:var(--rr);color:#fff;font-weight:1000;font-size:11px;display:none;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.9);line-height:1;box-shadow:0 8px 16px rgba(0,0,0,.35)}.trIcon.hasActive .trBadge{display:flex}.indIcon{position:absolute;left:12px;top:160px;z-index:60;pointer-events:auto}.indIcon button{width:38px;height:38px;border-radius:999px;background:rgba(0,0,0,.15);display:grid;place-items:center;padding:0;border:2px solid #fff;box-shadow:0 10px 18px rgba(0,0,0,.35)}.indIcon img{width:26px;height:26px;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.35))}.indPanel{position:fixed;left:0;top:54px;bottom:62px;width:50%;max-width:280px;background:rgba(10,22,40,.95);backdrop-filter:blur(8px);border-right:1px solid rgba(255,255,255,.10);z-index:2500;transform:translateX(-100%);transition:transform .25s ease;display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,.4)}.indPanel.on{transform:translateX(0)}.indHead{display:flex;align-items:center;justify-content:space-between;padding:12px;border-bottom:1px solid rgba(255,255,255,.10)}.indHead b{font-size:13px;font-weight:1000}.indClose{width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);color:#d9e6ff;font-weight:1000;font-size:18px;display:grid;place-items:center}.indList{flex:1;overflow:auto;padding:8px}.indItem{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:#d9e6ff;font-weight:1000;font-size:12px;margin:6px 0;transition:all .2s}.indItem:hover{background:rgba(255,255,255,.06)}.indItem.active{background:rgba(24,209,123,.14);border-color:rgba(24,209,123,.55)}.indChk{width:18px;height:18px;border-radius:999px;border:2px solid rgba(255,255,255,.3);display:grid;place-items:center;color:var(--gg);font-size:11px;visibility:hidden}.indItem.active .indChk{visibility:visible;border-color:var(--gg)}.utcClock{position:absolute;right:12px;top:110px;z-index:61;background:transparent;border:0;border-radius:0;padding:0;font-size:11px;font-weight:1000;direction:ltr;text-align:right;box-shadow:none;display:flex;align-items:center;gap:6px}.utcClock .dot{width:6px;height:6px;border-radius:999px;background:#00e676;animation:pulse 2s ease-in-out infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}.utcClock .tz{color:#ffd54f}.utcClock .time{color:#d9e6ff}.candleTimer{position:absolute;background:rgba(0,0,0,.75);color:#ffd54f;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:900;z-index:25;pointer-events:none;border:1px solid rgba(255,215,0,.3)}.iframeWrap{position:fixed;inset:0;z-index:5000;display:none;background:#0b1220}.iframeWrap.on{display:block}.iframeWrap iframe{border:0;width:100%;height:calc(100vh - 116px);margin-top:54px;display:block}.indBar{position:fixed;left:10px;right:10px;top:94px;z-index:99997;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}.indChip{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px);font-weight:1000;font-size:11px;color:#eaf1ff}.indChip .t{opacity:.95}.indChip .del{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#ffd54f;font-size:12px;line-height:1}.indClose{margin-top:10px}@media(max-width:920px){.pairHud{bottom:270px}.ctrlPanel{top:auto;bottom:180px}.trIcon{top:120px}.indIcon{top:170px}.utcClock{top:120px}.indBar{top:94px}}</style>
-<body><div class="wrap"><div class="chartHost"><div class="tc">
-<div class="pairHud" id="pairHud"><span class="flags" id="pairFlags"></span><span id="pairHudTxt">EUR/USD</span><span class="otc" id="otcBadge">OTC</span><span style="opacity:.7">▾</span></div>
-<div class="utcClock" id="utcClock"><div class="dot"></div><div class="tz">UTC: +3:00</div><div class="time" id="utcTime">00:00:00</div></div>
-<div class="trIcon" id="trIcon"><button id="trBtn" title="التداولات"><span class="trBadge" id="trActiveCnt">0</span><img src="https://cdn-icons-png.flaticon.com/128/11529/11529262.png"></button></div>
-<div class="indIcon" id="indIcon"><button id="indBtn" title="المؤشرات"><img src="https://cdn-icons-png.flaticon.com/128/7216/7216457.png"></button></div>
-<div class="indBar" id="indBar"></div>
-<div id="skeleton"></div><canvas id="c"></canvas><div class="candleTimer" id="candleTimer" style="display:none">00:00</div><div class="zoomInd" id="zoomInd">—</div><div class="ps" id="ps"></div><div class="cpl" id="cpl"></div><div class="cpt" id="cpt"></div></div></div>
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#000">
+    <title>EUR/USD Trading Chart</title>
+    <link rel="stylesheet" href="style.css">
 
-<div class="top" id="topBar"><button class="iconBtn" id="notifBtn" title="Notifications"><img src="https://cdn-icons-png.flaticon.com/128/18792/18792951.png"></button><button class="btnI" id="depTop">+ Deposit</button><div style="flex:1"></div><div class="bal"><span class="money" id="balTxt">$0.00</span><span class="live" id="liveTxt">live</span><button class="accBtn" id="accBtn">▾</button><div class="accMenu" id="accMenu"><div class="accTitle">تبديل حساب</div><button class="accOpt" id="optReal"><span>حقيقي</span><span class="chk">✓</span></button><button class="accOpt" id="optDemo"><span>تجريبي</span><span class="chk">✓</span></button><div class="uidRow"><span class="k">User ID</span><span class="v" id="uid">—</span></div></div></div></div>
-<div class="selBar" id="selBar"></div>
+    <!-- Top & Bottom Bars (imported from your provided design) -->
+    <style>
+      :root{
+        --bg-primary:#000;
+        --bg-secondary:#0d1117;
+        --bg-card:#101a2f;
+        --bg-overlay:rgba(10,22,40,.72);
+        --border-primary:rgba(255,255,255,.10);
+        --border-secondary:#1f2937;
+        --text-primary:#fff;
+        --text-secondary:#d9e6ff;
+        --accent-blue:#4299e1;
+        --gg:#00c853;
+        --safeB: env(safe-area-inset-bottom, 0px);
+        --bnH:37.4px;
+        --bnSafe:calc(var(--bnH) + var(--safeB));
+      }
 
-<div class="ctrlPanel" id="ctrlPanel"><div class="ctrlTitle"><b>مقاسات الشارت</b><div class="pills"><button class="pill" id="toggleCtrl">إخفاء</button><button class="pill primary" id="saveGlobal">حفظ عالمي</button><button class="pill" id="resetAll">Reset</button></div></div>
-<div class="card" style="margin-bottom:6px"><div class="row"><div class="lbl">شريط الأسعار</div><div class="val"><span id="pswVal">45</span>px</div></div><div class="ctrl"><button id="pswMinus">-</button><input id="pswInp" inputmode="numeric" value="45"><button id="pswPlus">+</button></div><div class="row" style="margin-top:6px"><div class="lbl">وضع الشفافية</div><div class="val"><button class="pill" id="psToggle" style="padding:6px 10px">Overlay</button></div></div></div>
-<div class="card" style="margin-bottom:6px"><div class="row"><div class="lbl">تثبيت أول شمعة</div><div class="val" id="pinState">OFF</div></div><div class="gridBtns" style="grid-template-columns:1fr 1fr"><button class="gbtn" id="pinFirst">تثبيت</button><button class="gbtn" id="unpinFirst">فصل</button></div></div>
-<div class="gridBtns"><button class="gbtn" id="panL">تحريك <small>◀</small></button><button class="gbtn" id="panR">تحريك <small>▶</small></button><button class="gbtn" id="viewOut">بيانات أكتر <small>−</small></button><button class="gbtn" id="viewIn">بيانات أقل <small>+</small></button><button class="gbtn" id="wDec">عرض شموع <small>−</small></button><button class="gbtn" id="wInc">عرض شموع <small>+</small></button><button class="gbtn" id="spaceDec">تباعد <small>−</small></button><button class="gbtn" id="spaceInc">تباعد <small>+</small></button><button class="gbtn" id="yDec">طول شموع <small>−</small></button><button class="gbtn" id="yInc">طول شموع <small>+</small></button><button class="gbtn" id="compDec">ضغط سعري <small>−</small></button><button class="gbtn" id="compInc">ضغط سعري <small>+</small></button><button class="gbtn" id="gDec">حجم عام <small>−</small></button><button class="gbtn" id="gInc">حجم عام <small>+</small></button><button class="gbtn" id="gridDec">حجم Grid <small>−</small></button><button class="gbtn" id="gridInc">حجم Grid <small>+</small></button></div></div>
+      /* keep existing JS/layout intact; just create room */
+      body{padding-top:50.6px;padding-bottom:var(--bnSafe)}
 
-<!-- NEW TRADING CONTROLS SECTION -->
-<div class="trading-controls">
-<div class="control-row">
-<div class="input-wrapper">
-<button class="ctrl-btn" id="minus">-</button>
-<input class="input-field" value="$ 1" id="amountInput">
-<button class="ctrl-btn" id="plus">+</button>
-</div>
-<div class="input-wrapper" id="timeWrapper">
-<input class="input-field" value="00:01:00" id="timeInput" readonly>
-<div class="timePickerPopup" id="timePickerPopup">
-<div class="timeGrid">
-<button class="timeBtn" data-time="00:00:15">15s</button>
-<button class="timeBtn" data-time="00:00:10">10s</button>
-<button class="timeBtn" data-time="00:00:05">5s</button>
-<button class="timeBtn" data-time="00:02:00">2m</button>
-<button class="timeBtn" data-time="00:01:00">1m</button>
-<button class="timeBtn" data-time="00:00:30">30s</button>
-<button class="timeBtn" data-time="00:15:00">15m</button>
-<button class="timeBtn" data-time="00:10:00">10m</button>
-<button class="timeBtn" data-time="00:05:00">5m</button>
-<button class="timeBtn" data-time="02:00:00">2h</button>
-<button class="timeBtn" data-time="01:00:00">1h</button>
-<button class="timeBtn" data-time="00:30:00">30m</button>
-</div>
-<button class="manualBtn" id="manualBtn">ضبط يدوياً</button>
-</div>
-</div>
-</div>
-</div>
+      .top-bar{position:fixed;top:0;right:0;left:0;display:flex;justify-content:space-between;align-items:center;padding:6.6px 8.8px;background:var(--bg-primary);height:50.6px;z-index:2600;border-bottom:1px solid var(--border-primary)}
+      .balance{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--bg-card) 0%,var(--bg-secondary) 100%);border:1.5px solid var(--border-primary);border-radius:12px;padding:8px 12px;cursor:pointer;position:relative;transition:.2s;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:2601;min-width:190px}
+      .balanceMain{display:flex;align-items:center;gap:7px;flex:1;min-width:0}
+      .balance-amount{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .arrow-down{width:14px;height:14px;margin-right:2px;transition:transform .2s}
+      .balance.open .arrow-down{transform:rotate(180deg)}
+      .flag-icon{width:20px;height:14px;border-radius:3px;box-shadow:0 2px 4px rgba(0,0,0,.3)}
 
-<div class="tradeDock">
-<div class="trading-buttons">
-<button class="trade-btn trade-higher" id="buy">
-<svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-<path d="M7 14l5-5 5 5z"></path>
-</svg>
-<span>شراء</span>
-</button>
-<button class="trade-btn trade-lower" id="sell">
-<svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-<path d="M7 10l5 5 5-5z"></path>
-</svg>
-<span>بيع</span>
-</button>
-</div>
-</div>
+      .accMenu{position:fixed;top:58px;right:8.8px;width:240px;background:linear-gradient(145deg,var(--bg-card) 0%,var(--bg-secondary) 100%);border:2px solid var(--border-primary);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05) inset;padding:10px;z-index:99999;display:none}
+      .accMenu.show{display:block}
+      .accSwitch{display:flex;gap:8px;background:var(--bg-secondary);border-radius:10px;padding:4px;margin-bottom:12px}
+      .accSwitchBtn{flex:1;padding:8px;border-radius:8px;font-size:11px;font-weight:900;transition:.2s;border:1.5px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:#fff}
+      .accSwitchBtn.live{color:#00ff41}
+      .accSwitchBtn.demo{color:#ffd700}
+      .accSwitchBtn.active{background:rgba(255,255,255,.1);border-color:currentColor}
+      .accItem{background:rgba(255,255,255,.03);border:1.3px solid var(--border-primary);border-radius:12px;padding:10px 12px;margin-bottom:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .accItem.active{background:linear-gradient(135deg,rgba(66,153,225,.15) 0%,rgba(49,130,206,.1) 100%);border-color:var(--accent-blue);box-shadow:0 0 12px rgba(66,153,225,.2)}
+      .accL{display:flex;align-items:center;gap:10px;min-width:0}
+      .accIco{width:22px;height:22px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+      .accAmt{font-size:16px;font-weight:1000;color:var(--text-primary);white-space:nowrap}
+      .refillBtn{width:100%;background:linear-gradient(135deg,var(--accent-blue) 0%,#3182ce 100%);border-radius:10px;padding:10px;font-size:12px;font-weight:1000;color:var(--text-primary);letter-spacing:.5px;box-shadow:0 4px 12px rgba(66,153,225,.4)}
 
-<div class="bottomBar"><div class="bbItem" data-page="chart"><img src="https://cdn-icons-png.flaticon.com/128/304/304666.png"><div>شارت</div></div><div class="bbItem" data-page="leaderboard"><img src="https://cdn-icons-png.flaticon.com/128/9319/9319051.png"><div>صدارة</div></div><div class="bbItem" data-page="profile"><img src="https://cdn-icons-png.flaticon.com/128/3033/3033143.png"><div>بروفايل</div></div><div class="bbItem" data-page="contests"><img src="https://cdn-icons-png.flaticon.com/128/3103/3103218.png"><div>مسابقات</div></div><div class="bbItem" data-page="settings"><img src="https://cdn-icons-png.flaticon.com/128/3524/3524659.png"><div>اعدادات</div></div></div>
+      .top-icons{display:flex;gap:6.6px;position:absolute;left:8.8px;top:6.6px;z-index:2602}
+      .icon-box{width:36.3px;height:36.3px;display:flex;align-items:center;justify-content:center;border-radius:10px;overflow:hidden;cursor:pointer;transition:.2s;background:var(--bg-secondary);border:1.1px solid var(--border-secondary)}
+      .icon-box img{width:100%;height:100%;object-fit:cover;display:block}
+      .icon-box.green-box{background:linear-gradient(135deg,#00ff41 0%,#00cc33 100%);border-color:#00ff41;box-shadow:0 0 12px rgba(0,255,65,.4)}
 
-<div class="ov" id="pairOv"><div class="ovBox" role="dialog" aria-modal="true"><div class="ovHead"><b>العملات</b><button class="ovClose" id="ovClose">×</button></div><div class="ovCols"><span>العملات</span><span>الإيراد</span></div><div class="ovList" id="ovList"></div></div></div>
+      .bottom-nav{position:fixed;bottom:0;left:0;width:100%;height:var(--bnSafe);display:flex;justify-content:space-around;align-items:center;background:var(--bg-primary);border-top:1.1px solid var(--border-primary);z-index:2000;padding-bottom:var(--safeB)}
+      .nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2px;cursor:pointer;flex:1;height:100%}
+      .nav-icon{width:24.2px;height:24.2px;object-fit:contain;filter:contrast(1.25) brightness(1.2) drop-shadow(0 6.6px 13.2px rgba(0,0,0,.35))}
+      .nav-item.active .nav-icon{filter:contrast(1.35) brightness(1.28) drop-shadow(0 0 7.7px rgba(255,255,255,.25))}
+    </style>
+</head>
+<body>
+    <!-- الشريط العلوي (Top Bar) -->
+    <div class="top-bar">
+      <div class="balance" id="balanceBox">
+        <div class="balanceMain">
+          <img class="flag-icon" id="topAccIcon" src="https://cdn-icons-png.flaticon.com/128/1344/1344761.png" alt="account">
+          <span class="balance-amount" id="balTxt">$10,000.00</span>
+        </div>
+        <svg class="arrow-down" viewBox="0 0 24 24" fill="#888" aria-hidden="true"><path d="M7 10l5 5 5-5z"></path></svg>
 
-<div class="indPanel" id="indPanel"><div class="indHead"><b>المؤشرات</b><button class="indClose" id="indClose">×</button></div>
-<div class="indList">
-<button class="indItem" data-ind="sma"><span>SMA</span><span class="indChk">✓</span></button>
-<button class="indItem" data-ind="trend"><span>Trend Line</span><span class="indChk">✓</span></button>
-<button class="indItem" data-ind="ma"><span>Moving Average</span><span class="indChk">✓</span></button>
-<button class="indItem" data-ind="bb"><span>Bollinger Bands</span><span class="indChk">✓</span></button>
-</div></div>
+        <div class="accMenu" id="accMenu">
+          <div class="accSwitch">
+            <button class="accSwitchBtn live" data-acc="real" type="button">LIVE</button>
+            <button class="accSwitchBtn demo active" data-acc="demo" type="button">Demo</button>
+          </div>
 
-<div class="toast" id="toast"></div>
-<div class="trSheet" id="trSheet" aria-hidden="true"><div class="trHead"><div class="ttl"><span class="b" id="trCnt2">0</span><b>التداولات</b></div><div class="date" id="trDate">—</div></div><div class="trList" id="trList"></div></div>
-<div class="iframeWrap" id="iframeWrap"><iframe id="pageFrame" src=""></iframe></div></div>
+          <div class="accItem" data-type="real">
+            <div class="accL">
+              <img class="accIco" src="https://flagcdn.com/w40/us.png" alt="USD">
+              <div class="accAmt" id="realAmt">$0.00</div>
+            </div>
+          </div>
 
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import{getFirestore,collection,addDoc,query,orderBy,getDocs,limit,doc,setDoc,getDoc,onSnapshot}from"https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
-addEventListener("error",e=>console.error("JS Error:",e.error||e.message));
-addEventListener("unhandledrejection",e=>{console.error("Promise Rejection:",e.reason);e.preventDefault&&e.preventDefault()});
-const $=i=>document.getElementById(i),toast=m=>{const t=$("toast");if(!t)return;clearTimeout(window.__to);t.textContent=m;t.classList.add("on");window.__to=setTimeout(()=>t.classList.remove("on"),2200)},
-getBal=()=>parseFloat(localStorage.getItem("balance")||"0"),
-setBal=v=>{localStorage.setItem("balance",String(v));balTxt.textContent="$"+Number(v).toFixed(2)};
-const toSec=s=>{const m=String(s).match(/(\d{2}):(\d{2}):(\d{2})/);return m?(+m[1]*3600+ +m[2]*60+ +m[3]):60},
-clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
-const PSW_KEY="psWidth",PSM_KEY="psMode";
-const psClamp=v=>Math.max(18,Math.min(120,Number(v)||45));
-const setPS=(w,mode)=>{w=psClamp(w);document.documentElement.style.setProperty("--psw",w+"px");localStorage.setItem(PSW_KEY,String(w));$("pswVal").textContent=String(w);$("pswInp").value=String(w);
-if(mode==null)mode=+(localStorage.getItem(PSM_KEY)||"1");mode=mode?1:0;document.documentElement.dataset.psmode=String(mode);localStorage.setItem(PSM_KEY,String(mode));
-const b=$("psToggle");if(b)b.textContent=mode?"Overlay":"Bar";if(window.chart&&chart.setup){chart.setup();}};
-let db=null,fbOK=1;
-try{const app=initializeApp({apiKey:"AIzaSyA-MK1RYmvpYJrTOBAQcxDqxhp-z_FOb1o",authDomain:"mzjsjjshs.firebaseapp.com",projectId:"mzjsjjshs",storageBucket:"mzjsjjshs.firebasestorage.app",messagingSenderId:"944370558426",appId:"1:944370558426:web:70d4ee772c487f48b58ce3"});db=getFirestore(app)}
-catch(e){fbOK=0;console.error(e);toast("Firebase غير متاح.. وضع محلي");}
-const flagMap={AED:"ae",CNY:"cn",AUD:"au",CAD:"ca",CHF:"ch",BHD:"bh",EUR:"eu",RUB:"ru",USD:"us",KES:"ke",LBP:"lb",QAR:"qa",TRY:"tr",SYP:"sy",EGP:"eg",INR:"in"};
-const mkFlag=c=>`https://flagcdn.com/w40/${flagMap[c]||"un"}.png`;
-const pairId=p=>String(p).replace("/","_");
-const fmtPct=p=>(Math.round((Number(p)||0)*100)+"%");
-const defaultPairs=[{pair:"AED/CNY",otc:1,payout:.91,flags:["AED","CNY"]},{pair:"AUD/CAD",otc:1,payout:.88,flags:["AUD","CAD"]},{pair:"AUD/CHF",otc:1,payout:.92,flags:["AUD","CHF"]},{pair:"BHD/CNY",otc:1,payout:.86,flags:["BHD","CNY"]},{pair:"EUR/RUB",otc:1,payout:.77,flags:["EUR","RUB"]},{pair:"EUR/USD",otc:1,payout:.92,flags:["EUR","USD"]},{pair:"KES/USD",otc:1,payout:.84,flags:["KES","USD"]},{pair:"LBP/USD",otc:1,payout:.79,flags:["LBP","USD"]},{pair:"QAR/CNY",otc:1,payout:.83,flags:["QAR","CNY"]},{pair:"USD/CHF",otc:1,payout:.89,flags:["USD","CHF"]},{pair:"SYP/TRY",otc:1,payout:.87,flags:["SYP","TRY"]},{pair:"EGP/USD",otc:1,payout:.78,flags:["EGP","USD"]},{pair:"USD/INR",otc:1,payout:.90,flags:["USD","INR"]}];
-const state={pairs:new Map(),fav:new Set(JSON.parse(localStorage.getItem("favPairs")||"[]")),indicators:new Set()};
-const saveFav=()=>localStorage.setItem("favPairs",JSON.stringify([...state.fav]));
-const setLocalPairs=()=>{state.pairs.clear();defaultPairs.forEach(x=>state.pairs.set(x.pair,x))};
+          <div class="accItem active" data-type="demo">
+            <div class="accL">
+              <img class="accIco" src="https://cdn-icons-png.flaticon.com/128/1344/1344761.png" alt="Demo">
+              <div class="accAmt" id="demoAmt">$10,000.00</div>
+            </div>
+          </div>
 
-function renderOverlay(){
-const ov=$("ovList");if(!ov)return;
-const arr=[...state.pairs.values()].sort((a,b)=>{const fa=state.fav.has(a.pair)?1:0,fb=state.fav.has(b.pair)?1:0;if(fa!==fb)return fb-fa;return a.pair.localeCompare(b.pair)});
-ov.innerHTML=arr.map(x=>{const[a,b]=String(x.pair).split("/");const star=state.fav.has(x.pair)?"★":"☆";
-return`<button class="it" data-p="${x.pair}"><span class="l"><span class="star" data-s="1">${star}</span><span class="fg"><img src="${mkFlag(a)}" onerror="this.src='https://flagcdn.com/w40/un.png'"><img src="${mkFlag(b)}" onerror="this.src='https://flagcdn.com/w40/un.png'"></span><span class="nm">${x.pair}<span class="bad">OTC</span></span></span><span class="r">+${fmtPct(x.payout)}</span></button>`}).join("")}
+          <button class="refillBtn" id="refillBtn" type="button">🔄 Refill Demo Account</button>
+        </div>
+      </div>
 
-async function seedPairsFS(){if(!fbOK)return;
-for(const x of defaultPairs){try{await setDoc(doc(db,"pairs",pairId(x.pair)),{...x,updatedAt:Date.now()},{merge:true})}catch(e){console.error(e);toast("لا يمكن كتابة pairs في Firebase");return}}}
+      <div class="top-icons">
+        <div class="icon-box green-box"><img src="https://cdn-icons-png.flaticon.com/128/10167/10167706.png" alt="icon"></div>
+        <div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/128/18921/18921105.png" alt="icon"></div>
+      </div>
+    </div>
 
-function hookPairsRealtime(){
-if(!fbOK){setLocalPairs();renderOverlay();return}
-try{onSnapshot(collection(db,"pairs"),snap=>{state.pairs.clear();snap.forEach(d=>{const v=d.data();if(v&&v.pair)state.pairs.set(v.pair,v)});
-if(!state.pairs.size){setLocalPairs();toast("pairs فارغة.. تم استخدام الافتراضي")}
-renderOverlay()},err=>{console.error(err);toast("فشل قراءة pairs.. وضع محلي");setLocalPairs();renderOverlay()})}
-catch(e){console.error(e);toast("Realtime فشل.. وضع محلي");setLocalPairs();renderOverlay()}}
+    <!-- شاشة التحميل -->
+    <div id="sk" class="on"></div>
 
-const skShow=()=>{let sk=$("skeleton");if(!sk){sk=document.createElement("div");sk.id="skeleton";document.querySelector(".tc").prepend(sk)}sk.classList.remove("skfade")};
-const skHide=()=>{const sk=$("skeleton");if(!sk)return;sk.classList.add("skfade");setTimeout(()=>sk.remove(),190)};
+    <!-- حاوية الشارت الرئيسية -->
+    <div class="chartWrap">
+        <div class="chartFrame">
+            <div class="tc">
+                <!-- خط المنتصف -->
+                <div class="centerLine"></div>
 
-const BASE={volatility:.0008,trend:.00005};
-const pairData={"EUR/USD":{price:1.0895,seed:33333,digits:5},"USD/TRY":{price:1.0922,seed:33377,digits:5},"SYP/TRY":{price:1.0868,seed:33411,digits:5},"EGP/USD":{price:1.091,seed:33555,digits:5}};
-const defUI=()=>({gZoom:1,viewZoom:1,spacingMul:1,candleMul:1,priceZoom:1,priceComp:1,pan:0,ctrl:1,gridSize:50,gridOffX:0,gridOffY:0});
-const clampUI=u=>({gZoom:u.gZoom,viewZoom:u.viewZoom,spacingMul:u.spacingMul,candleMul:u.candleMul,priceZoom:u.priceZoom,priceComp:u.priceComp,pan:u.pan,ctrl:u.ctrl?1:0,gridSize:u.gridSize||50,gridOffX:u.gridOffX||0,gridOffY:u.gridOffY||0});
-const updatePairFlags=(pair,container)=>{const meta=state.pairs.get(pair)||defaultPairs.find(x=>x.pair===pair);if(!meta)return;const flags=meta.flags||String(pair).split("/");container.innerHTML=flags.map(c=>`<img src="${mkFlag(c)}" onerror="this.src='https://flagcdn.com/w40/un.png'">`).join("")};
+                <!-- معلومات الزوج -->
+                <div class="pair-box" id="pairHud">
+                    <span id="pairHudTxt">EUR/USD</span>
+                    <span class="otc" id="otcHud">OTC</span>
+                    <span class="flags" id="pairFlags"></span>
+                    <span style="opacity:.7">▾</span>
+                </div>
 
-const IND_NAMES={sma:"SMA",ma:"Moving Average",trend:"Trend Line",bb:"Bollinger Bands"};
-const indBar=$("indBar");
-const renderIndBar=()=>{
-if(!indBar)return;
-indBar.innerHTML=[...state.indicators].map(k=>`<span class="indChip" data-k="${k}"><span class="t">${IND_NAMES[k]||k}</span><button class="del" data-del="1" title="حذف">🗑</button></span>`).join("");
-};
-indBar.onclick=e=>{
-const chip=e.target.closest(".indChip");if(!chip)return;
-if(e.target&&e.target.getAttribute&&e.target.getAttribute("data-del")){
-const k=chip.getAttribute("data-k");
-state.indicators.delete(k);
-document.querySelectorAll(".indItem").forEach(it=>it.getAttribute("data-ind")===k&&it.classList.remove("active"));
-if(k==="trend"&&window.chart){chart.trendLines=[];chart.dragLine=null;chart.dragHandle=null}
-toast("تم حذف المؤشر");renderIndBar();
-}};
+                <!-- الشارت (Canvas) -->
+                <canvas id="c"></canvas>
 
-class Chart{
-constructor(pair){
-this.cv=$("c");this.ctx=this.cv.getContext("2d");this.host=this.cv.closest(".tc");
-this.cs=[];this.cc=null;this.baseSpacing=12;this.baseCandleWidth=8;
-this.drag=0;this.dragStartX=0;this.dragStartScroll=0;this.manualScrollOffset=0;this.autoScroll=true;
-this.tf=6e4;this.t0=Math.floor(Date.now()/6e4)*6e4;this.xPadB=0;
-this.ui=defUI();this.tradeMarkers=[];
-this.gridAnimFrame=0;this.targetGridSize=50;this.currentGridSize=50;this.gridOffX=0;this.gridOffY=0;
-this.trendLines=[];this.dragLine=null;this.dragHandle=null;
-this.pinch=0;this.p0=0;this.pMid=0;this.pStartUI=null;
-this.pinFirst=0;
-this.setPair(pair,1);this.setup();this.ev();this.boot()
-}
-setPair(pair,init){
-const pd=pairData[pair]||{price:1.0,seed:Math.floor(Math.random()*9e5)+1,digits:5};pairData[pair]=pd;
-this.pair=pair;this.d={...BASE,...pd};this.key=pair.replace("/","_");this.candlesCol="candles_"+this.key;
-this.cp=this.d.price;this.priceRange={min:this.d.price*.95,max:this.d.price*1.05};
-if(!init){$("pairHudTxt").textContent=pair;updatePairFlags(pair,$("pairFlags"))}
-}
-setup(){
-const dpr=devicePixelRatio||1,rect=this.host.getBoundingClientRect(),psw=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--psw"))||45;
-this.w=Math.max(0,rect.width-psw);this.h=Math.max(0,rect.height);
-this.cv.width=Math.floor(this.w*dpr);this.cv.height=Math.floor(this.h*dpr);
-this.cv.style.width=this.w+"px";this.cv.style.height=this.h+"px";this.ctx.setTransform(dpr,0,0,dpr,0,0)
-}
-applyUI(u){
-this.ui=clampUI({...this.ui,...u});this.zoomLevel=this.ui.gZoom;this.viewZoom=this.ui.viewZoom;
-this.spacingMultiplier=this.ui.spacingMul*this.viewZoom;this.candleWidthMultiplier=this.ui.candleMul*this.viewZoom;
-this.priceZoom=this.ui.priceZoom;this.priceCompression=this.ui.priceComp;this.manualScrollOffset=this.ui.pan;
-this.targetGridSize=this.ui.gridSize||50;this.gridOffX=this.ui.gridOffX||0;this.gridOffY=this.ui.gridOffY||0;
-this.autoScroll=false;
-$("zoomInd").textContent="G:"+this.zoomLevel.toFixed(2)+" V:"+this.viewZoom.toFixed(2)+" Grid:"+Math.round(this.currentGridSize);
-$("zoomInd").classList.add("show");clearTimeout(this._zT);this._zT=setTimeout(()=>$("zoomInd").classList.remove("show"),650)
-}
-getSpacing(){return this.baseSpacing*this.zoomLevel*this.spacingMultiplier}
-getCandleWidth(){return Math.max(1,this.baseCandleWidth*this.zoomLevel*this.candleWidthMultiplier)}
-getMinScrollOffset(){return 0}
-snapToLive(){this.autoScroll=true;this.manualScrollOffset=this.getMinScrollOffset()}
-getScrollOffset(){return this.autoScroll?(this.manualScrollOffset=this.getMinScrollOffset(),this.manualScrollOffset):this.manualScrollOffset}
-getPinShift(){if(!this.pinFirst||!this.cs.length)return 0;return-(this.getScrollOffset())}
-indexToX(i){return this.getScrollOffset()+this.getPinShift()+i*this.getSpacing()}
-xToIndex(x){return(x-(this.getScrollOffset()+this.getPinShift()))/this.getSpacing()}
-rnd(s){const x=Math.sin(s)*1e4;return x-Math.floor(x)}
-gen(t,b){
-const s=this.d.seed+Math.floor(t/this.tf),r1=this.rnd(s),r2=this.rnd(s+1),r3=this.rnd(s+2),r4=this.rnd(s+3),
-o=b==null?this.cp:b,v=this.d.volatility*(.8+r1*1.4),tr=this.d.trend*(r2-.5)*2,dir=r3>.5?1:-1,ch=dir*v+tr,c=o+ch,hm=v*(.4*r4),lm=v*(.4*(1-r4)),dg=this.d.digits;
-return{open:+o.toFixed(dg),close:+c.toFixed(dg),high:+Math.max(o,c,o+hm,c+hm).toFixed(dg),low:+Math.min(o,c,o-lm,c-lm).toFixed(dg),timestamp:t}
-}
-getPriceRange(){
-const c=(this.priceRange.min+this.priceRange.max)/2,hr=((this.priceRange.max-this.priceRange.min)/2)/(this.priceZoom*this.priceCompression);
-return{min:c-hr,max:c+hr}
-}
-priceToY(p){
-const r=this.getPriceRange(),n=(p-r.min)/(r.max-r.min);return(this.h-this.xPadB)*(1-n)
-}
-updatePriceRange(){
-let v=[...this.cs];this.cc&&v.push(this.cc);if(!v.length){this.priceRange={min:this.d.price*.95,max:this.d.price*1.05};return}
-const s=Math.floor(this.xToIndex(0)),e=Math.ceil(this.xToIndex(this.w)),vis=v.slice(Math.max(0,s-5),Math.min(v.length,e+5));
-if(!vis.length){this.priceRange={min:this.d.price*.95,max:this.d.price*1.05};return}
-const lows=vis.map(x=>x.low),highs=vis.map(x=>x.high),mn=Math.min(...lows),mx=Math.max(...highs),pad=(mx-mn)*.15||1e-9;
-this.priceRange={min:mn-pad,max:mx+pad}
-}
-niceStep(r){const p=[1,2,5,10],x=Math.pow(10,Math.floor(Math.log10(r||1))),f=r/x;return(p.find(v=>f<=v)||10)*x}
-updatePriceScale(){
-ps.innerHTML="";const r=this.getPriceRange(),span=r.max-r.min,lines=11,step=this.niceStep(span/lines),start=Math.floor(r.min/step)*step;
-for(let p=start;p<=r.max+step;p+=step){
-const y=this.priceToY(p);if(y<-20||y>(this.h-this.xPadB)+20)continue;
-const lb=document.createElement("div");lb.className="pl";lb.style.top=y+"px";lb.textContent=p.toFixed(this.d.digits);ps.appendChild(lb)
-}}
-updateCurrentPriceLine(){
-const y=this.priceToY(this.cp);cpl.style.top=y+"px";cpt.style.top=y+"px";cpt.textContent=this.cp.toFixed(this.d.digits)
-}
-updateCandleTimer(){
-const ct=$("candleTimer");if(!ct)return;const now=Date.now(),el=now-this.t0,left=Math.max(0,Math.ceil((this.tf-el)/1000));
-const m=Math.floor(left/60),s=left%60;ct.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-if(this.cc){const x=this.indexToX(this.cs.length),y=this.priceToY(this.cc.close);
-if(x>=-60&&x<=this.w+60){ct.style.left=Math.max(10,Math.min(this.w-60,x-20))+"px";ct.style.top=Math.max(10,Math.min(this.h-30,y-25))+"px";ct.style.display="block"}else ct.style.display="none"}
-else ct.style.display="none"
-}
-async saveCandle(cd){if(!fbOK)return;try{await addDoc(collection(db,this.candlesCol),cd)}catch(e){console.error(e)}}
-async loadCandles(){
-this.cs=[];this.cc=null;this.cp=this.d.price;if(!fbOK)return;
-try{const qy=query(collection(db,this.candlesCol),orderBy("timestamp","asc"),limit(1e3)),sn=await getDocs(qy);
-sn.forEach(d=>this.cs.push(d.data()));this.cs.length&&(this.cp=this.cs.at(-1).close)}catch(e){console.error(e)}
-}
-async initCandleGeneration(){
-if(!fbOK)return;const now=Date.now();
-if(!this.cs.length){
-const startTime=Math.floor(now/this.tf)*this.tf-this.tf*100;let base=this.d.price;
-for(let i=0;i<100;i++){const t=startTime+i*this.tf;const cd=this.gen(t,base);this.cs.push(cd);await this.saveCandle(cd);base=cd.close}
-this.cp=base;toast("✅ تم إنشاء 100 شمعة ابتدائية");return}
-const last=this.cs.at(-1);if(!last)return;
-const expectedNext=last.timestamp+this.tf;const gapMs=now-expectedNext;if(gapMs<this.tf)return;
-const gapCount=Math.floor(gapMs/this.tf);let base=last.close;const batchSize=Math.min(gapCount,200);
-for(let i=0;i<batchSize;i++){
-const t=last.timestamp+(i+1)*this.tf;const cd=this.gen(t,base);this.cs.push(cd);await this.saveCandle(cd);base=cd.close;
-if(i%20===0)await new Promise(r=>setTimeout(r,50))}
-this.cp=base;this.cs=this.cs.slice(-1000);toast(`✅ تم ملء ${batchSize} شمعة`)
-}
-updateCurrentCandle(){
-if(!this.cc){const lp=this.cs.length?this.cs.at(-1).close:this.cp;this.cc=this.gen(this.t0,lp);return}
-const seed=this.d.seed+Date.now(),r=this.rnd(seed),cr=this.d.volatility*.3,ch=(r-.5)*cr,nc=+(this.cc.close+ch).toFixed(this.d.digits);
-this.cc.close=nc;this.cc.high=+Math.max(this.cc.high,nc+r*cr*.3).toFixed(this.d.digits);this.cc.low=+Math.min(this.cc.low,nc-(1-r)*cr*.3).toFixed(this.d.digits);
-this.cp=nc;
-this.tradeMarkers.forEach(m=>{if(m.settled)return;const cp=nc,op=m.entryPrice;m.currentPrice=cp;
-m.currentPL=(m.dir==="buy")?(cp>op?m.amount*.9:cp<op?-m.amount:0):(cp<op?m.amount*.9:cp>op?-m.amount:0)})
-}
-async tick(){
-if(!this.on)return;
-const now=Date.now(),el=now-this.t0;
-if(el>=this.tf){
-this.cc&&(this.cs.push(this.cc),this.saveCandle(this.cc),this.cs.length>1e3&&this.cs.shift(),this.updatePriceRange());
-this.t0=Math.floor(now/6e4)*6e4;const lp=this.cc?this.cc.close:this.cp;this.cc=this.gen(this.t0,lp)
-}else this.updateCurrentCandle();
-this.updatePriceRange();this.updatePriceScale();this.updateCurrentPriceLine();this.updateCandleTimer();
-setTimeout(()=>this.tick(),200)
-}
-animateGrid(){
-const diff=this.targetGridSize-this.currentGridSize;
-if(Math.abs(diff)<.1){this.currentGridSize=this.targetGridSize;this.gridAnimFrame=0;return}
-this.currentGridSize+=diff*.15;this.gridAnimFrame=requestAnimationFrame(()=>this.animateGrid())
-}
-drawGrid(){
-if(!this.gridAnimFrame&&Math.abs(this.targetGridSize-this.currentGridSize)>.1)this.animateGrid();
-const gs=Math.max(6,this.currentGridSize*this.zoomLevel*this.viewZoom);
-this.ctx.strokeStyle="rgba(255,255,255,.12)";this.ctx.lineWidth=1;
-const offX=(this.gridOffX)%gs,offY=(this.gridOffY)%gs;
-for(let x=offX;x<this.w;x+=gs){this.ctx.beginPath();this.ctx.moveTo(x,0);this.ctx.lineTo(x,this.h);this.ctx.stroke()}
-for(let y=offY;y<this.h;y+=gs){this.ctx.beginPath();this.ctx.moveTo(0,y);this.ctx.lineTo(this.w,y);this.ctx.stroke()}
-}
-drawCandle(cd,x,live){
-const o=this.priceToY(cd.open),cl=this.priceToY(cd.close),hi=this.priceToY(cd.high),lo=this.priceToY(cd.low),bull=cd.close>=cd.open,col=bull?"#00e676":"#ff1744",w=this.getCandleWidth();
-this.ctx.strokeStyle=col;this.ctx.lineWidth=Math.max(1,w*.18);
-this.ctx.beginPath();this.ctx.moveTo(x,hi);this.ctx.lineTo(x,lo);this.ctx.stroke();
-const bh=Math.max(1,Math.abs(cl-o)),bt=Math.min(o,cl);
-this.ctx.fillStyle=col;live&&(this.ctx.shadowColor=col,this.ctx.shadowBlur=7);
-this.ctx.fillRect(x-w/2,bt,w,bh);live&&(this.ctx.shadowBlur=0)
-}
-_calcSMA(i,period){
-if(i<period-1)return null;let sum=0;
-for(let j=0;j<period;j++)sum+=this.cs[i-j].close;
-return sum/period
-}
-_calcSTD(i,period,mean){
-if(i<period-1)return null;let sum=0;
-for(let j=0;j<period;j++){const d=this.cs[i-j].close-mean;sum+=d*d}
-return Math.sqrt(sum/period)
-}
-drawIndicators(){
-if(state.indicators.has("sma")){
-this.ctx.strokeStyle="rgba(255,159,42,.8)";this.ctx.lineWidth=2;this.ctx.beginPath();let first=true;const period=20;
-for(let i=period-1;i<this.cs.length;i++){
-const avg=this._calcSMA(i,period);if(avg==null)continue;
-const x=this.indexToX(i),y=this.priceToY(avg);if(x<-60||x>this.w+60)continue;
-first?(this.ctx.moveTo(x,y),first=false):this.ctx.lineTo(x,y)}
-this.ctx.stroke()
-}
-if(state.indicators.has("ma")){
-this.ctx.strokeStyle="rgba(100,150,255,.8)";this.ctx.lineWidth=2;this.ctx.beginPath();let first=true;const period=50;
-for(let i=period-1;i<this.cs.length;i++){
-const avg=this._calcSMA(i,period);if(avg==null)continue;
-const x=this.indexToX(i),y=this.priceToY(avg);if(x<-60||x>this.w+60)continue;
-first?(this.ctx.moveTo(x,y),first=false):this.ctx.lineTo(x,y)}
-this.ctx.stroke()
-}
-if(state.indicators.has("bb")){
-const period=20,k=2;
-this.ctx.lineWidth=2;
-let firstM=true,firstU=true,firstL=true;
-const colM="rgba(255,255,255,.75)",colB="rgba(255,213,79,.85)",fill="rgba(255,213,79,.10)";
-const ptsM=[],ptsU=[],ptsL=[];
-for(let i=period-1;i<this.cs.length;i++){
-const m=this._calcSMA(i,period);if(m==null)continue;
-const sd=this._calcSTD(i,period,m);if(sd==null)continue;
-const u=m+k*sd,l=m-k*sd;
-const x=this.indexToX(i);
-if(x<-80||x>this.w+80)continue;
-ptsM.push([x,this.priceToY(m)]);
-ptsU.push([x,this.priceToY(u)]);
-ptsL.push([x,this.priceToY(l)]);
-}
-if(ptsU.length>2&&ptsL.length>2){
-this.ctx.beginPath();
-for(let i=0;i<ptsU.length;i++){const [x,y]=ptsU[i];i?this.ctx.lineTo(x,y):this.ctx.moveTo(x,y)}
-for(let i=ptsL.length-1;i>=0;i--){const [x,y]=ptsL[i];this.ctx.lineTo(x,y)}
-this.ctx.closePath();this.ctx.fillStyle=fill;this.ctx.fill();
-}
-this.ctx.strokeStyle=colM;this.ctx.beginPath();
-ptsM.forEach(([x,y],i)=>{i?this.ctx.lineTo(x,y):this.ctx.moveTo(x,y)});this.ctx.stroke();
-this.ctx.strokeStyle=colB;this.ctx.beginPath();
-ptsU.forEach(([x,y],i)=>{i?this.ctx.lineTo(x,y):this.ctx.moveTo(x,y)});this.ctx.stroke();
-this.ctx.strokeStyle=colB;this.ctx.beginPath();
-ptsL.forEach(([x,y],i)=>{i?this.ctx.lineTo(x,y):this.ctx.moveTo(x,y)});this.ctx.stroke();
-}
-}
-drawTrendLines(){
-this.trendLines.forEach(line=>{
-this.ctx.strokeStyle=line.color||"#ffd700";this.ctx.lineWidth=2;
-this.ctx.setLineDash([]);this.ctx.beginPath();this.ctx.moveTo(line.x1,line.y1);this.ctx.lineTo(line.x2,line.y2);this.ctx.stroke();
-this.ctx.fillStyle="#ffd700";this.ctx.strokeStyle="#000";this.ctx.lineWidth=2;
-const drawH=(x,y)=>{this.ctx.beginPath();this.ctx.arc(x,y,6,0,Math.PI*2);this.ctx.fill();this.ctx.stroke()};
-drawH(line.x1,line.y1);drawH(line.x2,line.y2);
-})
-}
-drawTradeMarkers(){
-this.tradeMarkers=this.tradeMarkers.filter(m=>!m.settled);
-this.tradeMarkers.forEach(m=>{
-const y=this.priceToY(m.entryPrice),x=this.indexToX(m.candleIndex);
-if(x<-100||x>this.w+100)return;const col=m.dir==="buy"?"#2ecc71":"#e74c3c";
-this.ctx.save();this.ctx.strokeStyle=col;this.ctx.lineWidth=2;
-this.ctx.beginPath();this.ctx.moveTo(Math.max(0,x-40),y);this.ctx.lineTo(Math.min(this.w,x+200),y);this.ctx.stroke();
-this.ctx.fillStyle=col;this.ctx.font="900 16px Arial";this.ctx.textAlign="center";this.ctx.textBaseline="middle";
-this.ctx.fillText(m.dir==="buy"?"▲":"▼",x,y);this.ctx.restore()
-})
-}
-draw(){
-this.ctx.clearRect(0,0,this.w,this.h);
-this.drawGrid();
-this.drawIndicators();
-for(let i=0;i<this.cs.length;i++){const x=this.indexToX(i);if(x<-60||x>this.w+60)continue;this.drawCandle(this.cs[i],x,0)}
-if(this.cc){const x=this.indexToX(this.cs.length);x>=-60&&x<=this.w+60&&this.drawCandle(this.cc,x,1)}
-this.drawTrendLines();
-this.drawTradeMarkers()
-}
-loop(){this.on&&(this.draw(),requestAnimationFrame(()=>this.loop()))}
-ev(){
-addEventListener("resize",()=>this.setup());
-this.cv.addEventListener("wheel",e=>{e.preventDefault();
-const r=this.cv.getBoundingClientRect(),mx=e.clientX-r.left,f=e.deltaY<0?1.08:1/1.08;
-this.applyUI({viewZoom:this.viewZoom*f,gZoom:this.zoomLevel*f,priceZoom:this.priceZoom*f});
-const i=this.xToIndex(mx),nx=this.indexToX(i);this.manualScrollOffset+=mx-nx;this.ui.pan=this.manualScrollOffset},{passive:false});
-const down=x=>{this.drag=1;this.dragStartX=x;this.dragStartScroll=this.manualScrollOffset;this.autoScroll=false};
-const move=x=>{this.drag&&(this.manualScrollOffset=this.dragStartScroll+(x-this.dragStartX),this.ui.pan=this.manualScrollOffset)};
-const up=()=>this.drag=0;
+                <!-- مؤقت الشمعة -->
+                <div class="candleTimer" id="candleTimer">59</div>
 
-const hitHandle=(mx,my,line)=>{
-const d1=Math.hypot(mx-line.x1,my-line.y1),d2=Math.hypot(mx-line.x2,my-line.y2);
-if(d1<12)return"start";if(d2<12)return"end";return null
-};
+                <!-- مقياس السعر -->
+                <div class="ps" id="ps"></div>
 
-this.cv.addEventListener("mousedown",e=>{
-const r=this.cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-if(state.indicators.has("trend")){
-for(const line of this.trendLines){const h=hitHandle(mx,my,line);if(h){this.dragLine=line;this.dragHandle=h;return}}
-this.dragLine={x1:mx,y1:my,x2:mx,y2:my,color:"#ffd700"};this.trendLines.push(this.dragLine);this.dragHandle="end";return
-}
-down(e.clientX)
-});
+                <!-- تسميات الوقت -->
+                <div class="timeLabels" id="timeLabels"></div>
+            </div>
+        </div>
+    </div>
 
-addEventListener("mousemove",e=>{
-if(this.dragLine&&this.dragHandle){
-const r=this.cv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-if(this.dragHandle==="start"){this.dragLine.x1=mx;this.dragLine.y1=my}else{this.dragLine.x2=mx;this.dragLine.y2=my}
-return
-}
-move(e.clientX)
-});
-addEventListener("mouseup",()=>{this.dragLine=null;this.dragHandle=null;up()});
+    <!-- رسالة حالة Firebase -->
+    <div class="fbStatus" id="fbStatus"></div>
 
-const dist=(t1,t2)=>Math.hypot(t2.clientX-t1.clientX,t2.clientY-t1.clientY);
-const midX=(t1,t2)=>((t1.clientX+t2.clientX)/2);
-this.cv.addEventListener("touchstart",e=>{
-if(e.touches.length===1){const t=e.touches[0];t&&down(t.clientX)}
-else if(e.touches.length===2){
-this.drag=0;this.pinch=1;this.p0=dist(e.touches[0],e.touches[1]);
-const r=this.cv.getBoundingClientRect();this.pMid=midX(e.touches[0],e.touches[1])-r.left;
-this.pStartUI={g:this.zoomLevel,v:this.viewZoom,pz:this.priceZoom,pan:this.manualScrollOffset}
-}}, {passive:false});
+    <!-- علامة الدور (مدير/مشاهد) -->
+    <div class="roleTag" id="roleTag" style="display:none"></div>
 
-this.cv.addEventListener("touchmove",e=>{
-e.preventDefault();
-if(this.pinch&&e.touches.length===2&&this.pStartUI){
-const d=dist(e.touches[0],e.touches[1]);const f=Math.max(.2,Math.min(5,d/(this.p0||d)));
-const g=this.pStartUI.g*f,v=this.pStartUI.v*f,pz=this.pStartUI.pz*f;
-this.applyUI({gZoom:g,viewZoom:v,priceZoom:pz,pan:this.manualScrollOffset});
-const i=this.xToIndex(this.pMid),nx=this.indexToX(i);this.manualScrollOffset+=this.pMid-nx;this.ui.pan=this.manualScrollOffset
-}else if(!this.pinch&&e.touches.length===1){const t=e.touches[0];t&&move(t.clientX)}
-},{passive:false});
+    <!-- الوقت المنصة -->
+    <div class="platformTime" id="platTime">UTC+3 00:00:00</div>
 
-this.cv.addEventListener("touchend",e=>{if(e.touches.length<2){this.pinch=0;this.pStartUI=null;this.p0=0}if(e.touches.length===0)up()},{passive:false});
-this.cv.addEventListener("touchcancel",()=>{this.pinch=0;this.pStartUI=null;this.p0=0;up()},{passive:false})
-}
-async boot(){
-await this.loadCandles();await this.initCandleGeneration();
-this.manualScrollOffset===0&&this.snapToLive();this.updatePriceRange();skHide();
-this.on=1;this.tick();this.loop()
-}
-async switchPair(pair){
-if(pair===this.pair)return;skShow();this.on=0;this.setPair(pair,0);this.t0=Math.floor(Date.now()/6e4)*6e4;
-await this.boot();window.__addSelectedPair&&window.__addSelectedPair(pair);window.__setActivePair&&window.__setActivePair(pair)
-}
-}
-const chart=new Chart("EUR/USD");window.chart=chart;updatePairFlags("EUR/USD",$("pairFlags"));
-setPS(localStorage.getItem(PSW_KEY)||45,localStorage.getItem(PSM_KEY));
-$("pswPlus").onclick=()=>setPS((+localStorage.getItem(PSW_KEY)||45)+2);
-$("pswMinus").onclick=()=>setPS((+localStorage.getItem(PSW_KEY)||45)-2);
-$("pswInp").oninput=()=>{const v=String(pswInp.value||"").replace(/[^\d]/g,"");pswInp.value=v;};
-$("pswInp").onblur=()=>setPS(pswInp.value);
-$("psToggle").onclick=()=>{const cur=+(localStorage.getItem(PSM_KEY)||"1");setPS(localStorage.getItem(PSW_KEY)||45,cur?0:1);toast(cur?"تم تفعيل Bar":"تم تفعيل Overlay");};
+    <!-- شريط المؤشرات العلوي -->
+    <div class="indBar" id="indBar"></div>
 
-const pinState=$("pinState"),pinBtn=$("pinFirst"),unpinBtn=$("unpinFirst");
-const updPinUI=()=>{pinState.textContent=chart.pinFirst?"ON":"OFF"};
-pinBtn.onclick=()=>{chart.pinFirst=1;updPinUI();toast("تم تثبيت أول شمعة على اليسار")};
-unpinBtn.onclick=()=>{chart.pinFirst=0;updPinUI();toast("تم فصل التثبيت")};updPinUI();
+    <!-- لوحة إعدادات المؤشر -->
+    <div class="indSet" id="indSet">
+        <div class="hd">
+            <b id="indSetTitle">Indicator</b>
+            <button class="btn" id="indSetClose">إغلاق</button>
+        </div>
+        <div class="row">
+            <label>اللون</label>
+            <input type="color" id="indColor" value="#ffff00">
+        </div>
+        <div class="row">
+            <label>السمك</label>
+            <input type="number" id="indWidth" min="1" max="8" step="1" value="2">
+        </div>
+        <div class="row" id="periodRow" style="display:none">
+            <label>الفترة</label>
+            <input type="number" id="indPeriod" min="2" max="200" step="1" value="20">
+        </div>
+        <div class="row" id="stdRow" style="display:none">
+            <label>الانحراف المعياري</label>
+            <input type="number" id="indStd" min="0.1" max="5" step="0.1" value="2">
+        </div>
+        <div class="btns">
+            <button class="btn" id="indRemove">حذف</button>
+        </div>
+    </div>
 
-// NEW: Amount & Time Input Handlers
-(()=>{
-const amountInput=$("amountInput"),timeInput=$("timeInput"),timeWrapper=$("timeWrapper"),timePickerPopup=$("timePickerPopup");
-let currentAmount=1,currentTime="00:01:00";
+    <!-- عرض التاريخ والوقت -->
+    <div class="datetime" id="datetime"></div>
 
-const updateAmount=(v)=>{currentAmount=Math.max(1,Math.min(999999,parseFloat(v)||1));amountInput.value="$ "+currentAmount};
-$("plus").onclick=()=>updateAmount(currentAmount+1);
-$("minus").onclick=()=>updateAmount(currentAmount-1);
-amountInput.onfocus=()=>{const v=String(amountInput.value).replace(/[^0-9.]/g,"");amountInput.value=v;amountInput.select()};
-amountInput.onblur=()=>{updateAmount(amountInput.value)};
+    <!-- أيقونات المؤشرات -->
+    <div class="indicatorIcons">
+        <div class="indIcon" id="indBtn1">
+            <img src="https://cdn-icons-png.flaticon.com/128/742/742130.png">
+        </div>
+        <div class="indIcon" id="indBtn2">
+            <img src="https://cdn-icons-png.flaticon.com/128/561/561184.png">
+        </div>
+        <div class="eyeIcon" id="eyeBtn">👁</div>
+        <div class="indNamesList" id="indNamesList"></div>
+    </div>
 
-timeInput.onclick=()=>{timePickerPopup.classList.toggle("show")};
-document.querySelectorAll(".timeBtn").forEach(btn=>{
-btn.onclick=()=>{currentTime=btn.getAttribute("data-time");timeInput.value=currentTime;timePickerPopup.classList.remove("show")}
-});
-$("manualBtn").onclick=()=>{
-const manual=prompt("أدخل الوقت بصيغة HH:MM:SS (مثال: 00:05:00)",currentTime);
-if(manual&&/^\d{2}:\d{2}:\d{2}$/.test(manual)){currentTime=manual;timeInput.value=manual}
-timePickerPopup.classList.remove("show")
-};
-document.addEventListener("click",e=>{if(!timeWrapper.contains(e.target))timePickerPopup.classList.remove("show")});
+    <!-- لوحة الأزواج -->
+    <div class="pairPanel" id="pairPanel">
+        <div class="pairHead">
+            <b>الأزواج</b>
+            <button class="pairClose" id="pairClose">×</button>
+        </div>
+        <div class="pairList" id="pairList"></div>
+    </div>
 
-window.__getTradeDurationSec=()=>toSec(currentTime);
-window.__getTradeAmount=()=>currentAmount;
-})();
+    <!-- لوحة المؤشرات -->
+    <div class="indicatorsPanel" id="indicatorsPanel">
+        <div class="indPanelHead">
+            <h3>المؤشرات</h3>
+            <button class="closeIndBtn" id="closeIndBtn">×</button>
+        </div>
+        <div class="indItem" data-ind="bb">
+            <span>Bollinger Bands</span>
+        </div>
+        <div class="indItem" data-ind="tl">
+            <span>Trendline</span>
+        </div>
+    </div>
 
-const TRADES_KEY="trades_v2";
-const trades=JSON.parse(localStorage.getItem(TRADES_KEY)||"[]");
-const saveTrades=()=>localStorage.setItem(TRADES_KEY,JSON.stringify(trades.slice(0,120)));
-const pad=n=>String(n).padStart(2,"0");
-const fmtHMS=sec=>{sec=Math.max(0,sec|0);const h=(sec/3600)|0,m=((sec%3600)/60)|0,s=sec%60;return`${pad(h)}:${pad(m)}:${pad(s)}`};
-const fmtMMSS=sec=>{sec=Math.max(0,sec|0);const m=((sec%3600)/60)|0,s=sec%60;return`${pad(m)}:${pad(s)}`};
-const fmtDT=t=>{const d=new Date(t);return`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`};
-const rndId=()=>{const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<9;i++)s+=A[(Math.random()*A.length)|0];return s};
-const getPairMeta=p=>state.pairs.get(p)||defaultPairs.find(x=>x.pair===p)||{pair:p,otc:1,payout:.9,flags:String(p).split("/")};
+    <!-- لوحة الصفقات النشطة -->
+    <div class="tradesPanel" id="tradesPanel">
+        <div class="tradesPanelHeader">
+            <h3>📊 الصفقات النشطة</h3>
+            <button class="closeTrPanel" id="closeTrPanel">×</button>
+        </div>
+        <div class="tradesContent" id="tradesContent"></div>
+    </div>
 
-const spark=(id,dir,open,close)=>{const cv=document.getElementById(id);if(!cv)return;const w=cv.width=300,h=cv.height=96,ctx=cv.getContext("2d");
-ctx.clearRect(0,0,w,h);const col=dir==="buy"?"#18d17b":"#ff4a55";let y=close;const pts=[];
-for(let i=0;i<32;i++){y+=((Math.random()-.5)*Math.abs(close-open)*.12)+((dir==="buy")?1:-1)*Math.abs(close-open)*.015;pts.push(y)}
-const mn=Math.min(open,close,...pts),mx=Math.max(open,close,...pts),map=v=>h-8-((v-mn)/(mx-mn||1))*(h-16);
-ctx.strokeStyle="rgba(255,255,255,.12)";ctx.beginPath();ctx.moveTo(0,h-8);ctx.lineTo(w,h-8);ctx.stroke();
-ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();
-pts.forEach((v,i)=>{const px=i*(w/(pts.length-1));const py=map(v);i?ctx.lineTo(px,py):ctx.moveTo(px,py)});
-ctx.stroke();ctx.fillStyle=col;ctx.beginPath();ctx.arc(w-4,map(pts.at(-1)),5,0,Math.PI*2);ctx.fill()};
+    <!-- أدوات التحكم بالتداول -->
+    <div class="trading-controls">
+        <div class="control-row">
+            <!-- حقل المبلغ -->
+            <div class="input-wrapper">
+                <button class="ctrl-btn" id="minus">-</button>
+                <input class="input-field" value="$ 1" id="amountInput">
+                <button class="ctrl-btn" id="plus">+</button>
+            </div>
 
-const updateActiveBadge=()=>{const n=trades.filter(t=>t.left>0).length;const host=$("trIcon"),b=$("trActiveCnt");if(!host||!b)return;b.textContent=n;host.classList.toggle("hasActive",n>0)};
-const renderTrades=()=>{const list=$("trList"),cnt=trades.length;$("trCnt2").textContent=cnt;updateActiveBadge();if(!list)return;
-list.innerHTML=trades.map((t,idx)=>{const meta=getPairMeta(t.pair),[a,b]=meta.flags||String(t.pair).split("/");const cls=t.dir==="buy"?"g":"r",arrow=t.dir==="buy"?"↑":"↓";
-const done=t.left<=0;const timeStr=done?fmtMMSS(t.dur||0):fmtHMS(t.left);const timeStyle=done?'style="color:rgba(255,255,255,.45)"':"";
-let resHTML="";if(t.left>0&&t.liveResult!=null){resHTML=t.liveResult>=0?`<div class="trP g">$ ${Number(t.liveResult).toFixed(2)}</div>`:`<div class="trP r">$ ${Number(t.liveResult).toFixed(2)}</div>`}
-else if(t.resultAmt!=null){resHTML=t.resultAmt>0?`<div class="trP g">$ ${Number(t.resultAmt).toFixed(2)}</div>`:`<div class="trP r">$ 0.00</div>`}
-else{resHTML=`<div class="trP ${cls}">$ ${Number(t.payoutAmt||0).toFixed(2)}</div>`}
-return`<div class="trRow ${t.opened?"open":""}" data-i="${idx}"><div class="trRowMain"><div class="trL"><div class="trT"><span class="chev">∨</span><span class="tt" data-tt="1" ${timeStyle}>${timeStr}</span></div>${resHTML}</div>
-<div class="trR"><div class="trPair">${t.pair} (OTC)<span class="fl"><img src="${mkFlag(a)}" onerror="this.src='https://flagcdn.com/w40/un.png'"><img src="${mkFlag(b)}" onerror="this.src='https://flagcdn.com/w40/un.png'"></span></div>
-<div class="trAmt ${cls}">$ ${Number(t.amount||0).toFixed(2)} <span class="circ ${cls}">${arrow}</span></div></div></div>
-<div class="trDet"><div class="trGrid"><div class="trBox"><div class="trK">ID</div><div class="trV">${t.tid}</div></div>
-<div class="trBox"><div class="trK">تاريخ فتح</div><div class="trV">${fmtDT(t.start)}</div></div>
-<div class="trBox"><div class="trK">تاريخ إغلاق</div><div class="trV">${fmtDT(t.end)}</div></div>
-<div class="trBox"><div class="trK">سعر فتح</div><div class="trV">${Number(t.openPrice).toFixed(meta.digits||5)}</div></div>
-<div class="trBox"><div class="trK">سعر إغلاق</div><div class="trV">${Number(t.closePrice||t.openPrice).toFixed(meta.digits||5)}</div></div>
-<div class="trBox" style="grid-column:1/3"><div class="trK">رسم بياني</div><canvas class="spark" id="sp_${t.tid}"></canvas></div></div></div></div>`}).join("");
-setTimeout(()=>{trades.forEach(t=>spark("sp_"+t.tid,t.dir,t.openPrice,t.closePrice||t.openPrice))},0)
-};
+            <!-- حقل الوقت -->
+            <div class="input-wrapper" id="timeWrapper">
+                <input class="input-field" value="00:01:00" id="timeInput" readonly>
+                <div class="timePickerPopup" id="timePickerPopup">
+                    <div class="timeGrid">
+                        <button class="timeBtn" data-time="00:00:15">15s</button>
+                        <button class="timeBtn" data-time="00:00:10">10s</button>
+                        <button class="timeBtn" data-time="00:00:05">5s</button>
+                        <button class="timeBtn" data-time="00:02:00">2m</button>
+                        <button class="timeBtn" data-time="00:01:00">1m</button>
+                        <button class="timeBtn" data-time="00:00:30">30s</button>
+                        <button class="timeBtn" data-time="00:15:00">15m</button>
+                        <button class="timeBtn" data-time="00:10:00">10m</button>
+                        <button class="timeBtn" data-time="00:05:00">5m</button>
+                        <button class="timeBtn" data-time="02:00:00">2h</button>
+                        <button class="timeBtn" data-time="01:00:00">1h</button>
+                        <button class="timeBtn" data-time="00:30:00">30m</button>
+                    </div>
+                    <button class="manualBtn" id="manualBtn">ضبط يدوياً</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-const settleTrade=t=>{const meta=getPairMeta(t.pair),payout=Number(meta.payout||.9);
-const open=Number(t.openPrice),close=Number(t.closePrice);let win=0;
-if(t.dir==="buy")win=close>open;else win=close<open;
-const res=win?+(Number(t.amount)*(1+payout)).toFixed(2):0;t.resultAmt=res;t.resultLoss=win?0:1;
-const cur=getBal();setBal(cur+res)
-};
+    <!-- أزرار التداول -->
+    <div class="tradeDock">
+        <div class="trading-buttons">
+            <button class="trade-btn trade-higher" id="buy">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 14l5-5 5 5z"></path>
+                </svg>
+                <span>شراء</span>
+            </button>
+            <button class="trade-btn trade-lower" id="sell">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 10l5 5 5-5z"></path>
+                </svg>
+                <span>بيع</span>
+            </button>
+        </div>
+    </div>
 
-const tickTrades=()=>{let dirty=0;
-for(const t of trades){if(t.left>0){t.left=Math.max(0,Math.ceil((t.end-Date.now())/1000));
-const m=chart.tradeMarkers.find(x=>x.tid===t.tid);if(m&&m.currentPL!=null)t.liveResult=m.currentPL;dirty=1;
-if(t.left===0&&!t.settled){t.settled=1;t.closePrice=chart.cp;settleTrade(t);saveTrades()}}}
-if(dirty){updateActiveBadge();const el=$("trList");if(el){el.querySelectorAll("[data-tt]").forEach((n,i)=>{const row=trades[i];if(row){const done=row.left<=0;
-n.textContent=done?fmtMMSS(row.dur||0):fmtHMS(row.left);n.style.color=done?"rgba(255,255,255,.45)":"#eaf1ff";
-const parent=n.closest(".trL");if(parent){const pEl=parent.querySelector(".trP");
-if(pEl&&row.left>0&&row.liveResult!=null){if(row.liveResult>=0){pEl.className="trP g";pEl.textContent="$ "+Number(row.liveResult).toFixed(2)}
-else{pEl.className="trP r";pEl.textContent="$ "+Number(row.liveResult).toFixed(2)}}}}})}}};
-setInterval(tickTrades,250);
+    <!-- الشريط السفلي (Bottom Nav) -->
+    <div class="bottom-nav" id="bottomNav">
+      <div class="nav-item active" data-tab="home"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/893/893214.png" alt="home"></div>
+      <div class="nav-item" data-tab="chart"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/8490/8490818.png" alt="chart"></div>
+      <div class="nav-item" data-tab="history"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/9783/9783934.png" alt="history"></div>
+      <div class="nav-item" data-tab="settings"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/14026/14026955.png" alt="settings"></div>
+    </div>
 
-renderTrades();
+    <!-- تحميل السكريبت -->
+    <script type="module" src="app.js"></script>
 
-chart.createTrade=(dir,amount,durationSec)=>{
-amount=Math.max(1,Number(amount)||1);const bal=getBal();if(bal<amount){toast("رصيد غير كافي!");return}
-setBal(bal-amount);durationSec=Math.max(1,Number(durationSec)||60);
-const meta=getPairMeta(chart.pair);const payout=Number(meta.payout||.9);const payoutAmt=+(amount*(1+payout)).toFixed(2);
-const tid=rndId();const start=Date.now(),end=start+durationSec*1000;const openPrice=chart.cp;const candleIndex=chart.cs.length;
-trades.unshift({tid,dir,pair:chart.pair,amount,payout,payoutAmt,start,end,left:durationSec,dur:durationSec,openPrice,closePrice:null,opened:0,settled:0,resultAmt:null,liveResult:null,candleIndex});
-saveTrades();renderTrades();
-chart.tradeMarkers.push({tid,dir,amount,entryPrice:openPrice,candleIndex,settled:0,result:null,closePrice:null,currentPrice:openPrice,currentPL:0})
-};
+    <!-- Top/Bottom bars JS (isolated) -->
+    <script>
+      (function(){
+        // --- Top bar (account menu) ---
+        var balanceBox = document.getElementById('balanceBox');
+        if(balanceBox){
+          var accMenu = document.getElementById('accMenu');
+          var refillBtn = document.getElementById('refillBtn');
+          var demoAmt = document.getElementById('demoAmt');
+          var realAmt = document.getElementById('realAmt');
+          var balTxt = document.getElementById('balTxt');
+          var topAccIcon = document.getElementById('topAccIcon');
+          var activeAcc = 'demo';
 
-const sheet=$("trSheet");
-const openTrades=()=>{sheet.classList.add("on");sheet.setAttribute("aria-hidden","false")};
-const closeTrades=()=>{sheet.classList.remove("on");sheet.setAttribute("aria-hidden","true")};
-$("trBtn").onclick=e=>{e.stopPropagation();sheet.classList.toggle("on");sheet.classList.contains("on")?openTrades():closeTrades()};
-addEventListener("keydown",e=>{if(e.key==="Escape"){closeTrades();closeIndPanel()}});
+          var updateAccIcon = function(){
+            if(!topAccIcon) return;
+            topAccIcon.src = (activeAcc === 'real')
+              ? 'https://flagcdn.com/w40/us.png'
+              : 'https://cdn-icons-png.flaticon.com/128/1344/1344761.png';
+          };
 
-(()=>{const d=new Date(),m=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];$("trDate").textContent=`${d.getDate()} ${m[d.getMonth()]}`})();
-$("trList").onclick=e=>{const row=e.target.closest(".trRow");if(!row)return;const i=+row.getAttribute("data-i");if(!(i>=0))return;
-trades[i].opened=!trades[i].opened;saveTrades();renderTrades()
-};
+          balanceBox.addEventListener('click', function(e){
+            if(e.target && e.target.closest && e.target.closest('.accMenu')) return;
+            e.stopPropagation();
+            if(accMenu) accMenu.classList.toggle('show');
+            balanceBox.classList.toggle('open');
+          });
 
-const indPanel=$("indPanel");
-const openIndPanel=()=>indPanel.classList.add("on");
-const closeIndPanel=()=>indPanel.classList.remove("on");
-$("indBtn").onclick=e=>{e.stopPropagation();openIndPanel()};
-$("indClose").onclick=closeIndPanel;
+          document.addEventListener('click', function(e){
+            if(!e.target || !e.target.closest || !e.target.closest('#balanceBox')){
+              if(accMenu) accMenu.classList.remove('show');
+              balanceBox.classList.remove('open');
+            }
+          });
 
-document.querySelectorAll(".indItem").forEach(item=>{
-item.onclick=()=>{
-const ind=item.getAttribute("data-ind");
-if(state.indicators.has(ind)){
-state.indicators.delete(ind);item.classList.remove("active");
-if(ind==="trend"&&window.chart){chart.trendLines=[];chart.dragLine=null;chart.dragHandle=null}
-toast("تم تعطيل المؤشر")
-}else{
-state.indicators.add(ind);item.classList.add("active");
-toast("تم تفعيل المؤشر");
-if(ind==="trend"){
-if(chart.trendLines.length===0){chart.trendLines.push({x1:60,y1:chart.h*.35,x2:chart.w-80,y2:chart.h*.55,color:"#ffd700"})}
-closeIndPanel();
-}
-}
-renderIndBar();
-}
-});
-renderIndBar();
+          if(refillBtn){
+            refillBtn.addEventListener('click', function(){
+              if(demoAmt) demoAmt.textContent = '$10,000.00';
+              if(balTxt) balTxt.textContent = (activeAcc === 'real' && realAmt) ? realAmt.textContent : (demoAmt ? demoAmt.textContent : '$10,000.00');
+              refillBtn.textContent = '✅';
+              setTimeout(function(){ refillBtn.textContent = '🔄 Refill Demo Account'; }, 900);
+            });
+          }
 
-const setCtrl=v=>{$("ctrlPanel").style.display=v?"block":"none";$("toggleCtrl").textContent=v?"إخفاء":"إظهار";chart.applyUI({ctrl:v})};
-(async()=>{try{
-if(!fbOK||!doc){chart.applyUI(defUI());setCtrl(1);return}
-const SETTINGS_DOC=fbOK?doc(db,"appSettings","chartUI"):null;
-if(!SETTINGS_DOC){chart.applyUI(defUI());setCtrl(1);return}
-const snap=await getDoc(SETTINGS_DOC);
-if(snap.exists()){const u=snap.data()?.ui;u&&chart.applyUI(u);setCtrl((u&&u.ctrl!==0)?1:0)}else{chart.applyUI(defUI());setCtrl(1)}
-}catch(e){console.error(e);chart.applyUI(defUI());setCtrl(1);toast("تعذر تحميل إعدادات Firebase")}})();
+          document.querySelectorAll('.accSwitchBtn').forEach(function(btn){
+            btn.addEventListener('click', function(){
+              activeAcc = btn.dataset.acc || 'demo';
+              document.querySelectorAll('.accSwitchBtn').forEach(function(x){ x.classList.toggle('active', x === btn); });
+              document.querySelectorAll('.accItem').forEach(function(x){ x.classList.toggle('active', x.dataset.type === activeAcc); });
+              if(balTxt) balTxt.textContent = (activeAcc === 'real' && realAmt) ? realAmt.textContent : (demoAmt ? demoAmt.textContent : '$10,000.00');
+              updateAccIcon();
+            });
+          });
 
-const PAN=160,FA=1.12;
-panL.onclick=()=>{chart.autoScroll=false;chart.applyUI({pan:chart.manualScrollOffset+PAN})};
-panR.onclick=()=>{chart.autoScroll=false;chart.applyUI({pan:chart.manualScrollOffset-PAN})};
-viewIn.onclick=()=>chart.applyUI({viewZoom:chart.viewZoom*FA,gZoom:chart.zoomLevel*FA,priceZoom:chart.priceZoom*FA});
-viewOut.onclick=()=>chart.applyUI({viewZoom:chart.viewZoom/FA,gZoom:chart.zoomLevel/FA,priceZoom:chart.priceZoom/FA});
-wInc.onclick=()=>chart.applyUI({candleMul:chart.candleWidthMultiplier/chart.viewZoom*FA});
-wDec.onclick=()=>chart.applyUI({candleMul:chart.candleWidthMultiplier/chart.viewZoom/FA});
-spaceInc.onclick=()=>chart.applyUI({spacingMul:chart.ui.spacingMul*FA});
-spaceDec.onclick=()=>chart.applyUI({spacingMul:chart.ui.spacingMul/FA});
-yInc.onclick=()=>chart.applyUI({priceZoom:chart.priceZoom*FA});
-yDec.onclick=()=>chart.applyUI({priceZoom:chart.priceZoom/FA});
-compInc.onclick=()=>chart.applyUI({priceComp:chart.priceCompression*FA});
-compDec.onclick=()=>chart.applyUI({priceComp:chart.priceCompression/FA});
-gInc.onclick=()=>chart.applyUI({gZoom:chart.zoomLevel*FA,viewZoom:chart.viewZoom*FA});
-gDec.onclick=()=>chart.applyUI({gZoom:chart.zoomLevel/FA,viewZoom:chart.viewZoom/FA});
-gridInc.onclick=()=>chart.applyUI({gridSize:chart.targetGridSize*FA});
-gridDec.onclick=()=>chart.applyUI({gridSize:chart.targetGridSize/FA});
-toggleCtrl.onclick=()=>setCtrl($("ctrlPanel").style.display!=="none"?0:1);
-resetAll.onclick=()=>{chart.applyUI(defUI());setCtrl(1)};
-saveGlobal.onclick=async()=>{
-const SETTINGS_DOC=fbOK?doc(db,"appSettings","chartUI"):null;
-if(!fbOK||!SETTINGS_DOC){toast("Firebase غير متاح");return}
-try{await setDoc(SETTINGS_DOC,{ui:chart.ui,updatedAt:Date.now()},{merge:true});saveGlobal.textContent="تم";setTimeout(()=>saveGlobal.textContent="حفظ عالمي",800)}
-catch(e){console.error(e);toast("فشل الحفظ");saveGlobal.textContent="خطأ";setTimeout(()=>saveGlobal.textContent="حفظ عالمي",800)}
-};
+          document.querySelectorAll('.accItem').forEach(function(it){
+            it.addEventListener('click', function(){
+              activeAcc = it.dataset.type || 'demo';
+              document.querySelectorAll('.accItem').forEach(function(x){ x.classList.toggle('active', x === it); });
+              if(balTxt) balTxt.textContent = (activeAcc === 'real' && realAmt) ? realAmt.textContent : (demoAmt ? demoAmt.textContent : '$10,000.00');
+              updateAccIcon();
+            });
+          });
 
-$("buy").onclick=()=>{const a=window.__getTradeAmount();chart.createTrade&&chart.createTrade("buy",a,window.__getTradeDurationSec())};
-$("sell").onclick=()=>{const a=window.__getTradeAmount();chart.createTrade&&chart.createTrade("sell",a,window.__getTradeDurationSec())};
+          updateAccIcon();
+        }
 
-(()=>{let id=localStorage.getItem("uid");id||(id=Math.random().toString(16).slice(2,10).toUpperCase(),localStorage.setItem("uid",id));uid.textContent=id;
-const apply=v=>{localStorage.setItem("accType",v);optReal.classList.toggle("active",v==="real");optDemo.classList.toggle("active",v==="demo");
-v==="demo"?(liveTxt.textContent="demo",liveTxt.classList.add("demo"),!localStorage.getItem("balance")&&setBal(1e4)):(liveTxt.textContent="live",liveTxt.classList.remove("demo"));
-setBal(getBal())};
-apply(localStorage.getItem("accType")||"demo");
-accBtn.onclick=e=>{e.stopPropagation();accMenu.style.display=accMenu.style.display==="block"?"none":"block"};
-addEventListener("click",()=>accMenu.style.display="none");
-optReal.onclick=()=>apply("real");optDemo.onclick=()=>apply("demo");
-depTop.onclick=()=>alert("Deposit");notifBtn.onclick=()=>alert("Notifications")
-})();
-
-const openOv=()=>pairOv.classList.add("on"),closeOv=()=>pairOv.classList.remove("on");
-pairHud.onclick=e=>{e.stopPropagation();openOv()};
-ovClose.onclick=closeOv;pairOv.onclick=e=>{if(e.target===pairOv)closeOv()};
-addEventListener("keydown",e=>{if(e.key==="Escape")closeOv()});
-ovList.onclick=e=>{
-const b=e.target.closest("button.it");if(!b)return;const p=b.getAttribute("data-p");
-if(e.target&&e.target.getAttribute&&e.target.getAttribute("data-s")){state.fav.has(p)?state.fav.delete(p):state.fav.add(p);saveFav();renderOverlay();return}
-closeOv();chart.switchPair(p)
-};
-
-(()=>{const selBar=$("selBar");let sel=JSON.parse(localStorage.getItem("selPairs")||"[]");
-const save=()=>localStorage.setItem("selPairs",JSON.stringify(sel));
-const render=()=>{selBar.innerHTML=sel.map(p=>{
-const meta=state.pairs.get(p)||defaultPairs.find(x=>x.pair===p);const flags=meta?meta.flags||String(p).split("/"):String(p).split("/");
-const flagHTML=flags.map(c=>`<img src="${mkFlag(c)}" onerror="this.src='https://flagcdn.com/w40/un.png'">`).join("");
-return`<span class="selChip ${p===chart.pair?"active":""}" data-p="${p}"><span class="flags">${flagHTML}</span><span>${p}</span><span class="x" data-x="1">×</span></span>`}).join("")};
-window.__addSelectedPair=p=>{if(!p)return;if(!sel.includes(p)){sel=[p,...sel].slice(0,30);save();render()}};
-window.__setActivePair=p=>{document.querySelectorAll(".selChip").forEach(el=>el.classList.toggle("active",el.getAttribute("data-p")===p))};
-selBar.onclick=e=>{
-const chip=e.target.closest(".selChip");if(!chip)return;const p=chip.getAttribute("data-p");
-if(e.target&&e.target.getAttribute&&e.target.getAttribute("data-x")){sel=sel.filter(x=>x!==p);save();render();window.__setActivePair(chart.pair);return}
-chart.switchPair(p)
-};
-window.__addSelectedPair(chart.pair);render();window.__setActivePair(chart.pair)
-})();
-
-const updUTC=()=>{const d=new Date(),h=pad(d.getHours()),m=pad(d.getMinutes()),s=pad(d.getSeconds());utcTime.textContent=`${h}:${m}:${s}`};
-setInterval(updUTC,1000);updUTC();
-
-(()=>{const pageMap={profile:"profile.html",leaderboard:"leaderboard.html",contests:"contests.html",settings:"settings.html"};
-const iframeWrap=$("iframeWrap"),frame=$("pageFrame"),topBar=$("topBar"),selBar=$("selBar");
-document.querySelectorAll(".bbItem").forEach(item=>{
-item.onclick=()=>{const page=item.getAttribute("data-page");
-if(page==="chart"){iframeWrap.classList.remove("on");frame.src="";topBar.classList.remove("hide");selBar.classList.remove("hide");return}
-const url=pageMap[page];if(url){frame.src=url;iframeWrap.classList.add("on");topBar.classList.add("hide");selBar.classList.add("hide")}}
-})
-})();
-
-setLocalPairs();renderOverlay();seedPairsFS().finally(()=>hookPairsRealtime());
-</script></body></html>
+        // --- Bottom nav (active state only) ---
+        var bottomNav = document.getElementById('bottomNav');
+        if(bottomNav){
+          bottomNav.querySelectorAll('.nav-item').forEach(function(item){
+            item.addEventListener('click', function(){
+              bottomNav.querySelectorAll('.nav-item').forEach(function(x){ x.classList.remove('active'); });
+              item.classList.add('active');
+            });
+          });
+        }
+      })();
+    </script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
