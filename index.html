@@ -1,16 +1,276 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
     <meta name="theme-color" content="#000">
     <title>Chart Trading</title>
-    <style>
-*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden}body{font-family:system-ui,-apple-system,Arial;background:#000;color:#fff;direction:rtl}button,input,select{font:inherit;border:0;outline:0}button{cursor:pointer}::-webkit-scrollbar{width:0;height:0}:root{--gg:#00c853;--psw:48.4px;--ovAlpha:.35;--safeB:0px;--bnH:37.4px;--bnSafe:calc(var(--bnH) + var(--safeB));--bg-primary:#000;--bg-secondary:#0d1117;--bg-card:#101a2f;--bg-overlay:rgba(10,22,40,.72);--border-primary:rgba(255,255,255,.10);--border-secondary:#1f2937;--text-primary:#fff;--text-secondary:#d9e6ff;--accent-green:#00ff41;--accent-red:#ff0000;--accent-blue:#4299e1}.chartWrap{flex:1 1 auto;position:relative;overflow:hidden;background:#000}#sk{position:absolute;inset:0;z-index:2500;pointer-events:auto;background:#000;display:none}#sk.on{display:block}#sk:before,#sk:after{content:"";position:absolute;inset:-40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);filter:blur(2px);animation:sk 1.35s linear infinite}#sk:after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation-duration:1.75s;transform:rotate(90deg)}@keyframes sk{0%{transform:translateX(-40%) rotate(0)}100%{transform:translateX(40%) rotate(0)}}.ui{position:fixed;inset:0;display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden}.chartFrame,.tc{position:absolute;inset:0;overflow:hidden;background:transparent}#c{display:block;position:absolute;inset:0;width:100%!important;height:100%!important;touch-action:none;cursor:grab}#c:active{cursor:grabbing}.ps{position:absolute;right:0;top:0;bottom:0;width:var(--psw);pointer-events:none;background:rgba(0,0,0,var(--ovAlpha));z-index:10}.pl{position:absolute;right:2.2px;transform:translateY(-50%);font-size:9.9px;font-weight:900;color:rgba(240,230,210,.92);text-align:right;padding:0 3.3px;text-shadow:0 1px 3px rgba(0,0,0,.6)}.priceIndicator{position:absolute;right:0;transform:translateY(-50%);background:rgba(255,215,0,.95);color:#000;padding:4px 8px;font-size:11px;font-weight:900;border-radius:4px 0 0 4px;z-index:100;box-shadow:0 2px 8px rgba(255,215,0,.4);border:1.5px solid #ffd700;border-right:none;pointer-events:none}.priceScaleMark{position:absolute;right:0;width:var(--psw);height:1px;background:rgba(255,215,0,.45);transform:translateY(-50%);z-index:11;pointer-events:none;box-shadow:0 0 6px rgba(255,215,0,.2)}.centerLine{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.2);pointer-events:none;z-index:5;transform:translateX(-50%)}.top-bar{display:flex;justify-content:space-between;align-items:center;padding:6.6px 8.8px;background:var(--bg-primary);height:50.6px;z-index:2600;position:relative;border-bottom:1px solid var(--border-primary)}.balance{display:flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--bg-card) 0%,var(--bg-secondary) 100%);border:1.5px solid var(--border-primary);border-radius:12px;padding:8px 12px;cursor:pointer;position:relative;transition:.2s;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:2601;min-width:190px}.balanceMain{display:flex;align-items:center;gap:7px;flex:1;min-width:0}.balance-amount{font-size:15px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.arrow-down{width:14px;height:14px;margin-right:2px;transition:transform .2s}.balance.open .arrow-down{transform:rotate(180deg)}.flag-icon{width:20px;height:14px;border-radius:3px;box-shadow:0 2px 4px rgba(0,0,0,.3)}.accMenu{position:fixed;top:58px;right:8.8px;width:240px;background:linear-gradient(145deg,var(--bg-card) 0%,var(--bg-secondary) 100%);border:2px solid var(--border-primary);border-radius:16px;box-shadow:0 12px 32px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05) inset;padding:10px;z-index:99999;display:none}.accMenu.show{display:block}.accSwitch{display:flex;gap:8px;background:var(--bg-secondary);border-radius:10px;padding:4px;margin-bottom:12px}.accSwitchBtn{flex:1;padding:8px;border-radius:8px;font-size:11px;font-weight:900;transition:.2s;border:1.5px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent}.accSwitchBtn.live{color:#00ff41}.accSwitchBtn.demo{color:#ffd700}.accSwitchBtn.active{background:rgba(255,255,255,.1);border-color:currentColor}.accItem{background:rgba(255,255,255,.03);border:1.3px solid var(--border-primary);border-radius:12px;padding:10px 12px;margin-bottom:9px;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:space-between;gap:10px}.accItem.active{background:linear-gradient(135deg,rgba(66,153,225,.15) 0%,rgba(49,130,206,.1) 100%);border-color:var(--accent-blue);box-shadow:0 0 12px rgba(66,153,225,.2)}.accL{display:flex;align-items:center;gap:10px;min-width:0}.accIco{width:22px;height:22px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}.accAmt{font-size:16px;font-weight:1000;color:var(--text-primary);white-space:nowrap}.refillBtn{width:100%;background:linear-gradient(135deg,var(--accent-blue) 0%,#3182ce 100%);border-radius:10px;padding:10px;font-size:12px;font-weight:1000;color:var(--text-primary);letter-spacing:.5px;box-shadow:0 4px 12px rgba(66,153,225,.4)}.top-icons{display:flex;gap:6.6px;position:absolute;left:8.8px;top:6.6px;z-index:2602}.icon-box{width:36.3px;height:36.3px;display:flex;align-items:center;justify-content:center;border-radius:10px;overflow:hidden;cursor:pointer;transition:.2s;background:var(--bg-secondary);border:1.1px solid var(--border-secondary)}.icon-box img{width:100%;height:100%;object-fit:cover;display:block}.icon-box.green-box{background:linear-gradient(135deg,#00ff41 0%,#00cc33 100%);border-color:#00ff41;box-shadow:0 0 12px rgba(0,255,65,.4)}.datetime{position:absolute;left:8.8px;bottom:8.8px;font-size:11.6px;color:var(--text-primary);background:var(--bg-overlay);padding:3.3px 7.7px;border-radius:6.6px;z-index:22;border:1.1px solid var(--border-primary);pointer-events:none}.platformTime{position:absolute;left:8.8px;top:62px;z-index:18;font-size:10.5px;color:rgba(255,255,255,.75);background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);padding:4px 8px;border-radius:8px;pointer-events:none}.indicatorIcons{position:absolute;left:8.8px;top:105px;z-index:22;display:flex;flex-direction:column;gap:8px}.indIcon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(250,240,220,.88);border:1.5px solid rgba(255,215,100,.7);border-radius:10px;cursor:pointer;transition:.2s;box-shadow:0 4px 12px rgba(0,0,0,.4)}.indIcon:hover{transform:scale(1.08);border-color:var(--accent-blue)}.indIcon img{width:28px;height:28px;object-fit:contain}.eyeIcon{width:22px;height:22px;display:none;align-items:center;justify-content:center;background:rgba(250,240,220,.88);border:1.5px solid rgba(255,215,100,.7);border-radius:8px;cursor:pointer;transition:.2s;box-shadow:0 4px 12px rgba(0,0,0,.4);font-size:13px}.eyeIcon:hover{transform:scale(1.08);border-color:var(--accent-blue)}.indNamesList{margin-top:4px;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:flex-start}.indNamesList .nmIt{min-width:18px;text-align:center;font-size:9px;font-weight:900;line-height:1.1;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:5px;padding:3px 5px;backdrop-filter:blur(6px);cursor:pointer;transition:.2s}.indNamesList .nmIt:hover{background:rgba(66,153,225,.3);border-color:rgba(66,153,225,.6)}.indicatorsPanel{position:fixed;left:0;top:0;bottom:0;width:50%;max-width:400px;background:var(--bg-overlay);backdrop-filter:blur(10px);border-right:1.5px solid var(--border-primary);z-index:9998;transform:translateX(-100%);transition:transform .3s ease;padding:20px;overflow-y:auto;box-shadow:4px 0 24px rgba(0,0,0,.6)}.indicatorsPanel.show{transform:translateX(0)}.indPanelHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border-primary)}.indPanelHead h3{font-size:18px;color:var(--text-primary)}.closeIndBtn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid var(--border-primary);font-size:24px;color:var(--text-secondary)}.indItem{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;margin-bottom:10px;background:rgba(255,255,255,.05);border:1px solid var(--border-primary);border-radius:10px;transition:.2s;cursor:pointer}.indItem:hover{background:rgba(255,255,255,.08)}.indItem span{font-size:14px;font-weight:900}.trading-controls{padding:6.6px 8.8px 0;position:relative}.control-row{display:grid;grid-template-columns:1fr 1fr;gap:8.8px}.input-wrapper{display:flex;align-items:center;gap:4.4px;background:var(--bg-secondary);border:1.1px solid var(--border-secondary);border-radius:8.8px;padding:3.3px 6.6px;height:37.4px;position:relative}.input-field{background:0 0;color:var(--text-primary);font-size:13.75px;font-weight:900;text-align:center;flex:1;min-width:0;cursor:pointer}.ctrl-btn{background:0 0;color:var(--accent-blue);font-size:17.6px;padding:2.2px 5.5px;font-weight:1000}.timePickerPopup{position:absolute;bottom:100%;left:0;right:0;margin-bottom:4px;background:#000;border:1.5px solid var(--border-primary);border-radius:8px;padding:8px;z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,.8)}.timePickerPopup.show{display:block}.timeGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}.timeBtn{background:#2a3442;border:0;border-radius:6px;color:#fff;font-size:13px;font-weight:900;padding:10px;cursor:pointer;transition:.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.manualBtn{width:100%;background:#2a3442;border:0;border-radius:6px;color:#fff;font-size:13px;font-weight:900;padding:10px;cursor:pointer}.tradeDock{background:var(--bg-primary);padding:6.6px 0 calc(var(--bnSafe) + 6.6px)}.trading-buttons{display:flex}.trade-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6.6px;padding:11px 8.8px;font-size:15.4px;font-weight:1000;transition:transform .15s;height:48.4px}.trade-higher{background:linear-gradient(135deg,var(--accent-green) 0%,#00cc33 100%);color:var(--bg-primary);border-radius:0 11px 11px 0}.trade-lower{background:linear-gradient(135deg,var(--accent-red) 0%,#cc0000 100%);color:var(--text-primary);border-radius:11px 0 0 11px}.trade-higher:active,.trade-lower:active{transform:scale(.95)}.btn-icon{width:17.6px;height:17.6px;flex-shrink:0}.bottom-nav{position:fixed;bottom:0;left:0;width:100%;height:var(--bnSafe);display:flex;justify-content:space-around;align-items:center;background:var(--bg-primary);border-top:1.1px solid var(--border-primary);z-index:2000}.nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.2px;cursor:pointer;flex:1;height:100%}.nav-icon{width:24.2px;height:24.2px;object-fit:contain;filter:contrast(1.25) brightness(1.2) drop-shadow(0 6.6px 13.2px rgba(0,0,0,.35))}.nav-item.active .nav-icon{filter:contrast(1.35) brightness(1.28) drop-shadow(0 0 7.7px rgba(255,255,255,.25))}.ctrlPanel{position:fixed;right:10px;top:60px;z-index:1800;width:min(360px,calc(100vw - 20px));background:rgba(0,0,0,.35);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.10);border-radius:14px;padding:10px}.ctrlTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.ctrlTitle b{font-size:12px;font-weight:1000}.pills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.pill{padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#d9e6ff;font-weight:1000;font-size:11px}.pill.primary{background:rgba(24,209,123,.14);border-color:rgba(24,209,123,.55);color:var(--gg)}.gridBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px}.gbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.10);color:#d9e6ff;font-weight:1000;font-size:11px}.gbtn small{opacity:.75;font-weight:900}.indBar{position:fixed;top:50.6px;right:0;left:0;display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end;padding:6px 8.8px;z-index:2600;background:linear-gradient(180deg,rgba(0,0,0,.65),rgba(0,0,0,0));pointer-events:none}.indBadge{pointer-events:auto;display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);font-weight:1000;font-size:11px;color:#fff}.indBadge button{background:transparent;color:#fff;font-weight:1000;font-size:14px;line-height:1;padding:0 2px}.indBadge .name{cursor:pointer;user-select:none}.indSet{position:fixed;top:90px;right:8.8px;width:min(320px,calc(100vw - 18px));background:rgba(10,22,40,.88);border:1px solid rgba(255,255,255,.14);border-radius:14px;z-index:99999;backdrop-filter:blur(10px);padding:10px;display:none;box-shadow:0 14px 40px rgba(0,0,0,.65)}.indSet.show{display:block}.indSet .hd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.indSet .hd b{font-size:12px}.indSet .row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:8px 0}.indSet label{font-size:11px;opacity:.9}.indSet input[type="color"]{width:44px;height:30px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,.15)}.indSet input[type="range"],.indSet input[type="number"]{flex:1;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:6px;font-size:11px}.indSet .btns{display:flex;gap:8px;margin-top:10px}.indSet .btn{flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-weight:1000}.indSet .btn.primary{background:rgba(66,153,225,.22);border-color:rgba(66,153,225,.5)}.timeLabels{position:absolute;bottom:0;left:0;right:var(--psw);height:24px;background:var(--bg-primary);border-top:1px solid var(--border-primary);pointer-events:none;z-index:20}.timeLabel{position:absolute;bottom:2px;font-size:9px;font-weight:900;color:rgba(255,255,255,.6);transform:translateX(-50%);white-space:nowrap}.pair-box{position:absolute;left:8.8px;bottom:32px;z-index:22;display:inline-flex;align-items:center;gap:6.6px;background:var(--bg-secondary);border:1.1px solid var(--border-secondary);border-radius:11px;padding:5.5px 9.9px;cursor:pointer;user-select:none}.flag-icon-small{width:19.8px;height:13.2px;border-radius:2.2px}.pair-box .flags{display:flex;align-items:center;margin-inline:2px}.pair-box .flags img{width:24.2px;height:24.2px;border-radius:999px;border:2.2px solid var(--bg-card);margin-left:-8.8px;background:var(--bg-card)}.pair-box .otc{margin-inline-start:6.6px;padding:2.2px 6.6px;border-radius:999px;background:rgba(255,255,255,.10);border:1.1px solid rgba(255,255,255,.18);font-size:11px;font-weight:1000;letter-spacing:.44px}.pairPanel{position:fixed;left:0;top:0;bottom:0;width:18vw;min-width:280px;max-width:420px;background:var(--bg-overlay);border-right:1.5px solid var(--border-primary);backdrop-filter:blur(10px);z-index:99998;transform:translateX(-105%);transition:transform .25s ease;pointer-events:auto;box-shadow:4px 0 24px rgba(0,0,0,.6)}.pairPanel.on{transform:translateX(0)}.pairHead{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1.5px solid var(--border-primary);background:linear-gradient(to bottom,rgba(255,255,255,.03),transparent);user-select:none}.pairHead b{font-size:15px;font-weight:1000;color:var(--text-primary);letter-spacing:.3px}.pairClose{width:36px;height:36px;border-radius:11px;background:rgba(255,255,255,.08);border:1.5px solid var(--border-primary);color:var(--text-secondary);font-weight:1000;transition:.2s}.pairList{padding:10px 12px;max-height:calc(100vh - 80px);overflow-y:auto}.pit{width:100%;display:flex;align-items:center;justify-content:space-between;gap:11px;padding:11px 13.2px;border-radius:13.2px;background:rgba(255,255,255,.03);border:1.5px solid var(--border-primary);color:var(--text-secondary);margin:6.6px 0;transition:.2s}.pit:hover{background:rgba(255,255,255,.05)}.pitL{display:flex;align-items:center;gap:11px;min-width:0}.star{width:19.8px;height:19.8px;border-radius:6.6px;background:rgba(255,159,42,.10);border:1.1px solid rgba(255,159,42,.30);display:grid;place-items:center;color:#ffb357;font-size:13.2px;flex:0 0 auto}.fg{display:flex;align-items:center}.fg img{width:24.2px;height:24.2px;border-radius:999px;border:2.2px solid var(--bg-card);margin-left:-8.8px;background:var(--bg-card)}.nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:1000}.bad{margin-inline-start:6.6px;padding:2.2px 6.6px;border-radius:999px;background:rgba(255,255,255,.08);border:1.1px solid var(--border-primary);font-size:11px;font-weight:1000}.candleTimer{position:absolute;background:rgba(0,0,0,.85);color:#ffd700;padding:4.4px 8.8px;border-radius:6.6px;font-size:14.3px;font-weight:900;z-index:25;pointer-events:none;border:1.1px solid rgba(255,215,0,.4);display:none}.tradesPanel{position:fixed;bottom:0;left:0;right:0;height:40vh;background:linear-gradient(to top,rgba(10,22,40,.98),rgba(10,22,40,.92));backdrop-filter:blur(12px);border-top:2px solid var(--border-primary);z-index:9999;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 32px rgba(0,0,0,.6)}.tradesPanel.open{transform:translateY(0)}.tradesPanelHeader{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1.5px solid var(--border-primary);background:rgba(0,0,0,.3)}.tradesPanelHeader h3{font-size:16px;font-weight:900;color:var(--text-primary);letter-spacing:.5px}.closeTrPanel{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid var(--border-primary);color:var(--text-secondary);font-size:20px;font-weight:900;transition:.2s}.tradesContent{padding:12px;overflow-y:auto;height:calc(40vh - 60px)}.tradeCard{background:rgba(255,255,255,.04);border:1.5px solid var(--border-primary);border-radius:12px;padding:12px;margin-bottom:10px;cursor:pointer;transition:.2s}.tradeCard:hover{background:rgba(255,255,255,.06)}.trL{display:flex;justify-content:space-between;align-items:center;gap:10px}.trTimer{font-size:20px;font-weight:1000;color:#ffd700}.trAmt{font-size:14px;font-weight:900}.trAmt.buy{color:#00ff88}.trAmt.sell{color:#ff5a4f}.trPair{font-size:13px;font-weight:900;color:rgba(255,255,255,.8)}.trProfit{font-size:16px;font-weight:1000}.trProfit.positive{color:#00ff41}.trProfit.negative{color:#ff0000}.trDetails{max-height:0;overflow:hidden;transition:max-height .3s ease;margin-top:0}.trDetails.open{max-height:500px;margin-top:12px}.trDRow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1);font-size:12px}.trDRow:last-child{border-bottom:none}.trDRow .label{color:rgba(255,255,255,.6)}.trDRow .value{font-weight:900}.miniChart{width:100%;height:80px;margin-top:10px;background:rgba(0,0,0,.3);border-radius:8px;position:relative}.fbStatus{position:fixed;top:50.6px;left:8.8px;z-index:9999;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:900;backdrop-filter:blur(10px);border:1.5px solid;pointer-events:none;opacity:0;transition:opacity .3s}.fbStatus.show{opacity:1}.fbStatus.success{background:rgba(0,255,65,.15);border-color:#00ff41;color:#00ff41}.fbStatus.error{background:rgba(255,0,0,.15);border-color:#ff0000;color:#ff0000}.genPanel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-overlay);backdrop-filter:blur(20px);border:2px solid var(--border-primary);border-radius:16px;padding:24px;z-index:99999;min-width:300px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.8)}.genPanel.show{display:block}.genPanel h3{margin-bottom:16px;font-size:18px}.genPanel input{width:100%;padding:12px;background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:8px;color:#fff;margin-bottom:16px;font-size:14px}.genPanel .btns{display:flex;gap:10px}.genPanel button{flex:1;padding:12px;border-radius:8px;font-weight:900;font-size:14px}.genPanel .primary{background:var(--accent-green);color:#000}.genPanel .secondary{background:var(--bg-secondary);border:1px solid var(--border-primary);color:#fff}.roleTag{position:absolute;left:8.8px;top:95px;padding:4px 10px;background:rgba(66,153,225,.22);border:1.5px solid rgba(66,153,225,.5);border-radius:8px;font-size:10px;font-weight:900;color:#4299e1;z-index:25;backdrop-filter:blur(10px)}
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="ui"><div class="top-bar"><div class="balance" id="balanceBox"><div class="balanceMain"><img class="flag-icon" id="topAccIcon" src="https://cdn-icons-png.flaticon.com/128/1344/1344761.png"><span class="balance-amount" id="balTxt">$10,000.00</span></div><svg class="arrow-down" viewBox="0 0 24 24" fill="#888"><path d="M7 10l5 5 5-5z"></path></svg><div class="accMenu" id="accMenu"><div class="accSwitch"><button class="accSwitchBtn live" data-acc="real">LIVE</button><button class="accSwitchBtn demo active" data-acc="demo">Demo</button></div><div class="accItem" data-type="real"><div class="accL"><img class="accIco" src="https://flagcdn.com/w40/us.png"><div class="accAmt" id="realAmt">$0.00</div></div></div><div class="accItem active" data-type="demo"><div class="accL"><img class="accIco" src="https://cdn-icons-png.flaticon.com/128/1344/1344761.png"><div class="accAmt" id="demoAmt">$10,000.00</div></div></div><button class="refillBtn" id="refillBtn">🔄 Refill Demo Account</button></div></div><div class="top-icons"><div class="icon-box green-box" id="genBtn"><img src="https://cdn-icons-png.flaticon.com/128/10167/10167706.png"></div><div class="icon-box"><img src="https://cdn-icons-png.flaticon.com/128/18921/18921105.png"></div></div></div><div class="fbStatus" id="fbStatus"></div><div class="roleTag" id="roleTag" style="display:none"></div><div class="platformTime" id="platTime">UTC+3 00:00:00</div><div class="indBar" id="indBar"></div><div class="indSet" id="indSet"><div class="hd"><b id="indSetTitle">Indicator</b><button class="btn" id="indSetClose">إغلاق</button></div><div class="row"><label>Color</label><input type="color" id="indColor" value="#ffff00"></div><div class="row"><label>Width</label><input type="number" id="indWidth" min="1" max="8" step="1" value="2"></div><div class="row" id="periodRow" style="display:none"><label>Period</label><input type="number" id="indPeriod" min="2" max="200" step="1" value="20"></div><div class="row" id="stdRow" style="display:none"><label>Std Dev</label><input type="number" id="indStd" min="0.1" max="5" step="0.1" value="2"></div><div class="btns"><button class="btn" id="indRemove">Delete</button></div></div><div class="datetime" id="datetime"></div><div class="indicatorIcons"><div class="indIcon" id="indBtn1"><img src="https://cdn-icons-png.flaticon.com/128/742/742130.png"></div><div class="indIcon" id="indBtn2"><img src="https://cdn-icons-png.flaticon.com/128/561/561184.png"></div><div class="eyeIcon" id="eyeBtn">👁</div><div class="indNamesList" id="indNamesList"></div></div><div class="chartWrap"><div id="sk" class="on"></div><div class="chartFrame"><div class="tc"><div class="centerLine"></div><div class="pair-box" id="pairHud"><span id="pairHudTxt">EUR/USD</span><span class="otc" id="otcHud">OTC</span><span class="flags" id="pairFlags"></span><span style="opacity:.7">▾</span></div><canvas id="c"></canvas><div class="candleTimer" id="candleTimer">59</div><div class="ps" id="ps"></div><div class="timeLabels" id="timeLabels"></div></div></div></div><div class="genPanel" id="genPanel"><h3>🕯️ توليد شموع</h3><input type="number" id="genInput" placeholder="عدد الشموع (10-1000)" min="10" max="1000" value="100"><div class="btns"><button class="primary" id="genConfirm">توليد</button><button class="secondary" id="genCancel">إلغاء</button></div></div><div class="pairPanel" id="pairPanel"><div class="pairHead"><b>الازواج</b><button class="pairClose" id="pairClose">×</button></div><div class="pairList" id="pairList"></div></div><div class="indicatorsPanel" id="indicatorsPanel"><div class="indPanelHead"><h3>Indicators</h3><button class="closeIndBtn" id="closeIndBtn">×</button></div><div class="indItem" data-ind="bb"><span>Bollinger Bands</span></div><div class="indItem" data-ind="tl"><span>Trendline</span></div></div><div class="tradesPanel" id="tradesPanel"><div class="tradesPanelHeader"><h3>📊 Active Trades</h3><button class="closeTrPanel" id="closeTrPanel">×</button></div><div class="tradesContent" id="tradesContent"></div></div><div class="trading-controls"><div class="control-row"><div class="input-wrapper"><button class="ctrl-btn" id="minus">-</button><input class="input-field" value="$ 1" id="amountInput"><button class="ctrl-btn" id="plus">+</button></div><div class="input-wrapper" id="timeWrapper"><input class="input-field" value="00:01:00" id="timeInput" readonly><div class="timePickerPopup" id="timePickerPopup"><div class="timeGrid"><button class="timeBtn" data-time="00:00:15">15s</button><button class="timeBtn" data-time="00:00:10">10s</button><button class="timeBtn" data-time="00:00:05">5s</button><button class="timeBtn" data-time="00:02:00">2m</button><button class="timeBtn" data-time="00:01:00">1m</button><button class="timeBtn" data-time="00:00:30">30s</button><button class="timeBtn" data-time="00:15:00">15m</button><button class="timeBtn" data-time="00:10:00">10m</button><button class="timeBtn" data-time="00:05:00">5m</button><button class="timeBtn" data-time="02:00:00">2h</button><button class="timeBtn" data-time="01:00:00">1h</button><button class="timeBtn" data-time="00:30:00">30m</button></div><button class="manualBtn" id="manualBtn">ضبط يدوياً</button></div></div></div></div><div class="tradeDock"><div class="trading-buttons"><button class="trade-btn trade-higher" id="buy"><svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5z"></path></svg><span>Buy</span></button><button class="trade-btn trade-lower" id="sell"><svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"></path></svg><span>Sell</span></button></div></div><div class="bottom-nav"><div class="nav-item active"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/893/893214.png"></div><div class="nav-item"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/8490/8490818.png"></div><div class="nav-item"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/9783/9783934.png"></div><div class="nav-item"><img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/14026/14026955.png"></div></div><div class="ctrlPanel" id="ctrlPanel"><div class="ctrlTitle"><b>مقاسات</b><div class="pills"><button class="pill" id="hidePanel">إخفاء</button><button class="pill primary" id="saveLocal">حفظ</button></div></div><div class="gridBtns"><button class="gbtn" id="panL">تحريك <small>◀</small></button><button class="gbtn" id="panR">تحريك <small>▶</small></button><button class="gbtn" id="zoomOut">تصغير <small>−</small></button><button class="gbtn" id="zoomIn">تكبير <small>+</small></button><button class="gbtn" id="moreData">عرض بيانات أكتر <small>−</small></button><button class="gbtn" id="lessData">عرض بيانات أقل <small>+</small></button><button class="gbtn" id="wDec">تعريض شموع <small>−</small></button><button class="gbtn" id="wInc">تعريض شموع <small>+</small></button><button class="gbtn" id="compDec">ضغط سعري <small>−</small></button><button class="gbtn" id="compInc">ضغط سعري <small>+</small></button><button class="gbtn" id="resetLive">Live <small>↺</small></button><button class="gbtn" id="resetAll">Reset <small>⟲</small></button></div></div></div>
-    <script src="script.js"></script>
+    <div class="ui">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="balance" id="balanceBox">
+                <div class="balanceMain">
+                    <img class="flag-icon" id="topAccIcon" src="https://cdn-icons-png.flaticon.com/128/1344/1344761.png">
+                    <span class="balance-amount" id="balTxt">$10,000.00</span>
+                </div>
+                <svg class="arrow-down" viewBox="0 0 24 24" fill="#888">
+                    <path d="M7 10l5 5 5-5z"></path>
+                </svg>
+                
+                <!-- Account Menu -->
+                <div class="accMenu" id="accMenu">
+                    <div class="accSwitch">
+                        <button class="accSwitchBtn live" data-acc="real">LIVE</button>
+                        <button class="accSwitchBtn demo active" data-acc="demo">Demo</button>
+                    </div>
+                    <div class="accItem" data-type="real">
+                        <div class="accL">
+                            <img class="accIco" src="https://flagcdn.com/w40/us.png">
+                            <div class="accAmt" id="realAmt">$0.00</div>
+                        </div>
+                    </div>
+                    <div class="accItem active" data-type="demo">
+                        <div class="accL">
+                            <img class="accIco" src="https://cdn-icons-png.flaticon.com/128/1344/1344761.png">
+                            <div class="accAmt" id="demoAmt">$10,000.00</div>
+                        </div>
+                    </div>
+                    <button class="refillBtn" id="refillBtn">🔄 Refill Demo Account</button>
+                </div>
+            </div>
+            
+            <div class="top-icons">
+                <div class="icon-box green-box" id="genBtn">
+                    <img src="https://cdn-icons-png.flaticon.com/128/10167/10167706.png">
+                </div>
+                <div class="icon-box">
+                    <img src="https://cdn-icons-png.flaticon.com/128/18921/18921105.png">
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div class="fbStatus" id="fbStatus"></div>
+        <div class="roleTag" id="roleTag" style="display:none"></div>
+        
+        <!-- Platform Time -->
+        <div class="platformTime" id="platTime">UTC+3 00:00:00</div>
+        
+        <!-- Indicators Bar -->
+        <div class="indBar" id="indBar"></div>
+        
+        <!-- Indicator Settings Panel -->
+        <div class="indSet" id="indSet">
+            <div class="hd">
+                <b id="indSetTitle">Indicator</b>
+                <button class="btn" id="indSetClose">إغلاق</button>
+            </div>
+            <div class="row">
+                <label>Color</label>
+                <input type="color" id="indColor" value="#ffff00">
+            </div>
+            <div class="row">
+                <label>Width</label>
+                <input type="number" id="indWidth" min="1" max="8" step="1" value="2">
+            </div>
+            <div class="row" id="periodRow" style="display:none">
+                <label>Period</label>
+                <input type="number" id="indPeriod" min="2" max="200" step="1" value="20">
+            </div>
+            <div class="row" id="stdRow" style="display:none">
+                <label>Std Dev</label>
+                <input type="number" id="indStd" min="0.1" max="5" step="0.1" value="2">
+            </div>
+            <div class="btns">
+                <button class="btn" id="indRemove">Delete</button>
+            </div>
+        </div>
+
+        <!-- Date Time Display -->
+        <div class="datetime" id="datetime"></div>
+        
+        <!-- Indicator Icons -->
+        <div class="indicatorIcons">
+            <div class="indIcon" id="indBtn1">
+                <img src="https://cdn-icons-png.flaticon.com/128/742/742130.png">
+            </div>
+            <div class="indIcon" id="indBtn2">
+                <img src="https://cdn-icons-png.flaticon.com/128/561/561184.png">
+            </div>
+            <div class="eyeIcon" id="eyeBtn">👁</div>
+            <div class="indNamesList" id="indNamesList"></div>
+        </div>
+
+        <!-- Chart Wrapper -->
+        <div class="chartWrap">
+            <div id="sk" class="on"></div>
+            <div class="chartFrame">
+                <div class="tc">
+                    <div class="centerLine"></div>
+                    
+                    <!-- Pair Display -->
+                    <div class="pair-box" id="pairHud">
+                        <span id="pairHudTxt">EUR/USD</span>
+                        <span class="otc" id="otcHud">OTC</span>
+                        <span class="flags" id="pairFlags"></span>
+                        <span style="opacity:.7">▾</span>
+                    </div>
+                    
+                    <!-- Chart Canvas -->
+                    <canvas id="c"></canvas>
+                    
+                    <!-- Candle Timer -->
+                    <div class="candleTimer" id="candleTimer">59</div>
+                    
+                    <!-- Price Scale -->
+                    <div class="ps" id="ps"></div>
+                    
+                    <!-- Time Labels -->
+                    <div class="timeLabels" id="timeLabels"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Candles Panel -->
+        <div class="genPanel" id="genPanel">
+            <h3>🕯️ توليد شموع</h3>
+            <input type="number" id="genInput" placeholder="عدد الشموع (10-1000)" min="10" max="1000" value="100">
+            <div class="btns">
+                <button class="primary" id="genConfirm">توليد</button>
+                <button class="secondary" id="genCancel">إلغاء</button>
+            </div>
+        </div>
+
+        <!-- Pair Selection Panel -->
+        <div class="pairPanel" id="pairPanel">
+            <div class="pairHead">
+                <b>الازواج</b>
+                <button class="pairClose" id="pairClose">×</button>
+            </div>
+            <div class="pairList" id="pairList"></div>
+        </div>
+
+        <!-- Indicators Panel -->
+        <div class="indicatorsPanel" id="indicatorsPanel">
+            <div class="indPanelHead">
+                <h3>Indicators</h3>
+                <button class="closeIndBtn" id="closeIndBtn">×</button>
+            </div>
+            <div class="indItem" data-ind="bb">
+                <span>Bollinger Bands</span>
+            </div>
+            <div class="indItem" data-ind="tl">
+                <span>Trendline</span>
+            </div>
+        </div>
+
+        <!-- Trades Panel -->
+        <div class="tradesPanel" id="tradesPanel">
+            <div class="tradesPanelHeader">
+                <h3>📊 Active Trades</h3>
+                <button class="closeTrPanel" id="closeTrPanel">×</button>
+            </div>
+            <div class="tradesContent" id="tradesContent"></div>
+        </div>
+
+        <!-- Trading Controls -->
+        <div class="trading-controls">
+            <div class="control-row">
+                <!-- Amount Input -->
+                <div class="input-wrapper">
+                    <button class="ctrl-btn" id="minus">-</button>
+                    <input class="input-field" value="$ 1" id="amountInput">
+                    <button class="ctrl-btn" id="plus">+</button>
+                </div>
+                
+                <!-- Time Picker -->
+                <div class="input-wrapper" id="timeWrapper">
+                    <input class="input-field" value="00:01:00" id="timeInput" readonly>
+                    <div class="timePickerPopup" id="timePickerPopup">
+                        <div class="timeGrid">
+                            <button class="timeBtn" data-time="00:00:15">15s</button>
+                            <button class="timeBtn" data-time="00:00:10">10s</button>
+                            <button class="timeBtn" data-time="00:00:05">5s</button>
+                            <button class="timeBtn" data-time="00:02:00">2m</button>
+                            <button class="timeBtn" data-time="00:01:00">1m</button>
+                            <button class="timeBtn" data-time="00:00:30">30s</button>
+                            <button class="timeBtn" data-time="00:15:00">15m</button>
+                            <button class="timeBtn" data-time="00:10:00">10m</button>
+                            <button class="timeBtn" data-time="00:05:00">5m</button>
+                            <button class="timeBtn" data-time="02:00:00">2h</button>
+                            <button class="timeBtn" data-time="01:00:00">1h</button>
+                            <button class="timeBtn" data-time="00:30:00">30m</button>
+                        </div>
+                        <button class="manualBtn" id="manualBtn">ضبط يدوياً</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trade Buttons -->
+        <div class="tradeDock">
+            <div class="trading-buttons">
+                <button class="trade-btn trade-higher" id="buy">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7 14l5-5 5 5z"></path>
+                    </svg>
+                    <span>Buy</span>
+                </button>
+                <button class="trade-btn trade-lower" id="sell">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7 10l5 5 5-5z"></path>
+                    </svg>
+                    <span>Sell</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/893/893214.png">
+            </div>
+            <div class="nav-item">
+                <img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/8490/8490818.png">
+            </div>
+            <div class="nav-item">
+                <img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/9783/9783934.png">
+            </div>
+            <div class="nav-item">
+                <img class="nav-icon" src="https://cdn-icons-png.flaticon.com/128/14026/14026955.png">
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="ctrlPanel" id="ctrlPanel">
+            <div class="ctrlTitle">
+                <b>مقاسات</b>
+                <div class="pills">
+                    <button class="pill" id="hidePanel">إخفاء</button>
+                    <button class="pill primary" id="saveLocal">حفظ</button>
+                </div>
+            </div>
+            <div class="gridBtns">
+                <button class="gbtn" id="panL">تحريك <small>◀</small></button>
+                <button class="gbtn" id="panR">تحريك <small>▶</small></button>
+                <button class="gbtn" id="zoomOut">تصغير <small>−</small></button>
+                <button class="gbtn" id="zoomIn">تكبير <small>+</small></button>
+                <button class="gbtn" id="moreData">عرض بيانات أكتر <small>−</small></button>
+                <button class="gbtn" id="lessData">عرض بيانات أقل <small>+</small></button>
+                <button class="gbtn" id="wDec">تعريض شموع <small>−</small></button>
+                <button class="gbtn" id="wInc">تعريض شموع <small>+</small></button>
+                <button class="gbtn" id="compDec">ضغط سعري <small>−</small></button>
+                <button class="gbtn" id="compInc">ضغط سعري <small>+</small></button>
+                <button class="gbtn" id="resetLive">Live <small>↺</small></button>
+                <button class="gbtn" id="resetAll">Reset <small>⟲</small></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
