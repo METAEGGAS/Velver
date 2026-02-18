@@ -1,20 +1,8 @@
-// ===========================
-// استيراد Firebase
-// ===========================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc,
-    onSnapshot,
-    deleteField
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+// ===== Firebase Configuration =====
+import { initializeApp as iA } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+import { getFirestore as gFS, doc as D, setDoc as sD, getDoc as gD, onSnapshot as oS, deleteField as dF } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-// ===========================
-// إعدادات Firebase
-// ===========================
-const firebaseConfig = {
+const fC = {
     apiKey: "AIzaSyBOUqLixfphg3b8hajc4hkwV-VJmldGBVw",
     authDomain: "randers-c640b.firebaseapp.com",
     projectId: "randers-c640b",
@@ -23,407 +11,368 @@ const firebaseConfig = {
     appId: "1:391496092929:web:58208b4eb3e6f9a8571f00"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app = iA(fC);
+const db = gFS(app);
 
-// ===========================
-// وظائف Firebase المساعدة
-// ===========================
+// ===== Helper Functions =====
+const $ = i => document.getElementById(i);
+const clp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-// عرض رسالة الحالة
-const showStatus = (message, type) => {
-    const statusEl = document.getElementById("fbStatus");
-    statusEl.textContent = message;
-    statusEl.className = "fbStatus show " + (type || "success");
-    setTimeout(() => statusEl.classList.remove("show"), 2500);
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+const nS = v => {
+    if (!(v > 0)) return 1;
+    const p = Math.pow(10, Math.floor(Math.log10(v)));
+    const n = v / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
 };
 
-// حفظ الشموع إلى Firebase
-const saveToFirebase = async (pair, candles) => {
-    try {
-        const key = pair.replace(/\//g, "_");
-        await setDoc(doc(db, "candles", key), {
-            cs: candles,
-            lu: Date.now()
-        }, { merge: false });
-        console.log("✓ حفظ:", pair, candles.length);
-    } catch (error) {
-        console.error("❌ خطأ في الحفظ:", error);
-        showStatus("خطأ في الحفظ", "error");
-    }
+const pD = s => {
+    const m = s.match(/^(\d{2}):(\d{2}):(\d{2})$/);
+    if (!m) return 6e4;
+    return (+m[1] * 3600 + +m[2] * 60 + +m[3]) * 1e3;
 };
 
-// تحميل الشموع من Firebase
-const loadFromFirebase = async (pair) => {
-    try {
-        const key = pair.replace(/\//g, "_");
-        const snapshot = await getDoc(doc(db, "candles", key));
-        if (snapshot.exists()) {
-            const data = snapshot.data();
-            console.log("✓ تحميل:", pair, data.cs?.length || 0);
-            return data.cs || [];
-        }
-        return [];
-    } catch (error) {
-        console.error("❌ خطأ في التحميل:", error);
-        return [];
-    }
+const fT = ms => {
+    const s = Math.floor(ms / 1e3);
+    const m = Math.floor(s / 60);
+    const h = Math.floor(m / 60);
+    return h > 0 ? `${h}:${String(m % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}` : `${m % 60}:${String(s % 60).padStart(2, "0")}`;
 };
 
-// حفظ الشمعة الحالية المباشرة
-const saveLiveCandle = async (pair, candle) => {
-    try {
-        const key = "live_" + pair.replace(/\//g, "_");
-        const sessionID = sessionStorage.getItem("sessID") || "";
-        await setDoc(doc(db, "live", key), {
-            cc: candle,
-            t: Date.now(),
-            mID: sessionID
-        }, { merge: true });
-    } catch (error) {
-        console.error("❌ خطأ في حفظ الشمعة المباشرة:", error);
-    }
-};
-
-// مسح مدير الزوج
-const clearManager = async (pair) => {
-    try {
-        const key = "live_" + pair.replace(/\//g, "_");
-        await setDoc(doc(db, "live", key), {
-            mID: deleteField()
-        }, { merge: true });
-    } catch (error) {
-        console.error("❌ خطأ في مسح المدير:", error);
-    }
-};
-
-// ===========================
-// وظائف حفظ وتحميل الصفقات
-// ===========================
-const saveTrades = () => {
-    try {
-        localStorage.setItem("trades", JSON.stringify(state.trades));
-    } catch (error) {
-        console.error("❌ خطأ في حفظ الصفقات:", error);
-    }
-};
-
-const loadTrades = () => {
-    try {
-        const data = localStorage.getItem("trades");
-        if (data) {
-            const trades = JSON.parse(data);
-            state.trades = trades.filter(x => x.pair === chart.pair);
-            renderTradesPanel();
-        }
-    } catch (error) {
-        console.error("❌ خطأ في تحميل الصفقات:", error);
-    }
-};
-
-// ===========================
-// وظائف مساعدة عامة
-// ===========================
-const $ = (id) => document.getElementById(id);
-
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-
-// خريطة أعلام العملات
-const flagMap = {
-    AED: "ae", CNY: "cn", AUD: "au", CAD: "ca", CHF: "ch",
-    BHD: "bh", EUR: "eu", RUB: "ru", USD: "us", KES: "ke",
-    LBP: "lb", QAR: "qa", TRY: "tr", SYP: "sy", EGP: "eg",
-    INR: "in", IRR: "ir"
-};
-
-const makeFlag = (currency) => 
-    `https://flagcdn.com/w40/${(flagMap[currency] || currency || "un").toLowerCase()}.png`;
-
-// ===========================
-// بيانات الأزواج الافتراضية
-// ===========================
-const defaultPairs = [
-    { pair: "AED/CNY", otc: 1, payout: 0.91, flags: ["AED", "CNY"], price: 7.2, seed: 11001, digits: 3 },
-    { pair: "AUD/CAD", otc: 1, payout: 0.88, flags: ["AUD", "CAD"], price: 0.91, seed: 11002, digits: 5 },
-    { pair: "AUD/CHF", otc: 1, payout: 0.92, flags: ["AUD", "CHF"], price: 0.55, seed: 11003, digits: 5 },
-    { pair: "BHD/CNY", otc: 1, payout: 0.86, flags: ["BHD", "CNY"], price: 19.8, seed: 11004, digits: 3 },
-    { pair: "EUR/RUB", otc: 1, payout: 0.77, flags: ["EUR", "RUB"], price: 97.4, seed: 11005, digits: 2 },
-    { pair: "EUR/USD", otc: 1, payout: 0.92, flags: ["EUR", "USD"], price: 1.0895, seed: 33333, digits: 5 },
-    { pair: "KES/USD", otc: 1, payout: 0.84, flags: ["KES", "USD"], price: 0.0077, seed: 11006, digits: 6 },
-    { pair: "LBP/USD", otc: 1, payout: 0.79, flags: ["LBP", "USD"], price: 0.000011, seed: 11007, digits: 8 },
-    { pair: "QAR/CNY", otc: 1, payout: 0.83, flags: ["QAR", "CNY"], price: 1.97, seed: 11008, digits: 4 },
-    { pair: "USD/CHF", otc: 1, payout: 0.89, flags: ["USD", "CHF"], price: 0.91, seed: 11009, digits: 5 },
-    { pair: "SYP/TRY", otc: 1, payout: 0.87, flags: ["SYP", "TRY"], price: 0.00013, seed: 11010, digits: 7 },
-    { pair: "EGP/USD", otc: 1, payout: 0.78, flags: ["EGP", "USD"], price: 0.032, seed: 11011, digits: 5 },
-    { pair: "USD/INR", otc: 1, payout: 0.90, flags: ["USD", "INR"], price: 83.2, seed: 11012, digits: 2 }
-];
-
-// ===========================
-// الحالة العامة للتطبيق
-// ===========================
-const state = {
-    pairs: new Map(),
-    favorites: new Set(),
-    trades: [],
-    indicators: []
-};
-
-// تهيئة الأزواج
-defaultPairs.forEach(p => state.pairs.set(p.pair, p));
-
-// ===========================
-// وظائف عرض واجهة المستخدم
-// ===========================
-
-// تحديث أعلام الزوج
-const updatePairFlags = (pair, container) => {
-    const meta = state.pairs.get(pair) || defaultPairs.find(x => x.pair === pair);
-    if (!meta) return;
-    const flags = meta.flags || String(pair).split("/");
-    container.innerHTML = flags.map(f => `<img src="${makeFlag(f)}" class="flag-icon-small">`).join("");
-};
-
-// تنسيق النسبة المئوية
-const formatPayout = (payout) => Math.round((+payout || 0) * 100) + "%";
-
-// عرض قائمة الأزواج
-const renderPairsList = () => {
-    const listEl = $("pairList");
-    if (!listEl) return;
-
-    const allPairs = [...state.pairs.values()].sort((a, b) => {
-        const favA = state.favorites.has(a.pair) ? 1 : 0;
-        const favB = state.favorites.has(b.pair) ? 1 : 0;
-        if (favA !== favB) return favB - favA;
-        return a.pair.localeCompare(b.pair);
-    });
-
-    listEl.innerHTML = allPairs.map(p => {
-        const [curr1, curr2] = String(p.pair).split("/");
-        const star = state.favorites.has(p.pair) ? "★" : "☆";
-        return `
-            <button class="pit" data-p="${p.pair}">
-                <span class="pitL">
-                    <span class="star" data-s="1">${star}</span>
-                    <span class="fg">
-                        <img src="${makeFlag(curr1)}">
-                        <img src="${makeFlag(curr2)}">
-                    </span>
-                    <span class="nm">${p.pair}<span class="bad">OTC</span></span>
-                </span>
-                <span>+${formatPayout(p.payout)}</span>
-            </button>
-        `;
-    }).join("");
-};
-
-// ===========================
-// متغيرات الإدارة
-// ===========================
-let isManager = false;
-let showIndicatorNames = true;
-let sessionID = "";
-let balance = 10000;
-
-// ===========================
-// وظائف مساعدة للحسابات
-// ===========================
-const generateUID = () => Math.random().toString(36).slice(2, 9);
-
-const niceStep = (value) => {
-    if (!(value > 0)) return 1;
-    const power = Math.pow(10, Math.floor(Math.log10(value)));
-    const normalized = value / power;
-    return (normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10) * power;
-};
-
-// تحويل وقت نصي إلى ميلي ثانية
-const parseDuration = (str) => {
-    const match = str.match(/^(\d{2}):(\d{2}):(\d{2})$/);
-    if (!match) return 60000;
-    return (+match[1] * 3600 + +match[2] * 60 + +match[3]) * 1000;
-};
-
-// تنسيق الوقت من ميلي ثانية
-const formatTime = (ms) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    return hours > 0 
-        ? `${hours}:${String(minutes % 60).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`
-        : `${minutes % 60}:${String(seconds % 60).padStart(2, "0")}`;
-};
-
-// تنسيق التاريخ والوقت
-const formatDateTime = (timestamp) => {
-    const d = new Date(timestamp);
+const fDT = ts => {
+    const d = new Date(ts);
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
-// ===========================
-// حساب الربح/الخسارة
-// ===========================
-function calculateProfit(trade, currentPrice) {
-    const pairInfo = state.pairs.get(trade.pair);
-    const payout = pairInfo ? pairInfo.payout : 0.85;
-    const priceDiff = trade.type === "buy" 
-        ? currentPrice - trade.openPrice 
-        : trade.openPrice - currentPrice;
-    
-    return priceDiff > 0 
-        ? trade.amount * (1 + payout) 
-        : priceDiff < 0 
-            ? -trade.amount 
-            : 0;
+const fM = {
+    AED: "ae", CNY: "cn", AUD: "au", CAD: "ca", CHF: "ch", BHD: "bh",
+    EUR: "eu", RUB: "ru", USD: "us", KES: "ke", LBP: "lb", QAR: "qa",
+    TRY: "tr", SYP: "sy", EGP: "eg", INR: "in", IRR: "ir"
+};
+
+const mkF = c => `https://flagcdn.com/w40/${(fM[c] || c || "un").toLowerCase()}.png`;
+
+const fP = p => Math.round((+p || 0) * 100) + "%";
+
+// ===== Firebase Functions =====
+const shSt = (m, t) => {
+    const s = $("fbStatus");
+    s.textContent = m;
+    s.className = "fbStatus show " + (t || "success");
+    setTimeout(() => s.classList.remove("show"), 2500);
+};
+
+const svFB = async (p, d) => {
+    try {
+        const k = p.replace(/\//g, "_");
+        await sD(D(db, "candles", k), { cs: d, lu: Date.now() }, { merge: false });
+        console.log("✓ حفظ:", p, d.length);
+    } catch (e) {
+        console.error("❌ خطأ:", e);
+        shSt("خطأ في الحفظ", "error");
+    }
+};
+
+const ldFB = async p => {
+    try {
+        const k = p.replace(/\//g, "_");
+        const s = await gD(D(db, "candles", k));
+        if (s.exists()) {
+            const dt = s.data();
+            console.log("✓ تحميل:", p, dt.cs?.length || 0);
+            return dt.cs || [];
+        }
+        return [];
+    } catch (e) {
+        console.error("❌ خطأ:", e);
+        return [];
+    }
+};
+
+const svLV = async (p, c) => {
+    try {
+        const k = "live_" + p.replace(/\//g, "_");
+        const sID = sessionStorage.getItem("sessID") || "";
+        await sD(D(db, "live", k), { cc: c, t: Date.now(), mID: sID }, { merge: true });
+    } catch (e) {
+        console.error("❌ خطأ:", e);
+    }
+};
+
+const clMgr = async p => {
+    try {
+        const k = "live_" + p.replace(/\//g, "_");
+        await sD(D(db, "live", k), { mID: dF() }, { merge: true });
+    } catch (e) {
+        console.error("❌ خطأ:", e);
+    }
+};
+
+// ===== State Management =====
+const dP = [
+    { pair: "AED/CNY", otc: 1, payout: .91, flags: ["AED", "CNY"], price: 7.2, seed: 11001, digits: 3 },
+    { pair: "AUD/CAD", otc: 1, payout: .88, flags: ["AUD", "CAD"], price: .91, seed: 11002, digits: 5 },
+    { pair: "AUD/CHF", otc: 1, payout: .92, flags: ["AUD", "CHF"], price: .55, seed: 11003, digits: 5 },
+    { pair: "BHD/CNY", otc: 1, payout: .86, flags: ["BHD", "CNY"], price: 19.8, seed: 11004, digits: 3 },
+    { pair: "EUR/RUB", otc: 1, payout: .77, flags: ["EUR", "RUB"], price: 97.4, seed: 11005, digits: 2 },
+    { pair: "EUR/USD", otc: 1, payout: .92, flags: ["EUR", "USD"], price: 1.0895, seed: 33333, digits: 5 },
+    { pair: "KES/USD", otc: 1, payout: .84, flags: ["KES", "USD"], price: .0077, seed: 11006, digits: 6 },
+    { pair: "LBP/USD", otc: 1, payout: .79, flags: ["LBP", "USD"], price: .000011, seed: 11007, digits: 8 },
+    { pair: "QAR/CNY", otc: 1, payout: .83, flags: ["QAR", "CNY"], price: 1.97, seed: 11008, digits: 4 },
+    { pair: "USD/CHF", otc: 1, payout: .89, flags: ["USD", "CHF"], price: .91, seed: 11009, digits: 5 },
+    { pair: "SYP/TRY", otc: 1, payout: .87, flags: ["SYP", "TRY"], price: .00013, seed: 11010, digits: 7 },
+    { pair: "EGP/USD", otc: 1, payout: .78, flags: ["EGP", "USD"], price: .032, seed: 11011, digits: 5 },
+    { pair: "USD/INR", otc: 1, payout: .90, flags: ["USD", "INR"], price: 83.2, seed: 11012, digits: 2 }
+];
+
+const st = {
+    pairs: new Map(),
+    fav: new Set(),
+    trades: [],
+    inds: []
+};
+
+dP.forEach(x => st.pairs.set(x.pair, x));
+
+let aA = "demo";
+let bal = 10000;
+let isMgr = false;
+let shIN = 1;
+let sID = "";
+
+// ===== Trade Functions =====
+const svTr = () => {
+    try {
+        localStorage.setItem("trades", JSON.stringify(st.trades));
+    } catch (e) {
+        console.error("❌ حفظ صفقات:", e);
+    }
+};
+
+const ldTr = () => {
+    try {
+        const d = localStorage.getItem("trades");
+        if (d) {
+            const t = JSON.parse(d);
+            st.trades = t.filter(x => x.pair === chart.pair);
+            rTP();
+        }
+    } catch (e) {
+        console.error("❌ تحميل صفقات:", e);
+    }
+};
+
+function cPf(tr, cp) {
+    const pI = st.pairs.get(tr.pair);
+    const po = pI ? pI.payout : .85;
+    const pp = tr.type === "buy" ? cp - tr.openPrice : tr.openPrice - cp;
+    return pp > 0 ? tr.amount * (1 + po) : pp < 0 ? -tr.amount : 0;
 }
 
-// ===========================
-// عرض لوحة الصفقات
-// ===========================
-function renderTradesPanel() {
-    const contentEl = $("tradesContent");
-    const activeTrades = state.trades.filter(t => t.pair === chart.pair);
-
-    if (!activeTrades.length) {
-        contentEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.5);padding:20px;">لا توجد صفقات</p>';
+function rTP() {
+    const tc = $("tradesContent");
+    const as = st.trades.filter(t => t.pair === chart.pair);
+    
+    if (!as.length) {
+        tc.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.5);padding:20px;">لا توجد صفقات</p>';
         return;
     }
-
-    contentEl.innerHTML = activeTrades.map((trade, index) => {
+    
+    tc.innerHTML = as.map((tr, i) => {
         const now = Date.now();
-        const timeLeft = Math.max(0, trade.openTime + trade.duration - now);
-        const currentPrice = window.chart && chart.currentCandle ? chart.currentCandle.close : trade.openPrice;
-        const profit = calculateProfit(trade, currentPrice);
-        const profitClass = profit > 0 ? "positive" : profit < 0 ? "negative" : "";
-        const amountClass = trade.type === "buy" ? "buy" : "sell";
-
-        return `
-            <div class="tradeCard" data-idx="${index}">
-                <div class="trL">
-                    <div style="display:flex;gap:10px;align-items:center;">
-                        <div class="trTimer">${trade.closed ? "انتهت" : formatTime(timeLeft)}</div>
-                        <div class="trAmt ${amountClass}">$${trade.amount}</div>
-                    </div>
-                    <div style="display:flex;gap:10px;align-items:center;">
-                        <div class="trPair">${trade.pair}</div>
-                        <div class="trProfit ${profitClass}">$${profit.toFixed(2)}</div>
-                    </div>
+        const lf = Math.max(0, tr.openTime + tr.duration - now);
+        const cp = window.chart && chart.cc ? chart.cc.close : tr.openPrice;
+        const pf = cPf(tr, cp);
+        const pfC = pf > 0 ? "positive" : pf < 0 ? "negative" : "";
+        const aC = tr.type === "buy" ? "buy" : "sell";
+        
+        return `<div class="tradeCard" data-idx="${i}">
+            <div class="trL">
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <div class="trTimer">${tr.closed ? "انتهت" : fT(lf)}</div>
+                    <div class="trAmt ${aC}">$${tr.amount}</div>
                 </div>
-                ${trade.closed ? `
-                    <div class="trDetails" id="trD${index}">
-                        <div class="trDRow">
-                            <span class="label">سعر الفتح:</span>
-                            <span class="value">${trade.openPrice.toFixed(chart.pairData.digits)}</span>
-                        </div>
-                        <div class="trDRow">
-                            <span class="label">سعر الإغلاق:</span>
-                            <span class="value">${(trade.closePrice || 0).toFixed(chart.pairData.digits)}</span>
-                        </div>
-                        <div class="trDRow">
-                            <span class="label">وقت الفتح:</span>
-                            <span class="value">${formatDateTime(trade.openTime)}</span>
-                        </div>
-                        <div class="trDRow">
-                            <span class="label">وقت الإغلاق:</span>
-                            <span class="value">${formatDateTime(trade.closeTime || 0)}</span>
-                        </div>
-                        <div class="trDRow">
-                            <span class="label">النتيجة:</span>
-                            <span class="value ${profitClass}">${profit > 0 ? "ربح" : profit < 0 ? "خسارة" : "تعادل"}</span>
-                        </div>
-                        <div class="trDRow">
-                            <span class="label">المبلغ:</span>
-                            <span class="value ${profitClass}">$${profit.toFixed(2)}</span>
-                        </div>
-                        <canvas class="miniChart" id="mC${index}" width="300" height="80"></canvas>
-                    </div>
-                ` : ""}
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <div class="trPair">${tr.pair}</div>
+                    <div class="trProfit ${pfC}">$${pf.toFixed(2)}</div>
+                </div>
             </div>
-        `;
+            ${tr.closed ? `<div class="trDetails" id="trD${i}">
+                <div class="trDRow"><span class="label">سعر الفتح:</span><span class="value">${tr.openPrice.toFixed(chart.d.digits)}</span></div>
+                <div class="trDRow"><span class="label">سعر الإغلاق:</span><span class="value">${(tr.closePrice || 0).toFixed(chart.d.digits)}</span></div>
+                <div class="trDRow"><span class="label">وقت الفتح:</span><span class="value">${fDT(tr.openTime)}</span></div>
+                <div class="trDRow"><span class="label">وقت الإغلاق:</span><span class="value">${fDT(tr.closeTime || 0)}</span></div>
+                <div class="trDRow"><span class="label">النتيجة:</span><span class="value ${pfC}">${pf > 0 ? "ربح" : pf < 0 ? "خسارة" : "تعادل"}</span></div>
+                <div class="trDRow"><span class="label">المبلغ:</span><span class="value ${pfC}">$${pf.toFixed(2)}</span></div>
+                <canvas class="miniChart" id="mC${i}" width="300" height="80"></canvas>
+            </div>` : ""}
+        </div>`;
     }).join("");
-
-    // رسم الرسوم البيانية الصغيرة للصفقات المغلقة
-    activeTrades.forEach((trade, index) => {
-        if (trade.closed) {
-            const canvas = $("mC" + index);
-            if (canvas) {
-                const ctx = canvas.getContext("2d");
-                const width = 300;
-                const height = 80;
-                const prices = trade.priceHistory || [];
+    
+    as.forEach((tr, i) => {
+        if (tr.closed) {
+            const cv = $("mC" + i);
+            if (cv) {
+                const cx = cv.getContext("2d");
+                const w = 300, h = 80;
+                const pts = tr.priceHistory || [];
+                cx.clearRect(0, 0, w, h);
                 
-                ctx.clearRect(0, 0, width, height);
-                
-                if (prices.length > 1) {
-                    const min = Math.min(...prices);
-                    const max = Math.max(...prices);
-                    const range = max - min || 1;
-                    
-                    ctx.strokeStyle = trade.type === "buy" ? "#00ff88" : "#ff5a4f";
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    
-                    prices.forEach((price, i) => {
-                        const x = i / (prices.length - 1) * width;
-                        const y = height - (price - min) / range * height;
-                        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                if (pts.length > 1) {
+                    const mn = Math.min(...pts);
+                    const mx = Math.max(...pts);
+                    const rg = mx - mn || 1;
+                    cx.strokeStyle = tr.type === "buy" ? "#00ff88" : "#ff5a4f";
+                    cx.lineWidth = 2;
+                    cx.beginPath();
+                    pts.forEach((p, j) => {
+                        const x = j / (pts.length - 1) * w;
+                        const y = h - (p - mn) / rg * h;
+                        j === 0 ? cx.moveTo(x, y) : cx.lineTo(x, y);
                     });
-                    
-                    ctx.stroke();
+                    cx.stroke();
                 }
             }
         }
     });
 }
 
-// ===========================
-// عرض قائمة المؤشرات
-// ===========================
-function renderIndicatorsList() {
-    const listEl = $("indNamesList");
-    const eyeBtn = $("eyeBtn");
+// ===== UI Functions =====
+const upPF = (p, c) => {
+    const m = st.pairs.get(p) || dP.find(x => x.pair === p);
+    if (!m) return;
+    const f = m.flags || String(p).split("/");
+    c.innerHTML = f.map(x => `<img src="${mkF(x)}" class="flag-icon-small">`).join("");
+};
 
-    if (state.indicators.length === 0) {
-        eyeBtn.style.display = "none";
-        listEl.style.display = "none";
+const rPP = () => {
+    const pl = $("pairList");
+    if (!pl) return;
+    
+    const ar = [...st.pairs.values()].sort((a, b) => {
+        const fa = st.fav.has(a.pair) ? 1 : 0;
+        const fb = st.fav.has(b.pair) ? 1 : 0;
+        if (fa !== fb) return fb - fa;
+        return a.pair.localeCompare(b.pair);
+    });
+    
+    pl.innerHTML = ar.map(x => {
+        const [a, b] = String(x.pair).split("/");
+        const st2 = st.fav.has(x.pair) ? "★" : "☆";
+        return `<button class="pit" data-p="${x.pair}">
+            <span class="pitL">
+                <span class="star" data-s="1">${st2}</span>
+                <span class="fg">
+                    <img src="${mkF(a)}">
+                    <img src="${mkF(b)}">
+                </span>
+                <span class="nm">${x.pair}<span class="bad">OTC</span></span>
+            </span>
+            <span>+${fP(x.payout)}</span>
+        </button>`;
+    }).join("");
+};
+
+const upB = () => {
+    const f = v => "$" + v.toFixed(2);
+    $("balTxt").textContent = f(bal);
+    $("demoAmt").textContent = f(bal);
+};
+
+const upAI = () => {
+    $("topAccIcon").src = aA === "real" 
+        ? "https://flagcdn.com/w40/us.png" 
+        : "https://cdn-icons-png.flaticon.com/128/1344/1344761.png";
+};
+
+function rIN() {
+    const bx = $("indNamesList");
+    const ey = $("eyeBtn");
+    
+    if (st.inds.length === 0) {
+        ey.style.display = "none";
+        bx.style.display = "none";
         return;
     }
-
-    eyeBtn.style.display = "flex";
-    listEl.style.display = showIndicatorNames ? "flex" : "none";
     
-    listEl.innerHTML = (state.indicators || []).map((_, i) => 
+    ey.style.display = "flex";
+    bx.style.display = shIN ? "flex" : "none";
+    bx.innerHTML = (st.inds || []).map((_, i) => 
         `<div class="nmIt" data-idx="${i}">${i + 1}</div>`
     ).join("");
-
-    listEl.querySelectorAll(".nmIt").forEach(el => {
-        el.onclick = () => {
-            const idx = +el.dataset.idx;
-            if (state.indicators[idx]) {
-                editingIndicator = state.indicators[idx];
-                openIndicatorSettings(editingIndicator);
-            }
-        };
+    
+    bx.querySelectorAll(".nmIt").forEach(el => el.onclick = () => {
+        const idx = +el.dataset.idx;
+        if (st.inds[idx]) {
+            eI = st.inds[idx];
+            oIS(eI);
+        }
     });
 }
 
-// ===========================
-// فئة الشارت الرئيسية
-// ===========================
+const iN = {
+    bb: "Bollinger Bands",
+    tl: "Trendline"
+};
+
+function rIB() {
+    const br = $("indBar");
+    br.innerHTML = (st.inds || []).map((in2, i) => 
+        `<div class="indBadge">
+            <span class="name" data-i="${i}">${iN[in2.type] || in2.type}</span>
+            <button data-rm="${i}">×</button>
+        </div>`
+    ).join("");
+    
+    br.querySelectorAll("[data-rm]").forEach(bn => bn.onclick = () => {
+        st.inds.splice(+bn.dataset.rm, 1);
+        rIB();
+        rIN();
+    });
+    
+    br.querySelectorAll("[data-i]").forEach(sp => sp.onclick = () => {
+        eI = st.inds[+sp.dataset.i];
+        oIS(eI);
+    });
+    
+    br.style.display = st.inds && st.inds.length ? "flex" : "none";
+    rIN();
+}
+
+let eI = null;
+
+function oIS(in2) {
+    $("indSetTitle").textContent = iN[in2.type] || in2.type;
+    $("indColor").value = in2.color || "#ffff00";
+    $("indWidth").value = in2.width || 2;
+    
+    const pR = $("periodRow");
+    const sR = $("stdRow");
+    pR.style.display = "none";
+    sR.style.display = "none";
+    
+    if (in2.type === "bb") {
+        pR.style.display = "flex";
+        sR.style.display = "flex";
+        $("indPeriod").value = in2.period || 20;
+        $("indStd").value = in2.std || 2;
+    }
+    
+    $("indSet").classList.add("show");
+}
+
+// ===== Chart Class =====
 class Chart {
     constructor() {
-        this.canvas = $("c");
-        this.ctx = this.canvas.getContext("2d");
-        this.host = this.canvas.closest(".tc");
-        
-        // بيانات الشموع
-        this.candles = [];
-        this.currentCandle = null;
-        
-        // إعدادات التكبير والتحريك
+        this.cv = $("c");
+        this.ctx = this.cv.getContext("2d");
+        this.host = this.cv.closest(".tc");
+        this.cs = [];
+        this.cc = null;
         this.baseSpacing = 12;
         this.baseCandleWidth = 8;
-        this.isDragging = false;
+        this.drag = 0;
         this.dragStartX = 0;
         this.dragStartScroll = 0;
         this.manualScrollOffset = 0;
@@ -431,85 +380,52 @@ class Chart {
         this.momentum = 0;
         this.lastDragDelta = 0;
         this.lastDragTime = 0;
-        
-        // إعدادات الوقت
-        this.timeframe = 60000; // 1 دقيقة
-        this.nextCandleTime = Math.floor(Date.now() / 60000) * 60000;
-        
-        // إعدادات التكبير
-        this.minZoom = 0.5;
+        this.tf = 6e4;
+        this.t0 = Math.floor(Date.now() / 6e4) * 6e4;
+        this.minZoom = .5;
         this.maxZoom = 50;
+        this.tlDrag = null;
         this.zoom = 1;
         this.targetZoom = 1;
-        this.zoomEase = 0.18;
-        
-        // عناصر الواجهة
-        this.priceIndicator = null;
+        this.zoomEase = .18;
+        this.priceInd = null;
         this.scaleMark = null;
-        
-        // حالة النظام
-        this.isActive = false;
-        this.isSwitching = false;
-        
-        // معاملات التخصيص
+        this.on = 0;
+        this.switching = 0;
         this.candleWidthMultiplier = 1;
         this.priceCompression = 1;
-        
-        // مؤقتات ومراقبون
         this.tickTimer = null;
         this.loopFrame = null;
-        this.liveUnsubscribe = null;
-        this.heartbeatInterval = null;
-        this.managerCheckInterval = null;
-        
-        // بيانات الزوج
-        this.pair = "EUR/USD";
-        this.pairData = { price: 1.0895, seed: 33333, digits: 5 };
-        this.currentPrice = this.pairData.price;
-        
-        // نطاق السعر للعرض
-        this.priceRange = { min: 0, max: 0 };
-        
-        // سحب خط الاتجاه
-        this.trendDrag = null;
-        
+        this.liveUnsub = null;
+        this.hbInt = null;
+        this.mgrChkInt = null;
         this.setup();
-        this.setupEvents();
+        this.ev();
     }
 
-    async setPair(pair) {
-        const meta = state.pairs.get(pair) || state.pairs.get("EUR/USD");
-        this.pair = pair;
-        this.pairData = {
-            price: meta.price,
-            seed: meta.seed,
-            digits: meta.digits
-        };
-        this.currentPrice = this.pairData.price;
-        this.priceRange = {
-            min: this.pairData.price * 0.95,
-            max: this.pairData.price * 1.05
-        };
+    async setPair(p) {
+        const m = st.pairs.get(p) || st.pairs.get("EUR/USD");
+        this.pair = p;
+        this.d = { price: m.price, seed: m.seed, digits: m.digits };
+        this.cp = this.d.price;
+        this.priceRange = { min: this.d.price * .95, max: this.d.price * 1.05 };
     }
 
     setup() {
         const dpr = devicePixelRatio || 1;
-        const rect = this.host.getBoundingClientRect();
-        
-        this.width = Math.max(0, rect.width);
-        this.height = Math.max(0, rect.height - 24);
-        
-        this.canvas.width = Math.floor(this.width * dpr);
-        this.canvas.height = Math.floor(this.height * dpr);
-        this.canvas.style.width = this.width + "px";
-        this.canvas.style.height = this.height + "px";
-        
+        const r = this.host.getBoundingClientRect();
+        this.w = Math.max(0, r.width);
+        this.h = Math.max(0, r.height - 24);
+        this.cv.width = Math.floor(this.w * dpr);
+        this.cv.height = Math.floor(this.h * dpr);
+        this.cv.style.width = this.w + "px";
+        this.cv.style.height = this.h + "px";
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         
-        if (!this.priceIndicator) {
-            this.priceIndicator = document.createElement("div");
-            this.priceIndicator.className = "priceIndicator";
-            this.host.appendChild(this.priceIndicator);
+        if (!this.priceInd) {
+            this.priceInd = document.createElement("div");
+            this.priceInd.className = "priceIndicator";
+            this.host.appendChild(this.priceInd);
         }
         
         if (!this.scaleMark) {
@@ -519,259 +435,217 @@ class Chart {
         }
     }
 
-    async switchPair(pair) {
-        if (this.isSwitching) return;
-        this.isSwitching = true;
-        this.isActive = false;
-
-        // إيقاف جميع المؤقتات والمراقبين
+    async switchPair(p) {
+        if (this.switching) return;
+        this.switching = 1;
+        this.on = 0;
+        
         if (this.tickTimer) {
             clearTimeout(this.tickTimer);
             this.tickTimer = null;
         }
+        
         if (this.loopFrame) {
             cancelAnimationFrame(this.loopFrame);
             this.loopFrame = null;
         }
-        if (this.liveUnsubscribe) {
-            this.liveUnsubscribe();
-            this.liveUnsubscribe = null;
-        }
-        if (this.heartbeatInterval) {
-            clearInterval(this.heartbeatInterval);
-            this.heartbeatInterval = null;
-        }
-        if (this.managerCheckInterval) {
-            clearInterval(this.managerCheckInterval);
-            this.managerCheckInterval = null;
-        }
-
-        if (isManager) await clearManager(this.pair);
-
-        $("sk").classList.add("on");
-
-        await this.setPair(pair);
         
-        const fbCandles = await loadFromFirebase(pair);
-        this.candles = fbCandles && fbCandles.length > 0 ? [...fbCandles] : [];
-        this.currentCandle = null;
-        this.momentum = 0;
-        this.isDragging = false;
-
-        if (this.candles.length > 0) {
-            this.nextCandleTime = this.candles[this.candles.length - 1].timestamp + this.timeframe;
-            this.currentPrice = this.candles[this.candles.length - 1].close;
-        } else {
-            this.nextCandleTime = Math.floor(Date.now() / 60000) * 60000;
-            this.currentPrice = this.pairData.price;
-            await this.initializeCandles(100);
+        if (this.liveUnsub) {
+            this.liveUnsub();
+            this.liveUnsub = null;
         }
-
-        $("pairHudTxt").textContent = pair;
-        updatePairFlags(pair, $("pairFlags"));
-
-        this.priceRange = {
-            min: this.pairData.price * 0.95,
-            max: this.pairData.price * 1.05
-        };
-
+        
+        if (this.hbInt) {
+            clearInterval(this.hbInt);
+            this.hbInt = null;
+        }
+        
+        if (this.mgrChkInt) {
+            clearInterval(this.mgrChkInt);
+            this.mgrChkInt = null;
+        }
+        
+        if (isMgr) await clMgr(this.pair);
+        
+        $("sk").classList.add("on");
+        await this.setPair(p);
+        
+        const fb = await ldFB(p);
+        this.cs = fb && fb.length > 0 ? [...fb] : [];
+        this.cc = null;
+        this.momentum = 0;
+        this.drag = 0;
+        
+        if (this.cs.length > 0) {
+            this.t0 = this.cs[this.cs.length - 1].timestamp + this.tf;
+            this.cp = this.cs[this.cs.length - 1].close;
+        } else {
+            this.t0 = Math.floor(Date.now() / 6e4) * 6e4;
+            this.cp = this.d.price;
+            await this.iCL(100);
+        }
+        
+        $("pairHudTxt").textContent = p;
+        upPF(p, $("pairFlags"));
+        
+        this.priceRange = { min: this.d.price * .95, max: this.d.price * 1.05 };
         this.snapToLive();
         this.updatePriceRange();
         this.updatePriceScale();
         this.updateTimeLabels();
-
-        await this.checkManagerRole();
-        this.subscribeLive();
-        this.startManagerCheck();
-
-        loadTrades();
-
-        this.isSwitching = false;
-        this.isActive = true;
         
+        await this.chkMR();
+        this.subLV();
+        this.stMC();
+        ldTr();
+        
+        this.switching = 0;
+        this.on = 1;
         this.tick();
         this.loop();
-
+        
         $("sk").classList.remove("on");
     }
 
-    async checkManagerRole() {
-        const key = "live_" + this.pair.replace(/\//g, "_");
-        
+    async chkMR() {
+        const k = "live_" + this.pair.replace(/\//g, "_");
         try {
-            const snapshot = await getDoc(doc(db, "live", key));
-            
-            if (!snapshot.exists() || !snapshot.data().mID) {
-                isManager = true;
-                sessionID = sessionStorage.getItem("sessID") || generateUID();
-                sessionStorage.setItem("sessID", sessionID);
-                
-                await setDoc(doc(db, "live", key), {
-                    mID: sessionID,
-                    t: Date.now()
-                }, { merge: true });
-                
+            const s = await gD(D(db, "live", k));
+            if (!s.exists() || !s.data().mID) {
+                isMgr = true;
+                sID = sessionStorage.getItem("sessID") || uid();
+                sessionStorage.setItem("sessID", sID);
+                await sD(D(db, "live", k), { mID: sID, t: Date.now() }, { merge: true });
                 $("roleTag").textContent = "🎯 مدير";
                 $("roleTag").style.display = "block";
-                this.startHeartbeat();
+                this.stHB();
             } else {
-                const data = snapshot.data();
-                const currentManager = data.mID;
-                const lastTime = data.t || 0;
-                const now = Date.now();
+                const dt = s.data();
+                const cM = dt.mID;
+                const lT = dt.t || 0;
+                const nw = Date.now();
                 
-                if (currentManager === sessionID) {
-                    isManager = true;
+                if (cM === sID) {
+                    isMgr = true;
                     $("roleTag").textContent = "🎯 مدير";
                     $("roleTag").style.display = "block";
-                    this.startHeartbeat();
-                } else if (now - lastTime > 15000) {
-                    isManager = true;
-                    sessionID = sessionStorage.getItem("sessID") || generateUID();
-                    sessionStorage.setItem("sessID", sessionID);
-                    
-                    await setDoc(doc(db, "live", key), {
-                        mID: sessionID,
-                        t: Date.now()
-                    }, { merge: true });
-                    
+                    this.stHB();
+                } else if (nw - lT > 15e3) {
+                    isMgr = true;
+                    sID = sessionStorage.getItem("sessID") || uid();
+                    sessionStorage.setItem("sessID", sID);
+                    await sD(D(db, "live", k), { mID: sID, t: Date.now() }, { merge: true });
                     $("roleTag").textContent = "🎯 مدير";
                     $("roleTag").style.display = "block";
-                    this.startHeartbeat();
+                    this.stHB();
                 } else {
-                    isManager = false;
+                    isMgr = false;
                     $("roleTag").textContent = "👁 مشاهد";
                     $("roleTag").style.display = "block";
                 }
             }
-        } catch (error) {
-            isManager = true;
-            sessionID = sessionStorage.getItem("sessID") || generateUID();
-            sessionStorage.setItem("sessID", sessionID);
+        } catch (e) {
+            isMgr = true;
+            sID = sessionStorage.getItem("sessID") || uid();
+            sessionStorage.setItem("sessID", sID);
             $("roleTag").textContent = "🎯 مدير";
             $("roleTag").style.display = "block";
-            this.startHeartbeat();
+            this.stHB();
         }
     }
 
-    startHeartbeat() {
-        if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
-        
-        this.heartbeatInterval = setInterval(async () => {
-            if (!isManager) return;
-            
-            const key = "live_" + this.pair.replace(/\//g, "_");
+    stHB() {
+        if (this.hbInt) clearInterval(this.hbInt);
+        this.hbInt = setInterval(async () => {
+            if (!isMgr) return;
+            const k = "live_" + this.pair.replace(/\//g, "_");
             try {
-                await setDoc(doc(db, "live", key), {
-                    mID: sessionID,
-                    t: Date.now()
-                }, { merge: true });
-            } catch (error) {
-                console.error("❌ خطأ في نبض القلب:", error);
+                await sD(D(db, "live", k), { mID: sID, t: Date.now() }, { merge: true });
+            } catch (e) {
+                console.error("❌ HB:", e);
             }
-        }, 5000);
+        }, 5e3);
     }
 
-    startManagerCheck() {
-        if (this.managerCheckInterval) clearInterval(this.managerCheckInterval);
-        
-        this.managerCheckInterval = setInterval(async () => {
-            if (isManager) return;
-            
-            const key = "live_" + this.pair.replace(/\//g, "_");
+    stMC() {
+        if (this.mgrChkInt) clearInterval(this.mgrChkInt);
+        this.mgrChkInt = setInterval(async () => {
+            if (isMgr) return;
+            const k = "live_" + this.pair.replace(/\//g, "_");
             try {
-                const snapshot = await getDoc(doc(db, "live", key));
-                
-                if (snapshot.exists()) {
-                    const data = snapshot.data();
-                    const currentManager = data.mID;
-                    const lastTime = data.t || 0;
-                    const now = Date.now();
+                const s = await gD(D(db, "live", k));
+                if (s.exists()) {
+                    const dt = s.data();
+                    const cM = dt.mID;
+                    const lT = dt.t || 0;
+                    const nw = Date.now();
                     
-                    if (!currentManager || now - lastTime > 15000) {
-                        isManager = true;
-                        sessionID = sessionStorage.getItem("sessID") || generateUID();
-                        sessionStorage.setItem("sessID", sessionID);
-                        
-                        await setDoc(doc(db, "live", key), {
-                            mID: sessionID,
-                            t: Date.now()
-                        }, { merge: true });
-                        
+                    if (!cM || nw - lT > 15e3) {
+                        isMgr = true;
+                        sID = sessionStorage.getItem("sessID") || uid();
+                        sessionStorage.setItem("sessID", sID);
+                        await sD(D(db, "live", k), { mID: sID, t: Date.now() }, { merge: true });
                         $("roleTag").textContent = "🎯 مدير";
                         $("roleTag").style.display = "block";
-                        this.startHeartbeat();
+                        this.stHB();
                     }
                 } else {
-                    isManager = true;
-                    sessionID = sessionStorage.getItem("sessID") || generateUID();
-                    sessionStorage.setItem("sessID", sessionID);
-                    
-                    await setDoc(doc(db, "live", key), {
-                        mID: sessionID,
-                        t: Date.now()
-                    }, { merge: true });
-                    
+                    isMgr = true;
+                    sID = sessionStorage.getItem("sessID") || uid();
+                    sessionStorage.setItem("sessID", sID);
+                    await sD(D(db, "live", k), { mID: sID, t: Date.now() }, { merge: true });
                     $("roleTag").textContent = "🎯 مدير";
                     $("roleTag").style.display = "block";
-                    this.startHeartbeat();
+                    this.stHB();
                 }
-            } catch (error) {
-                console.error("❌ خطأ في فحص المدير:", error);
+            } catch (e) {
+                console.error("❌ MC:", e);
             }
-        }, 3000);
+        }, 3e3);
     }
 
-    subscribeLive() {
-        if (this.liveUnsubscribe) this.liveUnsubscribe();
+    subLV() {
+        if (this.liveUnsub) this.liveUnsub();
+        const k = "live_" + this.pair.replace(/\//g, "_");
         
-        const key = "live_" + this.pair.replace(/\//g, "_");
-        
-        this.liveUnsubscribe = onSnapshot(doc(db, "live", key), async (snapshot) => {
-            if (!snapshot.exists() || !this.isActive) return;
+        this.liveUnsub = oS(D(db, "live", k), async s => {
+            if (!s.exists() || !this.on) return;
+            const dt = s.data();
             
-            const data = snapshot.data();
-            
-            if (!isManager && data.cc) {
-                this.currentCandle = { ...data.cc };
-                this.currentPrice = this.currentCandle.close;
+            if (!isMgr && dt.cc) {
+                this.cc = { ...dt.cc };
+                this.cp = this.cc.close;
             }
             
-            if (data.mID) {
-                const currentManager = data.mID;
-                const lastTime = data.t || 0;
-                const now = Date.now();
+            if (dt.mID) {
+                const cM = dt.mID;
+                const lT = dt.t || 0;
+                const nw = Date.now();
                 
-                if (isManager && currentManager !== sessionID && now - lastTime <= 15000) {
-                    isManager = false;
+                if (isMgr && cM !== sID && nw - lT <= 15e3) {
+                    isMgr = false;
                     $("roleTag").textContent = "👁 مشاهد";
                     $("roleTag").style.display = "block";
-                    
-                    if (this.heartbeatInterval) {
-                        clearInterval(this.heartbeatInterval);
-                        this.heartbeatInterval = null;
+                    if (this.hbInt) {
+                        clearInterval(this.hbInt);
+                        this.hbInt = null;
                     }
-                } else if (!isManager && (currentManager === sessionID || now - lastTime > 15000)) {
-                    isManager = true;
-                    sessionID = sessionStorage.getItem("sessID") || generateUID();
-                    sessionStorage.setItem("sessID", sessionID);
-                    
-                    await setDoc(doc(db, "live", key), {
-                        mID: sessionID,
-                        t: Date.now()
-                    }, { merge: true });
-                    
+                } else if (!isMgr && (cM === sID || nw - lT > 15e3)) {
+                    isMgr = true;
+                    sID = sessionStorage.getItem("sessID") || uid();
+                    sessionStorage.setItem("sessID", sID);
+                    await sD(D(db, "live", k), { mID: sID, t: Date.now() }, { merge: true });
                     $("roleTag").textContent = "🎯 مدير";
                     $("roleTag").style.display = "block";
-                    this.startHeartbeat();
+                    this.stHB();
                 }
             }
         }, { includeMetadataChanges: false });
     }
 
     tickZoom() {
-        const diff = this.targetZoom - this.zoom;
-        this.zoom = Math.abs(diff) > 0.0001 ? this.zoom + diff * this.zoomEase : this.targetZoom;
+        const dz = this.targetZoom - this.zoom;
+        this.zoom = Math.abs(dz) > .0001 ? this.zoom + dz * this.zoomEase : this.targetZoom;
     }
 
     getSpacing() {
@@ -783,18 +657,18 @@ class Chart {
     }
 
     getMinScrollOffset() {
-        return this.width / 2 - this.candles.length * this.getSpacing();
+        return this.w / 2 - this.cs.length * this.getSpacing();
     }
 
     getMaxScrollOffset() {
-        return this.width / 2;
+        return this.w / 2;
     }
 
     clampPan() {
-        const min = this.getMinScrollOffset();
-        const max = this.getMaxScrollOffset();
-        this.targetScrollOffset = clamp(this.targetScrollOffset, min, max);
-        this.manualScrollOffset = clamp(this.manualScrollOffset, min, max);
+        const mn = this.getMinScrollOffset();
+        const mx = this.getMaxScrollOffset();
+        this.targetScrollOffset = clp(this.targetScrollOffset, mn, mx);
+        this.manualScrollOffset = clp(this.manualScrollOffset, mn, mx);
     }
 
     snapToLive() {
@@ -805,21 +679,20 @@ class Chart {
     }
 
     smoothScroll() {
-        let diff = this.targetScrollOffset - this.manualScrollOffset;
-        
-        if (Math.abs(diff) > 0.001) {
-            const clampSpeed = this.getSpacing() * 0.45;
-            diff = clamp(diff, -clampSpeed, clampSpeed);
-            this.manualScrollOffset += diff * 0.35;
+        let df = this.targetScrollOffset - this.manualScrollOffset;
+        if (Math.abs(df) > .001) {
+            const cp = this.getSpacing() * .45;
+            df = clp(df, -cp, cp);
+            this.manualScrollOffset += df * .35;
         } else {
             this.manualScrollOffset = this.targetScrollOffset;
         }
     }
 
     applyMomentum() {
-        if (Math.abs(this.momentum) > 0.1) {
+        if (Math.abs(this.momentum) > .1) {
             this.targetScrollOffset += this.momentum;
-            this.momentum *= 0.94;
+            this.momentum *= .94;
         } else {
             this.momentum = 0;
         }
@@ -832,236 +705,207 @@ class Chart {
         return this.manualScrollOffset;
     }
 
-    indexToX(index) {
-        return this.getScrollOffset() + index * this.getSpacing();
+    indexToX(i) {
+        return this.getScrollOffset() + i * this.getSpacing();
     }
 
     xToIndex(x) {
         return (x - this.getScrollOffset()) / this.getSpacing();
     }
 
-    // وظائف توليد الشموع العشوائية
-    random(seed) {
-        const x = Math.sin(seed) * 10000;
+    rnd(s) {
+        const x = Math.sin(s) * 1e4;
         return x - Math.floor(x);
     }
 
-    randomGaussian(seed) {
-        const u1 = this.random(seed);
-        const u2 = this.random(seed + 100000);
-        return Math.sqrt(-2 * Math.log(u1 + 0.0000000001)) * Math.cos(2 * Math.PI * u2);
+    rndG(s) {
+        const u1 = this.rnd(s);
+        const u2 = this.rnd(s + 1e5);
+        return Math.sqrt(-2 * Math.log(u1 + 1e-10)) * Math.cos(2 * Math.PI * u2);
     }
 
-    generateCandle(timestamp, openPrice) {
-        const seed = this.pairData.seed + Math.floor(timestamp / this.timeframe);
-        
-        const volatilityBase = 0.0008;
-        const trendBase = 0.00005;
-        
-        const r1 = this.randomGaussian(seed);
-        const r2 = this.randomGaussian(seed + 1);
-        const r3 = this.randomGaussian(seed + 2);
-        const r4 = this.random(seed + 3);
-        const r5 = this.random(seed + 4);
-        const r6 = this.random(seed + 5);
-        
-        const volatility = volatilityBase * (0.7 + Math.abs(r1) * 0.8);
-        const trend = trendBase * r2 * 0.6;
-        const direction = r3 > 0 ? 1 : -1;
-        
-        const target = openPrice + (direction * volatility + trend);
-        const range = volatility * (0.2 + r4 * 0.6);
-        const highMove = range * (0.3 + r5 * 0.7);
-        const lowMove = range * (0.3 + (1 - r5) * 0.7);
-        
-        const digits = this.pairData.digits;
-        const close = +(target + (r6 - 0.5) * volatility * 0.1).toFixed(digits);
-        const open = +openPrice.toFixed(digits);
+    genCandle(t, op) {
+        const s = this.d.seed + Math.floor(t / this.tf);
+        const vBase = .0008;
+        const tBase = .00005;
+        const r1 = this.rndG(s);
+        const r2 = this.rndG(s + 1);
+        const r3 = this.rndG(s + 2);
+        const r4 = this.rnd(s + 3);
+        const r5 = this.rnd(s + 4);
+        const r6 = this.rnd(s + 5);
+        const vl = vBase * (.7 + Math.abs(r1) * .8);
+        const tr = tBase * r2 * .6;
+        const dr = r3 > 0 ? 1 : -1;
+        const tg = op + (dr * vl + tr);
+        const rv = vl * (.2 + r4 * .6);
+        const hm = rv * (.3 + r5 * .7);
+        const lm = rv * (.3 + (1 - r5) * .7);
+        const dg = this.d.digits;
+        const cl = +(tg + (r6 - .5) * vl * .1).toFixed(dg);
+        const o = +op.toFixed(dg);
         
         return {
-            open: open,
-            close: close,
-            high: +Math.max(open, close, open + highMove, close + highMove).toFixed(digits),
-            low: +Math.min(open, close, open - lowMove, close - lowMove).toFixed(digits),
-            timestamp: timestamp
+            open: o,
+            close: cl,
+            high: +Math.max(o, cl, o + hm, cl + hm).toFixed(dg),
+            low: +Math.min(o, cl, o - lm, cl - lm).toFixed(dg),
+            timestamp: t
         };
     }
 
     getPriceRange() {
-        const center = (this.priceRange.min + this.priceRange.max) / 2;
-        const halfRange = ((this.priceRange.max - this.priceRange.min) / 2) / (1 * this.priceCompression);
-        return {
-            min: center - halfRange,
-            max: center + halfRange
-        };
+        const c = (this.priceRange.min + this.priceRange.max) / 2;
+        const hr = ((this.priceRange.max - this.priceRange.min) / 2) / (1 * this.priceCompression);
+        return { min: c - hr, max: c + hr };
     }
 
-    priceToY(price) {
-        const range = this.getPriceRange();
-        const normalized = (price - range.min) / (range.max - range.min);
-        return this.height * (1 - normalized);
+    priceToY(p) {
+        const r = this.getPriceRange();
+        const n = (p - r.min) / (r.max - r.min);
+        return this.h * (1 - n);
     }
 
     yToPrice(y) {
-        const range = this.getPriceRange();
-        const normalized = 1 - (y / this.height);
-        return range.min + normalized * (range.max - range.min);
+        const r = this.getPriceRange();
+        const n = 1 - (y / this.h);
+        return r.min + n * (r.max - r.min);
     }
 
     updatePriceRange() {
-        let visible = [...this.candles];
-        
-        if (this.currentCandle && (!visible.length || this.currentCandle.timestamp !== visible[visible.length - 1].timestamp)) {
-            visible.push(this.currentCandle);
+        let v = [...this.cs];
+        if (this.cc && (!v.length || this.cc.timestamp !== v[v.length - 1].timestamp)) {
+            v.push(this.cc);
         }
         
-        if (!visible.length) {
-            this.priceRange = {
-                min: this.pairData.price * 0.95,
-                max: this.pairData.price * 1.05
-            };
+        if (!v.length) {
+            this.priceRange = { min: this.d.price * .95, max: this.d.price * 1.05 };
             return;
         }
         
-        const startIdx = Math.floor(this.xToIndex(0));
-        const endIdx = Math.ceil(this.xToIndex(this.width));
-        const visibleCandles = visible.slice(Math.max(0, startIdx - 5), Math.min(visible.length, endIdx + 5));
+        const s = Math.floor(this.xToIndex(0));
+        const e = Math.ceil(this.xToIndex(this.w));
+        const vs = v.slice(Math.max(0, s - 5), Math.min(v.length, e + 5));
         
-        if (!visibleCandles.length) {
-            this.priceRange = {
-                min: this.pairData.price * 0.95,
-                max: this.pairData.price * 1.05
-            };
+        if (!vs.length) {
+            this.priceRange = { min: this.d.price * .95, max: this.d.price * 1.05 };
             return;
         }
         
-        const lows = visibleCandles.map(c => c.low);
-        const highs = visibleCandles.map(c => c.high);
-        const min = Math.min(...lows);
-        const max = Math.max(...highs);
-        const padding = (max - min) * 0.15 || 0.000000001;
+        const lw = vs.map(x => x.low);
+        const hg = vs.map(x => x.high);
+        const mn = Math.min(...lw);
+        const mx = Math.max(...hg);
+        const pd = (mx - mn) * .15 || 1e-9;
         
-        this.priceRange = {
-            min: min - padding,
-            max: max + padding
-        };
+        this.priceRange = { min: mn - pd, max: mx + pd };
     }
 
     gridSteps() {
-        const range = this.getPriceRange();
-        const priceSpan = range.max - range.min;
-        const stepPrice = niceStep(priceSpan / 8);
-        
-        const timeSpan = this.timeframe * (this.width / this.getSpacing());
-        let stepTime = niceStep(timeSpan / 7);
-        
-        const allowedSteps = [5000, 10000, 15000, 30000, 60000, 120000, 300000, 600000, 900000, 1800000, 3600000, 7200000];
-        stepTime = allowedSteps.reduce((a, b) => 
-            Math.abs(b - stepTime) < Math.abs(a - stepTime) ? b : a, 
-            allowedSteps[0]
-        );
-        
-        return { stepP: stepPrice, stepT: stepTime };
+        const r = this.getPriceRange();
+        const sp = r.max - r.min;
+        const sP = nS(sp / 8);
+        const tS = this.tf * (this.w / this.getSpacing());
+        let sT = nS(tS / 7);
+        const al = [5e3, 1e4, 15e3, 3e4, 6e4, 12e4, 3e5, 6e5, 9e5, 18e5, 36e5, 72e5];
+        sT = al.reduce((a, b) => Math.abs(b - sT) < Math.abs(a - sT) ? b : a, al[0]);
+        return { stepP: sP, stepT: sT };
     }
 
     drawGrid() {
-        const range = this.getPriceRange();
+        const r = this.getPriceRange();
         const { stepP, stepT } = this.gridSteps();
         
         this.ctx.lineWidth = 1;
-        this.ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+        this.ctx.strokeStyle = "rgba(255,255,255,.16)";
         
-        let priceStart = Math.floor(range.min / stepP) * stepP;
-        for (let p = priceStart; p <= range.max + stepP * 1.001; p += stepP) {
+        let p0 = Math.floor(r.min / stepP) * stepP;
+        for (let p = p0; p <= r.max + stepP * 1.001; p += stepP) {
             const y = this.priceToY(p);
-            if (y < 0 || y > this.height) continue;
-            
+            if (y < 0 || y > this.h) continue;
             this.ctx.beginPath();
-            this.ctx.moveTo(0, y + 0.5);
-            this.ctx.lineTo(this.width, y + 0.5);
+            this.ctx.moveTo(0, y + .5);
+            this.ctx.lineTo(this.w, y + .5);
             this.ctx.stroke();
         }
         
-        const startIdx = Math.floor(this.xToIndex(0)) - 2;
-        const endIdx = Math.ceil(this.xToIndex(this.width)) + 2;
-        const timeStart = this.candles.length ? this.candles[0].timestamp : (this.nextCandleTime - this.timeframe * this.candles.length);
+        const s = Math.floor(this.xToIndex(0)) - 2;
+        const e = Math.ceil(this.xToIndex(this.w)) + 2;
+        const tS = this.cs.length ? this.cs[0].timestamp : (this.t0 - this.tf * this.cs.length);
         
-        for (let i = startIdx; i <= endIdx; i++) {
-            const t = timeStart + i * this.timeframe;
-            if (((t - (Math.floor(timeStart / stepT) * stepT)) % stepT) !== 0) continue;
-            
+        for (let i = s; i <= e; i++) {
+            const t = tS + i * this.tf;
+            if (((t - (Math.floor(tS / stepT) * stepT)) % stepT) !== 0) continue;
             const x = this.indexToX(i);
-            if (x < 0 || x > this.width) continue;
-            
+            if (x < 0 || x > this.w) continue;
             this.ctx.beginPath();
-            this.ctx.moveTo(x + 0.5, 0);
-            this.ctx.lineTo(x + 0.5, this.height);
+            this.ctx.moveTo(x + .5, 0);
+            this.ctx.lineTo(x + .5, this.h);
             this.ctx.stroke();
         }
     }
 
     updateTimeLabels() {
-        const labelsEl = $("timeLabels");
-        labelsEl.innerHTML = "";
+        const tl = $("timeLabels");
+        tl.innerHTML = "";
         
         const { stepT } = this.gridSteps();
-        const startIdx = Math.floor(this.xToIndex(0)) - 2;
-        const endIdx = Math.ceil(this.xToIndex(this.width)) + 2;
-        const timeStart = this.candles.length ? this.candles[0].timestamp : (this.nextCandleTime - this.timeframe * this.candles.length);
+        const s = Math.floor(this.xToIndex(0)) - 2;
+        const e = Math.ceil(this.xToIndex(this.w)) + 2;
+        const tS = this.cs.length ? this.cs[0].timestamp : (this.t0 - this.tf * this.cs.length);
         
-        for (let i = startIdx; i <= endIdx; i++) {
-            const t = timeStart + i * this.timeframe;
-            if (((t - (Math.floor(timeStart / stepT) * stepT)) % stepT) !== 0) continue;
-            
+        for (let i = s; i <= e; i++) {
+            const t = tS + i * this.tf;
+            if (((t - (Math.floor(tS / stepT) * stepT)) % stepT) !== 0) continue;
             const x = this.indexToX(i);
-            if (x < 5 || x > this.width - 5) continue;
+            if (x < 5 || x > this.w - 5) continue;
             
             const d = new Date(t);
             const hh = String(d.getHours()).padStart(2, "0");
             const mm = String(d.getMinutes()).padStart(2, "0");
             const ss = String(d.getSeconds()).padStart(2, "0");
             
-            const label = document.createElement("div");
-            label.className = "timeLabel";
-            label.style.left = x + "px";
-            label.textContent = (stepT < 60000 ? `${hh}:${mm}:${ss}` : `${hh}:${mm}`);
-            labelsEl.appendChild(label);
+            const lb = document.createElement("div");
+            lb.className = "timeLabel";
+            lb.style.left = x + "px";
+            lb.textContent = (stepT < 6e4 ? `${hh}:${mm}:${ss}` : `${hh}:${mm}`);
+            tl.appendChild(lb);
         }
     }
 
     updatePriceScale() {
-        const containerEl = $("ps");
-        containerEl.innerHTML = "";
+        const pC = $("ps");
+        pC.innerHTML = "";
         
-        const range = this.getPriceRange();
+        const r = this.getPriceRange();
         const { stepP } = this.gridSteps();
         
-        let priceStart = Math.floor(range.min / stepP) * stepP;
-        let count = 0;
+        let p0 = Math.floor(r.min / stepP) * stepP;
+        let n = 0;
         
-        for (let p = priceStart; p <= range.max + stepP * 1.001; p += stepP) {
+        for (let p = p0; p <= r.max + stepP * 1.001; p += stepP) {
             const y = this.priceToY(p);
-            if (y < 0 || y > this.height) continue;
+            if (y < 0 || y > this.h) continue;
             
-            const label = document.createElement("div");
-            label.className = "pl";
-            label.style.top = y + "px";
-            label.textContent = (+p).toFixed(this.pairData.digits);
-            containerEl.appendChild(label);
+            const lb = document.createElement("div");
+            lb.className = "pl";
+            lb.style.top = y + "px";
+            lb.textContent = (+p).toFixed(this.d.digits);
+            pC.appendChild(lb);
             
-            if (++count > 20) break;
+            if (++n > 20) break;
         }
     }
 
     updatePriceIndicator() {
-        if (!this.currentCandle || !this.priceIndicator) return;
+        if (!this.cc || !this.priceInd) return;
         
-        const currentPrice = this.currentCandle.close;
-        const y = this.priceToY(currentPrice);
+        const cp = this.cc.close;
+        const y = this.priceToY(cp);
         
-        this.priceIndicator.textContent = currentPrice.toFixed(this.pairData.digits);
-        this.priceIndicator.style.top = y + "px";
-        this.priceIndicator.style.display = "block";
+        this.priceInd.textContent = cp.toFixed(this.d.digits);
+        this.priceInd.style.top = y + "px";
+        this.priceInd.style.display = "block";
         
         if (this.scaleMark) {
             this.scaleMark.style.top = y + "px";
@@ -1070,68 +914,66 @@ class Chart {
     }
 
     drawCurrentPriceLine() {
-        if (!this.currentCandle) return;
+        if (!this.cc) return;
         
-        const y = this.priceToY(this.currentCandle.close);
-        
-        this.ctx.strokeStyle = "rgba(255, 215, 0, 0.35)";
+        const y = this.priceToY(this.cc.close);
+        this.ctx.strokeStyle = "rgba(255,215,0,.35)";
         this.ctx.lineWidth = 1;
         this.ctx.setLineDash([6, 6]);
         this.ctx.beginPath();
-        this.ctx.moveTo(0, y + 0.5);
-        this.ctx.lineTo(this.width, y + 0.5);
+        this.ctx.moveTo(0, y + .5);
+        this.ctx.lineTo(this.w, y + .5);
         this.ctx.stroke();
         this.ctx.setLineDash([]);
     }
 
     updateCandleTimer() {
-        const now = Date.now();
-        const elapsed = now - this.nextCandleTime;
-        const timeLeft = Math.max(0, Math.ceil((this.timeframe - elapsed) / 1000));
+        const nw = Date.now();
+        const el = nw - this.t0;
+        const lf = Math.max(0, Math.ceil((this.tf - el) / 1e3));
+        const cT = $("candleTimer");
         
-        const timerEl = $("candleTimer");
-        timerEl.textContent = String(timeLeft);
+        cT.textContent = String(lf);
         
-        if (this.currentCandle) {
-            const x = this.indexToX(this.candles.length);
-            const y = this.priceToY(this.currentCandle.close);
+        if (this.cc) {
+            const x = this.indexToX(this.cs.length);
+            const y = this.priceToY(this.cc.close);
             
-            if (x >= -60 && x <= this.width + 60) {
-                timerEl.style.left = Math.max(10, Math.min(this.width - 60, x + 25)) + "px";
-                timerEl.style.top = Math.max(10, Math.min(this.height - 30, y - 15)) + "px";
-                timerEl.style.display = "block";
+            if (x >= -60 && x <= this.w + 60) {
+                cT.style.left = Math.max(10, Math.min(this.w - 60, x + 25)) + "px";
+                cT.style.top = Math.max(10, Math.min(this.h - 30, y - 15)) + "px";
+                cT.style.display = "block";
             } else {
-                timerEl.style.display = "none";
+                cT.style.display = "none";
             }
         } else {
-            timerEl.style.display = "none";
+            cT.style.display = "none";
         }
     }
 
     drawTradeMarkersCanvas() {
-        if (!this.currentCandle) return;
+        if (!this.cc) return;
         
-        const now = Date.now();
-        
-        for (const trade of state.trades) {
-            if (trade.closed) continue;
-            if (trade.pair !== this.pair) continue;
-            if (trade.candleIndex !== this.candles.length) continue;
+        const nw = Date.now();
+        for (const tr of st.trades) {
+            if (tr.closed) continue;
+            if (tr.pair !== this.pair) continue;
+            if (tr.candleIndex !== this.cs.length) continue;
             
-            const x = this.indexToX(this.candles.length);
-            const y = this.priceToY(trade.openPrice);
-            const color = trade.type === "buy" ? "#00ff88" : "#ff5a4f";
+            const x = this.indexToX(this.cs.length);
+            const y = this.priceToY(tr.openPrice);
+            const cl = tr.type === "buy" ? "#00ff88" : "#ff5a4f";
             
             this.ctx.save();
-            this.ctx.strokeStyle = color;
-            this.ctx.fillStyle = color;
+            this.ctx.strokeStyle = cl;
+            this.ctx.fillStyle = cl;
             this.ctx.lineWidth = 2;
             
             this.ctx.beginPath();
             this.ctx.arc(x, y, 3, 0, Math.PI * 2);
             this.ctx.fill();
             
-            this.ctx.globalAlpha = 0.7;
+            this.ctx.globalAlpha = .7;
             this.ctx.beginPath();
             this.ctx.moveTo(x, y);
             this.ctx.lineTo(x - 60, y);
@@ -1142,126 +984,122 @@ class Chart {
             this.ctx.textAlign = "right";
             this.ctx.textBaseline = "middle";
             
-            const timeLeft = Math.max(0, trade.openTime + trade.duration - now);
-            this.ctx.fillText((trade.type === "buy" ? "▲ " : "▼ ") + ("$" + trade.amount), x - 66, y - 10);
+            const lf = Math.max(0, tr.openTime + tr.duration - nw);
+            this.ctx.fillText((tr.type === "buy" ? "▲ " : "▼ ") + ("$" + tr.amount), x - 66, y - 10);
             
-            this.ctx.globalAlpha = 0.7;
+            this.ctx.globalAlpha = .7;
             this.ctx.font = "900 11px system-ui";
-            this.ctx.fillText(formatTime(timeLeft), x - 66, y + 10);
+            this.ctx.fillText(fT(lf), x - 66, y + 10);
             
             this.ctx.restore();
         }
     }
 
-    async initializeCandles(count = 100) {
-        const lastClose = this.candles.length > 0 ? this.candles[this.candles.length - 1].close : this.pairData.price;
-        const start = this.candles.length > 0 ? this.candles[this.candles.length - 1].timestamp + this.timeframe : this.nextCandleTime - this.timeframe * count;
+    async iCL(n = 100) {
+        const lc = this.cs.length > 0 ? this.cs[this.cs.length - 1].close : this.d.price;
+        const st2 = this.cs.length > 0 ? this.cs[this.cs.length - 1].timestamp + this.tf : this.t0 - this.tf * n;
+        let b = lc;
         
-        let basePrice = lastClose;
-        
-        for (let i = 0; i < count; i++) {
-            const t = start + i * this.timeframe;
-            const candle = this.generateCandle(t, basePrice);
-            this.candles.push(candle);
-            basePrice = candle.close;
+        for (let i = 0; i < n; i++) {
+            const t = st2 + i * this.tf;
+            const cd = this.genCandle(t, b);
+            this.cs.push(cd);
+            b = cd.close;
         }
         
-        this.currentPrice = basePrice;
-        await saveToFirebase(this.pair, this.candles);
-        showStatus("✅ تم توليد " + count + " شمعة");
+        this.cp = b;
+        await svFB(this.pair, this.cs);
+        shSt("✅ تم توليد " + n + " شمعة");
     }
 
-    stepTowards(current, target, maxStep) {
-        const diff = target - current;
-        return Math.abs(diff) <= maxStep ? target : current + Math.sign(diff) * maxStep;
+    stepTowards(cr, tg, mS) {
+        const d = tg - cr;
+        return Math.abs(d) <= mS ? tg : cr + Math.sign(d) * mS;
     }
 
     updateCurrentCandle() {
-        if (!isManager) return;
+        if (!isMgr) return;
         
-        if (!this.currentCandle) {
-            const lastPrice = this.candles.length ? this.candles[this.candles.length - 1].close : this.currentPrice;
-            this.currentCandle = this.generateCandle(this.nextCandleTime, lastPrice);
-            this.currentCandle.close = lastPrice;
-            this.currentCandle.high = Math.max(this.currentCandle.open, this.currentCandle.close);
-            this.currentCandle.low = Math.min(this.currentCandle.open, this.currentCandle.close);
+        if (!this.cc) {
+            const lp = this.cs.length ? this.cs[this.cs.length - 1].close : this.cp;
+            this.cc = this.genCandle(this.t0, lp);
+            this.cc.close = lp;
+            this.cc.high = Math.max(this.cc.open, this.cc.close);
+            this.cc.low = Math.min(this.cc.open, this.cc.close);
             return;
         }
         
-        const now = Date.now();
-        const seed = this.pairData.seed + now;
-        const r = this.random(seed);
-        const drift = (r - 0.5) * 0.0004;
+        const nw = Date.now();
+        const sd = this.d.seed + nw;
+        const r = this.rnd(sd);
+        const dr = (r - .5) * .0004;
+        const tg = this.cc.close + dr;
+        const mS = .0008 * .18;
+        const nc = +this.stepTowards(this.cc.close, tg, mS).toFixed(this.d.digits);
         
-        const target = this.currentCandle.close + drift;
-        const maxStep = 0.0008 * 0.18;
-        const newClose = +this.stepTowards(this.currentCandle.close, target, maxStep).toFixed(this.pairData.digits);
+        this.cc.close = nc;
+        this.cc.high = +Math.max(this.cc.high, nc).toFixed(this.d.digits);
+        this.cc.low = +Math.min(this.cc.low, nc).toFixed(this.d.digits);
+        this.cp = nc;
         
-        this.currentCandle.close = newClose;
-        this.currentCandle.high = +Math.max(this.currentCandle.high, newClose).toFixed(this.pairData.digits);
-        this.currentCandle.low = +Math.min(this.currentCandle.low, newClose).toFixed(this.pairData.digits);
-        
-        this.currentPrice = newClose;
-        
-        saveLiveCandle(this.pair, this.currentCandle);
+        svLV(this.pair, this.cc);
         this.updateTrades();
     }
 
     updateTrades() {
-        if (!this.currentCandle) return;
+        if (!this.cc) return;
         
-        const now = Date.now();
-        const currentPrice = this.currentCandle.close;
+        const nw = Date.now();
+        const cp = this.cc.close;
         
-        state.trades.forEach(trade => {
-            if (trade.closed) return;
-            if (trade.pair !== this.pair) return;
+        st.trades.forEach(tr => {
+            if (tr.closed) return;
+            if (tr.pair !== this.pair) return;
             
-            if (!trade.priceHistory) trade.priceHistory = [];
-            trade.priceHistory.push(currentPrice);
+            if (!tr.priceHistory) tr.priceHistory = [];
+            tr.priceHistory.push(cp);
             
-            const elapsed = now - trade.openTime;
-            if (elapsed >= trade.duration) {
-                const profit = calculateProfit(trade, currentPrice);
-                trade.profit = profit;
-                trade.closePrice = currentPrice;
-                trade.closeTime = now;
-                trade.closed = true;
-                
-                balance += profit;
-                saveTrades();
+            const el = nw - tr.openTime;
+            if (el >= tr.duration) {
+                const pf = cPf(tr, cp);
+                tr.profit = pf;
+                tr.closePrice = cp;
+                tr.closeTime = nw;
+                tr.closed = 1;
+                bal += pf;
+                upB();
+                svTr();
             } else {
-                trade.profit = calculateProfit(trade, currentPrice);
+                tr.profit = cPf(tr, cp);
             }
         });
         
-        renderTradesPanel();
+        rTP();
     }
 
     async tick() {
-        if (!this.isActive) return;
+        if (!this.on) return;
         
-        const now = Date.now();
-        const elapsed = now - this.nextCandleTime;
+        const nw = Date.now();
+        const el = nw - this.t0;
         
-        if (elapsed >= this.timeframe) {
-            if (isManager && this.currentCandle) {
-                if (!this.candles.length || this.candles[this.candles.length - 1].timestamp !== this.currentCandle.timestamp) {
-                    this.candles.push({ ...this.currentCandle });
-                    await saveToFirebase(this.pair, this.candles);
+        if (el >= this.tf) {
+            if (isMgr && this.cc) {
+                if (!this.cs.length || this.cs[this.cs.length - 1].timestamp !== this.cc.timestamp) {
+                    this.cs.push({ ...this.cc });
+                    await svFB(this.pair, this.cs);
                 }
             }
             
-            this.nextCandleTime = Math.floor(now / this.timeframe) * this.timeframe;
-            
-            const lastPrice = this.currentCandle ? this.currentCandle.close : this.currentPrice;
-            this.currentCandle = this.generateCandle(this.nextCandleTime, lastPrice);
-            this.currentCandle.open = lastPrice;
-            this.currentCandle.close = lastPrice;
-            this.currentCandle.high = lastPrice;
-            this.currentCandle.low = lastPrice;
-            this.currentPrice = lastPrice;
-        } else if (isManager) {
+            this.t0 = Math.floor(nw / this.tf) * this.tf;
+            const lp = this.cc ? this.cc.close : this.cp;
+            this.cc = this.genCandle(this.t0, lp);
+            this.cc.open = lp;
+            this.cc.close = lp;
+            this.cc.high = lp;
+            this.cc.low = lp;
+            this.cp = lp;
+        } else if (isMgr) {
             this.updateCurrentCandle();
         }
         
@@ -1274,55 +1112,73 @@ class Chart {
         this.tickTimer = setTimeout(() => this.tick(), 200);
     }
 
-    drawCandle(candle, x, isLive) {
-        const open = this.priceToY(candle.open);
-        const close = this.priceToY(candle.close);
-        const high = this.priceToY(candle.high);
-        const low = this.priceToY(candle.low);
+    async genN(n) {
+        shSt("⏳ توليد " + n + " شمعة...");
         
-        const bullish = candle.close >= candle.open;
-        const color = bullish 
-            ? getComputedStyle(document.documentElement).getPropertyValue("--gg") 
-            : "#d32f2f";
+        const lc = this.cs.length > 0 ? this.cs[0].open : this.d.price;
+        const st2 = this.cs.length > 0 ? this.cs[0].timestamp - this.tf * n : this.t0 - this.tf * n;
+        let b = lc;
+        const nw = [];
         
-        const width = this.getCandleWidth();
-        
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = Math.max(1, width * 0.18);
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, high);
-        this.ctx.lineTo(x, low);
-        this.ctx.stroke();
-        
-        const bodyHeight = Math.max(1, Math.abs(close - open));
-        const bodyTop = Math.min(open, close);
-        
-        this.ctx.fillStyle = color;
-        
-        if (isLive) {
-            this.ctx.shadowColor = color;
-            this.ctx.shadowBlur = 7;
+        for (let i = n; i > 0; i--) {
+            const t = st2 + i * this.tf;
+            const cd = this.genCandle(t, b);
+            nw.unshift(cd);
+            b = cd.close;
         }
         
-        this.ctx.fillRect(x - width / 2, bodyTop, width, bodyHeight);
+        if (this.cs.length > 0) {
+            nw[nw.length - 1].close = this.cs[0].open;
+        }
         
-        if (isLive) this.ctx.shadowBlur = 0;
+        this.cs = [...nw, ...this.cs];
+        await svFB(this.pair, this.cs);
+        shSt("✅ تم توليد " + n + " شمعة");
+        
+        this.updatePriceRange();
+        this.updatePriceScale();
+        this.updateTimeLabels();
+    }
+
+    drawCandle(cd, x, lv) {
+        const o = this.priceToY(cd.open);
+        const cl = this.priceToY(cd.close);
+        const hi = this.priceToY(cd.high);
+        const lo = this.priceToY(cd.low);
+        const bl = cd.close >= cd.open;
+        const co = bl ? getComputedStyle(document.documentElement).getPropertyValue("--gg") : "#d32f2f";
+        const w = this.getCandleWidth();
+        
+        this.ctx.strokeStyle = co;
+        this.ctx.lineWidth = Math.max(1, w * .18);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, hi);
+        this.ctx.lineTo(x, lo);
+        this.ctx.stroke();
+        
+        const bh = Math.max(1, Math.abs(cl - o));
+        const bt = Math.min(o, cl);
+        
+        this.ctx.fillStyle = co;
+        if (lv) {
+            this.ctx.shadowColor = co;
+            this.ctx.shadowBlur = 7;
+        }
+        this.ctx.fillRect(x - w / 2, bt, w, bh);
+        if (lv) this.ctx.shadowBlur = 0;
     }
 
     drawIndicators() {
-        for (const indicator of state.indicators) {
-            if (indicator.type === "bb") {
-                this.drawBollingerBands(indicator);
-            } else if (indicator.type === "tl") {
-                this.drawTrendline(indicator);
-            }
+        for (const in2 of st.inds) {
+            if (in2.type === "bb") this.drawBB(in2);
+            else if (in2.type === "tl") this.drawTL(in2);
         }
     }
 
-    drawHandle(x, y, color = "#ffd700") {
+    drawHandle(x, y, co = "#ffd700") {
         this.ctx.save();
-        this.ctx.fillStyle = color;
-        this.ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
+        this.ctx.fillStyle = co;
+        this.ctx.strokeStyle = "rgba(0,0,0,.45)";
         this.ctx.lineWidth = 2;
         this.ctx.beginPath();
         this.ctx.arc(x, y, 5.2, 0, Math.PI * 2);
@@ -1331,103 +1187,93 @@ class Chart {
         this.ctx.restore();
     }
 
-    drawBollingerBands(indicator) {
-        if (this.candles.length < (indicator.period || 20)) return;
+    drawBB(in2) {
+        if (this.cs.length < (in2.period || 20)) return;
         
-        const period = indicator.period || 20;
-        const stdDev = indicator.std || 2;
+        const p = in2.period || 20;
+        const std = in2.std || 2;
+        let sm = [], up = [], lw = [];
         
-        let sma = [];
-        let upper = [];
-        let lower = [];
-        
-        for (let i = period - 1; i < this.candles.length; i++) {
-            let sum = 0;
-            for (let j = 0; j < period; j++) {
-                sum += this.candles[i - j].close;
-            }
-            const avg = sum / period;
+        for (let i = p - 1; i < this.cs.length; i++) {
+            let su = 0;
+            for (let j = 0; j < p; j++) su += this.cs[i - j].close;
+            const av = su / p;
             
-            let variance = 0;
-            for (let j = 0; j < period; j++) {
-                const diff = this.candles[i - j].close - avg;
-                variance += diff * diff;
+            let va = 0;
+            for (let j = 0; j < p; j++) {
+                const df = this.cs[i - j].close - av;
+                va += df * df;
             }
-            const std = Math.sqrt(variance / period);
+            const sd = Math.sqrt(va / p);
             
-            sma.push(avg);
-            upper.push(avg + stdDev * std);
-            lower.push(avg - stdDev * std);
+            sm.push(av);
+            up.push(av + std * sd);
+            lw.push(av - std * sd);
         }
         
-        this.ctx.strokeStyle = indicator.color || "#ffff00";
-        this.ctx.lineWidth = indicator.width || 2;
-        
+        this.ctx.strokeStyle = in2.color || "#ffff00";
+        this.ctx.lineWidth = in2.width || 2;
         this.ctx.beginPath();
-        for (let i = 0; i < sma.length; i++) {
-            const x = this.indexToX(i + period - 1);
-            const y = this.priceToY(sma[i]);
+        for (let i = 0; i < sm.length; i++) {
+            const x = this.indexToX(i + p - 1);
+            const y = this.priceToY(sm[i]);
             i === 0 ? this.ctx.moveTo(x, y) : this.ctx.lineTo(x, y);
         }
         this.ctx.stroke();
         
-        this.ctx.strokeStyle = indicator.color || "#ffff00";
-        this.ctx.globalAlpha = 0.5;
-        
+        this.ctx.strokeStyle = in2.color || "#ffff00";
+        this.ctx.globalAlpha = .5;
         this.ctx.beginPath();
-        for (let i = 0; i < upper.length; i++) {
-            const x = this.indexToX(i + period - 1);
-            const y = this.priceToY(upper[i]);
+        for (let i = 0; i < up.length; i++) {
+            const x = this.indexToX(i + p - 1);
+            const y = this.priceToY(up[i]);
             i === 0 ? this.ctx.moveTo(x, y) : this.ctx.lineTo(x, y);
         }
         this.ctx.stroke();
         
         this.ctx.beginPath();
-        for (let i = 0; i < lower.length; i++) {
-            const x = this.indexToX(i + period - 1);
-            const y = this.priceToY(lower[i]);
+        for (let i = 0; i < lw.length; i++) {
+            const x = this.indexToX(i + p - 1);
+            const y = this.priceToY(lw[i]);
             i === 0 ? this.ctx.moveTo(x, y) : this.ctx.lineTo(x, y);
         }
         this.ctx.stroke();
-        
         this.ctx.globalAlpha = 1;
     }
 
-    drawTrendline(indicator) {
-        if (!indicator.x1 || !indicator.y1 || !indicator.x2 || !indicator.y2) return;
+    drawTL(in2) {
+        if (!in2.x1 || !in2.y1 || !in2.x2 || !in2.y2) return;
         
-        this.ctx.strokeStyle = indicator.color || "#ffff00";
-        this.ctx.lineWidth = indicator.width || 2;
+        this.ctx.strokeStyle = in2.color || "#ffff00";
+        this.ctx.lineWidth = in2.width || 2;
         this.ctx.beginPath();
-        this.ctx.moveTo(indicator.x1, indicator.y1);
-        this.ctx.lineTo(indicator.x2, indicator.y2);
+        this.ctx.moveTo(in2.x1, in2.y1);
+        this.ctx.lineTo(in2.x2, in2.y2);
         this.ctx.stroke();
         
-        const midX = (indicator.x1 + indicator.x2) / 2;
-        const midY = (indicator.y1 + indicator.y2) / 2;
+        const mx = (in2.x1 + in2.x2) / 2;
+        const my = (in2.y1 + in2.y2) / 2;
         
-        this.drawHandle(midX, midY, "#ffd700");
-        this.drawHandle(indicator.x1, indicator.y1, "#ffd700");
-        this.drawHandle(indicator.x2, indicator.y2, "#ffd700");
+        this.drawHandle(mx, my, "#ffd700");
+        this.drawHandle(in2.x1, in2.y1, "#ffd700");
+        this.drawHandle(in2.x2, in2.y2, "#ffd700");
     }
 
     draw() {
         this.tickZoom();
-        
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        
+        this.ctx.clearRect(0, 0, this.w, this.h);
         this.drawGrid();
         
-        for (let i = 0; i < this.candles.length; i++) {
+        for (let i = 0; i < this.cs.length; i++) {
             const x = this.indexToX(i);
-            if (x < -60 || x > this.width + 60) continue;
-            this.drawCandle(this.candles[i], x, false);
+            if (x < -60 || x > this.w + 60) continue;
+            this.drawCandle(this.cs[i], x, 0);
         }
         
-        if (this.currentCandle && (!this.candles.length || this.currentCandle.timestamp !== this.candles[this.candles.length - 1].timestamp)) {
-            const liveX = this.indexToX(this.candles.length);
-            if (liveX >= -60 && liveX <= this.width + 60) {
-                this.drawCandle(this.currentCandle, liveX, true);
+        if (this.cc && (!this.cs.length || this.cc.timestamp !== this.cs[this.cs.length - 1].timestamp)) {
+            const lX = this.indexToX(this.cs.length);
+            if (lX >= -60 && lX <= this.w + 60) {
+                this.drawCandle(this.cc, lX, 1);
             }
         }
         
@@ -1437,60 +1283,49 @@ class Chart {
     }
 
     loop() {
-        if (!this.isActive) return;
-        
+        if (!this.on) return;
         this.draw();
         this.loopFrame = requestAnimationFrame(() => this.loop());
     }
 
-    applyZoomAround(mouseX, mouseY, scale) {
-        const oldZoom = this.targetZoom;
-        const newZoom = clamp(oldZoom * scale, this.minZoom, this.maxZoom);
+    applyZoomAround(mx, my, sc) {
+        const oZ = this.targetZoom;
+        const nZ = clp(oZ * sc, this.minZoom, this.maxZoom);
+        if (Math.abs(nZ - oZ) < 1e-6) return;
         
-        if (Math.abs(newZoom - oldZoom) < 0.000001) return;
-        
-        const indexAtMouse = this.xToIndex(mouseX);
-        this.targetZoom = newZoom;
-        this.zoom = newZoom;
-        
-        const newX = mouseX - indexAtMouse * this.getSpacing();
-        this.targetScrollOffset = newX;
-        this.manualScrollOffset = newX;
+        const ix = this.xToIndex(mx);
+        this.targetZoom = nZ;
+        this.zoom = nZ;
+        const nx = mx - ix * this.getSpacing();
+        this.targetScrollOffset = nx;
+        this.manualScrollOffset = nx;
         this.clampPan();
     }
 
-    hitHandle(x, y, handleX, handleY, radius = 18) {
-        return Math.hypot(x - handleX, y - handleY) <= radius;
+    hitHandle(x, y, hx, hy, r = 18) {
+        return Math.hypot(x - hx, y - hy) <= r;
     }
 
     hitTrendDot(x, y) {
-        for (const indicator of state.indicators) {
-            if (indicator.type === "tl") {
-                const midX = (indicator.x1 + indicator.x2) / 2;
-                const midY = (indicator.y1 + indicator.y2) / 2;
-                
-                if (this.hitHandle(x, y, midX, midY, 18)) {
-                    return { ind: indicator, pt: "mid" };
-                }
-                if (this.hitHandle(x, y, indicator.x1, indicator.y1, 18)) {
-                    return { ind: indicator, pt: "p1" };
-                }
-                if (this.hitHandle(x, y, indicator.x2, indicator.y2, 18)) {
-                    return { ind: indicator, pt: "p2" };
-                }
+        for (const in2 of st.inds) {
+            if (in2.type === "tl") {
+                const mx = (in2.x1 + in2.x2) / 2;
+                const my = (in2.y1 + in2.y2) / 2;
+                if (this.hitHandle(x, y, mx, my, 18)) return { ind: in2, pt: "mid" };
+                if (this.hitHandle(x, y, in2.x1, in2.y1, 18)) return { ind: in2, pt: "p1" };
+                if (this.hitHandle(x, y, in2.x2, in2.y2, 18)) return { ind: in2, pt: "p2" };
             }
         }
         return null;
     }
 
     moveTrendDot(x, y) {
-        const { ind, pt } = this.trendDrag;
-        
+        const { ind, pt } = this.tlDrag;
         if (pt === "mid") {
-            const midX = (ind.x1 + ind.x2) / 2;
-            const midY = (ind.y1 + ind.y2) / 2;
-            const dx = x - midX;
-            const dy = y - midY;
+            const mx = (ind.x1 + ind.x2) / 2;
+            const my = (ind.y1 + ind.y2) / 2;
+            const dx = x - mx;
+            const dy = y - my;
             ind.x1 += dx;
             ind.y1 += dy;
             ind.x2 += dx;
@@ -1504,397 +1339,438 @@ class Chart {
         }
     }
 
-    setupEvents() {
+    ev() {
         addEventListener("resize", () => this.setup());
         
-        this.canvas.addEventListener("wheel", (e) => {
+        this.cv.addEventListener("wheel", e => {
             e.preventDefault();
-            const rect = this.canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const scale = e.deltaY > 0 ? 1 / 1.10 : 1.10;
-            this.applyZoomAround(mouseX, mouseY, scale);
+            const r = this.cv.getBoundingClientRect();
+            const mx = e.clientX - r.left;
+            const my = e.clientY - r.top;
+            const sc = e.deltaY > 0 ? 1 / 1.10 : 1.10;
+            this.applyZoomAround(mx, my, sc);
         }, { passive: false });
         
-        const pointerDown = (x, y, time) => {
-            const hit = this.hitTrendDot(x, y);
-            if (hit) {
-                this.trendDrag = hit;
+        const dn = (x, y, t) => {
+            const ht = this.hitTrendDot(x, y);
+            if (ht) {
+                this.tlDrag = ht;
                 return;
             }
-            
-            this.isDragging = true;
+            this.drag = 1;
             this.dragStartX = x;
             this.dragStartScroll = this.targetScrollOffset;
             this.momentum = 0;
             this.lastDragDelta = 0;
-            this.lastDragTime = time;
+            this.lastDragTime = t;
             this.lastMoveX = x;
         };
         
-        const pointerMove = (x, y, time) => {
-            if (this.trendDrag) {
+        const mv = (x, y, t) => {
+            if (this.tlDrag) {
                 this.moveTrendDot(x, y);
                 return;
             }
-            
-            if (this.isDragging) {
-                const delta = x - this.dragStartX;
-                this.targetScrollOffset = this.dragStartScroll + delta;
+            if (this.drag) {
+                const d = x - this.dragStartX;
+                this.targetScrollOffset = this.dragStartScroll + d;
                 this.clampPan();
-                
-                const deltaTime = time - this.lastDragTime;
-                if (deltaTime > 0 && deltaTime < 100) {
-                    this.lastDragDelta = (x - (this.lastMoveX || x)) / deltaTime * 16;
+                const dt = t - this.lastDragTime;
+                if (dt > 0 && dt < 100) {
+                    this.lastDragDelta = (x - (this.lastMoveX || x)) / dt * 16;
                 }
                 this.lastMoveX = x;
-                this.lastDragTime = time;
+                this.lastDragTime = t;
             }
         };
         
-        const pointerUp = () => {
-            this.trendDrag = null;
-            if (this.isDragging && Math.abs(this.lastDragDelta) > 1) {
+        const up = () => {
+            this.tlDrag = null;
+            if (this.drag && Math.abs(this.lastDragDelta) > 1) {
                 this.momentum = this.lastDragDelta;
             }
-            this.isDragging = false;
+            this.drag = 0;
         };
         
-        this.canvas.addEventListener("mousedown", (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            pointerDown(e.clientX - rect.left, e.clientY - rect.top, Date.now());
+        this.cv.addEventListener("mousedown", e => {
+            const r = this.cv.getBoundingClientRect();
+            dn(e.clientX - r.left, e.clientY - r.top, Date.now());
         });
         
-        addEventListener("mousemove", (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            pointerMove(e.clientX - rect.left, e.clientY - rect.top, Date.now());
+        addEventListener("mousemove", e => {
+            const r = this.cv.getBoundingClientRect();
+            mv(e.clientX - r.left, e.clientY - r.top, Date.now());
         });
         
-        addEventListener("mouseup", pointerUp);
+        addEventListener("mouseup", up);
         
-        const distance = (a, b) => Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+        const ds = (a, b) => Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
         
-        this.canvas.addEventListener("touchstart", (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            
+        this.cv.addEventListener("touchstart", e => {
+            const r = this.cv.getBoundingClientRect();
             if (e.touches.length === 1) {
-                const touch = e.touches[0];
-                pointerDown(touch.clientX - rect.left, touch.clientY - rect.top, Date.now());
+                const T = e.touches[0];
+                dn(T.clientX - r.left, T.clientY - r.top, Date.now());
             } else if (e.touches.length === 2) {
-                this.isDragging = false;
-                this.isPinching = true;
-                this.pinchStart = distance(e.touches[0], e.touches[1]);
-                this.pinchMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
-                this.pinchMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+                this.drag = 0;
+                this.pinch = 1;
+                this.p0 = ds(e.touches[0], e.touches[1]);
+                this.pMidX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - r.left;
+                this.pMidY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - r.top;
             }
         }, { passive: false });
         
-        this.canvas.addEventListener("touchmove", (e) => {
+        this.cv.addEventListener("touchmove", e => {
             e.preventDefault();
-            const rect = this.canvas.getBoundingClientRect();
-            
-            if (this.isPinching && e.touches.length === 2) {
-                const dist = distance(e.touches[0], e.touches[1]);
-                if (this.pinchStart > 0) {
-                    const scale = clamp(dist / (this.pinchStart || dist), 0.2, 5);
-                    this.applyZoomAround(this.pinchMidX, this.pinchMidY, scale);
+            const r = this.cv.getBoundingClientRect();
+            if (this.pinch && e.touches.length === 2) {
+                const d = ds(e.touches[0], e.touches[1]);
+                if (this.p0 > 0) {
+                    const sc = clp(d / (this.p0 || d), .2, 5);
+                    this.applyZoomAround(this.pMidX, this.pMidY, sc);
                 }
-                this.pinchStart = dist;
-            } else if (!this.isPinching && e.touches.length === 1) {
-                const touch = e.touches[0];
-                pointerMove(touch.clientX - rect.left, touch.clientY - rect.top, Date.now());
+                this.p0 = d;
+            } else if (!this.pinch && e.touches.length === 1) {
+                const T = e.touches[0];
+                mv(T.clientX - r.left, T.clientY - r.top, Date.now());
             }
         }, { passive: false });
         
-        this.canvas.addEventListener("touchend", (e) => {
+        this.cv.addEventListener("touchend", e => {
             if (e.touches.length < 2) {
-                this.isPinching = false;
-                this.pinchStart = 0;
+                this.pinch = 0;
+                this.p0 = 0;
             }
-            if (e.touches.length === 0) {
-                pointerUp();
-            }
+            if (e.touches.length === 0) up();
         }, { passive: false });
         
-        this.canvas.addEventListener("touchcancel", () => {
-            this.isPinching = false;
-            this.pinchStart = 0;
-            pointerUp();
+        this.cv.addEventListener("touchcancel", () => {
+            this.pinch = 0;
+            this.p0 = 0;
+            up();
         }, { passive: false });
     }
 
     async boot() {
         $("sk").classList.add("on");
         
-        sessionID = sessionStorage.getItem("sessID") || generateUID();
-        sessionStorage.setItem("sessID", sessionID);
+        sID = sessionStorage.getItem("sessID") || uid();
+        sessionStorage.setItem("sessID", sID);
         
         await this.setPair("EUR/USD");
         
-        const fbCandles = await loadFromFirebase("EUR/USD");
-        this.candles = fbCandles.length > 0 ? [...fbCandles] : [];
+        const fb = await ldFB("EUR/USD");
+        this.cs = fb.length > 0 ? [...fb] : [];
         
-        if (this.candles.length > 0) {
-            this.nextCandleTime = this.candles[this.candles.length - 1].timestamp + this.timeframe;
-            this.currentPrice = this.candles[this.candles.length - 1].close;
+        if (this.cs.length > 0) {
+            this.t0 = this.cs[this.cs.length - 1].timestamp + this.tf;
+            this.cp = this.cs[this.cs.length - 1].close;
         } else {
-            this.initializeCandles(100);
+            this.iCL(100);
         }
         
         this.snapToLive();
         this.updatePriceRange();
         
-        await this.checkManagerRole();
-        this.subscribeLive();
-        this.startManagerCheck();
+        await this.chkMR();
+        this.subLV();
+        this.stMC();
+        ldTr();
         
-        loadTrades();
-        
-        this.isActive = true;
+        this.on = 1;
         this.tick();
         this.loop();
         
         $("sk").classList.remove("on");
         
         window.addEventListener("beforeunload", async () => {
-            if (isManager) await clearManager(this.pair);
+            if (isMgr) await clMgr(this.pair);
         });
     }
 }
 
-// ===========================
-// تهيئة التطبيق
-// ===========================
+// ===== Initialize Chart =====
 const chart = new Chart();
 window.chart = chart;
-
 await chart.boot();
 
-// ===========================
-// تحديث التاريخ والوقت
-// ===========================
-const datetimeEl = $("datetime");
-const updateDateTime = () => {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2, "0");
-    const m = String(now.getMinutes()).padStart(2, "0");
-    const s = String(now.getSeconds()).padStart(2, "0");
-    datetimeEl.textContent = `${h}:${m}:${s}`;
+// ===== Event Handlers =====
+const PC = 8;
+const FA = 1.12;
+
+const pBy = n => {
+    chart.momentum = 0;
+    chart.targetScrollOffset += n * chart.getSpacing();
+    chart.clampPan();
 };
 
-setInterval(updateDateTime, 1000);
-updateDateTime();
+$("panL").onclick = () => pBy(+PC);
+$("panR").onclick = () => pBy(-PC);
 
-// ===========================
-// منتقي الوقت
-// ===========================
-const timeInput = $("timeInput");
-const timePickerPopup = $("timePickerPopup");
-const manualBtn = $("manualBtn");
-let isManualMode = false;
+const zAC = s => chart.applyZoomAround(chart.w / 2, chart.h / 2, s);
 
-timeInput.onclick = (e) => {
-    if (isManualMode) return;
+$("zoomIn").onclick = () => zAC(1.12);
+$("zoomOut").onclick = () => zAC(1 / 1.12);
+$("moreData").onclick = () => zAC(1 / 1.12);
+$("lessData").onclick = () => zAC(1.12);
+
+$("wInc").onclick = () => { chart.candleWidthMultiplier *= FA; };
+$("wDec").onclick = () => { chart.candleWidthMultiplier /= FA; };
+
+$("compInc").onclick = () => { chart.priceCompression *= FA; };
+$("compDec").onclick = () => { chart.priceCompression /= FA; };
+
+$("resetLive").onclick = () => { chart.snapToLive(); };
+$("resetAll").onclick = () => {
+    chart.zoom = 1;
+    chart.targetZoom = 1;
+    chart.candleWidthMultiplier = 1;
+    chart.priceCompression = 1;
+    chart.snapToLive();
+};
+
+$("hidePanel").onclick = () => { $("ctrlPanel").style.display = "none"; };
+$("saveLocal").onclick = () => {
+    $("saveLocal").textContent = "تم ✓";
+    setTimeout(() => $("saveLocal").textContent = "حفظ", 800);
+};
+
+// Balance Menu
+balanceBox.onclick = e => {
+    if (e.target.closest(".accMenu")) return;
     e.stopPropagation();
-    timePickerPopup.classList.toggle("show");
+    accMenu.classList.toggle("show");
+    balanceBox.classList.toggle("open");
 };
 
-document.addEventListener("click", (e) => {
-    if (!e.target.closest("#timeWrapper")) {
-        timePickerPopup.classList.remove("show");
+document.addEventListener("click", e => {
+    if (!e.target.closest("#balanceBox")) {
+        accMenu.classList.remove("show");
+        balanceBox.classList.remove("open");
     }
 });
 
-document.querySelectorAll(".timeBtn").forEach(btn => {
-    btn.onclick = (e) => {
-        e.stopPropagation();
-        timeInput.value = btn.getAttribute("data-time");
-        timePickerPopup.classList.remove("show");
-    };
+refillBtn.onclick = () => {
+    bal = 10000;
+    upB();
+    refillBtn.textContent = "✅";
+    setTimeout(() => refillBtn.textContent = "🔄 Refill Demo Account", 900);
+};
+
+document.querySelectorAll(".accSwitchBtn").forEach(bn => bn.onclick = () => {
+    aA = bn.dataset.acc;
+    document.querySelectorAll(".accSwitchBtn").forEach(x => x.classList.toggle("active", x === bn));
+    document.querySelectorAll(".accItem").forEach(x => x.classList.toggle("active", x.dataset.type === aA));
+    upB();
+    upAI();
 });
 
-manualBtn.onclick = (e) => {
+document.querySelectorAll(".accItem").forEach(it => it.onclick = () => {
+    aA = it.dataset.type;
+    document.querySelectorAll(".accItem").forEach(x => x.classList.toggle("active", x === it));
+    upB();
+    upAI();
+});
+
+upAI();
+
+// DateTime
+const dt = $("datetime");
+const upDT = () => {
+    const n = new Date();
+    const h = String(n.getHours()).padStart(2, "0");
+    const m = String(n.getMinutes()).padStart(2, "0");
+    const s = String(n.getSeconds()).padStart(2, "0");
+    dt.textContent = `${h}:${m}:${s}`;
+};
+setInterval(upDT, 1000);
+upDT();
+
+// Time Input
+const tI = $("timeInput");
+const tPP = $("timePickerPopup");
+const mB = $("manualBtn");
+let iMM = false;
+
+tI.onclick = e => {
+    if (iMM) return;
     e.stopPropagation();
-    isManualMode = !isManualMode;
-    
-    if (isManualMode) {
-        timePickerPopup.classList.remove("show");
-        timeInput.readOnly = false;
-        timeInput.focus();
-        timeInput.select();
+    tPP.classList.toggle("show");
+};
+
+document.addEventListener("click", e => {
+    if (!e.target.closest("#timeWrapper")) tPP.classList.remove("show");
+});
+
+document.querySelectorAll(".timeBtn").forEach(bn => bn.onclick = e => {
+    e.stopPropagation();
+    tI.value = bn.getAttribute("data-time");
+    tPP.classList.remove("show");
+});
+
+mB.onclick = e => {
+    e.stopPropagation();
+    iMM = !iMM;
+    if (iMM) {
+        tPP.classList.remove("show");
+        tI.readOnly = false;
+        tI.focus();
+        tI.select();
     } else {
-        timeInput.readOnly = true;
+        tI.readOnly = true;
     }
 };
 
-timeInput.onblur = () => {
-    if (isManualMode) {
-        const value = timeInput.value;
-        if (!/^\d{2}:\d{2}:\d{2}$/.test(value)) {
-            timeInput.value = "00:01:00";
-        }
-        isManualMode = false;
-        timeInput.readOnly = true;
+tI.onblur = () => {
+    if (iMM) {
+        const vl = tI.value;
+        if (!/^\d{2}:\d{2}:\d{2}$/.test(vl)) tI.value = "00:01:00";
+        iMM = false;
+        tI.readOnly = true;
     }
 };
 
-// ===========================
-// إدارة المبلغ
-// ===========================
-let tradeAmount = 1;
-const amountInput = $("amountInput");
+// Amount Input
+let amt = 1;
+const aI = $("amountInput");
 
-const updateAmount = () => {
-    let str = String(amountInput.value).replace(/,|\$|\s/g, "").trim();
-    if (!str) {
-        tradeAmount = 1;
-        amountInput.value = "$ 1";
+const upd = () => {
+    let s = String(aI.value).replace(/,|\$|\s/g, "").trim();
+    if (!s) {
+        amt = 1;
+        aI.value = "$ 1";
         return;
     }
-    
-    let value = parseFloat(str);
-    if (!isFinite(value)) value = 1;
-    value = Math.max(1, Math.min(999999, value));
-    
-    tradeAmount = value;
-    amountInput.value = "$ " + value;
+    let v = parseFloat(s);
+    if (!isFinite(v)) v = 1;
+    v = Math.max(1, Math.min(999999, v));
+    amt = v;
+    aI.value = "$ " + v;
 };
 
 $("plus").onclick = () => {
-    tradeAmount++;
-    amountInput.value = "$ " + tradeAmount;
+    amt++;
+    aI.value = "$ " + amt;
 };
 
 $("minus").onclick = () => {
-    tradeAmount = Math.max(1, tradeAmount - 1);
-    amountInput.value = "$ " + tradeAmount;
+    amt = Math.max(1, amt - 1);
+    aI.value = "$ " + amt;
 };
 
-amountInput.oninput = updateAmount;
-amountInput.onblur = updateAmount;
-updateAmount();
+aI.oninput = upd;
+aI.onblur = upd;
+upd();
 
-// ===========================
-// فتح صفقة
-// ===========================
-const openTrade = async (type) => {
-    if (!chart.currentCandle) return;
+// Trading
+const opT = async tp => {
+    if (!chart.cc) return;
     
-    const duration = parseDuration(timeInput.value);
-    const openPrice = +chart.currentCandle.close;
-    const candleIndex = chart.candles.length;
+    const dr = pD(tI.value);
+    const op = +chart.cc.close;
+    const ci = chart.cs.length;
     
-    const trade = {
-        id: generateUID(),
-        type: type,
-        amount: tradeAmount,
-        openPrice: openPrice,
+    const tr = {
+        id: uid(),
+        type: tp,
+        amount: amt,
+        openPrice: op,
         openTime: Date.now(),
-        duration: duration,
-        candleIndex: candleIndex,
+        duration: dr,
+        candleIndex: ci,
         pair: chart.pair,
         profit: 0,
-        closed: false,
-        priceHistory: [openPrice]
+        closed: 0,
+        priceHistory: [op]
     };
     
-    state.trades.push(trade);
-    saveTrades();
-    renderTradesPanel();
+    st.trades.push(tr);
+    svTr();
+    rTP();
 };
 
-$("buy").onclick = () => openTrade("buy");
-$("sell").onclick = () => openTrade("sell");
+$("buy").onclick = () => opT("buy");
+$("sell").onclick = () => opT("sell");
 
-// ===========================
-// لوحة الصفقات
-// ===========================
+// Generate Panel
+$("genBtn").onclick = () => $("genPanel").classList.add("show");
+$("genCancel").onclick = () => $("genPanel").classList.remove("show");
+$("genConfirm").onclick = async () => {
+    const n = parseInt($("genInput").value) || 100;
+    const cl = Math.max(10, Math.min(1000, n));
+    $("genPanel").classList.remove("show");
+    await chart.genN(cl);
+};
+
+// Trades Panel
 $("indBtn1").onclick = () => {
     $("tradesPanel").classList.toggle("open");
-    renderTradesPanel();
+    rTP();
 };
 
-$("closeTrPanel").onclick = () => {
-    $("tradesPanel").classList.remove("open");
-};
+$("closeTrPanel").onclick = () => $("tradesPanel").classList.remove("open");
 
-$("tradesContent").onclick = (e) => {
-    const card = e.target.closest(".tradeCard");
-    if (!card) return;
-    
-    const idx = +card.dataset.idx;
-    const details = $("trD" + idx);
-    
-    if (details) {
-        details.classList.toggle("open");
+$("tradesContent").onclick = e => {
+    const cd = e.target.closest(".tradeCard");
+    if (!cd) return;
+    const idx = +cd.dataset.idx;
+    const dt = $("trD" + idx);
+    if (dt) {
+        dt.classList.toggle("open");
     }
 };
 
-// ===========================
-// لوحة المؤشرات
-// ===========================
+// Indicators Panel
 $("indBtn2").onclick = () => {
     $("indicatorsPanel").classList.toggle("show");
 };
 
-$("closeIndBtn").onclick = () => {
-    $("indicatorsPanel").classList.remove("show");
-};
+$("closeIndBtn").onclick = () => $("indicatorsPanel").classList.remove("show");
 
 $("eyeBtn").onclick = () => {
-    showIndicatorNames = !showIndicatorNames;
-    renderIndicatorsList();
+    shIN = !shIN;
+    rIN();
 };
 
-// ===========================
-// وقت المنصة
-// ===========================
-const platformTimeEl = $("platTime");
-const updatePlatformTime = () => {
-    const d = new Date(Date.now() + 3 * 3600000);
-    platformTimeEl.textContent = `UTC+3 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+// Platform Time
+const pt = $("platTime");
+const tPl = () => {
+    const d = new Date(Date.now() + 3 * 36e5);
+    pt.textContent = `UTC+3 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
 };
+setInterval(tPl, 250);
+tPl();
 
-setInterval(updatePlatformTime, 250);
-updatePlatformTime();
+// Initialize UI
+upPF("EUR/USD", $("pairFlags"));
+rPP();
+rTP();
 
-// ===========================
-// تهيئة الأزواج
-// ===========================
-updatePairFlags("EUR/USD", $("pairFlags"));
-renderPairsList();
-renderTradesPanel();
-
-// ===========================
-// لوحة الأزواج
-// ===========================
-$("pairHud").onclick = (e) => {
+// Pair Panel
+$("pairHud").onclick = e => {
     e.stopPropagation();
     $("pairPanel").classList.toggle("on");
-    renderPairsList();
+    rPP();
 };
 
-$("pairClose").onclick = () => {
-    $("pairPanel").classList.remove("on");
-};
+$("pairClose").onclick = () => $("pairPanel").classList.remove("on");
 
-$("pairList").onclick = async (e) => {
-    const btn = e.target.closest("button.pit");
-    if (!btn) return;
-    
-    const pair = btn.getAttribute("data-p");
+$("pairList").onclick = async e => {
+    const b = e.target.closest("button.pit");
+    if (!b) return;
+    const p = b.getAttribute("data-p");
     
     if (e.target && e.target.getAttribute && e.target.getAttribute("data-s")) {
-        state.favorites.has(pair) ? state.favorites.delete(pair) : state.favorites.add(pair);
-        renderPairsList();
+        st.fav.has(p) ? st.fav.delete(p) : st.fav.add(p);
+        rPP();
         return;
     }
     
     $("pairPanel").classList.remove("on");
-    await chart.switchPair(pair);
+    await chart.switchPair(p);
 };
 
-document.addEventListener("click", (e) => {
+document.addEventListener("click", e => {
     if ($("pairPanel").classList.contains("on") && 
         !e.target.closest("#pairPanel") && 
         !e.target.closest("#pairHud")) {
@@ -1902,151 +1778,77 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// ===========================
-// أسماء المؤشرات
-// ===========================
-const indicatorNames = {
-    bb: "Bollinger Bands",
-    tl: "Trendline"
-};
-
-// ===========================
-// عرض شريط المؤشرات
-// ===========================
-function renderIndicatorsBar() {
-    const barEl = $("indBar");
-    
-    barEl.innerHTML = (state.indicators || []).map((ind, i) => 
-        `<div class="indBadge">
-            <span class="name" data-i="${i}">${indicatorNames[ind.type] || ind.type}</span>
-            <button data-rm="${i}">×</button>
-        </div>`
-    ).join("");
-    
-    barEl.querySelectorAll("[data-rm]").forEach(btn => {
-        btn.onclick = () => {
-            state.indicators.splice(+btn.dataset.rm, 1);
-            renderIndicatorsBar();
-            renderIndicatorsList();
-        };
-    });
-    
-    barEl.querySelectorAll("[data-i]").forEach(span => {
-        span.onclick = () => {
-            editingIndicator = state.indicators[+span.dataset.i];
-            openIndicatorSettings(editingIndicator);
-        };
-    });
-    
-    barEl.style.display = state.indicators && state.indicators.length ? "flex" : "none";
-    renderIndicatorsList();
-}
-
-// ===========================
-// إعدادات المؤشر
-// ===========================
-let editingIndicator = null;
-
-function openIndicatorSettings(indicator) {
-    $("indSetTitle").textContent = indicatorNames[indicator.type] || indicator.type;
-    $("indColor").value = indicator.color || "#ffff00";
-    $("indWidth").value = indicator.width || 2;
-    
-    const periodRow = $("periodRow");
-    const stdRow = $("stdRow");
-    
-    periodRow.style.display = "none";
-    stdRow.style.display = "none";
-    
-    if (indicator.type === "bb") {
-        periodRow.style.display = "flex";
-        stdRow.style.display = "flex";
-        $("indPeriod").value = indicator.period || 20;
-        $("indStd").value = indicator.std || 2;
-    }
-    
-    $("indSet").classList.add("show");
-}
-
-$("indSetClose").onclick = () => {
-    $("indSet").classList.remove("show");
-};
+// Indicators Settings
+$("indSetClose").onclick = () => $("indSet").classList.remove("show");
 
 $("indRemove").onclick = () => {
-    if (!editingIndicator) return;
-    
-    const idx = state.indicators.indexOf(editingIndicator);
-    if (idx >= 0) {
-        state.indicators.splice(idx, 1);
-        renderIndicatorsBar();
-        renderIndicatorsList();
+    if (!eI) return;
+    const ix = st.inds.indexOf(eI);
+    if (ix >= 0) {
+        st.inds.splice(ix, 1);
+        rIB();
+        rIN();
     }
-    
     $("indSet").classList.remove("show");
-    editingIndicator = null;
+    eI = null;
 };
 
 $("indColor").oninput = () => {
-    if (editingIndicator) {
-        editingIndicator.color = $("indColor").value;
+    if (eI) {
+        eI.color = $("indColor").value;
     }
 };
 
 $("indWidth").oninput = () => {
-    if (editingIndicator) {
-        editingIndicator.width = +$("indWidth").value;
+    if (eI) {
+        eI.width = +$("indWidth").value;
     }
 };
 
 $("indPeriod").oninput = () => {
-    if (editingIndicator) {
-        editingIndicator.period = +$("indPeriod").value;
+    if (eI) {
+        eI.period = +$("indPeriod").value;
     }
 };
 
 $("indStd").oninput = () => {
-    if (editingIndicator) {
-        editingIndicator.std = +$("indStd").value;
+    if (eI) {
+        eI.std = +$("indStd").value;
     }
 };
 
-// ===========================
-// إضافة مؤشرات جديدة
-// ===========================
-$("indicatorsPanel").onclick = (e) => {
-    const item = e.target.closest(".indItem");
-    if (!item) return;
+$("indicatorsPanel").onclick = e => {
+    const it = e.target.closest(".indItem");
+    if (!it) return;
+    const t = it.dataset.ind;
     
-    const type = item.dataset.ind;
-    
-    if (type === "bb") {
-        state.indicators.push({
-            id: generateUID(),
+    if (t === "bb") {
+        st.inds.push({
+            id: uid(),
             type: "bb",
             color: "#ffff00",
             width: 2,
             period: 20,
             std: 2
         });
-        renderIndicatorsBar();
+        rIB();
         $("indicatorsPanel").classList.remove("show");
-    } else if (type === "tl") {
-        const x1 = chart.width * 0.3;
-        const y1 = chart.height * 0.3;
-        const x2 = chart.width * 0.7;
-        const y2 = chart.height * 0.7;
-        
-        state.indicators.push({
-            id: generateUID(),
+    } else if (t === "tl") {
+        const x1 = chart.w * .3;
+        const y1 = chart.h * .3;
+        const x2 = chart.w * .7;
+        const y2 = chart.h * .7;
+        st.inds.push({
+            id: uid(),
             type: "tl",
             color: "#ffff00",
             width: 2,
             x1, y1, x2, y2
         });
-        renderIndicatorsBar();
+        rIB();
         $("indicatorsPanel").classList.remove("show");
     }
 };
 
-renderIndicatorsBar();
-renderIndicatorsList();
+rIB();
+rIN();
