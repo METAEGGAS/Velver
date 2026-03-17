@@ -101,7 +101,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 .bnav-item.active span{color:#f5a623}
 .up{color:#22c55e}
 .dn{color:#ef4444}
-/* ── Profile ── */
 #prof{position:fixed;inset:0;bottom:0;background:#0d0e1a;color:#fff;display:none;z-index:500;overflow:auto;direction:rtl}
 #prof .ph{position:sticky;top:0;z-index:9;background:#0d0e1a;display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
 #prof .phb,#prof .phs{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -123,7 +122,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #prof .ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;opacity:.85}
 #prof .lb{font-size:14px;color:#fff}
 #prof .lo{position:fixed;left:14px;right:14px;bottom:76px;background:#1e1f2e;color:#fff;border:0;width:auto;padding:14px 0;font-size:18px;font-weight:700;cursor:pointer;border-radius:12px}
-/* ── Popup ── */
 #pop-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
 #pop-box{width:100%;max-width:420px;background:linear-gradient(160deg,#0f1128 0%,#161830 50%,#0d0e1a 100%);border:1px solid rgba(245,166,35,.25);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(245,166,35,.12),0 24px 60px rgba(0,0,0,.7);animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -161,7 +159,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #pop-skip{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:14px;padding:13px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 #pop-ok{flex:1.4;background:linear-gradient(90deg,#f5a623,#ffb93e);border:0;color:#0d0e1a;border-radius:14px;padding:13px 0;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(245,166,35,.35)}
 #pop-skip:active,#pop-ok:active{opacity:.8}
-/* ══ WITHDRAW ══ */
 #wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:70px}
 .wh{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:9;border-bottom:1px solid #1e1f2e}
 .wh-bk{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -181,7 +178,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 .wn{text-align:center;color:#888;font-size:12px;line-height:1.8;margin:8px 0}
 .ww{display:flex;gap:10px;align-items:flex-start;margin:0 12px 12px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.18);border-radius:12px;padding:12px}
 .ww-i{width:20px;height:20px;border-radius:50%;border:1.5px solid #f5a623;color:#f5a623;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;flex:0 0 20px;margin-top:2px}
-/* wd modal */
 .wm{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:flex-end;justify-content:center}
 .wm.on{display:flex}
 .wms{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);border-radius:16px 16px 0 0;padding:14px 14px 20px}
@@ -274,7 +270,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><path d="M12 19V5M5 12l7-7 7 7"></path></svg></div>
       <span class=g-lbl>سحب</span>
     </div>
-    <div class=grid-item>
+    <!-- ✅ دعوة → friends.js -->
+    <div class=grid-item data-go=fri>
       <div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx=9 cy=7 r=4></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
       <span class=g-lbl>دعوة</span>
     </div>
@@ -286,7 +283,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><circle cx=12 cy=8 r=4></circle><path d="M20 21a8 8 0 1 0-16 0"></path><path d="M12 12v9"></path></svg></div>
       <span class=g-lbl>شهادة</span>
     </div>
-    <div class=grid-item>
+    <!-- ✅ إدارة الأموال → vinance.js -->
+    <div class=grid-item data-go=vin>
       <div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><circle cx=12 cy=12 r=9></circle><path d="M12 8v4l3 3"></path></svg></div>
       <span class=g-lbl>إدارة الأموال</span>
     </div>
@@ -330,7 +328,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
         <path d="M0,38 C10,35 15,42 25,36 C35,30 40,40 50,32 C60,24 65,38 75,28 C85,18 90,32 100,22 C110,12 115,26 125,18 C135,10 145,20 160,14 L160,52 L0,52 Z" fill="url(#chartGrad)"></path>
         <path d="M0,38 C10,35 15,42 25,36 C35,30 40,40 50,32 C60,24 65,38 75,28 C85,18 90,32 100,22 C110,12 115,26 125,18 C135,10 145,20 160,14" fill=none stroke=#22c55e stroke-width=1.8></path>
       </svg>
-      <button class=card-btn id=goHot>تداول الآن</button>
+      <!-- ✅ التداول الآن → traders.js -->
+      <button class=card-btn data-go=trd>تداول الآن</button>
     </div>
     <div class="card copy">
       <div class=card-title style="justify-content:space-between;flex-direction:row-reverse"><span>🔥 نسخ التداول</span></div>
@@ -346,7 +345,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
           <text x=72 y=49 text-anchor=middle font-size=10 fill=#fff font-weight=900>₿</text>
         </svg>
       </div>
-      <button class=card-btn>نسخ الآن</button>
+      <!-- ✅ نسخ الآن → traders.js -->
+      <button class=card-btn data-go=trd>نسخ الآن</button>
     </div>
   </div>
   <div class=tabs id=tabs>
@@ -390,6 +390,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
         <div class=pill><div class=pl1>تغير 24h</div><div class=pl2 id=mdch></div></div>
         <div class=pill><div class=pl1>الحجم</div><div class=pl2 id=mdvl></div></div>
       </div>
+      <!-- ✅ تداول الآن من المودال → traders.js -->
       <button class=card-btn style="margin-top:12px" id=mdtbtn>تداول الآن</button>
     </div>
   </div>
@@ -397,8 +398,16 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 
 <!-- DEPOSIT -->
 <section id=dep style=display:none></section>
+<!-- ✅ FRIENDS -->
+<section id=fri style=display:none></section>
+<!-- ✅ VINANCE -->
+<section id=vin style=display:none></section>
+<!-- ✅ TRADERS -->
+<section id=trd style=display:none></section>
+<!-- ✅ ASSETS -->
+<section id=ast style=display:none></section>
 
-<!-- ══ WITHDRAW ══ -->
+<!-- WITHDRAW -->
 <section id=wd>
   <div class=wh>
     <div class=wh-bk id=wdBack>
@@ -496,7 +505,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     <div class=st>الوظائف الشائعة</div>
     <div class=g>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-5" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>الأمان</div></div>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx=9 cy=7 r=4></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><div class=lb>الدعوات</div></div>
+      <!-- ✅ الدعوات في البروفايل → friends.js -->
+      <div class=it data-go=fri><div class=ic><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx=9 cy=7 r=4></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><div class=lb>الدعوات</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=3></circle><path d="M19.4 15a1.7 1.7 0 0 0 .33 1.87l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.54V21a2 2 0 0 1-4 0v-.06A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.87.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.54-1H3a2 2 0 0 1 0-4h.06A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.33-1.87l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.7 1.7 0 0 0 8.6 4.6a1.7 1.7 0 0 0 1-1.54V3a2 2 0 0 1 4 0v.06A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.7 1.7 0 0 0 19.4 8.6a1.7 1.7 0 0 0 1.54 1H21a2 2 0 0 1 0 4h-.06A1.7 1.7 0 0 0 19.4 15z" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>الإعدادات</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path><path d="M8 10h8M8 14h5" stroke-linecap=round></path></svg></div><div class=lb>الرسائل</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 11h6M9 15h6" stroke-linecap=round></path><circle cx=19 cy=19 r=3></circle><path d="M17.8 17.8l2.4 2.4" stroke-linecap=round></path></svg></div><div class=lb>محظور</div></div>
@@ -511,12 +521,13 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     </div>
     <div class=st>تداول</div>
     <div class=g>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 12h6M9 16h6" stroke-linecap=round></path></svg></div><div class=lb>العقود الآجلة</div></div>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap=round></path></svg></div><div class=lb>السوق الفوري</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 12h6M9 16h6" stroke-linecap=round></path></svg></div><div class=lb>العقود الآجلة</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap=round></path></svg></div><div class=lb>السوق الفوري</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"></path></svg></div><div class=lb>شبكة</div></div>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M7 7h10M9 3h6M9 21h6M7 17h10" stroke-linecap=round></path><circle cx=8 cy=12 r=2></circle><circle cx=16 cy=12 r=2></circle></svg></div><div class=lb>الهامش</div></div>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M12 2v20"></path><path d="M6 6h12"></path><path d="M7 10h10"></path><path d="M9 14h6"></path></svg></div><div class=lb>نسخ التداول</div></div>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 12-14h-7z" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>تبادل فلاش</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M7 7h10M9 3h6M9 21h6M7 17h10" stroke-linecap=round></path><circle cx=8 cy=12 r=2></circle><circle cx=16 cy=12 r=2></circle></svg></div><div class=lb>الهامش</div></div>
+      <!-- ✅ نسخ التداول في البروفايل → traders.js -->
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M12 2v20"></path><path d="M6 6h12"></path><path d="M7 10h10"></path><path d="M9 14h6"></path></svg></div><div class=lb>نسخ التداول</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 12-14h-7z" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>تبادل فلاش</div></div>
     </div>
   </div>
   <button class=lo id=logout>تسجيل الخروج</button>
@@ -532,6 +543,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     <svg viewBox="0 0 24 24"><line x1=18 y1=20 x2=18 y2=10></line><line x1=12 y1=20 x2=12 y2=4></line><line x1=6 y1=20 x2=6 y2=14></line></svg>
     <span>الأسواق</span>
   </div>
+  <!-- ✅ التداول → traders.js -->
   <div class=bnav-item data-nav=trade>
     <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
     <span>التداول</span>
@@ -540,9 +552,10 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
     <span>التسمية</span>
   </div>
-  <div class=bnav-item data-nav=bal>
+  <!-- ✅ رصيد → assets.js -->
+  <div class=bnav-item data-nav=ast>
     <svg viewBox="0 0 24 24"><rect x=2 y=5 width=20 height=14 rx=2></rect><line x1=2 y1=10 x2=22 y2=10></line></svg>
-    <span>سحب</span>
+    <span>رصيد</span>
   </div>
 </nav>
 
@@ -619,11 +632,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     [...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render();
   };
   q.oninput=render;
-  document.getElementById('goHot').onclick=()=>{
-    mode='tHot';[...tabs.children].forEach(x=>x.classList.toggle('active',x.dataset.t=='tHot'));
-    render();document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'});
-  };
-  document.getElementById('mdtbtn').onclick=()=>{closeMD();document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'});};
+  /* ✅ mdtbtn → traders.js عبر AppNav */
+  document.getElementById('mdtbtn').onclick=()=>{closeMD();window.AppNav&&window.AppNav.go('trd');};
   const tick=()=>{
     for(const x of D){
       let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);
@@ -655,26 +665,52 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 
 /* ── APP NAV ── */
 (()=>{
-  const H=document.getElementById('home'),D=document.getElementById('dep'),W=document.getElementById('wd'),bn=document.getElementById('bnav');
+  const H=document.getElementById('home'),
+        W=document.getElementById('wd'),
+        bn=document.getElementById('bnav');
   const DEP_ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch';
+  /* جمع كل الأقسام الديناميكية */
+  const secs=()=>[H,W,...['dep','fri','vin','trd','ast'].map(i=>document.getElementById(i))];
   const setNav=a=>[...bn.children].forEach(x=>x.classList.toggle('active',x.dataset.nav===a));
-  const hideAll=()=>{H.style.display='none';D.style.display='none';W.style.display='none';document.body.style.overflow='';};
-  const mountDep=()=>{hideAll();D.style.display='block';setNav('home');window.scrollTo(0,0);window.DepositPage.mount(D,{addr:DEP_ADDR});};
+  const hideAll=()=>{secs().forEach(x=>x&&(x.style.display='none'));document.body.style.overflow='';};
+  /* ✅ جدول الصفحات الديناميكية */
+  const PG={
+    dep:{f:'deposit.js', fn:'DepositPage', n:'home', o:{addr:DEP_ADDR}},
+    fri:{f:'friends.js', fn:'FriendsPage', n:'fav'},
+    vin:{f:'vinance.js', fn:'VinancePage', n:'home'},
+    trd:{f:'traders.js', fn:'TradersPage', n:'trade'},
+    ast:{f:'assets.js',  fn:'AssetsPage',  n:'ast'},
+  };
   const go=v=>{
-    if(v==='home'){hideAll();H.style.display='block';setNav('home');window.scrollTo(0,0);}
-    else if(v==='dep'){if(window.DepositPage){mountDep();}else{const s=document.createElement('script');s.src='deposit.js';s.onerror=()=>alert('⚠️ تعذّر تحميل صفحة الإيداع');s.onload=mountDep;document.head.appendChild(s);}}
-    else if(v==='wd'){hideAll();W.style.display='block';setNav('bal');if(window.wdRefresh)window.wdRefresh();window.scrollTo(0,0);}
+    if(v==='home'){hideAll();H.style.display='block';setNav('home');window.scrollTo(0,0);return;}
+    if(v==='wd'){hideAll();W.style.display='block';setNav('');if(window.wdRefresh)window.wdRefresh();window.scrollTo(0,0);return;}
+    const p=PG[v];if(!p)return;
+    const sec=document.getElementById(v);
+    hideAll();sec.style.display='block';setNav(p.n);window.scrollTo(0,0);
+    const mt=()=>window[p.fn]&&window[p.fn].mount(sec,p.o||{});
+    if(window[p.fn]){mt();return;}
+    const s=document.createElement('script');
+    s.src=p.f;
+    s.onerror=()=>alert('⚠️ تعذّر تحميل الصفحة: '+p.f);
+    s.onload=mt;
+    document.head.appendChild(s);
   };
   window.AppNav={go};
-  document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);});
+  /* ✅ مستمع النقر العام لـ data-go */
+  document.addEventListener('click',e=>{
+    const g=e.target.closest('[data-go]');
+    if(g&&!e.target.closest('#prof'))go(g.dataset.go);
+    else if(g&&e.target.closest('#prof'))go(g.dataset.go);
+  });
+  /* ✅ شريط التنقل السفلي */
   bn.onclick=e=>{
     const it=e.target.closest('.bnav-item');if(!it)return;
     const v=it.dataset.nav;
     if(v==='home')go('home');
-    else if(v==='bal')go('wd');
+    else if(v==='trade')go('trd');
+    else if(v==='fav')go('fri');
+    else if(v==='ast')go('ast');
     else if(v==='markets')document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'});
-    else if(v==='trade')alert('التداول (قريباً)');
-    else if(v==='fav')alert('التسمية (قريباً)');
   };
 })();
 
@@ -692,7 +728,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     setBal(b);
   };
   window.wdRefresh=refresh;
-  /* modal */
   const modal=document.getElementById('wdModal');
   document.getElementById('wdPmBtn').onclick=()=>modal.classList.add('on');
   document.getElementById('wdMClose').onclick=()=>modal.classList.remove('on');
@@ -705,7 +740,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       modal.classList.remove('on');
     };
   });
-  /* submit */
   document.getElementById('wdBtn').onclick=()=>{
     const amt=parseFloat((document.getElementById('wdAmt').value||'').replace(',','.'));
     const wallet=(document.getElementById('wdWallet').value||'').trim();
@@ -716,7 +750,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     if(!wallet)return alert('أدخل عنوان المحفظة');
     const bal=getBal();
     if(amt>bal)return alert('الرصيد غير كافٍ — رصيدك: '+bal.toFixed(2)+'$');
-    /* Firebase if available */
     if(window.firebase&&window.firebase.firestore&&window._fbUid){
       const db=window.firebase.firestore();
       db.collection('users').doc(window._fbUid).get().then(s=>{
@@ -728,7 +761,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
         .catch(e=>{console.error(e);alert('حدث خطأ، حاول مرة أخرى');});
       return;
     }
-    /* localStorage fallback */
     setBal(bal-amt);
     const reqs=JSON.parse(localStorage.getItem('aimbit_wd_reqs')||'[]');
     reqs.push({amount:amt,method,wallet,status:'pending',date:Date.now()});
@@ -738,7 +770,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     document.getElementById('wdWallet').value='';
     document.getElementById('wdTerms').checked=false;
   };
-  /* back */
   document.getElementById('wdBack').onclick=()=>window.AppNav.go('home');
   refresh();
 })();
