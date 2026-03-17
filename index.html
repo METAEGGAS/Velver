@@ -101,8 +101,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 .bnav-item.active span{color:#f5a623}
 .up{color:#22c55e}
 .dn{color:#ef4444}
-
-/* ── Profile screen ── */
+/* ── Profile ── */
 #prof{position:fixed;inset:0;bottom:0;background:#0d0e1a;color:#fff;display:none;z-index:500;overflow:auto;direction:rtl}
 #prof .ph{position:sticky;top:0;z-index:9;background:#0d0e1a;display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
 #prof .phb,#prof .phs{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -124,8 +123,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #prof .ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;opacity:.85}
 #prof .lb{font-size:14px;color:#fff}
 #prof .lo{position:fixed;left:14px;right:14px;bottom:76px;background:#1e1f2e;color:#fff;border:0;width:auto;padding:14px 0;font-size:18px;font-weight:700;cursor:pointer;border-radius:12px}
-
-/* ── Welcome popup ── */
+/* ── Popup ── */
 #pop-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
 #pop-box{width:100%;max-width:420px;background:linear-gradient(160deg,#0f1128 0%,#161830 50%,#0d0e1a 100%);border:1px solid rgba(245,166,35,.25);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(245,166,35,.12),0 24px 60px rgba(0,0,0,.7);animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -135,13 +133,12 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #pop-head .ph-badge{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);border-radius:20px;padding:4px 10px;font-size:11px;color:#f5a623;font-weight:600}
 #pop-body{padding:18px 16px 6px;max-height:68vh;overflow-y:auto}
 #pop-body::-webkit-scrollbar{width:3px}
-#pop-body::-webkit-scrollbar-track{background:transparent}
 #pop-body::-webkit-scrollbar-thumb{background:#f5a623;border-radius:2px}
 .pop-intro{font-size:13px;color:#c8cde8;line-height:1.8;text-align:right;margin-bottom:16px;padding:12px;background:rgba(255,255,255,.03);border-radius:12px;border-right:3px solid #f5a623}
 .pop-sec-title{font-size:15px;font-weight:800;color:#fff;text-align:right;margin-bottom:10px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
 .pop-sec-title::before{content:"";width:18px;height:2px;background:linear-gradient(90deg,transparent,#f5a623);border-radius:2px}
 .pop-plans{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
-.pop-plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:border-color .2s}
+.pop-plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .pop-plan:nth-child(1){border-color:rgba(245,166,35,.35);background:rgba(245,166,35,.05)}
 .pop-plan:nth-child(2){border-color:rgba(99,179,237,.3);background:rgba(99,179,237,.04)}
 .pop-plan:nth-child(3){border-color:rgba(154,230,180,.3);background:rgba(154,230,180,.04)}
@@ -164,27 +161,57 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #pop-skip{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:14px;padding:13px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 #pop-ok{flex:1.4;background:linear-gradient(90deg,#f5a623,#ffb93e);border:0;color:#0d0e1a;border-radius:14px;padding:13px 0;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(245,166,35,.35)}
 #pop-skip:active,#pop-ok:active{opacity:.8}
+/* ══ WITHDRAW ══ */
+#wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:70px}
+.wh{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:9;border-bottom:1px solid #1e1f2e}
+.wh-bk{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.wh-bk svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
+.wh-t{flex:1;text-align:center;font-size:16px;font-weight:900;color:#f5a623}
+.wc{background:#141526;border:1px solid rgba(245,166,35,.18);border-radius:14px;padding:14px;margin:10px 12px}
+.wc .wr{display:flex;align-items:center;justify-content:space-between}
+.wl{color:#aaa;font-size:12px;margin-bottom:7px;font-weight:700;display:block}
+.wi{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);color:#fff;border-radius:10px;padding:11px;outline:none;font-size:14px;font-weight:700;direction:ltr;box-sizing:border-box;font-family:inherit}
+.wi:focus{border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.1)}
+.wb{background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.3);color:#ddd;border-radius:10px;padding:10px 14px;font-size:13px;cursor:pointer;font-weight:700;width:100%;text-align:right;transition:.18s;font-family:inherit}
+.wb:active{opacity:.7}
+.wb2{background:linear-gradient(90deg,#f5a623,#e8970d);border:0;color:#0d0e1a;border-radius:12px;padding:13px;font-size:15px;font-weight:900;width:100%;cursor:pointer;box-shadow:0 4px 18px rgba(245,166,35,.3);margin-top:8px;font-family:inherit}
+.wb2:active{opacity:.8}
+.wck{display:flex;align-items:center;gap:10px;margin:12px 0 6px;color:rgba(245,166,35,.85);font-weight:700;font-size:13px}
+.wck input{width:16px;height:16px;accent-color:#f5a623}
+.wn{text-align:center;color:#888;font-size:12px;line-height:1.8;margin:8px 0}
+.ww{display:flex;gap:10px;align-items:flex-start;margin:0 12px 12px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.18);border-radius:12px;padding:12px}
+.ww-i{width:20px;height:20px;border-radius:50%;border:1.5px solid #f5a623;color:#f5a623;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;flex:0 0 20px;margin-top:2px}
+/* wd modal */
+.wm{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.wm.on{display:flex}
+.wms{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);border-radius:16px 16px 0 0;padding:14px 14px 20px}
+.wmh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wmh b{color:#f5a623;font-size:15px;font-weight:900}
+.wmx{width:34px;height:34px;border-radius:10px;background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.3);color:#f5a623;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
+.wo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:#141526;border:1.5px solid rgba(245,166,35,.18);cursor:pointer;transition:.2s;margin-bottom:8px}
+.wo:hover,.wo.act{border-color:#f5a623;background:rgba(245,166,35,.05)}
+.wo-l{display:flex;align-items:center;gap:10px}
+.wo-i{display:flex;align-items:center;gap:4px}
+.wo-i img{width:22px;height:22px}
+.wo-t span{font-size:13px;color:#fff;font-weight:700;display:block}
+.wo-t small{font-size:11px;color:#aaa}
+.wo-ck{color:#f5a623;font-size:16px;opacity:0}
+.wo.act .wo-ck{opacity:1}
 </style>
 <body>
 
-<!-- ══════════════════════════════
-     WELCOME POPUP
-══════════════════════════════ -->
+<!-- POPUP -->
 <div id=pop-ov>
   <div id=pop-box>
     <div id=pop-head>
       <div class=ph-badge>🔔 إعلان</div>
       <div class=ph-logo>
-        <svg width=22 height=22 viewBox="0 0 24 24" fill=none>
-          <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path>
-          <path d="M2 17l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path>
-          <path d="M2 12l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path>
-        </svg>
+        <svg width=22 height=22 viewBox="0 0 24 24" fill=none><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 17l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 12l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path></svg>
         <span>binexia</span>
       </div>
     </div>
     <div id=pop-body>
-      <div class=pop-intro>🌐 مرحباً بك في منصة <strong style="color:#f5a623">binexia</strong> — منصة استثمار متكاملة تجمع بين التداول الذكي وإدارة الأموال الرقمية بأعلى معايير الأمان والشفافية. نهدف إلى تمكينك من تنمية ثروتك بكل يسر وأمان.</div>
+      <div class=pop-intro>🌐 مرحباً بك في منصة <strong style="color:#f5a623">binexia</strong> — منصة استثمار متكاملة تجمع بين التداول الذكي وإدارة الأموال الرقمية بأعلى معايير الأمان والشفافية.</div>
       <div class=pop-sec-title>💰 مستويات الأرباح</div>
       <div class=pop-plans>
         <div class=pop-plan>
@@ -215,9 +242,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
   </div>
 </div>
 
-<!-- ══════════════════════════════
-     HOME SECTION
-══════════════════════════════ -->
+<!-- HOME -->
 <section id=home>
   <div class=hdr>
     <div class=hdr-icons>
@@ -230,7 +255,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     </div>
     <div class=avatar id=ava></div>
   </div>
-
   <div class=balance-section>
     <div class=bal-label>
       <span>الرصيد(USDT)</span>
@@ -238,16 +262,15 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     </div>
     <div class=bal-row>
       <div class=deposit-btn data-go=dep>إيداع</div>
-      <div><div class=bal-amount>0.0000</div><div class=bal-usd>≈ $0.00</div></div>
+      <div><div class=bal-amount id=balAmt>0.0000</div><div class=bal-usd id=balUsd>≈ $0.00</div></div>
     </div>
   </div>
-
   <div class=grid>
     <div class=grid-item data-go=dep>
       <div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><rect x=3 y=5 width=18 height=14 rx=2></rect><path d="M3 10h18"></path><path d="M7 15h4"></path></svg></div>
       <span class=g-lbl>إيداع</span>
     </div>
-    <div class=grid-item>
+    <div class=grid-item data-go=wd>
       <div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><path d="M12 19V5M5 12l7-7 7 7"></path></svg></div>
       <span class=g-lbl>سحب</span>
     </div>
@@ -276,9 +299,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <span class=g-lbl>فعالية</span>
     </div>
   </div>
-
   <div class=divider></div>
-
   <div class=announce>
     <svg class=ann-arr viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
     <div class=ann-left>
@@ -286,7 +307,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <div class=ann-mar><span>منصة AIMBIT | إعلان تحديثات المنصة — قريبا الانطلاقة العالمية ترقبو كل مايخص binexia عبر صفحاتنا الرسمية🎉🎊</span></div>
     </div>
   </div>
-
   <div class=banner>
     <div class=banner-text>
       <div class=banner-title style="color:#ef4444">قم باستثمار الاموال الان</div>
@@ -294,7 +314,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     </div>
     <img class=banner-ico src="https://i.ibb.co/qLdnCh4S/file-0000000003f07246bcfad573087229bb.png" alt="">
   </div>
-
   <div class=cards-row>
     <div class=card>
       <div class=card-title>
@@ -314,9 +333,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <button class=card-btn id=goHot>تداول الآن</button>
     </div>
     <div class="card copy">
-      <div class=card-title style="justify-content:space-between;flex-direction:row-reverse">
-        <span>🔥 نسخ التداول</span>
-      </div>
+      <div class=card-title style="justify-content:space-between;flex-direction:row-reverse"><span>🔥 نسخ التداول</span></div>
       <div class=trade-img>
         <svg width=90 height=62 viewBox="0 0 90 62">
           <rect x=5 y=30 width=10 height=25 rx=2 fill=#22c55e opacity=.9></rect>
@@ -332,7 +349,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <button class=card-btn>نسخ الآن</button>
     </div>
   </div>
-
   <div class=tabs id=tabs>
     <div class=tab data-t=tVol>Vol</div>
     <div class=tab data-t=tLosers>Losers</div>
@@ -345,14 +361,9 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     <div class=h-name>الاسم</div>
   </div>
   <div class=mkt id=mkt></div>
-
   <div class=ftr>
     <div class=ftr-logo>
-      <svg viewBox="0 0 24 24" fill=none>
-        <path d="M12 2L2 7l10 5 10-5-10-5z" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path>
-        <path d="M2 17l10 5 10-5" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path>
-        <path d="M2 12l10 5 10-5" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path>
-      </svg>
+      <svg viewBox="0 0 24 24" fill=none><path d="M12 2L2 7l10 5 10-5-10-5z" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path><path d="M2 17l10 5 10-5" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path><path d="M2 12l10 5 10-5" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path></svg>
       <span>AIMBIT</span>
     </div>
     <div class=ftr-links>
@@ -364,17 +375,13 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       <div class=ftr-link>قائمة الرموز</div>
     </div>
   </div>
-
-  <!-- Market detail modal -->
+  <!-- Market modal -->
   <div class=md id=md>
     <div class=mdc>
       <div class=mdh>
         <div class=mdt>
           <img class=mdi id=mdi alt="">
-          <div>
-            <div class=mdn id=mdn></div>
-            <div style="color:#aaa;font-size:12px;margin-top:2px" id=mds></div>
-          </div>
+          <div><div class=mdn id=mdn></div><div style="color:#aaa;font-size:12px;margin-top:2px" id=mds></div></div>
         </div>
         <div class=x id=mdx><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
       </div>
@@ -388,31 +395,102 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
   </div>
 </section>
 
-<!-- ══════════════════════════════
-     DEPOSIT SECTION  (managed by deposit.js)
-══════════════════════════════ -->
+<!-- DEPOSIT -->
 <section id=dep style=display:none></section>
 
-<!-- ══════════════════════════════
-     PROFILE SECTION
-══════════════════════════════ -->
-<section id=prof aria-hidden=true>
-  <div class=ph>
-    <div class=phb id=pback>
+<!-- ══ WITHDRAW ══ -->
+<section id=wd>
+  <div class=wh>
+    <div class=wh-bk id=wdBack>
       <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg>
     </div>
-    <div style=width:34px;height:34px></div>
-    <div class=phs id=ptheme>
-      <svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=4></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap=round></path></svg>
+    <div class=wh-t>💸 سحب الأموال</div>
+    <div style=width:34px></div>
+  </div>
+  <div class=wc>
+    <div class=wr>
+      <b style="font-size:22px;color:#f5a623" id=wdBal>0.00$</b>
+      <span style="color:#aaa;font-size:13px">متاح للسحب</span>
     </div>
+  </div>
+  <div class=wc>
+    <label class=wl>طريقة السحب</label>
+    <button id=wdPmBtn class=wb>Tether (USDT/TRC20) ▾</button>
+    <div style=height:12px></div>
+    <label class=wl>المبلغ $</label>
+    <input id=wdAmt class=wi value=10 inputmode=decimal placeholder="0.00">
+    <div style=height:12px></div>
+    <label class=wl>معرّف المحفظة / العنوان</label>
+    <input id=wdWallet class=wi placeholder="أدخل عنوان المحفظة">
+    <div class=wck>
+      <input id=wdTerms type=checkbox>
+      <label for=wdTerms>أقبل الأحكام والشروط</label>
+    </div>
+    <div class=wn>قد يتم إرسال الدفعة على أجزاء خلال 48 ساعة</div>
+    <button class=wb2 id=wdBtn>متابعة السحب ←</button>
+  </div>
+  <div class=ww>
+    <i class=ww-i>!</i>
+    <div style="font-size:13px;line-height:1.7">
+      <b style="color:#f5a623;display:block;margin-bottom:4px">تنبيه هام</b>
+      سيتم إلغاء المكافأة وصندوق الغموض غير المفتوح عند السحب<br>
+      <span style="color:#aaa;font-size:12px">رصيدك يحتوي على مكافأة وصندوق غموض غير مفتوح</span>
+    </div>
+  </div>
+</section>
+
+<!-- modal طريقة السحب -->
+<div id=wdModal class=wm>
+  <div class=wms>
+    <div class=wmh>
+      <b>اختيار طريقة السحب</b>
+      <div class=wmx id=wdMClose>✕</div>
+    </div>
+    <div class="wo" data-label="Tether (USDT/ERC20)">
+      <div class=wo-l>
+        <div class=wo-i>
+          <img src="https://binolla.com/static/common/images/payment/method/usdt.svg" onerror="this.style.display='none'">
+          <img src="https://binolla.com/static/common/images/payment/crypto/ethereum.svg" onerror="this.style.display='none'">
+        </div>
+        <div class=wo-t><span>Tether (USDT/ERC20)</span><small>USDT + ERC20</small></div>
+      </div>
+      <div class=wo-ck>✓</div>
+    </div>
+    <div class="wo act" data-label="Tether (USDT/TRC20)">
+      <div class=wo-l>
+        <div class=wo-i>
+          <img src="https://binolla.com/static/common/images/payment/method/usdt.svg" onerror="this.style.display='none'">
+          <img src="https://binolla.com/static/common/images/payment/crypto/tron.svg" onerror="this.style.display='none'">
+        </div>
+        <div class=wo-t><span>Tether (USDT/TRC20)</span><small>USDT + TRC20</small></div>
+      </div>
+      <div class=wo-ck>✓</div>
+    </div>
+    <div class="wo" data-label="Tether (USDT/BEP20)">
+      <div class=wo-l>
+        <div class=wo-i>
+          <img src="https://binolla.com/static/common/images/payment/method/usdt.svg" onerror="this.style.display='none'">
+          <img src="https://binolla.com/static/common/images/payment/crypto/binancecoin.svg" onerror="this.style.display='none'">
+        </div>
+        <div class=wo-t><span>Tether (USDT/BEP20)</span><small>USDT + BEP20</small></div>
+      </div>
+      <div class=wo-ck>✓</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<section id=prof aria-hidden=true>
+  <div class=ph>
+    <div class=phb id=pback><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div>
+    <div style=width:34px;height:34px></div>
+    <div class=phs id=ptheme><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=4></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap=round></path></svg></div>
   </div>
   <div class=pwrap>
     <div class=puser><div class=uico title=مستخدم></div></div>
     <div class=puid>
       <span class=tag><span class=rd>!</span>غير معتمد</span>
-      <span class=cp id=copyUid title=نسخ>
-        <svg viewBox="0 0 24 24"><rect x=9 y=9 width=13 height=13 rx=2></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-linecap=round></path></svg>
-      </span>
+      <span class=cp id=copyUid title=نسخ><svg viewBox="0 0 24 24"><rect x=9 y=9 width=13 height=13 rx=2></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-linecap=round></path></svg></span>
       <span class=uidt id=uidText>UID: 24752727</span>
     </div>
     <div class=st>الوظائف الشائعة</div>
@@ -427,7 +505,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
     <div class=st>إدارة الأصول</div>
     <div class=g>
       <div class=it data-go=dep><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=9></circle><path d="M12 8v8M8 12h8" stroke-linecap=round></path></svg></div><div class=lb>إيداع</div></div>
-      <div class=it><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=9></circle><path d="M12 7v10M8 14l4 4 4-4" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>سحب</div></div>
+      <div class=it data-go=wd><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=9></circle><path d="M12 7v10M8 14l4 4 4-4" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>سحب</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M20 7H7a4 4 0 0 0-4 4v10"></path><polyline points="14 17 20 11 14 5" stroke-linecap=round stroke-linejoin=round></polyline><path d="M4 17h13a4 4 0 0 0 4-4V3"></path><polyline points="10 7 4 13 10 19" stroke-linecap=round stroke-linejoin=round></polyline></svg></div><div class=lb>تحويل</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M7 8a5 5 0 0 1 10 0v2"></path><path d="M5 10h14v10H5z"></path><path d="M9 14h6" stroke-linecap=round></path></svg></div><div class=lb>P2P</div></div>
     </div>
@@ -444,9 +522,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
   <button class=lo id=logout>تسجيل الخروج</button>
 </section>
 
-<!-- ══════════════════════════════
-     BOTTOM NAV
-══════════════════════════════ -->
+<!-- BOTTOM NAV -->
 <nav class=bnav id=bnav>
   <div class="bnav-item active" data-nav=home>
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -466,136 +542,88 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
   </div>
   <div class=bnav-item data-nav=bal>
     <svg viewBox="0 0 24 24"><rect x=2 y=5 width=20 height=14 rx=2></rect><line x1=2 y1=10 x2=22 y2=10></line></svg>
-    <span>الرصيد</span>
+    <span>سحب</span>
   </div>
 </nav>
 
 <script>
-/* ══════════════════════════════
-   POPUP
-══════════════════════════════ */
+/* ── POPUP ── */
 (()=>{
-  const pov=document.getElementById("pop-ov");
-  if(localStorage.getItem("aimbit_pop_hide")==="1") pov.style.display="none";
-  document.getElementById("pop-ok").onclick=()=>pov.style.display="none";
-  document.getElementById("pop-skip").onclick=()=>{
-    localStorage.setItem("aimbit_pop_hide","1");
-    pov.style.display="none";
-  };
+  const pov=document.getElementById('pop-ov');
+  if(localStorage.getItem('aimbit_pop_hide')==='1')pov.style.display='none';
+  document.getElementById('pop-ok').onclick=()=>pov.style.display='none';
+  document.getElementById('pop-skip').onclick=()=>{localStorage.setItem('aimbit_pop_hide','1');pov.style.display='none';};
 })();
 
-/* ══════════════════════════════
-   MARKET DATA & TICKER
-══════════════════════════════ */
+/* ── MARKET DATA ── */
 (()=>{
-  const mkt=document.getElementById("mkt"),
-        tabs=document.getElementById("tabs"),
-        q=document.getElementById("q"),
-        md=document.getElementById("md"),
-        mdx=document.getElementById("mdx");
-
-  let mode="tHot", D=[];
-
-  const nf=x=>x==null?"—":(Math.abs(x)>=1
-    ?x.toLocaleString("en-US",{maximumFractionDigits:2})
-    :x.toLocaleString("en-US",{maximumFractionDigits:6}));
-  const pf=x=>nf(x);
-  const cf=x=>{x=+x||0;return(x>0?"+":"")+x.toFixed(2)+"%"};
-  const cls=x=>((+x||0)>=0?"up":"dn");
-  const cbg=x=>((+x||0)>=0?"up-bg":"dn-bg");
-
-  const BTC="https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png";
-  const ETH="https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png";
-  const LTC="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10";
-  const DOGE="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10";
-  const SOL="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10";
-
-  const seed=()=>{
-    D=[
-      {id:"bitcoin", name:"Bitcoin", symbol:"BTC", rank:1, price:74724.94,chg:3.67, vol:3.2e10,ico:BTC},
-      {id:"ethereum",name:"Ethereum",symbol:"ETH", rank:2, price:2364.94, chg:10.45,vol:1.8e10,ico:ETH},
-      {id:"litecoin",name:"Litecoin",symbol:"LTC", rank:3, price:58.88,  chg:5.65, vol:8.2e8, ico:LTC},
-      {id:"dogecoin",name:"Dogecoin",symbol:"DOGE",rank:4, price:.10,    chg:7.24, vol:1.7e9, ico:DOGE},
-      {id:"solana",  name:"Solana",  symbol:"SOL", rank:5, price:96.70,  chg:6.38, vol:6.2e9, ico:SOL},
-    ];
-  };
-
+  const mkt=document.getElementById('mkt'),tabs=document.getElementById('tabs'),
+        q=document.getElementById('q'),md=document.getElementById('md'),mdx=document.getElementById('mdx');
+  let mode='tHot',D=[];
+  const nf=x=>x==null?'—':(Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6}));
+  const cf=x=>{x=+x||0;return(x>0?'+':'')+x.toFixed(2)+'%'};
+  const cls=x=>((+x||0)>=0?'up':'dn');
+  const cbg=x=>((+x||0)>=0?'up-bg':'dn-bg');
+  const BTC='https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png';
+  const ETH='https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png';
+  const LTC='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10';
+  const DOGE='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10';
+  const SOL='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10';
+  const seed=()=>{D=[
+    {id:'bitcoin',name:'Bitcoin',symbol:'BTC',rank:1,price:74724.94,chg:3.67,vol:3.2e10,ico:BTC},
+    {id:'ethereum',name:'Ethereum',symbol:'ETH',rank:2,price:2364.94,chg:10.45,vol:1.8e10,ico:ETH},
+    {id:'litecoin',name:'Litecoin',symbol:'LTC',rank:3,price:58.88,chg:5.65,vol:8.2e8,ico:LTC},
+    {id:'dogecoin',name:'Dogecoin',symbol:'DOGE',rank:4,price:.10,chg:7.24,vol:1.7e9,ico:DOGE},
+    {id:'solana',name:'Solana',symbol:'SOL',rank:5,price:96.70,chg:6.38,vol:6.2e9,ico:SOL},
+  ];};
   const sortData=()=>{
     let A=[...D];
-    if(mode=="tGainers")A.sort((a,b)=>(b.chg||0)-(a.chg||0));
-    else if(mode=="tLosers")A.sort((a,b)=>(a.chg||0)-(b.chg||0));
-    else if(mode=="tVol")A.sort((a,b)=>(b.vol||0)-(a.vol||0));
+    if(mode=='tGainers')A.sort((a,b)=>(b.chg||0)-(a.chg||0));
+    else if(mode=='tLosers')A.sort((a,b)=>(a.chg||0)-(b.chg||0));
+    else if(mode=='tVol')A.sort((a,b)=>(b.vol||0)-(a.vol||0));
     else A.sort((a,b)=>(a.rank||99)-(b.rank||99));
-    const s=(q.value||"").trim().toLowerCase();
-    if(s)A=A.filter(x=>(x.name||"").toLowerCase().includes(s)||(x.symbol||"").toLowerCase().includes(s));
+    const s=(q.value||'').trim().toLowerCase();
+    if(s)A=A.filter(x=>(x.name||'').toLowerCase().includes(s)||(x.symbol||'').toLowerCase().includes(s));
     return A;
   };
-
   const render=()=>{
     const A=sortData();
-    mkt.innerHTML=A.map(x=>`
-      <div class=row data-id="${x.id}">
-        <div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div>
-        <div class=r-price><div class=r-p>${pf(x.price)}</div><div class=r-ps>$${pf(x.price)} ≈</div></div>
-        <div class=r-name>
-          <div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div>
-          <img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}">
-        </div>
-      </div>`).join("");
+    mkt.innerHTML=A.map(x=>`<div class=row data-id="${x.id}">
+      <div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div>
+      <div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps>$${nf(x.price)} ≈</div></div>
+      <div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div>
+      <img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}"></div>
+    </div>`).join('');
   };
-
   const updBTC=()=>{
-    const b=D.find(x=>x.symbol=="BTC");
-    if(!b)return;
-    document.getElementById("btcP").textContent="$"+pf(b.price);
-    const c=document.getElementById("btcC");
-    c.textContent=cf(b.chg);c.className=cls(b.chg);
+    const b=D.find(x=>x.symbol=='BTC');if(!b)return;
+    document.getElementById('btcP').textContent='$'+nf(b.price);
+    const c=document.getElementById('btcC');c.textContent=cf(b.chg);c.className=cls(b.chg);
   };
-
   const openMD=x=>{
-    document.getElementById("mdi").src=x.ico;
-    document.getElementById("mdn").textContent=x.name;
-    document.getElementById("mds").textContent="USDT/ "+x.symbol;
-    document.getElementById("mdpp").textContent="$"+pf(x.price);
-    const c=document.getElementById("mdch");
-    c.textContent=cf(x.chg);c.className="pl2 "+cls(x.chg);
-    document.getElementById("mdvl").textContent=nf(x.vol);
-    md.classList.add("on");
+    document.getElementById('mdi').src=x.ico;
+    document.getElementById('mdn').textContent=x.name;
+    document.getElementById('mds').textContent='USDT/ '+x.symbol;
+    document.getElementById('mdpp').textContent='$'+nf(x.price);
+    const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);
+    document.getElementById('mdvl').textContent=nf(x.vol);
+    md.classList.add('on');
   };
-
-  const closeMD=()=>md.classList.remove("on");
+  const closeMD=()=>md.classList.remove('on');
   mdx.onclick=closeMD;
   md.onclick=e=>{if(e.target===md)closeMD();};
-
-  mkt.onclick=e=>{
-    const r=e.target.closest(".row");
-    if(!r)return;
-    const x=D.find(z=>z.id==r.dataset.id);
-    if(x)openMD(x);
-  };
-
+  mkt.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const x=D.find(z=>z.id==r.dataset.id);if(x)openMD(x);};
   tabs.onclick=e=>{
-    const t=e.target.closest(".tab");
-    if(!t)return;
+    const t=e.target.closest('.tab');if(!t)return;
     mode=t.dataset.t;
-    [...tabs.children].forEach(x=>x.classList.toggle("active",x===t));
-    render();
+    [...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render();
   };
-
   q.oninput=render;
-
-  document.getElementById("goHot").onclick=()=>{
-    mode="tHot";
-    [...tabs.children].forEach(x=>x.classList.toggle("active",x.dataset.t=="tHot"));
-    render();
-    document.getElementById("tabs").scrollIntoView({behavior:"smooth",block:"start"});
+  document.getElementById('goHot').onclick=()=>{
+    mode='tHot';[...tabs.children].forEach(x=>x.classList.toggle('active',x.dataset.t=='tHot'));
+    render();document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'});
   };
-
-  document.getElementById("mdtbtn").onclick=()=>{
-    closeMD();
-    document.getElementById("tabs").scrollIntoView({behavior:"smooth",block:"start"});
-  };
-
+  document.getElementById('mdtbtn').onclick=()=>{closeMD();document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'});};
   const tick=()=>{
     for(const x of D){
       let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);
@@ -604,117 +632,115 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
       x.vol=Math.max(1,x.vol*(1+(Math.random()-.5)*.02));
     }
     render();updBTC();
-    if(md.classList.contains("on")){
-      const n=document.getElementById("mdn").textContent;
-      const x=D.find(z=>z.name==n);
-      if(x){
-        document.getElementById("mdpp").textContent="$"+pf(x.price);
-        const c=document.getElementById("mdch");
-        c.textContent=cf(x.chg);c.className="pl2 "+cls(x.chg);
-        document.getElementById("mdvl").textContent=nf(x.vol);
-      }
+    if(md.classList.contains('on')){
+      const n=document.getElementById('mdn').textContent,x=D.find(z=>z.name==n);
+      if(x){document.getElementById('mdpp').textContent='$'+nf(x.price);
+        const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);
+        document.getElementById('mdvl').textContent=nf(x.vol);}
     }
   };
-
-  seed();render();updBTC();
-  setInterval(tick,1200);
+  seed();render();updBTC();setInterval(tick,1200);
 })();
 
-/* ══════════════════════════════
-   PROFILE
-══════════════════════════════ */
+/* ── PROFILE ── */
 (()=>{
-  const prof=document.getElementById("prof"),
-        ava=document.getElementById("ava"),
-        back=document.getElementById("pback"),
-        copy=document.getElementById("copyUid"),
-        uid=document.getElementById("uidText"),
-        logout=document.getElementById("logout");
-
-  const show=on=>{
-    prof.style.display=on?"block":"none";
-    prof.setAttribute("aria-hidden",on?"false":"true");
-    document.body.style.overflow=on?"hidden":"auto";
-    window.scrollTo(0,0);
-  };
-
-  ava.onclick=()=>show(1);
-  back.onclick=()=>show(0);
-  copy.onclick=async()=>{
-    const t=uid.textContent||"";
-    try{await navigator.clipboard.writeText(t);}
-    catch(e){prompt("انسخ UID:",t);}
-  };
-  logout.onclick=()=>alert("تسجيل الخروج");
+  const prof=document.getElementById('prof'),ava=document.getElementById('ava'),
+        back=document.getElementById('pback'),copy=document.getElementById('copyUid'),
+        uid=document.getElementById('uidText'),logout=document.getElementById('logout');
+  const show=on=>{prof.style.display=on?'block':'none';prof.setAttribute('aria-hidden',on?'false':'true');document.body.style.overflow=on?'hidden':'auto';window.scrollTo(0,0);};
+  ava.onclick=()=>show(1);back.onclick=()=>show(0);
+  copy.onclick=async()=>{const t=uid.textContent||'';try{await navigator.clipboard.writeText(t);}catch(e){prompt('انسخ UID:',t);}};
+  logout.onclick=()=>alert('تسجيل الخروج');
 })();
 
-/* ══════════════════════════════
-   APP NAVIGATION  (Home ↔ Deposit)
-   deposit.js ADDR is the canonical address.
-   Pass it here to override HTML default.
-══════════════════════════════ */
+/* ── APP NAV ── */
 (()=>{
-  const H  = document.getElementById("home");
-  const D  = document.getElementById("dep");
-  const bn = document.getElementById("bnav");
-
-  /* ── Deposit USDT TRC20 address (matches deposit.js DEFAULT_ADDR) ── */
-  const DEP_ADDR = "TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch";
-
-  const setNav = a =>
-    [...bn.children].forEach(x => x.classList.toggle("active", x.dataset.nav === a));
-
-  /* Show deposit section + mount DepositPage module */
-  const mountDep = () => {
-    H.style.display  = "none";
-    D.style.display  = "block";
-    setNav("home");
-    window.scrollTo(0, 0);
-    window.DepositPage.mount(D, { addr: DEP_ADDR });
+  const H=document.getElementById('home'),D=document.getElementById('dep'),W=document.getElementById('wd'),bn=document.getElementById('bnav');
+  const DEP_ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch';
+  const setNav=a=>[...bn.children].forEach(x=>x.classList.toggle('active',x.dataset.nav===a));
+  const hideAll=()=>{H.style.display='none';D.style.display='none';W.style.display='none';document.body.style.overflow='';};
+  const mountDep=()=>{hideAll();D.style.display='block';setNav('home');window.scrollTo(0,0);window.DepositPage.mount(D,{addr:DEP_ADDR});};
+  const go=v=>{
+    if(v==='home'){hideAll();H.style.display='block';setNav('home');window.scrollTo(0,0);}
+    else if(v==='dep'){if(window.DepositPage){mountDep();}else{const s=document.createElement('script');s.src='deposit.js';s.onerror=()=>alert('⚠️ تعذّر تحميل صفحة الإيداع');s.onload=mountDep;document.head.appendChild(s);}}
+    else if(v==='wd'){hideAll();W.style.display='block';setNav('bal');if(window.wdRefresh)window.wdRefresh();window.scrollTo(0,0);}
   };
-
-  /* Main router */
-  const go = v => {
-    if (v === "home") {
-      D.style.display  = "none";
-      H.style.display  = "block";
-      document.body.style.overflow = "";  // restore scroll
-      setNav("home");
-      window.scrollTo(0, 0);
-    } else if (v === "dep") {
-      if (window.DepositPage) {
-        mountDep();
-      } else {
-        /* Lazy-load deposit.js the first time */
-        const s = document.createElement("script");
-        s.src = "deposit.js";
-        s.onerror = () => alert("⚠️ تعذّر تحميل صفحة الإيداع");
-        s.onload  = mountDep;
-        document.head.appendChild(s);
-      }
-    }
+  window.AppNav={go};
+  document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);});
+  bn.onclick=e=>{
+    const it=e.target.closest('.bnav-item');if(!it)return;
+    const v=it.dataset.nav;
+    if(v==='home')go('home');
+    else if(v==='bal')go('wd');
+    else if(v==='markets')document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'});
+    else if(v==='trade')alert('التداول (قريباً)');
+    else if(v==='fav')alert('التسمية (قريباً)');
   };
+})();
 
-  /* Expose globally so deposit.js can call go("home") on close/back */
-  window.AppNav = { go };
-
-  /* data-go="dep" delegated click */
-  document.addEventListener("click", e => {
-    const g = e.target.closest("[data-go]");
-    if (g && g.dataset.go === "dep") { go("dep"); return; }
+/* ── WITHDRAW ── */
+(()=>{
+  const getBal=()=>parseFloat(localStorage.getItem('aimbit_bal')||'0');
+  const setBal=v=>{
+    localStorage.setItem('aimbit_bal',String(v));
+    const ba=document.getElementById('balAmt'),bu=document.getElementById('balUsd');
+    if(ba)ba.textContent=v.toFixed(4);if(bu)bu.textContent='≈ $'+v.toFixed(2);
+  };
+  const refresh=()=>{
+    const b=getBal(),bd=document.getElementById('wdBal');
+    if(bd)bd.textContent=b.toFixed(2)+'$';
+    setBal(b);
+  };
+  window.wdRefresh=refresh;
+  /* modal */
+  const modal=document.getElementById('wdModal');
+  document.getElementById('wdPmBtn').onclick=()=>modal.classList.add('on');
+  document.getElementById('wdMClose').onclick=()=>modal.classList.remove('on');
+  modal.onclick=e=>{if(e.target===modal)modal.classList.remove('on');};
+  document.querySelectorAll('.wo').forEach(o=>{
+    o.onclick=()=>{
+      document.querySelectorAll('.wo').forEach(x=>x.classList.remove('act'));
+      o.classList.add('act');
+      document.getElementById('wdPmBtn').textContent=(o.dataset.label||'')+' ▾';
+      modal.classList.remove('on');
+    };
   });
-
-  /* Bottom nav */
-  bn.onclick = e => {
-    const it = e.target.closest(".bnav-item");
-    if (!it) return;
-    const v = it.dataset.nav;
-    if      (v === "home")    go("home");
-    else if (v === "bal")     alert("الرصيد (قريباً)");
-    else if (v === "markets") document.getElementById("tabs").scrollIntoView({behavior:"smooth",block:"start"});
-    else if (v === "trade")   alert("التداول (قريباً)");
-    else if (v === "fav")     alert("التسمية (قريباً)");
+  /* submit */
+  document.getElementById('wdBtn').onclick=()=>{
+    const amt=parseFloat((document.getElementById('wdAmt').value||'').replace(',','.'));
+    const wallet=(document.getElementById('wdWallet').value||'').trim();
+    const method=(document.getElementById('wdPmBtn').textContent||'').replace('▾','').trim();
+    const ok=document.getElementById('wdTerms').checked;
+    if(!ok)return alert('يجب الموافقة على الأحكام والشروط');
+    if(!amt||amt<=0||isNaN(amt))return alert('أدخل مبلغاً صحيحاً');
+    if(!wallet)return alert('أدخل عنوان المحفظة');
+    const bal=getBal();
+    if(amt>bal)return alert('الرصيد غير كافٍ — رصيدك: '+bal.toFixed(2)+'$');
+    /* Firebase if available */
+    if(window.firebase&&window.firebase.firestore&&window._fbUid){
+      const db=window.firebase.firestore();
+      db.collection('users').doc(window._fbUid).get().then(s=>{
+        const fb=Number(s.data()?.balance||0);
+        if(amt>fb)return alert('الرصيد غير كافٍ');
+        return db.collection('users').doc(window._fbUid).update({balance:window.firebase.firestore.FieldValue.increment(-amt)})
+          .then(()=>db.collection('withdraw_requests').add({userId:window._fbUid,amount:amt,method,wallet,status:'pending',createdAt:window.firebase.firestore.FieldValue.serverTimestamp()}));
+      }).then(()=>{alert('✅ تم تقديم طلب السحب بنجاح');document.getElementById('wdWallet').value='';document.getElementById('wdTerms').checked=false;refresh();})
+        .catch(e=>{console.error(e);alert('حدث خطأ، حاول مرة أخرى');});
+      return;
+    }
+    /* localStorage fallback */
+    setBal(bal-amt);
+    const reqs=JSON.parse(localStorage.getItem('aimbit_wd_reqs')||'[]');
+    reqs.push({amount:amt,method,wallet,status:'pending',date:Date.now()});
+    localStorage.setItem('aimbit_wd_reqs',JSON.stringify(reqs));
+    refresh();
+    alert('✅ تم تقديم طلب السحب بنجاح');
+    document.getElementById('wdWallet').value='';
+    document.getElementById('wdTerms').checked=false;
   };
+  /* back */
+  document.getElementById('wdBack').onclick=()=>window.AppNav.go('home');
+  refresh();
 })();
 </script>
 </body>
