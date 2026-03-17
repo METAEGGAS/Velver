@@ -1,83 +1,108 @@
 <!doctype html><html lang=ar dir=rtl><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>AIMBIT</title><style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:Segoe UI,Tahoma,Arial,sans-serif}body{background:#0d0e1a;color:#fff;min-height:100vh;overflow:hidden}
-.view{position:fixed;inset:0;background:#0d0e1a;overflow:auto;display:none;padding-bottom:72px}/* ✅ كل الصفحات نفس سحب */.view.on{display:block}
+:root{--safe:env(safe-area-inset-bottom,0px);--bn:70px;--pb:calc(var(--bn) + var(--safe))}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:Segoe UI,Tahoma,Arial,sans-serif}
+body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bottom:var(--pb)}
 .hdr{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:99}
-.hdr-icons{display:flex;gap:10px;align-items:center}.hdr-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.hdr-icons{display:flex;gap:10px;align-items:center}
+.hdr-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .hdr-icon svg{width:22px;height:22px;fill:none;stroke:#ccc;stroke-width:1.8}
 .search-bar{flex:1;background:#1e1f2e;border-radius:20px;display:flex;align-items:center;padding:7px 12px;gap:6px}
-.search-bar input{background:none;border:0;outline:0;color:#fff;font-size:13px;width:100%;direction:rtl}.search-bar input::placeholder{color:#888}
+.search-bar input{background:none;border:0;outline:0;color:#fff;font-size:13px;width:100%;direction:rtl}
+.search-bar input::placeholder{color:#888}
 .search-bar svg{width:16px;height:16px;fill:none;stroke:#888;stroke-width:2;flex-shrink:0}
 .avatar{width:36px;height:36px;border-radius:50%;background:#222 center/cover no-repeat;cursor:pointer;flex:0 0 auto;box-shadow:0 0 0 2px rgba(255,255,255,.08);background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJyKEGd9CI___Zhk2oWxXkP3xHlB-jSfThuE0n6bSgng&s=10)}
-.balance-section{padding:18px 18px 10px}.bal-label{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:#aaa;font-size:13px;margin-bottom:6px}
+.balance-section{padding:18px 18px 10px}
+.bal-label{display:flex;align-items:center;justify-content:flex-end;gap:6px;color:#aaa;font-size:13px;margin-bottom:6px}
 .bal-label svg{width:18px;height:18px;fill:none;stroke:#aaa;stroke-width:1.8;cursor:pointer}
-.bal-amount{text-align:right;font-size:38px;font-weight:700;letter-spacing:1px;line-height:1.1}.bal-usd{text-align:right;color:#888;font-size:13px;margin-top:4px}
+.bal-amount{text-align:right;font-size:38px;font-weight:700;letter-spacing:1px;line-height:1.1}
+.bal-usd{text-align:right;color:#888;font-size:13px;margin-top:4px}
 .bal-row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:4px}
 .deposit-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:22px;padding:11px 28px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:.5px;position:relative;top:-12px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 4px}.grid-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;cursor:pointer}
-.grid-item:active{opacity:.7}.g-icon{width:44px;height:44px;border-radius:50%;background:#1a1b2e;display:flex;align-items:center;justify-content:center}
-.g-icon svg{width:22px;height:22px}.g-lbl{font-size:11px;color:#ccc;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 4px}
+.grid-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;cursor:pointer}
+.grid-item:active{opacity:.7}
+.g-icon{width:44px;height:44px;border-radius:50%;background:#1a1b2e;display:flex;align-items:center;justify-content:center}
+.g-icon svg{width:22px;height:22px}
+.g-lbl{font-size:11px;color:#ccc;text-align:center}
 .divider{height:6px;background:#090a14}
 .announce{display:flex;align-items:center;justify-content:space-between;background:#141526;padding:9px 14px;margin:4px 0;cursor:pointer;gap:10px}
 .ann-left{display:flex;align-items:center;gap:8px;font-size:12px;color:#bbb;flex:1;min-width:0}
-.ann-left svg{width:18px;height:18px;fill:none;stroke:#f90;stroke-width:2;flex:0 0 auto}.ann-arr{width:18px;height:18px;fill:none;stroke:#888;stroke-width:2;flex:0 0 auto}
-.ann-mar{overflow:hidden;white-space:nowrap;flex:1;min-width:0}.ann-mar span{display:inline-block;padding-right:100%;animation:tkr 14.4s linear infinite}
+.ann-left svg{width:18px;height:18px;fill:none;stroke:#f90;stroke-width:2;flex:0 0 auto}
+.ann-arr{width:18px;height:18px;fill:none;stroke:#888;stroke-width:2;flex:0 0 auto}
+.ann-mar{overflow:hidden;white-space:nowrap;flex:1;min-width:0}
+.ann-mar span{display:inline-block;padding-right:100%;animation:tkr 14.4s linear infinite}
 @keyframes tkr{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
 .banner{background:linear-gradient(135deg,#0f1023 0,#141830 60%,#1a2040 100%);padding:24px 18px;display:flex;align-items:center;justify-content:space-between;min-height:145px}
-.banner-text{flex:1;z-index:2}.banner-title{font-size:26px;font-weight:900;margin-bottom:8px;letter-spacing:-.5px}
-.banner-body{font-size:13px;color:#bbb;line-height:1.7;max-width:260px}.banner-ico{width:130px;height:120px;object-fit:contain;filter:drop-shadow(0 6px 16px rgba(0,0,0,.35))}
-.cards-row{display:flex;gap:10px;padding:12px 12px 8px}.card{flex:1;background:#141526;border-radius:12px;overflow:hidden;padding:12px 10px 10px;position:relative;display:flex;flex-direction:column}
+.banner-text{flex:1;z-index:2}
+.banner-title{font-size:26px;font-weight:900;margin-bottom:8px;letter-spacing:-.5px}
+.banner-body{font-size:13px;color:#bbb;line-height:1.7;max-width:260px}
+.banner-ico{width:130px;height:120px;object-fit:contain;filter:drop-shadow(0 6px 16px rgba(0,0,0,.35))}
+.cards-row{display:flex;gap:10px;padding:12px 12px 8px}
+.card{flex:1;background:#141526;border-radius:12px;overflow:hidden;padding:12px 10px 10px;position:relative;display:flex;flex-direction:column}
 .card-title{font-size:12px;color:#ddd;text-align:right;margin-bottom:2px;font-weight:600;display:flex;align-items:center;justify-content:flex-end;gap:6px}
 .coin-ico{width:18px;height:18px;border-radius:50%;object-fit:cover;display:inline-block;background:#0d0e1a}
-.chart{width:100%;height:52px;margin-bottom:8px}.card-btn{width:100%;background:#0d0e1a;color:#fff;border:0;border-radius:18px;padding:8px 0;font-size:12px;cursor:pointer;font-weight:600;margin-top:auto}
-.card-btn:active{opacity:.7}.trade-img{width:100%;height:62px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}.copy .card-btn{margin-top:18px}
-.tabs{display:flex;padding:0 12px;border-bottom:1px solid #1e1f2e}.tab{flex:1;text-align:center;padding:8px 0;font-size:12px;color:#888;cursor:pointer;position:relative}
-.tab.active{color:#fff;font-weight:700}.tab.active:after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:24px;height:2px;background:#f5a623;border-radius:2px}
-.mkt-hdr{display:flex;align-items:center;padding:8px 14px 4px;font-size:11px;color:#888}.mkt-hdr .h-chg{width:72px;text-align:left}
-.mkt-hdr .h-price{flex:1;text-align:center}.mkt-hdr .h-name{width:110px;text-align:right}
-.mkt{padding:6px 10px 0}.row{display:flex;align-items:center;background:#141526;border-radius:12px;padding:12px 10px;margin:0 0 8px;cursor:pointer;gap:8px}
-.row:active{opacity:.75}.r-name{width:120px;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0}
-.r-name-txt{text-align:right;line-height:1.3}.r-name-top{font-size:11px;color:#aaa;font-weight:500}.r-name-bot{font-size:14px;font-weight:900;color:#fff}
-.r-ico{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0}.r-price{flex:1;text-align:center}
-.r-p{font-size:15px;font-weight:800;color:#fff}.r-ps{font-size:11px;color:#aaa;margin-top:2px}.r-badge{width:80px;flex-shrink:0;display:flex;justify-content:flex-start}
+.chart{width:100%;height:52px;margin-bottom:8px}
+.card-btn{width:100%;background:#0d0e1a;color:#fff;border:0;border-radius:18px;padding:8px 0;font-size:12px;cursor:pointer;font-weight:600;margin-top:auto}
+.card-btn:active{opacity:.7}
+.trade-img{width:100%;height:62px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.copy .card-btn{margin-top:18px}
+.tabs{display:flex;padding:0 12px;border-bottom:1px solid #1e1f2e}
+.tab{flex:1;text-align:center;padding:8px 0;font-size:12px;color:#888;cursor:pointer;position:relative}
+.tab.active{color:#fff;font-weight:700}
+.tab.active:after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:24px;height:2px;background:#f5a623;border-radius:2px}
+.mkt-hdr{display:flex;align-items:center;padding:8px 14px 4px;font-size:11px;color:#888}
+.mkt-hdr .h-chg{width:72px;text-align:left}
+.mkt-hdr .h-price{flex:1;text-align:center}
+.mkt-hdr .h-name{width:110px;text-align:right}
+.mkt{padding:6px 10px 0}
+.row{display:flex;align-items:center;background:#141526;border-radius:12px;padding:12px 10px;margin:0 0 8px;cursor:pointer;gap:8px}
+.row:active{opacity:.75}
+.r-name{width:120px;display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0}
+.r-name-txt{text-align:right;line-height:1.3}
+.r-name-top{font-size:11px;color:#aaa;font-weight:500}
+.r-name-bot{font-size:14px;font-weight:900;color:#fff}
+.r-ico{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.r-price{flex:1;text-align:center}
+.r-p{font-size:15px;font-weight:800;color:#fff}
+.r-ps{font-size:11px;color:#aaa;margin-top:2px}
+.r-badge{width:80px;flex-shrink:0;display:flex;justify-content:flex-start}
 .chg-badge{display:inline-flex;align-items:center;justify-content:center;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;min-width:72px;text-align:center}
-.up-bg{background:#b2f5e0;color:#0d8a5e}.dn-bg{background:#fee2e2;color:#dc2626}.up{color:#22c55e}.dn{color:#ef4444}
-.ftr{background:#141526;margin-top:8px;padding:16px 16px 20px}.ftr-logo{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-bottom:14px}
-.ftr-logo svg{width:22px;height:22px}.ftr-logo span{font-size:18px;font-weight:900;letter-spacing:1px;color:#fff}
-.ftr-links{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}.ftr-link{font-size:13px;color:#bbb;cursor:pointer;padding:2px 0;text-align:center}.ftr-link:active{color:#fff}
-.md{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:4000}.md.on{display:flex}
+.up-bg{background:#b2f5e0;color:#0d8a5e}
+.dn-bg{background:#fee2e2;color:#dc2626}
+.ftr{background:#141526;margin-top:8px;padding:16px 16px 20px}
+.ftr-logo{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-bottom:14px}
+.ftr-logo svg{width:22px;height:22px}
+.ftr-logo span{font-size:18px;font-weight:900;letter-spacing:1px;color:#fff}
+.ftr-links{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+.ftr-link{font-size:13px;color:#bbb;cursor:pointer;padding:2px 0;text-align:center}
+.ftr-link:active{color:#fff}
+.md{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;z-index:200}
+.md.on{display:flex}
 .mdc{width:100%;background:#0d0e1a;border-radius:18px 18px 0 0;border:1px solid #1e1f2e;padding:14px 14px 18px}
-.mdh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.x{width:34px;height:34px;border-radius:10px;background:#141526;display:flex;align-items:center;justify-content:center;cursor:pointer}
-.x svg{width:18px;height:18px;stroke:#aaa;fill:none;stroke-width:2}.mdt{display:flex;align-items:center;gap:10px}
-.mdi{width:44px;height:44px;border-radius:50%;background:#141526;object-fit:cover}.mdn{font-weight:900}
-.mdp{margin-top:10px;display:flex;gap:10px}.pill{flex:1;background:#141526;border-radius:12px;padding:10px}.pl1{font-size:11px;color:#aaa}.pl2{margin-top:4px;font-size:14px;font-weight:900}
-.bnav{position:fixed;bottom:0;left:0;width:100%;background:#141526;display:flex;border-top:1px solid #1e2035;z-index:9000;padding:6px 0 10px}
+.mdh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.x{width:34px;height:34px;border-radius:10px;background:#141526;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.x svg{width:18px;height:18px;stroke:#aaa;fill:none;stroke-width:2}
+.mdt{display:flex;align-items:center;gap:10px}
+.mdi{width:44px;height:44px;border-radius:50%;background:#141526;object-fit:cover}
+.mdn{font-weight:900}
+.mdp{margin-top:10px;display:flex;gap:10px}
+.pill{flex:1;background:#141526;border-radius:12px;padding:10px}
+.pl1{font-size:11px;color:#aaa}
+.pl2{margin-top:4px;font-size:14px;font-weight:900}
+.bnav{position:fixed;bottom:0;left:0;width:100%;background:#141526;display:flex;border-top:1px solid #1e2035;z-index:9990;padding:6px 0 calc(10px + var(--safe))}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
-.bnav-item svg{width:24px;height:24px;fill:none;stroke:#666;stroke-width:1.8}.bnav-item span{font-size:10px;color:#666}
-.bnav-item.active svg{stroke:#f5a623}.bnav-item.active span{color:#f5a623}
-.phdr{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:99;border-bottom:1px solid #1e1f2e}
-.pb{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}.pb svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
-.pt{flex:1;text-align:center;font-size:16px;font-weight:900;color:#f5a623}
-.box{background:#141526;border:1px solid rgba(245,166,35,.18);border-radius:14px;padding:14px;margin:10px 12px}
-.wl{color:#aaa;font-size:12px;margin-bottom:7px;font-weight:700;display:block}.wi{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);color:#fff;border-radius:10px;padding:11px;outline:none;font-size:14px;font-weight:700;direction:ltr}
-.wi:focus{border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.1)}
-.wb{background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.3);color:#ddd;border-radius:10px;padding:10px 14px;font-size:13px;cursor:pointer;font-weight:700;width:100%;text-align:right}
-.wb2{background:linear-gradient(90deg,#f5a623,#e8970d);border:0;color:#0d0e1a;border-radius:12px;padding:13px;font-size:15px;font-weight:900;width:100%;cursor:pointer;box-shadow:0 4px 18px rgba(245,166,35,.3);margin-top:8px}
-.wck{display:flex;align-items:center;gap:10px;margin:12px 0 6px;color:rgba(245,166,35,.85);font-weight:700;font-size:13px}.wck input{width:16px;height:16px;accent-color:#f5a623}
-.wn{text-align:center;color:#888;font-size:12px;line-height:1.8;margin:8px 0}
-.ww{display:flex;gap:10px;align-items:flex-start;margin:0 12px 12px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.18);border-radius:12px;padding:12px}
-.ww-i{width:20px;height:20px;border-radius:50%;border:1.5px solid #f5a623;color:#f5a623;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;flex:0 0 20px;margin-top:2px}
-.wm{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9998;display:none;align-items:flex-end;justify-content:center}.wm.on{display:flex}
-.wms{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);border-radius:16px 16px 0 0;padding:14px 14px 20px}
-.wmh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.wmh b{color:#f5a623;font-size:15px;font-weight:900}
-.wmx{width:34px;height:34px;border-radius:10px;background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.3);color:#f5a623;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
-.wo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:#141526;border:1.5px solid rgba(245,166,35,.18);cursor:pointer;margin-bottom:8px}
-.wo.act{border-color:#f5a623;background:rgba(245,166,35,.05)}.wo-l{display:flex;align-items:center;gap:10px}.wo-i{display:flex;align-items:center;gap:4px}.wo-i img{width:22px;height:22px}
-.wo-t span{font-size:13px;color:#fff;font-weight:700;display:block}.wo-t small{font-size:11px;color:#aaa}.wo-ck{color:#f5a623;font-size:16px;opacity:0}.wo.act .wo-ck{opacity:1}
-#prof{position:fixed;inset:0;background:#0d0e1a;color:#fff;display:none;z-index:8000;overflow:auto;direction:rtl;padding-bottom:72px}
+.bnav-item svg{width:24px;height:24px;fill:none;stroke:#666;stroke-width:1.8}
+.bnav-item span{font-size:10px;color:#666}
+.bnav-item.active svg{stroke:#f5a623}
+.bnav-item.active span{color:#f5a623}
+.up{color:#22c55e}
+.dn{color:#ef4444}
+#prof{position:fixed;inset:0;bottom:0;background:#0d0e1a;color:#fff;display:none;z-index:500;overflow:auto;direction:rtl}
 #prof .ph{position:sticky;top:0;z-index:9;background:#0d0e1a;display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
 #prof .phb,#prof .phs{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #prof .phb svg,#prof .phs svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
-#prof .pwrap{padding:6px 16px 92px}#prof .puser{display:flex;justify-content:flex-end;align-items:center;margin-top:2px}
+#prof .pwrap{padding:6px 16px 92px}
+#prof .puser{display:flex;justify-content:flex-end;align-items:center;margin-top:2px}
 #prof .puser .uico{width:72px;height:72px;border-radius:50%;background:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJyKEGd9CI___Zhk2oWxXkP3xHlB-jSfThuE0n6bSgng&s=10) center/cover no-repeat;border:2px solid #1e1f2e}
 #prof .puid{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px;color:#fff}
 #prof .puid .cp{width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:.75}
@@ -92,47 +117,107 @@
 #prof .ic{width:44px;height:44px;display:flex;align-items:center;justify-content:center}
 #prof .ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;opacity:.85}
 #prof .lb{font-size:14px;color:#fff}
-#prof .lo{position:fixed;left:14px;right:14px;bottom:76px;background:#1e1f2e;color:#fff;border:0;padding:14px 0;font-size:18px;font-weight:700;cursor:pointer;border-radius:12px}
+#prof .lo{position:fixed;left:14px;right:14px;bottom:76px;background:#1e1f2e;color:#fff;border:0;width:auto;padding:14px 0;font-size:18px;font-weight:700;cursor:pointer;border-radius:12px}
 #pop-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
 #pop-box{width:100%;max-width:420px;background:linear-gradient(160deg,#0f1128 0%,#161830 50%,#0d0e1a 100%);border:1px solid rgba(245,166,35,.25);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(245,166,35,.12),0 24px 60px rgba(0,0,0,.7);animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 #pop-head{background:linear-gradient(90deg,#1a1d3a,#0f1128);padding:18px 18px 14px;border-bottom:1px solid rgba(245,166,35,.15);display:flex;align-items:center;justify-content:space-between;gap:10px}
-#pop-head .ph-logo{display:flex;align-items:center;gap:8px}#pop-head .ph-logo span{font-size:20px;font-weight:900;background:linear-gradient(90deg,#f5a623,#ffcd6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px}
+#pop-head .ph-logo{display:flex;align-items:center;gap:8px}
+#pop-head .ph-logo span{font-size:20px;font-weight:900;background:linear-gradient(90deg,#f5a623,#ffcd6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px}
 #pop-head .ph-badge{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);border-radius:20px;padding:4px 10px;font-size:11px;color:#f5a623;font-weight:600}
-#pop-body{padding:18px 16px 6px;max-height:68vh;overflow-y:auto}#pop-body::-webkit-scrollbar{width:3px}#pop-body::-webkit-scrollbar-thumb{background:#f5a623;border-radius:2px}
+#pop-body{padding:18px 16px 6px;max-height:68vh;overflow-y:auto}
+#pop-body::-webkit-scrollbar{width:3px}
+#pop-body::-webkit-scrollbar-thumb{background:#f5a623;border-radius:2px}
 .pop-intro{font-size:13px;color:#c8cde8;line-height:1.8;text-align:right;margin-bottom:16px;padding:12px;background:rgba(255,255,255,.03);border-radius:12px;border-right:3px solid #f5a623}
 .pop-sec-title{font-size:15px;font-weight:800;color:#fff;text-align:right;margin-bottom:10px;display:flex;align-items:center;justify-content:flex-end;gap:6px}
 .pop-sec-title::before{content:"";width:18px;height:2px;background:linear-gradient(90deg,transparent,#f5a623);border-radius:2px}
 .pop-plans{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
 .pop-plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.pop-plan:nth-child(1){border-color:rgba(245,166,35,.35);background:rgba(245,166,35,.05)}.pop-plan:nth-child(2){border-color:rgba(99,179,237,.3);background:rgba(99,179,237,.04)}.pop-plan:nth-child(3){border-color:rgba(154,230,180,.3);background:rgba(154,230,180,.04)}
-.pp-right{text-align:right}.pp-dep{font-size:11px;color:#aaa;margin-bottom:3px}.pp-amt{font-size:20px;font-weight:900;color:#f5a623}.pp-amt span{font-size:12px;font-weight:600}
-.pp-mid{text-align:center;flex:1}.pp-arrow{font-size:18px;color:#555;margin-bottom:2px}.pp-days{font-size:11px;color:#888;font-weight:600;background:rgba(255,255,255,.06);border-radius:20px;padding:3px 10px}
-.pp-left{text-align:left}.pp-lbl{font-size:11px;color:#aaa;margin-bottom:3px}.pp-profit{font-size:20px;font-weight:900;color:#22c55e}.pp-profit span{font-size:12px;font-weight:600}
+.pop-plan:nth-child(1){border-color:rgba(245,166,35,.35);background:rgba(245,166,35,.05)}
+.pop-plan:nth-child(2){border-color:rgba(99,179,237,.3);background:rgba(99,179,237,.04)}
+.pop-plan:nth-child(3){border-color:rgba(154,230,180,.3);background:rgba(154,230,180,.04)}
+.pp-right{text-align:right}
+.pp-dep{font-size:11px;color:#aaa;margin-bottom:3px}
+.pp-amt{font-size:20px;font-weight:900;color:#f5a623}
+.pp-amt span{font-size:12px;font-weight:600}
+.pp-mid{text-align:center;flex:1}
+.pp-arrow{font-size:18px;color:#555;margin-bottom:2px}
+.pp-days{font-size:11px;color:#888;font-weight:600;background:rgba(255,255,255,.06);border-radius:20px;padding:3px 10px}
+.pp-left{text-align:left}
+.pp-lbl{font-size:11px;color:#aaa;margin-bottom:3px}
+.pp-profit{font-size:20px;font-weight:900;color:#22c55e}
+.pp-profit span{font-size:12px;font-weight:600}
 .pop-note{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;text-align:right}
-.pop-note svg{width:18px;height:18px;fill:none;stroke:#ef4444;stroke-width:2;flex-shrink:0;margin-top:1px}.pop-note p{font-size:12px;color:#fca5a5;line-height:1.7}
+.pop-note svg{width:18px;height:18px;fill:none;stroke:#ef4444;stroke-width:2;flex-shrink:0;margin-top:1px}
+.pop-note p{font-size:12px;color:#fca5a5;line-height:1.7}
+.pop-note p strong{color:#ef4444;font-size:13px;display:block;margin-bottom:4px}
 #pop-foot{padding:14px 16px 16px;display:flex;gap:10px;border-top:1px solid rgba(255,255,255,.06)}
-#pop-skip{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:14px;padding:13px 0;font-size:13px;font-weight:600;cursor:pointer}
-#pop-ok{flex:1.4;background:linear-gradient(90deg,#f5a623,#ffb93e);border:0;color:#0d0e1a;border-radius:14px;padding:13px 0;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 4px 18px rgba(245,166,35,.35)}
-/* ✅ Loader فوق الكل */
-#ld{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(13,14,26,.86);backdrop-filter:blur(3px);z-index:10000}
-#ld.on{display:flex}#ld .bx{width:min(360px,92vw);border:1px solid rgba(245,166,35,.22);border-radius:18px;background:linear-gradient(160deg,#0f1128 0%,#161830 55%,#0d0e1a 100%);box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 50px rgba(245,166,35,.10);padding:16px 16px 14px;text-align:center}
+#pop-skip{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:14px;padding:13px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+#pop-ok{flex:1.4;background:linear-gradient(90deg,#f5a623,#ffb93e);border:0;color:#0d0e1a;border-radius:14px;padding:13px 0;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(245,166,35,.35)}
+#pop-skip:active,#pop-ok:active{opacity:.8}
+#wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:var(--pb)}
+.wh{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:9;border-bottom:1px solid #1e1f2e}
+.wh-bk{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.wh-bk svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
+.wh-t{flex:1;text-align:center;font-size:16px;font-weight:900;color:#f5a623}
+.wc{background:#141526;border:1px solid rgba(245,166,35,.18);border-radius:14px;padding:14px;margin:10px 12px}
+.wc .wr{display:flex;align-items:center;justify-content:space-between}
+.wl{color:#aaa;font-size:12px;margin-bottom:7px;font-weight:700;display:block}
+.wi{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);color:#fff;border-radius:10px;padding:11px;outline:none;font-size:14px;font-weight:700;direction:ltr;box-sizing:border-box;font-family:inherit}
+.wi:focus{border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.1)}
+.wb{background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.3);color:#ddd;border-radius:10px;padding:10px 14px;font-size:13px;cursor:pointer;font-weight:700;width:100%;text-align:right;transition:.18s;font-family:inherit}
+.wb:active{opacity:.7}
+.wb2{background:linear-gradient(90deg,#f5a623,#e8970d);border:0;color:#0d0e1a;border-radius:12px;padding:13px;font-size:15px;font-weight:900;width:100%;cursor:pointer;box-shadow:0 4px 18px rgba(245,166,35,.3);margin-top:8px;font-family:inherit}
+.wb2:active{opacity:.8}
+.wck{display:flex;align-items:center;gap:10px;margin:12px 0 6px;color:rgba(245,166,35,.85);font-weight:700;font-size:13px}
+.wck input{width:16px;height:16px;accent-color:#f5a623}
+.wn{text-align:center;color:#888;font-size:12px;line-height:1.8;margin:8px 0}
+.ww{display:flex;gap:10px;align-items:flex-start;margin:0 12px 12px;background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.18);border-radius:12px;padding:12px}
+.ww-i{width:20px;height:20px;border-radius:50%;border:1.5px solid #f5a623;color:#f5a623;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px;flex:0 0 20px;margin-top:2px}
+.wm{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;display:none;align-items:flex-end;justify-content:center}
+.wm.on{display:flex}
+.wms{width:100%;background:#0d0e1a;border:1.5px solid rgba(245,166,35,.3);border-radius:16px 16px 0 0;padding:14px 14px 20px}
+.wmh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.wmh b{color:#f5a623;font-size:15px;font-weight:900}
+.wmx{width:34px;height:34px;border-radius:10px;background:rgba(245,166,35,.08);border:1.5px solid rgba(245,166,35,.3);color:#f5a623;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
+.wo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:#141526;border:1.5px solid rgba(245,166,35,.18);cursor:pointer;transition:.2s;margin-bottom:8px}
+.wo:hover,.wo.act{border-color:#f5a623;background:rgba(245,166,35,.05)}
+.wo-l{display:flex;align-items:center;gap:10px}
+.wo-i{display:flex;align-items:center;gap:4px}
+.wo-i img{width:22px;height:22px}
+.wo-t span{font-size:13px;color:#fff;font-weight:700;display:block}
+.wo-t small{font-size:11px;color:#aaa}
+.wo-ck{color:#f5a623;font-size:16px;opacity:0}
+.wo.act .wo-ck{opacity:1}
+.pg,#dep,#fri,#vin,#trd,#ast{min-height:100vh;padding-bottom:var(--pb)}
+.dyn-host{min-height:calc(100vh - var(--pb));padding-bottom:12px}
+.nav-spacer{height:var(--pb);width:100%;pointer-events:none}
+/* LOADER */
+#ld{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(13,14,26,.86);backdrop-filter:blur(3px);z-index:10050}
+#ld.on{display:flex}
+#ld .bx{width:min(360px,92vw);border:1px solid rgba(245,166,35,.22);border-radius:18px;background:linear-gradient(160deg,#0f1128 0%,#161830 55%,#0d0e1a 100%);box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 50px rgba(245,166,35,.10);padding:16px 16px 14px;text-align:center}
 #ld .lg{width:92px;height:78px;object-fit:contain;filter:drop-shadow(0 10px 24px rgba(0,0,0,.45))}
-#ld .sp{width:26px;height:26px;border-radius:50%;border:3px solid rgba(255,255,255,.14);border-top-color:#f5a623;margin:10px auto 8px;animation:rot .8s linear infinite}@keyframes rot{to{transform:rotate(360deg)}}
-#ld b{display:block;color:#f5a623;font-weight:900;margin-top:2px;letter-spacing:.4px}#ld small{display:block;color:#c8cde8;margin-top:6px;line-height:1.6;font-size:12px}
+#ld .sp{width:26px;height:26px;border-radius:50%;border:3px solid rgba(255,255,255,.14);border-top-color:#f5a623;margin:10px auto 8px;animation:rot .8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#ld b{display:block;color:#f5a623;font-weight:900;margin-top:2px;letter-spacing:.4px}
+#ld small{display:block;color:#c8cde8;margin-top:6px;line-height:1.6;font-size:12px}
 </style><body>
 
-<!-- POPUP -->
 <div id=pop-ov><div id=pop-box><div id=pop-head><div class=ph-badge>🔔 إعلان</div><div class=ph-logo><svg width=22 height=22 viewBox="0 0 24 24" fill=none><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 17l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 12l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path></svg><span>binexia</span></div></div><div id=pop-body><div class=pop-intro>🌐 مرحباً بك في منصة <strong style="color:#f5a623">binexia</strong> — منصة استثمار متكاملة تجمع بين التداول الذكي وإدارة الأموال الرقمية بأعلى معايير الأمان والشفافية.</div><div class=pop-sec-title>💰 مستويات الأرباح</div><div class=pop-plans><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+1000<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 6 أيام</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>500<span>$</span></div></div></div><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+600<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 10 أيام</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>300<span>$</span></div></div></div><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+100<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 20 يوماً</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>100<span>$</span></div></div></div></div><div class=pop-note><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1=12 y1=9 x2=12 y2=13></line><line x1=12 y1=17 x2=12.01 y2=17></line></svg><p><strong>⚙️ ملاحظة هامة</strong>المنصة حالياً <strong style="display:inline;color:#fca5a5">قيد التطوير</strong> لذا لا يمكن إجراء عمليات تداول في الوقت الراهن. تابع آخر الأخبار والتحديثات عبر صفحاتنا الرسمية لمنصة <strong style="display:inline;color:#f5a623">binexia</strong> 🎉</p></div></div><div id=pop-foot><button id=pop-skip>لا تعرض مرة أخرى</button><button id=pop-ok>✓ تأكيد</button></div></div></div>
 
-<!-- HOME -->
-<section id=home class="view on">
+<section id=home class=pg>
   <div class=hdr>
-    <div class=hdr-icons><div class=hdr-icon><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div><div class=hdr-icon><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"></path><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg></div></div>
+    <div class=hdr-icons>
+      <div class=hdr-icon><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg></div>
+      <div class=hdr-icon><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"></path><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg></div>
+    </div>
     <div class=search-bar><svg viewBox="0 0 24 24"><circle cx=11 cy=11 r=8></circle><line x1=21 y1=21 x2=16.65 y2=16.65></line></svg><input id=q type=text placeholder=بحث></div>
     <div class=avatar id=ava></div>
   </div>
-  <div class=balance-section><div class=bal-label><span>الرصيد(USDT)</span><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx=12 cy=12 r=3></circle></svg></div><div class=bal-row><div class=deposit-btn data-go=dep>إيداع</div><div><div class=bal-amount id=balAmt>0.0000</div><div class=bal-usd id=balUsd>≈ $0.00</div></div></div></div>
+  <div class=balance-section>
+    <div class=bal-label><span>الرصيد(USDT)</span><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx=12 cy=12 r=3></circle></svg></div>
+    <div class=bal-row><div class=deposit-btn data-go=dep>إيداع</div><div><div class=bal-amount id=balAmt>0.0000</div><div class=bal-usd id=balUsd>≈ $0.00</div></div></div>
+  </div>
   <div class=grid>
     <div class=grid-item data-go=dep><div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><rect x=3 y=5 width=18 height=14 rx=2></rect><path d="M3 10h18"></path><path d="M7 15h4"></path></svg></div><span class=g-lbl>إيداع</span></div>
     <div class=grid-item data-go=wd><div class=g-icon><svg viewBox="0 0 24 24" fill=none stroke=#f5a623 stroke-width=1.8><path d="M12 19V5M5 12l7-7 7 7"></path></svg></div><span class=g-lbl>سحب</span></div>
@@ -147,34 +232,35 @@
   <div class=announce><svg class=ann-arr viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg><div class=ann-left><svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"></path></svg><div class=ann-mar><span>منصة AIMBIT | إعلان تحديثات المنصة — قريبا الانطلاقة العالمية ترقبو كل مايخص binexia عبر صفحاتنا الرسمية🎉🎊</span></div></div></div>
   <div class=banner><div class=banner-text><div class=banner-title style="color:#ef4444">قم باستثمار الاموال الان</div><div class=banner-body>استثمر الأموال ودعها تعمل لصالحك<br>مع منصة binexia لدينا رحلة طويلة الامد قد تستمر لسنوات</div></div><img class=banner-ico src="https://i.ibb.co/qLdnCh4S/file-0000000003f07246bcfad573087229bb.png" alt=""></div>
   <div class=cards-row>
-    <div class=card><div class=card-title><img class=coin-ico id=btcI src="https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png" alt="">BTC</div><div style="font-size:11px;color:#ccc;text-align:right;margin-bottom:6px;font-weight:600">توصية العقود الآجلة • <span id=btcP>$0</span> • <span id=btcC class=up>+0.00%</span></div>
+    <div class=card>
+      <div class=card-title><img class=coin-ico id=btcI src="https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png" alt="">BTC</div>
+      <div style="font-size:11px;color:#ccc;text-align:right;margin-bottom:6px;font-weight:600">توصية العقود الآجلة • <span id=btcP>$0</span> • <span id=btcC class=up>+0.00%</span></div>
       <svg class=chart viewBox="0 0 160 52" preserveAspectRatio=none><defs><linearGradient id=chartGrad x1=0 y1=0 x2=0 y2=1><stop offset="0%" style="stop-color:#22c55e;stop-opacity:.4"></stop><stop offset="100%" style="stop-color:#22c55e;stop-opacity:0"></stop></linearGradient></defs><path d="M0,38 C10,35 15,42 25,36 C35,30 40,40 50,32 C60,24 65,38 75,28 C85,18 90,32 100,22 C110,12 115,26 125,18 C135,10 145,20 160,14 L160,52 L0,52 Z" fill="url(#chartGrad)"></path><path d="M0,38 C10,35 15,42 25,36 C35,30 40,40 50,32 C60,24 65,38 75,28 C85,18 90,32 100,22 C110,12 115,26 125,18 C135,10 145,20 160,14" fill=none stroke=#22c55e stroke-width=1.8></path></svg>
-      <button class=card-btn data-go=trd>تداول الآن</button></div>
-    <div class="card copy"><div class=card-title style="justify-content:space-between;flex-direction:row-reverse"><span>🔥 نسخ التداول</span></div>
+      <button class=card-btn data-go=trd>تداول الآن</button>
+    </div>
+    <div class="card copy">
+      <div class=card-title style="justify-content:space-between;flex-direction:row-reverse"><span>🔥 نسخ التداول</span></div>
       <div class=trade-img><svg width=90 height=62 viewBox="0 0 90 62"><rect x=5 y=30 width=10 height=25 rx=2 fill=#22c55e opacity=.9></rect><rect x=20 y=18 width=10 height=37 rx=2 fill=#22c55e opacity=.9></rect><rect x=35 y=10 width=10 height=45 rx=2 fill=#f5a623 opacity=.9></rect><rect x=50 y=22 width=10 height=33 rx=2 fill=#22c55e opacity=.9></rect><rect x=65 y=5 width=10 height=50 rx=2 fill=#ef4444 opacity=.9></rect><path d="M78 15 85 8 85 20" fill=none stroke=#22c55e stroke-width=2></path><circle cx=72 cy=45 r=10 fill=#f7931a></circle><text x=72 y=49 text-anchor=middle font-size=10 fill=#fff font-weight=900>₿</text></svg></div>
-      <button class=card-btn data-go=trd>نسخ الآن</button></div>
+      <button class=card-btn data-go=trd>نسخ الآن</button>
+    </div>
   </div>
   <div class=tabs id=tabs><div class=tab data-t=tVol>Vol</div><div class=tab data-t=tLosers>Losers</div><div class=tab data-t=tGainers>Gainers</div><div class="tab active" data-t=tHot>Hot</div></div>
   <div class=mkt-hdr><div class=h-chg>تغيير</div><div class=h-price>السعر الأخير</div><div class=h-name>الاسم</div></div>
   <div class=mkt id=mkt></div>
   <div class=ftr><div class=ftr-logo><svg viewBox="0 0 24 24" fill=none><path d="M12 2L2 7l10 5 10-5-10-5z" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path><path d="M2 17l10 5 10-5" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path><path d="M2 12l10 5 10-5" stroke=#fff stroke-width=1.8 stroke-linejoin=round></path></svg><span>AIMBIT</span></div><div class=ftr-links><div class=ftr-link>معلومات عنا</div><div class=ftr-link>اتفاقية المستخدم</div><div class=ftr-link>سياسة الخصوصية</div><div class=ftr-link>تنصل</div><div class=ftr-link>اتصل بنا</div><div class=ftr-link>قائمة الرموز</div></div></div>
-
-  <!-- Market modal -->
   <div class=md id=md><div class=mdc><div class=mdh><div class=mdt><img class=mdi id=mdi alt=""><div><div class=mdn id=mdn></div><div style="color:#aaa;font-size:12px;margin-top:2px" id=mds></div></div></div><div class=x id=mdx><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg></div></div><div class=mdp><div class=pill><div class=pl1>السعر</div><div class=pl2 id=mdpp></div></div><div class=pill><div class=pl1>تغير 24h</div><div class=pl2 id=mdch></div></div><div class=pill><div class=pl1>الحجم</div><div class=pl2 id=mdvl></div></div></div><button class=card-btn style="margin-top:12px" id=mdtbtn>تداول الآن</button></div></div>
 </section>
 
-<!-- ✅ كل الصفحات لها نفس هيدر + نفس دمج سحب -->
-<section id=dep class=view><div class=phdr><div class=pb data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=pt>💰 الإيداع</div><div style=width:34px></div></div><div id=depC class=box style="border-color:rgba(245,166,35,.22)"></div></section>
-<section id=fri class=view><div class=phdr><div class=pb data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=pt>👥 الدعوات</div><div style=width:34px></div></div><div id=friC class=box style="border-color:rgba(245,166,35,.22)"></div></section>
-<section id=vin class=view><div class=phdr><div class=pb data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=pt>⏱️ إدارة الأموال</div><div style=width:34px></div></div><div id=vinC class=box style="border-color:rgba(245,166,35,.22)"></div></section>
-<section id=trd class=view><div class=phdr><div class=pb data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=pt>📈 التداول</div><div style=width:34px></div></div><div id=trdC class=box style="border-color:rgba(245,166,35,.22)"></div></section>
-<section id=ast class=view><div class=phdr><div class=pb data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=pt>💳 الرصيد</div><div style=width:34px></div></div><div id=astC class=box style="border-color:rgba(245,166,35,.22)"></div></section>
+<section id=dep class=pg style=display:none><div class=dyn-host></div><div class=nav-spacer></div></section>
+<section id=fri class=pg style=display:none><div class=dyn-host></div><div class=nav-spacer></div></section>
+<section id=vin class=pg style=display:none><div class=dyn-host></div><div class=nav-spacer></div></section>
+<section id=trd class=pg style=display:none><div class=dyn-host></div><div class=nav-spacer></div></section>
+<section id=ast class=pg style=display:none><div class=dyn-host></div><div class=nav-spacer></div></section>
 
-<!-- WITHDRAW -->
-<section id=wd class=view>
-  <div class=phdr><div class=pb data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=pt>💸 سحب الأموال</div><div style=width:34px></div></div>
-  <div class=box><div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:22px;color:#f5a623" id=wdBal>0.00$</b><span style="color:#aaa;font-size:13px">متاح للسحب</span></div></div>
-  <div class=box>
+<section id=wd>
+  <div class=wh><div class=wh-bk id=wdBack><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>💸 سحب الأموال</div><div style=width:34px></div></div>
+  <div class=wc><div class=wr><b style="font-size:22px;color:#f5a623" id=wdBal>0.00$</b><span style="color:#aaa;font-size:13px">متاح للسحب</span></div></div>
+  <div class=wc>
     <label class=wl>طريقة السحب</label><button id=wdPmBtn class=wb>Tether (USDT/TRC20) ▾</button><div style=height:12px></div>
     <label class=wl>المبلغ $</label><input id=wdAmt class=wi value=10 inputmode=decimal placeholder="0.00"><div style=height:12px></div>
     <label class=wl>معرّف المحفظة / العنوان</label><input id=wdWallet class=wi placeholder="أدخل عنوان المحفظة">
@@ -185,14 +271,12 @@
   <div class=ww><i class=ww-i>!</i><div style="font-size:13px;line-height:1.7"><b style="color:#f5a623;display:block;margin-bottom:4px">تنبيه هام</b>سيتم إلغاء المكافأة وصندوق الغموض غير المفتوح عند السحب<br><span style="color:#aaa;font-size:12px">رصيدك يحتوي على مكافأة وصندوق غموض غير مفتوح</span></div></div>
 </section>
 
-<!-- modal طريقة السحب -->
 <div id=wdModal class=wm><div class=wms><div class=wmh><b>اختيار طريقة السحب</b><div class=wmx id=wdMClose>✕</div></div>
   <div class="wo" data-label="Tether (USDT/ERC20)"><div class=wo-l><div class=wo-i><img src="https://binolla.com/static/common/images/payment/method/usdt.svg" onerror="this.style.display='none'"><img src="https://binolla.com/static/common/images/payment/crypto/ethereum.svg" onerror="this.style.display='none'"></div><div class=wo-t><span>Tether (USDT/ERC20)</span><small>USDT + ERC20</small></div></div><div class=wo-ck>✓</div></div>
   <div class="wo act" data-label="Tether (USDT/TRC20)"><div class=wo-l><div class=wo-i><img src="https://binolla.com/static/common/images/payment/method/usdt.svg" onerror="this.style.display='none'"><img src="https://binolla.com/static/common/images/payment/crypto/tron.svg" onerror="this.style.display='none'"></div><div class=wo-t><span>Tether (USDT/TRC20)</span><small>USDT + TRC20</small></div></div><div class=wo-ck>✓</div></div>
   <div class="wo" data-label="Tether (USDT/BEP20)"><div class=wo-l><div class=wo-i><img src="https://binolla.com/static/common/images/payment/method/usdt.svg" onerror="this.style.display='none'"><img src="https://binolla.com/static/common/images/payment/crypto/binancecoin.svg" onerror="this.style.display='none'"></div><div class=wo-t><span>Tether (USDT/BEP20)</span><small>USDT + BEP20</small></div></div><div class=wo-ck>✓</div></div>
 </div></div>
 
-<!-- PROFILE -->
 <section id=prof aria-hidden=true>
   <div class=ph><div class=phb id=pback><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div style=width:34px;height:34px></div><div class=phs id=ptheme><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=4></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap=round></path></svg></div></div>
   <div class=pwrap>
@@ -202,72 +286,46 @@
     <div class=g>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-5" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>الأمان</div></div>
       <div class=it data-go=fri><div class=ic><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx=9 cy=7 r=4></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div><div class=lb>الدعوات</div></div>
+      <div class=it><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=3></circle><path d="M19.4 15a1.7 1.7 0 0 0 .33 1.87l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 1.54V21a2 2 0 0 1-4 0v-.06A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.87.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.54-1H3a2 2 0 0 1 0-4h.06A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.33-1.87l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.7 1.7 0 0 0 8.6 4.6a1.7 1.7 0 0 0 1-1.54V3a2 2 0 0 1 4 0v.06A1.7 1.7 0 0 0 15 4.6a1.7 1.7 0 0 0 1.87-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.7 1.7 0 0 0 19.4 8.6a1.7 1.7 0 0 0 1.54 1H21a2 2 0 0 1 0 4h-.06A1.7 1.7 0 0 0 19.4 15z" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>الإعدادات</div></div>
+      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path><path d="M8 10h8M8 14h5" stroke-linecap=round></path></svg></div><div class=lb>الرسائل</div></div>
+      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 11h6M9 15h6" stroke-linecap=round></path><circle cx=19 cy=19 r=3></circle><path d="M17.8 17.8l2.4 2.4" stroke-linecap=round></path></svg></div><div class=lb>محظور</div></div>
       <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"></path><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg></div><div class=lb>الدعم</div></div>
+    </div>
+    <div class=st>إدارة الأصول</div>
+    <div class=g>
+      <div class=it data-go=dep><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=9></circle><path d="M12 8v8M8 12h8" stroke-linecap=round></path></svg></div><div class=lb>إيداع</div></div>
+      <div class=it data-go=wd><div class=ic><svg viewBox="0 0 24 24"><circle cx=12 cy=12 r=9></circle><path d="M12 7v10M8 14l4 4 4-4" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>سحب</div></div>
+      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M20 7H7a4 4 0 0 0-4 4v10"></path><polyline points="14 17 20 11 14 5" stroke-linecap=round stroke-linejoin=round></polyline><path d="M4 17h13a4 4 0 0 0 4-4V3"></path><polyline points="10 7 4 13 10 19" stroke-linecap=round stroke-linejoin=round></polyline></svg></div><div class=lb>تحويل</div></div>
+      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M7 8a5 5 0 0 1 10 0v2"></path><path d="M5 10h14v10H5z"></path><path d="M9 14h6" stroke-linecap=round></path></svg></div><div class=lb>P2P</div></div>
+    </div>
+    <div class=st>تداول</div>
+    <div class=g>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"></path><path d="M9 12h6M9 16h6" stroke-linecap=round></path></svg></div><div class=lb>العقود الآجلة</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"></path><path d="M8 8h8M8 12h8M8 16h5" stroke-linecap=round></path></svg></div><div class=lb>السوق الفوري</div></div>
+      <div class=it><div class=ic><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"></path></svg></div><div class=lb>شبكة</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M7 7h10M9 3h6M9 21h6M7 17h10" stroke-linecap=round></path><circle cx=8 cy=12 r=2></circle><circle cx=16 cy=12 r=2></circle></svg></div><div class=lb>الهامش</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M12 2v20"></path><path d="M6 6h12"></path><path d="M7 10h10"></path><path d="M9 14h6"></path></svg></div><div class=lb>نسخ التداول</div></div>
+      <div class=it data-go=trd><div class=ic><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 12-14h-7z" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=lb>تبادل فلاش</div></div>
     </div>
   </div>
   <button class=lo id=logout>تسجيل الخروج</button>
 </section>
 
-<!-- BOTTOM NAV (✅ ظاهر في كل الصفحات حتى السحب) -->
 <nav class=bnav id=bnav>
   <div class="bnav-item active" data-nav=home><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span>الرئيسية</span></div>
   <div class=bnav-item data-nav=markets><svg viewBox="0 0 24 24"><line x1=18 y1=20 x2=18 y2=10></line><line x1=12 y1=20 x2=12 y2=4></line><line x1=6 y1=20 x2=6 y2=14></line></svg><span>الأسواق</span></div>
   <div class=bnav-item data-nav=trade><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span>التداول</span></div>
-  <div class=bnav-item data-nav=fav><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span>الدعوات</span></div>
+  <div class=bnav-item data-nav=fav><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span>التسمية</span></div>
   <div class=bnav-item data-nav=ast><svg viewBox="0 0 24 24"><rect x=2 y=5 width=20 height=14 rx=2></rect><line x1=2 y1=10 x2=22 y2=10></line></svg><span>رصيد</span></div>
 </nav>
 
-<!-- LOADER -->
 <div id=ld><div class=bx><img class=lg src="https://i.ibb.co/qLdnCh4S/file-0000000003f07246bcfad573087229bb.png" alt=""><div class=sp></div><b>جاري التحميل…</b><small id=ldTxt>لحظة واحدة</small></div></div>
 
 <script>
-/* POP */
-(()=>{const pov=document.getElementById('pop-ov');if(localStorage.getItem('aimbit_pop_hide')==='1')pov.style.display='none';pop_ok.onclick=()=>pov.style.display='none';pop_skip.onclick=()=>{localStorage.setItem('aimbit_pop_hide','1');pov.style.display='none'};})();
-</script>
-<script>
-/* MARKET (كما هو) */
-(()=>{const mkt=mkt=document.getElementById('mkt'),tabs=document.getElementById('tabs'),q=document.getElementById('q'),md=document.getElementById('md'),mdx=document.getElementById('mdx');let mode='tHot',D=[];const nf=x=>x==null?'—':(Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6})),cf=x=>{x=+x||0;return(x>0?'+':'')+x.toFixed(2)+'%'},cls=x=>((+x||0)>=0?'up':'dn'),cbg=x=>((+x||0)>=0?'up-bg':'dn-bg');const BTC='https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png',ETH='https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png',LTC='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10',DOGE='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10',SOL='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10';const seed=()=>D=[{id:'bitcoin',name:'Bitcoin',symbol:'BTC',rank:1,price:74724.94,chg:3.67,vol:3.2e10,ico:BTC},{id:'ethereum',name:'Ethereum',symbol:'ETH',rank:2,price:2364.94,chg:10.45,vol:1.8e10,ico:ETH},{id:'litecoin',name:'Litecoin',symbol:'LTC',rank:3,price:58.88,chg:5.65,vol:8.2e8,ico:LTC},{id:'dogecoin',name:'Dogecoin',symbol:'DOGE',rank:4,price:.10,chg:7.24,vol:1.7e9,ico:DOGE},{id:'solana',name:'Solana',symbol:'SOL',rank:5,price:96.70,chg:6.38,vol:6.2e9,ico:SOL}];const sortData=()=>{let A=[...D];mode=='tGainers'?A.sort((a,b)=>(b.chg||0)-(a.chg||0)):mode=='tLosers'?A.sort((a,b)=>(a.chg||0)-(b.chg||0)):mode=='tVol'?A.sort((a,b)=>(b.vol||0)-(a.vol||0)):A.sort((a,b)=>(a.rank||99)-(b.rank||99));const s=(q.value||'').trim().toLowerCase();return s?A.filter(x=>(x.name||'').toLowerCase().includes(s)||(x.symbol||'').toLowerCase().includes(s)):A};const render=()=>{const A=sortData();mkt.innerHTML=A.map(x=>`<div class=row data-id="${x.id}"><div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div><div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps>$${nf(x.price)} ≈</div></div><div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div><img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}"></div></div>`).join('')};const updBTC=()=>{const b=D.find(x=>x.symbol=='BTC');if(!b)return;btcP.textContent='$'+nf(b.price);btcC.textContent=cf(b.chg);btcC.className=cls(b.chg)};const openMD=x=>{mdi.src=x.ico;mdn.textContent=x.name;mds.textContent='USDT/ '+x.symbol;mdpp.textContent='$'+nf(x.price);mdch.textContent=cf(x.chg);mdch.className='pl2 '+cls(x.chg);mdvl.textContent=nf(x.vol);md.classList.add('on')};const closeMD=()=>md.classList.remove('on');window.__closeMD=closeMD;mdx.onclick=closeMD;md.onclick=e=>e.target===md&&closeMD();mkt.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const x=D.find(z=>z.id==r.dataset.id);x&&openMD(x)};tabs.onclick=e=>{const t=e.target.closest('.tab');if(!t)return;mode=t.dataset.t;[...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render()};q.oninput=render;mdtbtn.onclick=()=>{closeMD();App.go('trd')};const tick=()=>{for(const x of D){let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);x.price=Math.max(.000001,x.price*(1+k));x.chg=Math.max(-30,Math.min(30,(x.chg+(Math.random()-.5)*1.2)));x.vol=Math.max(1,x.vol*(1+(Math.random()-.5)*.02))}render();updBTC();if(md.classList.contains('on')){const n=mdn.textContent,x=D.find(z=>z.name==n);if(x){mdpp.textContent='$'+nf(x.price);mdch.textContent=cf(x.chg);mdch.className='pl2 '+cls(x.chg);mdvl.textContent=nf(x.vol)}}};seed();render();updBTC();setInterval(tick,1200)})();
-</script>
-<script>
-/* PROFILE */
-(()=>{const prof=document.getElementById('prof');const show=on=>{prof.style.display=on?'block':'none';prof.setAttribute('aria-hidden',on?'false':'true');};ava.onclick=()=>show(1);pback.onclick=()=>show(0);copyUid.onclick=async()=>{const t=uidText.textContent||'';try{await navigator.clipboard.writeText(t)}catch(e){prompt('انسخ UID:',t)}};logout.onclick=()=>alert('تسجيل الخروج');window.__closeProf=()=>show(0);})();
-</script>
-<script>
-/* LOADER + NAV (✅ لا تداخل + نفس دمج سحب + عنوان/مسار يتغير) */
-const App=(()=>{const V={home:home,dep:dep,fri:fri,vin:vin,trd:trd,ast:ast,wd:wd},T={home:'الرئيسية',dep:'الإيداع',fri:'الدعوات',vin:'إدارة الأموال',trd:'التداول',ast:'الرصيد',wd:'سحب'},C={dep:'depC',fri:'friC',vin:'vinC',trd:'trdC',ast:'astC'};const PG={dep:{f:'deposit.js',fn:'DepositPage',o:{addr:'TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch'}},fri:{f:'friends.js',fn:'FriendsPage'},vin:{f:'vinance.js',fn:'VinancePage'},trd:{f:'traders.js',fn:'TradersPage'},ast:{f:'assets.js',fn:'AssetsPage'}};let cur='home',token=0;
-const ldOn=t=>{ldTxt.textContent=t||'لحظة واحدة';ld.classList.add('on')},ldOff=()=>ld.classList.remove('on');
-const setTitle=v=>{document.title='AIMBIT | '+(T[v]||'AIMBIT');if(location.hash!=='#'+v)history.replaceState(null,'','#'+v)};
-const setNav=a=>[...bnav.children].forEach(x=>x.classList.toggle('active',x.dataset.nav===a));
-const closeOver=()=>{try{window.__closeProf&&window.__closeProf()}catch(e){}try{window.__closeMD&&window.__closeMD()}catch(e){}try{wdModal.classList.remove('on')}catch(e){}};
-const hideAll=()=>Object.values(V).forEach(x=>x.classList.remove('on'));
-const ensureScript=src=>new Promise((res,rej)=>{if([...document.scripts].some(s=>s.src&&s.src.includes(src)))return res();const s=document.createElement('script');s.src=src;s.async=1;s.onload=()=>res();s.onerror=()=>rej(src);document.head.appendChild(s)});
-const mount=async v=>{const p=PG[v];if(!p)return;const box=document.getElementById(C[v]);if(!box)return;box.innerHTML='';try{await ensureScript(p.f)}catch(e){box.innerHTML='<div style="color:#fca5a5;line-height:1.8;text-align:right">⚠️ تعذّر تحميل الملف: '+p.f+'</div>';return}
-try{const api=window[p.fn];if(api&&api.mount)api.mount(box,p.o||{});else box.innerHTML='<div style="color:#c8cde8;line-height:1.8;text-align:right">الملف اتفتح بس الدالة <b style="color:#f5a623">'+p.fn+'</b> مش موجودة.</div>'}catch(e){console.error(e);box.innerHTML='<div style="color:#fca5a5;line-height:1.8;text-align:right">⚠️ حصل خطأ داخل الصفحة.</div>'}};
-const go=async v=>{if(!V[v])v='home';if(v===cur)return;token++;const t=token;closeOver();ldOn('جاري فتح: '+(T[v]||'...'));setTitle(v);hideAll();V[v].classList.add('on');cur=v;
-/* ✅ بُتوم ناف يفضل ظاهر دايمًا ويغيّر الـ active */
-v==='home'?setNav('home'):v==='trd'?setNav('trade'):v==='fri'?setNav('fav'):v==='ast'?setNav('ast'):v==='vin'?setNav('ast'):setNav('');
-window.scrollTo(0,0);
-/* ✅ تحميل صفحات JS بدون ما تحسها "ملف جاي من برا": شِل + نفس تصميم + Loader */
-if(PG[v]){await new Promise(r=>setTimeout(r,220));if(t!==token)return;await mount(v)}
-if(v==='wd'&&window.wdRefresh)window.wdRefresh();
-requestAnimationFrame(()=>t===token&&ldOff());
-/* ✅ زر الأسواق يودّي للتابس في الهوم */
-if(v==='markets'){go('home');setTimeout(()=>tabs.scrollIntoView({behavior:'smooth',block:'start'}),120)}
-};
-document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go)}});
-bnav.onclick=e=>{const it=e.target.closest('.bnav-item');if(!it)return;const v=it.dataset.nav;v==='home'?go('home'):v==='trade'?go('trd'):v==='fav'?go('fri'):v==='ast'?go('ast'):v==='markets'?(go('home'),setTimeout(()=>tabs.scrollIntoView({behavior:'smooth',block:'start'}),140)):0};
-const boot=()=>{const h=(location.hash||'#home').slice(1);go(V[h]?h:'home')};
-window.addEventListener('hashchange',boot);boot();
-return{go}})();
-</script>
-<script>
-/* WITHDRAW */
-(()=>{const getBal=()=>parseFloat(localStorage.getItem('aimbit_bal')||'0');const setBal=v=>{localStorage.setItem('aimbit_bal',String(v));balAmt.textContent=v.toFixed(4);balUsd.textContent='≈ $'+v.toFixed(2)};const refresh=()=>{const b=getBal();wdBal.textContent=b.toFixed(2)+'$';setBal(b)};window.wdRefresh=refresh;
-wdPmBtn.onclick=()=>wdModal.classList.add('on');wdMClose.onclick=()=>wdModal.classList.remove('on');wdModal.onclick=e=>e.target===wdModal&&wdModal.classList.remove('on');
-document.querySelectorAll('.wo').forEach(o=>o.onclick=()=>{document.querySelectorAll('.wo').forEach(x=>x.classList.remove('act'));o.classList.add('act');wdPmBtn.textContent=(o.dataset.label||'')+' ▾';wdModal.classList.remove('on')});
-wdBtn.onclick=()=>{const amt=parseFloat((wdAmt.value||'').replace(',','.')),wallet=(wdWallet.value||'').trim(),method=(wdPmBtn.textContent||'').replace('▾','').trim(),ok=wdTerms.checked;if(!ok)return alert('يجب الموافقة على الأحكام والشروط');if(!amt||amt<=0||isNaN(amt))return alert('أدخل مبلغاً صحيحاً');if(!wallet)return alert('أدخل عنوان المحفظة');const bal=getBal();if(amt>bal)return alert('الرصيد غير كافٍ — رصيدك: '+bal.toFixed(2)+'$');
-if(window.firebase&&window.firebase.firestore&&window._fbUid){const db=window.firebase.firestore();db.collection('users').doc(window._fbUid).get().then(s=>{const fb=Number(s.data()?.balance||0);if(amt>fb)return alert('الرصيد غير كافٍ');return db.collection('users').doc(window._fbUid).update({balance:window.firebase.firestore.FieldValue.increment(-amt)}).then(()=>db.collection('withdraw_requests').add({userId:window._fbUid,amount:amt,method,wallet,status:'pending',createdAt:window.firebase.firestore.FieldValue.serverTimestamp()}))}).then(()=>{alert('✅ تم تقديم طلب السحب بنجاح');wdWallet.value='';wdTerms.checked=false;refresh()}).catch(e=>{console.error(e);alert('حدث خطأ، حاول مرة أخرى')});return}
-setBal(bal-amt);const reqs=JSON.parse(localStorage.getItem('aimbit_wd_reqs')||'[]');reqs.push({amount:amt,method,wallet,status:'pending',date:Date.now()});localStorage.setItem('aimbit_wd_reqs',JSON.stringify(reqs));refresh();alert('✅ تم تقديم طلب السحب بنجاح');wdWallet.value='';wdTerms.checked=false};
-refresh()})();
-</script>
-</body></html>
+(()=>{const pov=document.getElementById('pop-ov');if(localStorage.getItem('aimbit_pop_hide')==='1')pov.style.display='none';document.getElementById('pop-ok').onclick=()=>pov.style.display='none';document.getElementById('pop-skip').onclick=()=>{localStorage.setItem('aimbit_pop_hide','1');pov.style.display='none';};})();
+(()=>{const mkt=document.getElementById('mkt'),tabs=document.getElementById('tabs'),q=document.getElementById('q'),md=document.getElementById('md'),mdx=document.getElementById('mdx');let mode='tHot',D=[];const nf=x=>x==null?'—':(Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6})),cf=x=>{x=+x||0;return(x>0?'+':'')+x.toFixed(2)+'%'},cls=x=>((+x||0)>=0?'up':'dn'),cbg=x=>((+x||0)>=0?'up-bg':'dn-bg');const BTC='https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png',ETH='https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png',LTC='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10',DOGE='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10',SOL='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10';const seed=()=>{D=[{id:'bitcoin',name:'Bitcoin',symbol:'BTC',rank:1,price:74724.94,chg:3.67,vol:3.2e10,ico:BTC},{id:'ethereum',name:'Ethereum',symbol:'ETH',rank:2,price:2364.94,chg:10.45,vol:1.8e10,ico:ETH},{id:'litecoin',name:'Litecoin',symbol:'LTC',rank:3,price:58.88,chg:5.65,vol:8.2e8,ico:LTC},{id:'dogecoin',name:'Dogecoin',symbol:'DOGE',rank:4,price:.10,chg:7.24,vol:1.7e9,ico:DOGE},{id:'solana',name:'Solana',symbol:'SOL',rank:5,price:96.70,chg:6.38,vol:6.2e9,ico:SOL}]};const sortData=()=>{let A=[...D];if(mode=='tGainers')A.sort((a,b)=>(b.chg||0)-(a.chg||0));else if(mode=='tLosers')A.sort((a,b)=>(a.chg||0)-(b.chg||0));else if(mode=='tVol')A.sort((a,b)=>(b.vol||0)-(a.vol||0));else A.sort((a,b)=>(a.rank||99)-(b.rank||99));const s=(q.value||'').trim().toLowerCase();if(s)A=A.filter(x=>(x.name||'').toLowerCase().includes(s)||(x.symbol||'').toLowerCase().includes(s));return A;};const render=()=>{const A=sortData();mkt.innerHTML=A.map(x=>`<div class=row data-id="${x.id}"><div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div><div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps>$${nf(x.price)} ≈</div></div><div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div><img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}"></div></div>`).join('');};const updBTC=()=>{const b=D.find(x=>x.symbol=='BTC');if(!b)return;document.getElementById('btcP').textContent='$'+nf(b.price);const c=document.getElementById('btcC');c.textContent=cf(b.chg);c.className=cls(b.chg);};const openMD=x=>{document.getElementById('mdi').src=x.ico;document.getElementById('mdn').textContent=x.name;document.getElementById('mds').textContent='USDT/ '+x.symbol;document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);md.classList.add('on');};const closeMD=()=>md.classList.remove('on');window.closeMarketModal=closeMD;mdx.onclick=closeMD;md.onclick=e=>{if(e.target===md)closeMD();};mkt.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const x=D.find(z=>z.id==r.dataset.id);if(x)openMD(x);};tabs.onclick=e=>{const t=e.target.closest('.tab');if(!t)return;mode=t.dataset.t;[...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render();};q.oninput=render;document.getElementById('mdtbtn').onclick=()=>{closeMD();window.AppNav&&window.AppNav.go('trd');};const tick=()=>{for(const x of D){let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);x.price=Math.max(.000001,x.price*(1+k));x.chg=Math.max(-30,Math.min(30,(x.chg+(Math.random()-.5)*1.2)));x.vol=Math.max(1,x.vol*(1+(Math.random()-.5)*.02));}render();updBTC();if(md.classList.contains('on')){const n=document.getElementById('mdn').textContent,x=D.find(z=>z.name==n);if(x){document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);}}};seed();render();updBTC();setInterval(tick,1200);})();
+(()=>{const prof=document.getElementById('prof'),ava=document.getElementById('ava'),back=document.getElementById('pback'),copy=document.getElementById('copyUid'),uid=document.getElementById('uidText'),logout=document.getElementById('logout');const show=on=>{prof.style.display=on?'block':'none';prof.setAttribute('aria-hidden',on?'false':'true');document.body.style.overflow=on?'hidden':'auto';window.scrollTo(0,0);};window.ProfUI={show};ava.onclick=()=>show(1);back.onclick=()=>show(0);copy.onclick=async()=>{const t=uid.textContent||'';try{await navigator.clipboard.writeText(t);}catch(e){prompt('انسخ UID:',t);}};logout.onclick=()=>alert('تسجيل الخروج');})();
+(()=>{const L=document.getElementById('ld'),LT=document.getElementById('ldTxt');const on=t=>{LT.textContent=t||'لحظة واحدة';L.classList.add('on');},off=()=>L.classList.remove('on');window.LoaderUI={on,off};})();
+(()=>{const H=document.getElementById('home'),W=document.getElementById('wd'),bn=document.getElementById('bnav');const DEP_ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch';const ids=['dep','fri','vin','trd','ast'];const secs=()=>[H,W,...ids.map(i=>document.getElementById(i))];const setNav=a=>[...bn.children].forEach(x=>x.classList.toggle('active',x.dataset.nav===a));const hostOf=sec=>{if(!sec)return null;let h=sec.querySelector('.dyn-host');if(!h){sec.innerHTML='<div class=dyn-host></div><div class=nav-spacer></div>';h=sec.querySelector('.dyn-host');}return h;};const clearDyn=sec=>{const h=hostOf(sec);if(h)h.innerHTML='';};const hideAll=()=>{secs().forEach(x=>x&&(x.style.display='none'));document.body.style.overflow='';};const TIT={home:'الرئيسية',wd:'سحب',dep:'إيداع',fri:'الدعوات',vin:'إدارة الأموال',trd:'التداول',ast:'الرصيد',markets:'الأسواق'};const closeOverlays=()=>{try{window.ProfUI&&window.ProfUI.show(0);}catch(e){}try{window.closeMarketModal&&window.closeMarketModal();}catch(e){}try{document.getElementById('wdModal')?.classList.remove('on');}catch(e){}};const setRoute=v=>{const n=TIT[v]||'AIMBIT';document.title='AIMBIT | '+n;history.replaceState(null,'','#'+(v||'home'));};const PG={dep:{f:'deposit.js',fn:'DepositPage',n:'ast',o:{addr:DEP_ADDR}},fri:{f:'friends.js',fn:'FriendsPage',n:'fav'},vin:{f:'vinance.js',fn:'VinancePage',n:'ast'},trd:{f:'traders.js',fn:'TradersPage',n:'trade'},ast:{f:'assets.js',fn:'AssetsPage',n:'ast'}};let navToken=0;const ensureScript=src=>new Promise((res,rej)=>{const ex=[...document.scripts].find(s=>s.src&&s.src.includes(src));if(ex)return res();const s=document.createElement('script');s.src=src;s.async=true;s.onerror=()=>rej(src);s.onload=()=>res();document.head.appendChild(s);});const showHome=fromMarkets=>{hideAll();H.style.display='block';setNav(fromMarkets?'markets':'home');window.scrollTo(0,0);window.LoaderUI&&window.LoaderUI.off();if(fromMarkets){setTimeout(()=>document.getElementById('tabs')?.scrollIntoView({behavior:'smooth',block:'start'}),60);}};const go=async raw=>{navToken++;const t=navToken;closeOverlays();const req=raw||'home';window.LoaderUI&&window.LoaderUI.on('جاري فتح: '+(TIT[req]||'...'));if(req==='markets'){setRoute('markets');showHome(true);return;}setRoute(req);if(req==='home'){showHome(false);return;}if(req==='wd'){hideAll();W.style.display='block';setNav('');if(window.wdRefresh)window.wdRefresh();window.scrollTo(0,0);window.LoaderUI&&window.LoaderUI.off();return;}const p=PG[req];if(!p){window.LoaderUI&&window.LoaderUI.off();return;}const sec=document.getElementById(req);hideAll();sec.style.display='block';setNav(p.n);window.scrollTo(0,0);clearDyn(sec);try{if(!(window[p.fn]&&typeof window[p.fn].mount==='function'))await ensureScript(p.f);if(t!==navToken)return;const host=hostOf(sec);try{host.innerHTML='';if(window[p.fn]&&typeof window[p.fn].mount==='function')window[p.fn].mount(host,p.o||{});else throw new Error('mount missing: '+p.fn);}catch(e){console.error(e);alert('⚠️ خطأ في فتح الصفحة');}}catch(e){alert('⚠️ تعذّر تحميل الصفحة: '+p.f);}finally{if(t===navToken)requestAnimationFrame(()=>window.LoaderUI&&window.LoaderUI.off());}};window.AppNav={go};document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);});bn.onclick=e=>{const it=e.target.closest('.bnav-item');if(!it)return;const v=it.dataset.nav;if(v==='home')go('home');else if(v==='trade')go('trd');else if(v==='fav')go('fri');else if(v==='ast')go('ast');else if(v==='markets')go('markets');};const boot=()=>{const h=(location.hash||'#home').replace('#','');go(h||'home');};window.addEventListener('hashchange',()=>{const h=(location.hash||'#home').replace('#','');go(h||'home');});boot();})();
+(()=>{const getBal=()=>parseFloat(localStorage.getItem('aimbit_bal')||'0');const setBal=v=>{localStorage.setItem('aimbit_bal',String(v));const ba=document.getElementById('balAmt'),bu=document.getElementById('balUsd');if(ba)ba.textContent=v.toFixed(4);if(bu)bu.textContent='≈ $'+v.toFixed(2);};const refresh=()=>{const b=getBal(),bd=document.getElementById('wdBal');if(bd)bd.textContent=b.toFixed(2)+'$';setBal(b);};window.wdRefresh=refresh;const modal=document.getElementById('wdModal');document.getElementById('wdPmBtn').onclick=()=>modal.classList.add('on');document.getElementById('wdMClose').onclick=()=>modal.classList.remove('on');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('on');};document.querySelectorAll('.wo').forEach(o=>{o.onclick=()=>{document.querySelectorAll('.wo').forEach(x=>x.classList.remove('act'));o.classList.add('act');document.getElementById('wdPmBtn').textContent=(o.dataset.label||'')+' ▾';modal.classList.remove('on');};});document.getElementById('wdBtn').onclick=()=>{const amt=parseFloat((document.getElementById('wdAmt').value||'').replace(',','.'));const wallet=(document.getElementById('wdWallet').value||'').trim();const method=(document.getElementById('wdPmBtn').textContent||'').replace('▾','').trim();const ok=document.getElementById('wdTerms').checked;if(!ok)return alert('يجب الموافقة على الأحكام والشروط');if(!amt||amt<=0||isNaN(amt))return alert('أدخل مبلغاً صحيحاً');if(!wallet)return alert('أدخل عنوان المحفظة');const bal=getBal();if(amt>bal)return alert('الرصيد غير كافٍ — رصيدك: '+bal.toFixed(2)+'$');if(window.firebase&&window.firebase.firestore&&window._fbUid){const db=window.firebase.firestore();db.collection('users').doc(window._fbUid).get().then(s=>{const fb=Number(s.data()?.balance||0);if(amt>fb)return alert('الرصيد غير كافٍ');return db.collection('users').doc(window._fbUid).update({balance:window.firebase.firestore.FieldValue.increment(-amt)}).then(()=>db.collection('withdraw_requests').add({userId:window._fbUid,amount:amt,method,wallet,status:'pending',createdAt:window.firebase.firestore.FieldValue.serverTimestamp()}));}).then(()=>{alert('✅ تم تقديم طلب السحب بنجاح');document.getElementById('wdWallet').value='';document.getElementById('wdTerms').checked=false;refresh();}).catch(e=>{console.error(e);alert('حدث خطأ، حاول مرة أخرى');});return;}setBal(bal-amt);const reqs=JSON.parse(localStorage.getItem('aimbit_wd_reqs')||'[]');reqs.push({amount:amt,method,wallet,status:'pending',date:Date.now()});localStorage.setItem('aimbit_wd_reqs',JSON.stringify(reqs));refresh();alert('✅ تم تقديم طلب السحب بنجاح');document.getElementById('wdWallet').value='';document.getElementById('wdTerms').checked=false;};document.getElementById('wdBack').onclick=()=>window.AppNav.go('home');refresh();})();
+</script></body></html>
