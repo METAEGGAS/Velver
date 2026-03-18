@@ -1,6 +1,17 @@
-<!doctype html><html lang=ar dir=rtl><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>AIMBIT</title><style>
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+    
+
+  </head>
+    
+  <body>
+  <!doctype html><html lang=ar dir=rtl><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>AIMBIT</title><style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:Segoe UI,Tahoma,Arial,sans-serif}
-body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bottom:70px}
+body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bottom:var(--bnav-safe,70px)}
 .hdr{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:99}
 .hdr-icons{display:flex;gap:10px;align-items:center}
 .hdr-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -154,7 +165,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #pop-skip{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:14px;padding:13px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 #pop-ok{flex:1.4;background:linear-gradient(90deg,#f5a623,#ffb93e);border:0;color:#0d0e1a;border-radius:14px;padding:13px 0;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(245,166,35,.35)}
 #pop-skip:active,#pop-ok:active{opacity:.8}
-#wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:70px}
+#wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:var(--bnav-safe,70px)}
 .wh{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:9;border-bottom:1px solid #1e1f2e}
 .wh-bk{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .wh-bk svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
@@ -188,7 +199,8 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 .wo-t small{font-size:11px;color:#aaa}
 .wo-ck{color:#f5a623;font-size:16px;opacity:0}
 .wo.act .wo-ck{opacity:1}
-.pg{min-height:100vh;padding-bottom:85px}
+.pg{min-height:100vh;padding-bottom:calc(var(--bnav-safe,70px) + 15px)}
+/* LOADER */
 #ld{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(13,14,26,.86);backdrop-filter:blur(3px);z-index:10050}
 #ld.on{display:flex}
 #ld .bx{width:min(360px,92vw);border:1px solid rgba(245,166,35,.22);border-radius:18px;background:linear-gradient(160deg,#0f1128 0%,#161830 55%,#0d0e1a 100%);box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 50px rgba(245,166,35,.10);padding:16px 16px 14px;text-align:center}
@@ -197,17 +209,18 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 @keyframes rot{to{transform:rotate(360deg)}}
 #ld b{display:block;color:#f5a623;font-weight:900;margin-top:2px;letter-spacing:.4px}
 #ld small{display:block;color:#c8cde8;margin-top:6px;line-height:1.6;font-size:12px}
-.dep-nb{flex:1;padding:9px 6px;border-radius:10px;background:#141526;border:1.5px solid rgba(255,255,255,.1);color:#888;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
-.dep-nb.on{border-color:#f5a623;color:#f5a623;background:rgba(245,166,35,.07)}
-.vp{background:#141526;border-radius:14px;padding:14px;margin:0 12px 10px;border:1px solid rgba(255,255,255,.07)}
-.fri-stat{flex:1;background:#141526;border-radius:12px;padding:12px;text-align:center}
-.fri-stat b{display:block;font-size:22px;font-weight:900;color:#f5a623}
-.fri-stat span{font-size:11px;color:#aaa;display:block;margin-top:3px}
-.ast-row{display:flex;align-items:center;background:#141526;border-radius:12px;padding:12px 14px;margin:0 12px 8px;gap:10px}
-.trd-pair{display:flex;align-items:center;background:#141526;border-radius:12px;padding:10px 12px;margin:0 12px 8px;gap:10px;cursor:pointer}
-.trd-pair:active{opacity:.7}
-</style>
-<body>
+
+/* --- Fixed bottom bar safe scrolling (added) --- */
+:root{--bnav-h:70px;--bnav-safe:calc(var(--bnav-h) + env(safe-area-inset-bottom,0px))}
+/* Ensure last content not hidden behind fixed bottom nav */
+body{padding-bottom:var(--bnav-safe,70px)}
+.pg{padding-bottom:calc(var(--bnav-safe,70px) + 15px);scroll-padding-bottom:var(--bnav-safe,70px)}
+#prof .pwrap{padding-bottom:calc(var(--bnav-safe,70px) + 22px)}
+#pop-body{scroll-padding-bottom:var(--bnav-safe,70px)}
+/* Keep bnav above iPhone safe area */
+.bnav{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+
+</style><body>
 
 <div id=pop-ov><div id=pop-box><div id=pop-head><div class=ph-badge>🔔 إعلان</div><div class=ph-logo><svg width=22 height=22 viewBox="0 0 24 24" fill=none><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 17l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 12l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path></svg><span>binexia</span></div></div><div id=pop-body><div class=pop-intro>🌐 مرحباً بك في منصة <strong style="color:#f5a623">binexia</strong> — منصة استثمار متكاملة تجمع بين التداول الذكي وإدارة الأموال الرقمية بأعلى معايير الأمان والشفافية.</div><div class=pop-sec-title>💰 مستويات الأرباح</div><div class=pop-plans><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+1000<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 6 أيام</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>500<span>$</span></div></div></div><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+600<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 10 أيام</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>300<span>$</span></div></div></div><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+100<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 20 يوماً</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>100<span>$</span></div></div></div></div><div class=pop-note><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1=12 y1=9 x2=12 y2=13></line><line x1=12 y1=17 x2=12.01 y2=17></line></svg><p><strong>⚙️ ملاحظة هامة</strong>المنصة حالياً <strong style="display:inline;color:#fca5a5">قيد التطوير</strong> لذا لا يمكن إجراء عمليات تداول في الوقت الراهن. تابع آخر الأخبار والتحديثات عبر صفحاتنا الرسمية لمنصة <strong style="display:inline;color:#f5a623">binexia</strong> 🎉</p></div></div><div id=pop-foot><button id=pop-skip>لا تعرض مرة أخرى</button><button id=pop-ok>✓ تأكيد</button></div></div></div>
 
@@ -257,134 +270,12 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
   <div class=md id=md><div class=mdc><div class=mdh><div class=mdt><img class=mdi id=mdi alt=""><div><div class=mdn id=mdn></div><div style="color:#aaa;font-size:12px;margin-top:2px" id=mds></div></div></div><div class=x id=mdx><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></svg></div></div><div class=mdp><div class=pill><div class=pl1>السعر</div><div class=pl2 id=mdpp></div></div><div class=pill><div class=pl1>تغير 24h</div><div class=pl2 id=mdch></div></div><div class=pill><div class=pl1>الحجم</div><div class=pl2 id=mdvl></div></div></div><button class=card-btn style="margin-top:12px" id=mdtbtn>تداول الآن</button></div></div>
 </section>
 
-<!-- ═══════════ DEP ═══════════ -->
-<section id=dep class=pg style=display:none>
-<div class=wh><div class=wh-bk data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>💳 إيداع USDT</div><div style=width:34px></div></div>
-<div style="display:flex;gap:8px;padding:10px 12px">
-<button class="dep-nb on" onclick="depNet(this,'TRC20','TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch')">TRC20</button>
-<button class=dep-nb onclick="depNet(this,'ERC20','0x4B5a32f8C4f2a3D1e9B0C7E6A8F3D2b1C5E4A9B0')">ERC20</button>
-<button class=dep-nb onclick="depNet(this,'BEP20','0x4B5a32f8C4f2a3D1e9B0C7E6A8F3D2b1C5E4A9B0')">BEP20</button>
-</div>
-<div class=wc>
-<span class=wl id=depNetLbl>عنوان محفظة USDT — شبكة TRC20</span>
-<div id=depAddr style="background:#0d0e1a;border:1.5px solid rgba(245,166,35,.35);border-radius:10px;padding:13px 12px;word-break:break-all;font-size:12px;color:#f5a623;direction:ltr;text-align:left;letter-spacing:.4px;line-height:1.6">TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch</div>
-<button class=wb2 style="margin-top:10px" onclick="cpDep()">📋 نسخ العنوان</button>
-</div>
-<div class=wc style="padding:12px 14px">
-<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1e1f2e"><span style="color:#aaa;font-size:12px">الحد الأدنى للإيداع</span><b style="color:#f5a623">10 USDT</b></div>
-<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #1e1f2e"><span style="color:#aaa;font-size:12px">رسوم الشبكة</span><b style="color:#22c55e;font-size:12px">مجاناً</b></div>
-<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0"><span style="color:#aaa;font-size:12px">وقت الوصول المتوقع</span><b style="color:#fff;font-size:12px">1 — 5 دقائق</b></div>
-</div>
-<div class=ww><i class=ww-i>!</i><div style="font-size:13px;line-height:1.7"><b style="color:#f5a623;display:block;margin-bottom:4px">تنبيه هام</b>أرسل فقط USDT إلى هذا العنوان عبر الشبكة المحددة<br><span style="color:#aaa;font-size:12px">إرسال عملة أخرى أو عبر شبكة مختلفة سيؤدي لفقدان الأموال نهائياً</span></div></div>
-</section>
+<section id=dep class=pg style=display:none></section>
+<section id=fri class=pg style=display:none></section>
+<section id=vin class=pg style=display:none></section>
+<section id=trd class=pg style=display:none></section>
+<section id=ast class=pg style=display:none></section>
 
-<!-- ═══════════ FRI ═══════════ -->
-<section id=fri class=pg style=display:none>
-<div class=wh><div class=wh-bk data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>👥 الدعوة والإحالة</div><div style=width:34px></div></div>
-<div style="display:flex;gap:8px;padding:14px 12px 8px">
-<div class=fri-stat><b id=friCnt>0</b><span>مدعوون</span></div>
-<div class=fri-stat><b id=friEarn>0.00$</b><span>أرباح الإحالة</span></div>
-<div class=fri-stat><b style="color:#22c55e">5%</b><span>عمولتك</span></div>
-</div>
-<div class=wc>
-<span class=wl>رمز الدعوة الخاص بك</span>
-<div id=friCode style="background:#0d0e1a;border:1.5px solid rgba(245,166,35,.35);border-radius:10px;padding:14px;text-align:center;font-size:24px;font-weight:900;color:#f5a623;letter-spacing:4px;direction:ltr">AIMBIT-24752727</div>
-<div style="display:flex;gap:8px;margin-top:10px">
-<button class=wb2 style="flex:1;margin-top:0" onclick="cpRef()">📋 نسخ</button>
-<button class=wb2 style="flex:1;margin-top:0;background:#1e1f2e;color:#fff;box-shadow:none" onclick="shrRef()">🔗 مشاركة</button>
-</div>
-</div>
-<div class=wc>
-<div style="font-size:14px;font-weight:800;color:#f5a623;text-align:right;margin-bottom:12px">⚡ كيف يعمل النظام؟</div>
-<div style="display:flex;flex-direction:column;gap:10px">
-<div style="display:flex;align-items:center;gap:12px;direction:rtl"><div class=ww-i style="flex:0 0 auto;font-weight:900">1</div><div style="font-size:13px;color:#ccc;line-height:1.5">شارك رمز دعوتك مع أصدقائك وعائلتك</div></div>
-<div style="display:flex;align-items:center;gap:12px;direction:rtl"><div class=ww-i style="flex:0 0 auto;font-weight:900">2</div><div style="font-size:13px;color:#ccc;line-height:1.5">عند تسجيلهم باستخدام رمزك يُربطون بحسابك تلقائياً</div></div>
-<div style="display:flex;align-items:center;gap:12px;direction:rtl"><div class=ww-i style="flex:0 0 auto;font-weight:900">3</div><div style="font-size:13px;color:#ccc;line-height:1.5">احصل على <b style="color:#f5a623">5%</b> من أرباح كل شخص دعوته</div></div>
-</div>
-</div>
-<div class=ww><i class=ww-i>!</i><div style="font-size:13px;line-height:1.7"><b style="color:#f5a623;display:block;margin-bottom:4px">🎁 مكافأة الدعوة</b>ادعُ أصدقاءك الآن واحصل على مكافآت حصرية عند انطلاق المنصة رسمياً<br><span style="color:#aaa;font-size:12px">تحديثات المكافآت قريباً 🎉</span></div></div>
-</section>
-
-<!-- ═══════════ VIN ═══════════ -->
-<section id=vin class=pg style=display:none>
-<div class=wh><div class=wh-bk data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>📈 إدارة الأموال</div><div style=width:34px></div></div>
-<div class=wc><div class=wr><b style="font-size:24px;color:#f5a623" id=vinBal>0.00 $</b><span style="color:#aaa;font-size:13px">الرصيد المتاح للاستثمار</span></div></div>
-<div style="padding:2px 14px 10px;font-size:14px;font-weight:800;color:#fff">💼 خطط الاستثمار</div>
-<div class=vp style="border-color:rgba(245,166,35,.45)">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.35);border-radius:20px;padding:3px 10px;font-size:11px;color:#f5a623;font-weight:700">⏳ 6 أيام</span><span style="color:#f5a623;font-size:14px;font-weight:900">🥇 الخطة الذهبية</span></div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-<div style="text-align:left"><div style="font-size:11px;color:#aaa;margin-bottom:2px">الربح + رأس المال</div><div style="font-size:24px;font-weight:900;color:#22c55e">+1000<span style="font-size:13px">$</span></div></div>
-<div style="color:#666;font-size:20px">→</div>
-<div style="text-align:right"><div style="font-size:11px;color:#aaa;margin-bottom:2px">الإيداع المطلوب</div><div style="font-size:24px;font-weight:900;color:#f5a623">500<span style="font-size:13px">$</span></div></div>
-</div>
-<button class=wb2 style="margin-top:0" onclick="vinInvest(500)">استثمار 500$ الآن</button>
-</div>
-<div class=vp style="border-color:rgba(99,179,237,.4)">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="background:rgba(99,179,237,.1);border:1px solid rgba(99,179,237,.3);border-radius:20px;padding:3px 10px;font-size:11px;color:#63b3ed;font-weight:700">⏳ 10 أيام</span><span style="color:#63b3ed;font-size:14px;font-weight:900">🥈 الخطة الفضية</span></div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-<div style="text-align:left"><div style="font-size:11px;color:#aaa;margin-bottom:2px">الربح + رأس المال</div><div style="font-size:24px;font-weight:900;color:#22c55e">+600<span style="font-size:13px">$</span></div></div>
-<div style="color:#666;font-size:20px">→</div>
-<div style="text-align:right"><div style="font-size:11px;color:#aaa;margin-bottom:2px">الإيداع المطلوب</div><div style="font-size:24px;font-weight:900;color:#63b3ed">300<span style="font-size:13px">$</span></div></div>
-</div>
-<button class=wb2 style="margin-top:0;background:linear-gradient(90deg,#63b3ed,#4299e1)" onclick="vinInvest(300)">استثمار 300$ الآن</button>
-</div>
-<div class=vp style="border-color:rgba(154,230,180,.4)">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="background:rgba(154,230,180,.1);border:1px solid rgba(154,230,180,.3);border-radius:20px;padding:3px 10px;font-size:11px;color:#9ae6b4;font-weight:700">⏳ 20 يوماً</span><span style="color:#9ae6b4;font-size:14px;font-weight:900">🥉 الخطة البرونزية</span></div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-<div style="text-align:left"><div style="font-size:11px;color:#aaa;margin-bottom:2px">الربح + رأس المال</div><div style="font-size:24px;font-weight:900;color:#22c55e">+100<span style="font-size:13px">$</span></div></div>
-<div style="color:#666;font-size:20px">→</div>
-<div style="text-align:right"><div style="font-size:11px;color:#aaa;margin-bottom:2px">الإيداع المطلوب</div><div style="font-size:24px;font-weight:900;color:#9ae6b4">100<span style="font-size:13px">$</span></div></div>
-</div>
-<button class=wb2 style="margin-top:0;background:linear-gradient(90deg,#9ae6b4,#68d391)" onclick="vinInvest(100)">استثمار 100$ الآن</button>
-</div>
-<div class=ww><i class=ww-i>!</i><div style="font-size:13px;line-height:1.7"><b style="color:#f5a623;display:block;margin-bottom:4px">⚙️ قيد التطوير</b>خدمة الاستثمار التلقائي ستُتاح قريباً عند الإطلاق الرسمي<br><span style="color:#aaa;font-size:12px">تابع صفحاتنا الرسمية للحصول على آخر التحديثات 🎉</span></div></div>
-</section>
-
-<!-- ═══════════ TRD ═══════════ -->
-<section id=trd class=pg style=display:none>
-<div class=wh><div class=wh-bk data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>📊 التداول</div><div style=width:34px></div></div>
-<div style="margin:12px 12px 8px;background:linear-gradient(135deg,#1a1d3a,#0f1128);border:1px solid rgba(245,166,35,.25);border-radius:14px;padding:18px 14px;text-align:center">
-<div style="font-size:38px;margin-bottom:8px">⚙️</div>
-<div style="font-size:17px;font-weight:900;color:#f5a623;margin-bottom:6px">منصة التداول قيد التطوير</div>
-<div style="font-size:13px;color:#aaa;line-height:1.7">نعمل على تطوير منصة تداول احترافية<br>ستُتاح قريباً بمزايا استثنائية 🚀</div>
-</div>
-<div class=mkt-hdr style="padding:10px 14px 4px"><div class=h-chg>تغيير</div><div class=h-price>السعر الأخير</div><div class=h-name>الأزواج المتاحة</div></div>
-<div id=trdMkt style="padding:0 10px"></div>
-</section>
-
-<!-- ═══════════ AST ═══════════ -->
-<section id=ast class=pg style=display:none>
-<div class=wh><div class=wh-bk data-go=home><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>💰 الأصول والرصيد</div><div style=width:34px></div></div>
-<div style="padding:22px 16px 14px;text-align:center;background:linear-gradient(180deg,#141526 0%,transparent 100%)">
-<div style="color:#aaa;font-size:13px;margin-bottom:8px">إجمالي الرصيد</div>
-<div style="font-size:42px;font-weight:900;letter-spacing:1px" id=astBal>0.0000</div>
-<div style="color:#888;font-size:14px;margin-top:6px">USDT &nbsp;≈&nbsp; <span id=astUsd style="color:#f5a623">$0.00</span></div>
-</div>
-<div style="display:flex;gap:10px;padding:0 14px 16px">
-<button data-go=dep class=wb2 style="flex:1;margin-top:0;font-size:14px">＋ إيداع</button>
-<button data-go=wd class=wb2 style="flex:1;margin-top:0;font-size:14px;background:rgba(255,255,255,.08);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.1)">↑ سحب</button>
-</div>
-<div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px 10px"><span style="font-size:13px;font-weight:800;color:#fff">حساب Spot</span><span style="font-size:12px;color:#888" id=astSpot>0.00 USDT</span></div>
-<div class=ast-row>
-<div style="flex:1;text-align:center"><div style="font-size:15px;font-weight:900" id=astUsdtBal>0.0000</div><div style="font-size:11px;color:#aaa;margin-top:2px">USDT</div></div>
-<div style="flex:1;text-align:center;border-left:1px solid #1e1f2e;border-right:1px solid #1e1f2e;padding:0 10px"><div style="font-size:11px;color:#aaa;margin-bottom:3px">القيمة بالدولار</div><div style="font-size:15px;font-weight:900;color:#f5a623" id=astUsdVal>$0.00</div></div>
-<img src="https://s2.coinmarketcap.com/static/img/coins/64x64/825.png" style="width:38px;height:38px;border-radius:50%" alt=USDT>
-</div>
-<div style="padding:12px 14px 6px;font-size:13px;font-weight:800;color:#aaa">العملات الأخرى</div>
-<div class=ast-row style="opacity:.45">
-<div style="flex:1;text-align:center"><div style="font-size:15px;font-weight:900">0.0000</div><div style="font-size:11px;color:#aaa;margin-top:2px">BTC</div></div>
-<div style="flex:1;text-align:center;border-left:1px solid #1e1f2e;border-right:1px solid #1e1f2e;padding:0 10px"><div style="font-size:11px;color:#aaa;margin-bottom:3px">القيمة بالدولار</div><div style="font-size:15px;font-weight:900;color:#aaa">$0.00</div></div>
-<img src="https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png" style="width:38px;height:38px;border-radius:50%" alt=BTC>
-</div>
-<div class=ast-row style="opacity:.45">
-<div style="flex:1;text-align:center"><div style="font-size:15px;font-weight:900">0.0000</div><div style="font-size:11px;color:#aaa;margin-top:2px">ETH</div></div>
-<div style="flex:1;text-align:center;border-left:1px solid #1e1f2e;border-right:1px solid #1e1f2e;padding:0 10px"><div style="font-size:11px;color:#aaa;margin-bottom:3px">القيمة بالدولار</div><div style="font-size:15px;font-weight:900;color:#aaa">$0.00</div></div>
-<img src="https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png" style="width:38px;height:38px;border-radius:50%" alt=ETH>
-</div>
-<div style="text-align:center;padding:24px 0 10px;color:#555;font-size:13px">لا توجد معاملات بعد</div>
-</section>
-
-<!-- ═══════════ WD ═══════════ -->
 <section id=wd>
   <div class=wh><div class=wh-bk id=wdBack><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap=round stroke-linejoin=round></path></svg></div><div class=wh-t>💸 سحب الأموال</div><div style=width:34px></div></div>
   <div class=wc><div class=wr><b style="font-size:22px;color:#f5a623" id=wdBal>0.00$</b><span style="color:#aaa;font-size:13px">متاح للسحب</span></div></div>
@@ -450,67 +341,31 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 <div id=ld><div class=bx><img class=lg src="https://i.ibb.co/qLdnCh4S/file-0000000003f07246bcfad573087229bb.png" alt=""><div class=sp></div><b>جاري التحميل…</b><small id=ldTxt>لحظة واحدة</small></div></div>
 
 <script>
-(()=>{const pov=document.getElementById('pop-ov');if(localStorage.getItem('aimbit_pop_hide')==='1')pov.style.display='none';document.getElementById('pop-ok').onclick=()=>pov.style.display='none';document.getElementById('pop-skip').onclick=()=>{localStorage.setItem('aimbit_pop_hide','1');pov.style.display='none';};})();
-
-(()=>{const mkt=document.getElementById('mkt'),tabs=document.getElementById('tabs'),q=document.getElementById('q'),md=document.getElementById('md'),mdx=document.getElementById('mdx');let mode='tHot',D=[];const nf=x=>x==null?'—':(Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6})),cf=x=>{x=+x||0;return(x>0?'+':'')+x.toFixed(2)+'%'},cls=x=>((+x||0)>=0?'up':'dn'),cbg=x=>((+x||0)>=0?'up-bg':'dn-bg');const BTC='https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png',ETH='https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png',LTC='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10',DOGE='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10',SOL='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10';const seed=()=>{D=[{id:'bitcoin',name:'Bitcoin',symbol:'BTC',rank:1,price:74724.94,chg:3.67,vol:3.2e10,ico:BTC},{id:'ethereum',name:'Ethereum',symbol:'ETH',rank:2,price:2364.94,chg:10.45,vol:1.8e10,ico:ETH},{id:'litecoin',name:'Litecoin',symbol:'LTC',rank:3,price:58.88,chg:5.65,vol:8.2e8,ico:LTC},{id:'dogecoin',name:'Dogecoin',symbol:'DOGE',rank:4,price:.10,chg:7.24,vol:1.7e9,ico:DOGE},{id:'solana',name:'Solana',symbol:'SOL',rank:5,price:96.70,chg:6.38,vol:6.2e9,ico:SOL}];window._mktD=D;};const sortData=()=>{let A=[...D];if(mode=='tGainers')A.sort((a,b)=>(b.chg||0)-(a.chg||0));else if(mode=='tLosers')A.sort((a,b)=>(a.chg||0)-(b.chg||0));else if(mode=='tVol')A.sort((a,b)=>(b.vol||0)-(a.vol||0));else A.sort((a,b)=>(a.rank||99)-(b.rank||99));const s=(q.value||'').trim().toLowerCase();if(s)A=A.filter(x=>(x.name||'').toLowerCase().includes(s)||(x.symbol||'').toLowerCase().includes(s));return A;};const render=()=>{const A=sortData();mkt.innerHTML=A.map(x=>`<div class=row data-id="${x.id}"><div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div><div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps>$${nf(x.price)} ≈</div></div><div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div><img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}"></div></div>`).join('');};const updBTC=()=>{const b=D.find(x=>x.symbol=='BTC');if(!b)return;document.getElementById('btcP').textContent='$'+nf(b.price);const c=document.getElementById('btcC');c.textContent=cf(b.chg);c.className=cls(b.chg);};const openMD=x=>{document.getElementById('mdi').src=x.ico;document.getElementById('mdn').textContent=x.name;document.getElementById('mds').textContent='USDT/ '+x.symbol;document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);md.classList.add('on');};const closeMD=()=>md.classList.remove('on');window.closeMarketModal=closeMD;mdx.onclick=closeMD;md.onclick=e=>{if(e.target===md)closeMD();};mkt.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const x=D.find(z=>z.id==r.dataset.id);if(x)openMD(x);};tabs.onclick=e=>{const t=e.target.closest('.tab');if(!t)return;mode=t.dataset.t;[...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render();};q.oninput=render;document.getElementById('mdtbtn').onclick=()=>{closeMD();window.AppNav&&window.AppNav.go('trd');};const tick=()=>{for(const x of D){let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);x.price=Math.max(.000001,x.price*(1+k));x.chg=Math.max(-30,Math.min(30,(x.chg+(Math.random()-.5)*1.2)));x.vol=Math.max(1,x.vol*(1+(Math.random()-.5)*.02));}render();updBTC();if(md.classList.contains('on')){const n=document.getElementById('mdn').textContent,x=D.find(z=>z.name==n);if(x){document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);}}};seed();render();updBTC();setInterval(tick,1200);})();
-
-(()=>{const prof=document.getElementById('prof'),ava=document.getElementById('ava'),back=document.getElementById('pback'),copy=document.getElementById('copyUid'),uid=document.getElementById('uidText'),logout=document.getElementById('logout');const show=on=>{prof.style.display=on?'block':'none';prof.setAttribute('aria-hidden',on?'false':'true');document.body.style.overflow=on?'hidden':'auto';window.scrollTo(0,0);};window.ProfUI={show};ava.onclick=()=>show(1);back.onclick=()=>show(0);copy.onclick=async()=>{const t=uid.textContent||'';try{await navigator.clipboard.writeText(t);}catch(e){prompt('انسخ UID:',t);}};logout.onclick=()=>alert('تسجيل الخروج');})();
-
-(()=>{const L=document.getElementById('ld'),LT=document.getElementById('ldTxt');const on=t=>{LT.textContent=t||'لحظة واحدة';L.classList.add('on');},off=()=>L.classList.remove('on');window.LoaderUI={on,off};})();
-
+/* --- Fixed bottom bar safe scrolling (added) --- */
 (()=>{
-const H=document.getElementById('home'),W=document.getElementById('wd'),bn=document.getElementById('bnav');
-const IDS=['dep','fri','vin','trd','ast'];
-const PG_NAV={dep:'ast',fri:'fav',vin:'ast',trd:'trade',ast:'ast'};
-const TIT={home:'الرئيسية',wd:'سحب',dep:'إيداع',fri:'الدعوات',vin:'إدارة الأموال',trd:'التداول',ast:'الرصيد'};
-const setNav=a=>[...bn.children].forEach(x=>x.classList.toggle('active',x.dataset.nav===a));
-const hideAll=()=>{[H,W,...IDS.map(i=>document.getElementById(i))].forEach(x=>x&&(x.style.display='none'));document.body.style.overflow='';};
-const closeOv=()=>{try{window.ProfUI&&window.ProfUI.show(0);}catch(e){}try{window.closeMarketModal&&window.closeMarketModal();}catch(e){}try{document.getElementById('wdModal')?.classList.remove('on');}catch(e){}};
-const setRoute=v=>{document.title='AIMBIT | '+(TIT[v]||'AIMBIT');history.replaceState(null,'','#'+(v==='home'?'home':v));};
-const go=v=>{
-  closeOv();
-  window.LoaderUI&&window.LoaderUI.on(TIT[v]||'...');
-  if(v==='markets')v='home';
-  setRoute(v);
-  if(v==='home'){hideAll();H.style.display='block';setNav('home');window.scrollTo(0,0);window.LoaderUI&&window.LoaderUI.off();return;}
-  if(v==='wd'){hideAll();W.style.display='block';setNav('');if(window.wdRefresh)window.wdRefresh();window.scrollTo(0,0);window.LoaderUI&&window.LoaderUI.off();return;}
-  const sec=document.getElementById(v);
-  if(!sec){window.LoaderUI&&window.LoaderUI.off();return;}
-  hideAll();sec.style.display='block';setNav(PG_NAV[v]||'');window.scrollTo(0,0);
-  const fn=window['pgInit_'+v];if(fn)fn();
-  requestAnimationFrame(()=>window.LoaderUI&&window.LoaderUI.off());
-};
-window.AppNav={go};
-document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);});
-bn.onclick=e=>{const it=e.target.closest('.bnav-item');if(!it)return;const v=it.dataset.nav;if(v==='home')go('home');else if(v==='trade')go('trd');else if(v==='fav')go('fri');else if(v==='ast')go('ast');else if(v==='markets'){go('home');setTimeout(()=>document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'}),80);}};
-const boot=()=>{const h=(location.hash||'#home').replace('#','');if(h==='markets'){go('home');setTimeout(()=>document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'}),120);return;}go(h||'home');};
-window.addEventListener('hashchange',()=>{const h=(location.hash||'#home').replace('#','');if(h&&h!=='markets')go(h);});
-boot();
+  const setVars=()=>{
+    const bnav=document.getElementById('bnav');
+    if(!bnav) return;
+    const h=Math.ceil(bnav.getBoundingClientRect().height||70);
+    document.documentElement.style.setProperty('--bnav-h', h+'px');
+    document.documentElement.style.setProperty('--bnav-safe', `calc(${h}px + env(safe-area-inset-bottom,0px))`);
+  };
+  window.addEventListener('resize', setVars, {passive:true});
+  window.addEventListener('load', setVars, {passive:true});
+  // run now + after layout
+  try{setVars();}catch(e){}
+  requestAnimationFrame(()=>{try{setVars();}catch(e){}});
+  setTimeout(()=>{try{setVars();}catch(e){}}, 150);
 })();
 
-(()=>{const getBal=()=>parseFloat(localStorage.getItem('aimbit_bal')||'0');const setBal=v=>{localStorage.setItem('aimbit_bal',String(v));const ba=document.getElementById('balAmt'),bu=document.getElementById('balUsd');if(ba)ba.textContent=v.toFixed(4);if(bu)bu.textContent='≈ $'+v.toFixed(2);};const refresh=()=>{const b=getBal(),bd=document.getElementById('wdBal');if(bd)bd.textContent=b.toFixed(2)+'$';setBal(b);};window.wdRefresh=refresh;const modal=document.getElementById('wdModal');document.getElementById('wdPmBtn').onclick=()=>modal.classList.add('on');document.getElementById('wdMClose').onclick=()=>modal.classList.remove('on');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('on');};document.querySelectorAll('.wo').forEach(o=>{o.onclick=()=>{document.querySelectorAll('.wo').forEach(x=>x.classList.remove('act'));o.classList.add('act');document.getElementById('wdPmBtn').textContent=(o.dataset.label||'')+' ▾';modal.classList.remove('on');};});document.getElementById('wdBtn').onclick=()=>{const amt=parseFloat((document.getElementById('wdAmt').value||'').replace(',','.'));const wallet=(document.getElementById('wdWallet').value||'').trim();const method=(document.getElementById('wdPmBtn').textContent||'').replace('▾','').trim();const ok=document.getElementById('wdTerms').checked;if(!ok)return alert('يجب الموافقة على الأحكام والشروط');if(!amt||amt<=0||isNaN(amt))return alert('أدخل مبلغاً صحيحاً');if(!wallet)return alert('أدخل عنوان المحفظة');const bal=getBal();if(amt>bal)return alert('الرصيد غير كافٍ — رصيدك: '+bal.toFixed(2)+'$');setBal(bal-amt);const reqs=JSON.parse(localStorage.getItem('aimbit_wd_reqs')||'[]');reqs.push({amount:amt,method,wallet,status:'pending',date:Date.now()});localStorage.setItem('aimbit_wd_reqs',JSON.stringify(reqs));refresh();alert('✅ تم تقديم طلب السحب بنجاح');document.getElementById('wdWallet').value='';document.getElementById('wdTerms').checked=false;};document.getElementById('wdBack').onclick=()=>window.AppNav.go('home');refresh();})();
-
-/* ── pgInit: AST ── */
-window.pgInit_ast=()=>{const b=parseFloat(localStorage.getItem('aimbit_bal')||'0');['astBal','astUsdtBal'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=b.toFixed(4);});const u=document.getElementById('astUsd');if(u)u.textContent='$'+b.toFixed(2);const s=document.getElementById('astSpot');if(s)s.textContent=b.toFixed(2)+' USDT';const v=document.getElementById('astUsdVal');if(v)v.textContent='$'+b.toFixed(2);};
-
-/* ── pgInit: VIN ── */
-window.pgInit_vin=()=>{const b=parseFloat(localStorage.getItem('aimbit_bal')||'0');const el=document.getElementById('vinBal');if(el)el.textContent=b.toFixed(2)+' $';};
-
-/* ── pgInit: FRI ── */
-window.pgInit_fri=()=>{const uid=(document.getElementById('uidText')||{}).textContent||'UID: 24752727';const code='AIMBIT-'+uid.replace('UID: ','').trim();const el=document.getElementById('friCode');if(el)el.textContent=code;};
-
-/* ── pgInit: TRD ── */
-window.pgInit_trd=()=>{const D=window._mktD||[];const c=document.getElementById('trdMkt');if(!c||!D.length)return;const nf=x=>Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6});const cf=x=>(+x>=0?'+':'')+((+x)||0).toFixed(2)+'%';const cbg=x=>(+x>=0?'up-bg':'dn-bg');c.innerHTML=D.map(x=>`<div class=row style="margin:0 0 8px"><div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div><div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps style="color:#ef4444;font-size:10px">قيد التطوير</div></div><div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div><img class=r-ico src="${x.ico}" onerror="this.style.opacity=.3" alt="${x.symbol}"></div></div>`).join('');};
-
-/* ── DEP helpers ── */
-function depNet(btn,net,addr){document.querySelectorAll('.dep-nb').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const lbl=document.getElementById('depNetLbl');if(lbl)lbl.textContent='عنوان محفظة USDT — شبكة '+net;const a=document.getElementById('depAddr');if(a)a.textContent=addr;}
-function cpDep(){const a=(document.getElementById('depAddr')||{}).textContent||'';navigator.clipboard.writeText(a).catch(()=>prompt('العنوان:',a));alert('✅ تم نسخ عنوان المحفظة');}
-
-/* ── FRI helpers ── */
-function cpRef(){const c=(document.getElementById('friCode')||{}).textContent||'';navigator.clipboard.writeText(c).catch(()=>prompt('الرمز:',c));alert('✅ تم نسخ رمز الدعوة');}
-function shrRef(){const c=(document.getElementById('friCode')||{}).textContent||'';if(navigator.share){navigator.share({title:'انضم إلى binexia',text:'استخدم رمز الدعوة: '+c,url:location.href});}else{cpRef();}}
-
-/* ── VIN helpers ── */
-function vinInvest(amt){const b=parseFloat(localStorage.getItem('aimbit_bal')||'0');if(b<amt)return alert('❌ الرصيد غير كافٍ\nتحتاج: '+amt+'$  |  رصيدك: '+b.toFixed(2)+'$\n\nقم بالإيداع أولاً');alert('⚙️ خدمة الاستثمار قيد التطوير\nستُتاح قريباً عند الإطلاق الرسمي 🚀');}
-</script>
-</body></html>
+(()=>{const pov=document.getElementById('pop-ov');if(localStorage.getItem('aimbit_pop_hide')==='1')pov.style.display='none';document.getElementById('pop-ok').onclick=()=>pov.style.display='none';document.getElementById('pop-skip').onclick=()=>{localStorage.setItem('aimbit_pop_hide','1');pov.style.display='none';};})();
+(()=>{const mkt=document.getElementById('mkt'),tabs=document.getElementById('tabs'),q=document.getElementById('q'),md=document.getElementById('md'),mdx=document.getElementById('mdx');let mode='tHot',D=[];const nf=x=>x==null?'—':(Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6})),cf=x=>{x=+x||0;return(x>0?'+':'')+x.toFixed(2)+'%'},cls=x=>((+x||0)>=0?'up':'dn'),cbg=x=>((+x||0)>=0?'up-bg':'dn-bg');const BTC='https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png',ETH='https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png',LTC='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10',DOGE='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10',SOL='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10';const seed=()=>{D=[{id:'bitcoin',name:'Bitcoin',symbol:'BTC',rank:1,price:74724.94,chg:3.67,vol:3.2e10,ico:BTC},{id:'ethereum',name:'Ethereum',symbol:'ETH',rank:2,price:2364.94,chg:10.45,vol:1.8e10,ico:ETH},{id:'litecoin',name:'Litecoin',symbol:'LTC',rank:3,price:58.88,chg:5.65,vol:8.2e8,ico:LTC},{id:'dogecoin',name:'Dogecoin',symbol:'DOGE',rank:4,price:.10,chg:7.24,vol:1.7e9,ico:DOGE},{id:'solana',name:'Solana',symbol:'SOL',rank:5,price:96.70,chg:6.38,vol:6.2e9,ico:SOL}]};const sortData=()=>{let A=[...D];if(mode=='tGainers')A.sort((a,b)=>(b.chg||0)-(a.chg||0));else if(mode=='tLosers')A.sort((a,b)=>(a.chg||0)-(b.chg||0));else if(mode=='tVol')A.sort((a,b)=>(b.vol||0)-(a.vol||0));else A.sort((a,b)=>(a.rank||99)-(b.rank||99));const s=(q.value||'').trim().toLowerCase();if(s)A=A.filter(x=>(x.name||'').toLowerCase().includes(s)||(x.symbol||'').toLowerCase().includes(s));return A;};const render=()=>{const A=sortData();mkt.innerHTML=A.map(x=>`<div class=row data-id="${x.id}"><div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div><div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps>$${nf(x.price)} ≈</div></div><div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div><img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}"></div></div>`).join('');};const updBTC=()=>{const b=D.find(x=>x.symbol=='BTC');if(!b)return;document.getElementById('btcP').textContent='$'+nf(b.price);const c=document.getElementById('btcC');c.textContent=cf(b.chg);c.className=cls(b.chg);};const openMD=x=>{document.getElementById('mdi').src=x.ico;document.getElementById('mdn').textContent=x.name;document.getElementById('mds').textContent='USDT/ '+x.symbol;document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);md.classList.add('on');};const closeMD=()=>md.classList.remove('on');window.closeMarketModal=closeMD;mdx.onclick=closeMD;md.onclick=e=>{if(e.target===md)closeMD();};mkt.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const x=D.find(z=>z.id==r.dataset.id);if(x)openMD(x);};tabs.onclick=e=>{const t=e.target.closest('.tab');if(!t)return;mode=t.dataset.t;[...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render();};q.oninput=render;document.getElementById('mdtbtn').onclick=()=>{closeMD();window.AppNav&&window.AppNav.go('trd');};const tick=()=>{for(const x of D){let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);x.price=Math.max(.000001,x.price*(1+k));x.chg=Math.max(-30,Math.min(30,(x.chg+(Math.random()-.5)*1.2)));x.vol=Math.max(1,x.vol*(1+(Math.random()-.5)*.02));}render();updBTC();if(md.classList.contains('on')){const n=document.getElementById('mdn').textContent,x=D.find(z=>z.name==n);if(x){document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);}}};seed();render();updBTC();setInterval(tick,1200);})();
+(()=>{const prof=document.getElementById('prof'),ava=document.getElementById('ava'),back=document.getElementById('pback'),copy=document.getElementById('copyUid'),uid=document.getElementById('uidText'),logout=document.getElementById('logout');const show=on=>{prof.style.display=on?'block':'none';prof.setAttribute('aria-hidden',on?'false':'true');document.body.style.overflow=on?'hidden':'auto';window.scrollTo(0,0);};window.ProfUI={show};ava.onclick=()=>show(1);back.onclick=()=>show(0);copy.onclick=async()=>{const t=uid.textContent||'';try{await navigator.clipboard.writeText(t);}catch(e){prompt('انسخ UID:',t);}};logout.onclick=()=>alert('تسجيل الخروج');})();
+(()=>{const L=document.getElementById('ld'),LT=document.getElementById('ldTxt');const on=t=>{LT.textContent=t||'لحظة واحدة';L.classList.add('on');},off=()=>L.classList.remove('on');window.LoaderUI={on,off};})();
+(()=>{const H=document.getElementById('home'),W=document.getElementById('wd'),bn=document.getElementById('bnav');const DEP_ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch';const secs=()=>[H,W,...['dep','fri','vin','trd','ast'].map(i=>document.getElementById(i))];const setNav=a=>[...bn.children].forEach(x=>x.classList.toggle('active',x.dataset.nav===a));const hideAll=()=>{secs().forEach(x=>x&&(x.style.display='none'));document.body.style.overflow='';};const TIT={home:'الرئيسية',wd:'سحب',dep:'إيداع',fri:'الدعوات',vin:'إدارة الأموال',trd:'التداول',ast:'الرصيد'};const closeOverlays=()=>{try{window.ProfUI&&window.ProfUI.show(0);}catch(e){}try{window.closeMarketModal&&window.closeMarketModal();}catch(e){}try{document.getElementById('wdModal')?.classList.remove('on');}catch(e){}};const setRoute=v=>{const n=TIT[v]||'AIMBIT';document.title='AIMBIT | '+n;const h=v==='home'?'home':v;history.replaceState(null,'','#'+h);};const PG={dep:{f:'deposit.js',fn:'DepositPage',n:'ast',o:{addr:DEP_ADDR}},fri:{f:'friends.js',fn:'FriendsPage',n:'fav'},vin:{f:'vinance.js',fn:'VinancePage',n:'ast'},trd:{f:'traders.js',fn:'TradersPage',n:'trade'},ast:{f:'assets.js',fn:'AssetsPage',n:'ast'}};let navToken=0;const ensureScript=src=>new Promise((res,rej)=>{const ex=[...document.scripts].find(s=>s.src&&s.src.includes(src));if(ex)return res();const s=document.createElement('script');s.src=src;s.async=true;s.onerror=()=>rej(src);s.onload=()=>res();document.head.appendChild(s);});const go=async v=>{navToken++;const t=navToken;closeOverlays();window.LoaderUI&&window.LoaderUI.on('جاري فتح: '+(TIT[v]||'...'));setRoute(v);if(v==='markets'){v='home';}if(v==='home'){hideAll();H.style.display='block';setNav('home');window.scrollTo(0,0);window.LoaderUI&&window.LoaderUI.off();if(location.hash==='#markets'){setTimeout(()=>document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'}),60);}return;}if(v==='wd'){hideAll();W.style.display='block';setNav('');if(window.wdRefresh)window.wdRefresh();window.scrollTo(0,0);window.LoaderUI&&window.LoaderUI.off();return;}const p=PG[v];if(!p){window.LoaderUI&&window.LoaderUI.off();return;}const sec=document.getElementById(v);hideAll();sec.style.display='block';setNav(p.n);window.scrollTo(0,0);sec.innerHTML='';try{await ensureScript(p.f);if(t!==navToken)return;const m=()=>{if(t!==navToken)return;try{sec.innerHTML='';window[p.fn]&&window[p.fn].mount(sec,p.o||{});}catch(e){console.error(e);alert('⚠️ خطأ في فتح الصفحة');}};m();}catch(e){alert('⚠️ تعذّر تحميل الصفحة: '+p.f);}finally{if(t===navToken)requestAnimationFrame(()=>window.LoaderUI&&window.LoaderUI.off());}};window.AppNav={go};document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go);});bn.onclick=e=>{const it=e.target.closest('.bnav-item');if(!it)return;const v=it.dataset.nav;if(v==='home')go('home');else if(v==='trade')go('trd');else if(v==='fav')go('fri');else if(v==='ast')go('ast');else if(v==='markets'){go('home');setTimeout(()=>document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'}),80);} };const boot=()=>{const h=(location.hash||'#home').replace('#','');if(h==='markets'){history.replaceState(null,'','#markets');go('home');setTimeout(()=>document.getElementById('tabs').scrollIntoView({behavior:'smooth',block:'start'}),120);return;}go(h||'home');};window.addEventListener('hashchange',()=>{const h=(location.hash||'#home').replace('#','');if(h&&h!=='markets')go(h);});boot();})();
+(()=>{const getBal=()=>parseFloat(localStorage.getItem('aimbit_bal')||'0');const setBal=v=>{localStorage.setItem('aimbit_bal',String(v));const ba=document.getElementById('balAmt'),bu=document.getElementById('balUsd');if(ba)ba.textContent=v.toFixed(4);if(bu)bu.textContent='≈ $'+v.toFixed(2);};const refresh=()=>{const b=getBal(),bd=document.getElementById('wdBal');if(bd)bd.textContent=b.toFixed(2)+'$';setBal(b);};window.wdRefresh=refresh;const modal=document.getElementById('wdModal');document.getElementById('wdPmBtn').onclick=()=>modal.classList.add('on');document.getElementById('wdMClose').onclick=()=>modal.classList.remove('on');modal.onclick=e=>{if(e.target===modal)modal.classList.remove('on');};document.querySelectorAll('.wo').forEach(o=>{o.onclick=()=>{document.querySelectorAll('.wo').forEach(x=>x.classList.remove('act'));o.classList.add('act');document.getElementById('wdPmBtn').textContent=(o.dataset.label||'')+' ▾';modal.classList.remove('on');};});document.getElementById('wdBtn').onclick=()=>{const amt=parseFloat((document.getElementById('wdAmt').value||'').replace(',','.'));const wallet=(document.getElementById('wdWallet').value||'').trim();const method=(document.getElementById('wdPmBtn').textContent||'').replace('▾','').trim();const ok=document.getElementById('wdTerms').checked;if(!ok)return alert('يجب الموافقة على الأحكام والشروط');if(!amt||amt<=0||isNaN(amt))return alert('أدخل مبلغاً صحيحاً');if(!wallet)return alert('أدخل عنوان المحفظة');const bal=getBal();if(amt>bal)return alert('الرصيد غير كافٍ — رصيدك: '+bal.toFixed(2)+'$');if(window.firebase&&window.firebase.firestore&&window._fbUid){const db=window.firebase.firestore();db.collection('users').doc(window._fbUid).get().then(s=>{const fb=Number(s.data()?.balance||0);if(amt>fb)return alert('الرصيد غير كافٍ');return db.collection('users').doc(window._fbUid).update({balance:window.firebase.firestore.FieldValue.increment(-amt)}).then(()=>db.collection('withdraw_requests').add({userId:window._fbUid,amount:amt,method,wallet,status:'pending',createdAt:window.firebase.firestore.FieldValue.serverTimestamp()}));}).then(()=>{alert('✅ تم تقديم طلب السحب بنجاح');document.getElementById('wdWallet').value='';document.getElementById('wdTerms').checked=false;refresh();}).catch(e=>{console.error(e);alert('حدث خطأ، حاول مرة أخرى');});return;}setBal(bal-amt);const reqs=JSON.parse(localStorage.getItem('aimbit_wd_reqs')||'[]');reqs.push({amount:amt,method,wallet,status:'pending',date:Date.now()});localStorage.setItem('aimbit_wd_reqs',JSON.stringify(reqs));refresh();alert('✅ تم تقديم طلب السحب بنجاح');document.getElementById('wdWallet').value='';document.getElementById('wdTerms').checked=false;};document.getElementById('wdBack').onclick=()=>window.AppNav.go('home');refresh();})();
+/script></body></html>
+    
+  </body>
+  
+</html>
