@@ -1,80 +1,26 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<title>Test App</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: sans-serif;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* المحتوى */
-#content {
-  flex: 1;
-  padding: 20px;
-}
-
-/* الشريط السفلي */
-#bottom-bar {
-  height: 60px;
-  background: #111;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-#bottom-bar button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 14px;
-}
-</style>
-
-</head>
-<body>
-
 <div id="app">
 
-  <!-- المحتوى يتغير -->
-  <div id="content">
-    الصفحة الرئيسية
-  </div>
+  <div id="content">الرئيسية</div>
 
-  <!-- الشريط السفلي -->
   <div id="bottom-bar">
-    <button onclick="loadPage('traders')">Traders</button>
-    <button onclick="loadPage('assets')">Assets</button>
-    <button onclick="loadPage('deposit')">Deposit</button>
+    <button onclick="loadScript('traders.js')">Traders</button>
+    <button onclick="loadScript('assets.js')">Assets</button>
+    <button onclick="loadScript('deposit.js')">Deposit</button>
   </div>
 
 </div>
 
 <script>
-function loadPage(page) {
-  const content = document.getElementById("content");
+function loadScript(file) {
+  // نحذف السكربت القديم
+  let old = document.getElementById("dynamic-script");
+  if (old) old.remove();
 
-  if (page === "traders") {
-    content.innerHTML = "<h2>صفحة Traders</h2>";
-  }
+  // ننشئ سكربت جديد
+  let script = document.createElement("script");
+  script.src = file;
+  script.id = "dynamic-script";
 
-  if (page === "assets") {
-    content.innerHTML = "<h2>صفحة Assets</h2>";
-  }
-
-  if (page === "deposit") {
-    content.innerHTML = "<h2>صفحة Deposit</h2>";
-  }
+  document.body.appendChild(script);
 }
 </script>
-
-</body>
-</html>
