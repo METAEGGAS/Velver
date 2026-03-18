@@ -6,15 +6,19 @@
 <title>Deposit — USDT TRC20</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--g:#ffd700;--g2:#b8860b;--bg:#0a0e1a;--card:#12192e}
+:root{--g:#ffd700;--g2:#b8860b;--bg:#0a0e1a}
 html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,sans-serif;font-size:11px;color:#fff}
-#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+#depModal{position:fixed;inset:0;z-index:9900;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;transition:transform .32s cubic-bezier(.4,0,.2,1)}
+#depModal.dep-hidden{transform:translateY(100%)}
 .dtop{flex-shrink:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:linear-gradient(135deg,#0d1527 0%,#1a1000 50%,#0d1527 100%);border-bottom:2.5px solid var(--g)}
 .dtop .t{font-size:14px;font-weight:900;color:var(--g);letter-spacing:.2px}
 .dic{width:34px;height:34px;background:transparent;border:1.5px solid rgba(255,215,0,.4);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,215,0,.75);font-size:17px;transition:.2s}
 .dic:hover{background:rgba(255,215,0,.1);color:var(--g);border-color:var(--g)}
+
+/* ─── padding-bottom:68px لتفادي تغطية الـ bnav الثابت ─── */
 .dScr{display:none;flex:1;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:68px}
 .dScr.on{display:flex}
+
 .dp{padding:12px 14px}
 .dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .damt{background:rgba(17,31,53,.65);border:1.5px solid rgba(255,215,0,.2);border-radius:11px;padding:12px;color:#fff;text-align:center;font-weight:1000;cursor:pointer;position:relative;transition:.15s;user-select:none}
@@ -64,24 +68,19 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
 .dWaitBadge{display:flex;align-items:center;gap:9px;background:rgba(255,215,0,.07);border:1.5px solid rgba(255,215,0,.3);border-radius:12px;padding:10px 18px;animation:depFloat 3s ease infinite}
 .dNetBadge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:7px;padding:4px 10px;font-size:10px;font-weight:900;color:rgba(255,215,0,.85);animation:depGlow 2.5s ease infinite}
 .dQR{width:170px;height:170px;background:#fff;border-radius:11px;padding:7px;border:1.5px solid rgba(255,215,0,.4);box-shadow:0 0 18px rgba(255,215,0,.13)}
-/* ── Bottom Nav ── */
-#bnav{position:fixed;bottom:0;left:0;right:0;height:56px;background:linear-gradient(180deg,#0d1527,#080c18);border-top:1.5px solid rgba(255,215,0,.18);display:flex;align-items:center;justify-content:space-around;z-index:9999}
-#bnav .bn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:rgba(255,215,0,.45);font-size:9px;font-weight:900;padding:6px 14px;border-radius:10px;transition:.18s;-webkit-tap-highlight-color:transparent}
-#bnav .bn .bi{font-size:20px;line-height:1}
-#bnav .bn.act{color:var(--g)}
-#bnav .bn:hover{color:var(--g);background:rgba(255,215,0,.07)}
 </style>
 </head>
 <body>
-<div id="app">
-  <!-- TOP BAR -->
+
+<div id="depModal" class="dep-hidden">
+
   <div class="dtop">
     <button class="dic" id="dBack">←</button>
     <div class="t">Deposit — USDT TRC20</div>
     <button class="dic" id="dClose">×</button>
   </div>
 
-  <!-- SCREEN 1: Amount Picker -->
+  <!-- SCREEN 1 -->
   <section class="dScr on" id="dS1">
     <div class="dp">
       <div class="dgrid" id="dAmtGrid"></div>
@@ -107,7 +106,7 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
     </div>
   </section>
 
-  <!-- SCREEN 2: Confirmation -->
+  <!-- SCREEN 2 -->
   <section class="dScr" id="dS2">
     <div class="dcard">
       <div class="dttl">Payment confirmation</div>
@@ -121,22 +120,16 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
     <div class="dfoot"><button class="dbtn b" id="dPayNow">✅ Confirm &amp; Pay now</button></div>
   </section>
 
-  <!-- SCREEN 3: Waiting / QR -->
+  <!-- SCREEN 3 -->
   <section class="dScr" id="dS3">
     <div style="display:flex;flex-direction:column;align-items:center;padding:18px 14px 8px;gap:12px">
       <div style="position:relative;width:68px;height:68px;display:flex;align-items:center;justify-content:center">
-        <div class="dRing2"></div>
-        <div class="dRing"></div>
+        <div class="dRing2"></div><div class="dRing"></div>
         <img src="https://static.expertoption.finance/crypto-icons/color/usdt_trc20.svg" style="width:34px;height:34px;border-radius:50%;position:relative;z-index:1;box-shadow:0 0 14px rgba(255,215,0,.3)" alt="USDT" onerror="this.src=''">
       </div>
-      <div class="dWaitBadge">
-        <div class="dDot"></div>
-        <span style="font-weight:900;font-size:12.5px;color:var(--g)">Waiting for payment…</span>
-      </div>
+      <div class="dWaitBadge"><div class="dDot"></div><span style="font-weight:900;font-size:12.5px;color:var(--g)">Waiting for payment…</span></div>
       <div style="font-size:10px;color:rgba(255,215,0,.55);font-weight:900;display:flex;align-items:center;gap:5px">
-        <span>⏱</span>
-        <span id="dWaitTime" style="font-family:monospace;font-size:12px;color:var(--g);font-weight:900">00:00</span>
-        <span>since you opened this screen</span>
+        <span>⏱</span><span id="dWaitTime" style="font-family:monospace;font-size:12px;color:var(--g);font-weight:900">00:00</span><span>since you opened this screen</span>
       </div>
       <div class="dNetBadge">🔗 TRON Network · TRC20 <span style="opacity:.6">|</span> <span style="color:#19d28f">Active</span></div>
     </div>
@@ -150,117 +143,101 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
       <div class="dQR"><img id="dQRimg" style="width:100%;height:100%;display:block" alt="QR"></div>
     </div>
     <div style="margin:3px 14px;font-size:11px;text-align:center;color:rgba(255,215,0,.65);font-weight:900">Send exactly <b style="color:var(--g)">USDT (TRC20)</b> to this address:</div>
-    <div class="daddr">
-      <button class="dcpy" id="dCpy">⎘</button>
-      <code id="dAddrTxt"></code>
-    </div>
+    <div class="daddr"><button class="dcpy" id="dCpy">⎘</button><code id="dAddrTxt"></code></div>
     <div class="dsm">✅ Payment confirmed automatically after network confirmation.<br>⏳ Typically takes 1–10 minutes.</div>
   </section>
-</div>
 
-<!-- BOTTOM NAV (position:fixed) -->
-<nav id="bnav">
-  <div class="bn" onclick="bNav(0)"><div class="bi">🏠</div><span>Home</span></div>
-  <div class="bn" onclick="bNav(1)"><div class="bi">📊</div><span>Trade</span></div>
-  <div class="bn act" onclick="bNav(2)"><div class="bi">💳</div><span>Deposit</span></div>
-  <div class="bn" onclick="bNav(3)"><div class="bi">👤</div><span>Profile</span></div>
-</nav>
+</div>
 
 <script>
 (function(){
 'use strict';
-const ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch';
-const PROMO='70ZARCH';
-const BRATE=0.70;
+const ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch',PROMO='70ZARCH',BR=0.7,CUR='USD';
 const AMTS=[500,900,1300,2200,4300,10550,42350,105800];
-
-let scr=0,nav=[0],amt=4300,bonOn=false,bonIn='',bonSt='',bonOpen=false,agreed=true,secs=0,tmr=null;
-
+let scr=0,nh=[0],amt=4300,bOn=false,bIn='',bSt='',bOpen=false,ok=true,ws=0,tmr=null;
 const fmt=n=>'$'+String(Math.max(0,Math.floor(n||0))).replace(/\B(?=(\d{3})+(?!\d))/g,',');
 const pad=n=>String(n).padStart(2,'0');
 const base=()=>Math.max(0,Math.floor(amt||0));
-const bon=()=>bonOn?Math.floor(base()*BRATE):0;
-const total=()=>base()+bon();
+const bon=()=>bOn?Math.floor(base()*BR):0;
+const tot=()=>base()+bon();
 
-/* Init grid */
+/* build grid */
 const grid=document.getElementById('dAmtGrid');
 AMTS.forEach(v=>{
   const d=document.createElement('div');
   d.className='damt'+(v===amt?' on':'');
-  d.dataset.v=v;
-  d.textContent=fmt(v);
+  d.dataset.v=v;d.textContent=fmt(v);
   grid.appendChild(d);
 });
 document.getElementById('dAmtIn').value=amt;
 document.getElementById('dAddrTxt').textContent=ADDR;
 
-function syncUI(){
-  const b=base(),bn=bon(),tt=total();
+function sync(){
+  const b=base(),bn=bon(),t=tot();
   document.getElementById('dPayBtn').textContent='Pay '+fmt(b);
   document.getElementById('dConfBal').textContent=fmt(b);
   document.getElementById('dBaseLine').textContent=fmt(b);
-  document.getElementById('dBonusLine').textContent=bonOn?'+'+fmt(bn)+' ('+Math.round(BRATE*100)+'%)':'—';
-  const tl=document.getElementById('dTotalLine');
-  tl.textContent=fmt(tt);
-  document.getElementById('dS3amt').textContent=fmt(tt);
-  document.getElementById('dQRimg').src='https://api.qrserver.com/v1/create-qr-code/?size=190x190&data='+encodeURIComponent(JSON.stringify({network:'USDT_TRC20',address:ADDR,currency:'USD',base:b,bonus:bn,total:tt}));
+  document.getElementById('dBonusLine').textContent=bOn?'+'+fmt(bn)+' ('+Math.round(BR*100)+'%)':'—';
+  document.getElementById('dTotalLine').textContent=fmt(t);
+  document.getElementById('dS3amt').textContent=fmt(t);
+  document.getElementById('dQRimg').src='https://api.qrserver.com/v1/create-qr-code/?size=190x190&data='+encodeURIComponent(JSON.stringify({network:'USDT_TRC20',address:ADDR,currency:CUR,base:b,bonus:bn,total:t}));
 }
-syncUI();
+sync();
 
-function goTo(k){
-  scr=k;
-  if(nav[nav.length-1]!==k)nav.push(k);
-  if(k===2)startTmr();else stopTmr();
-  render();syncUI();
-}
-function goBack(){
-  if(nav.length<2){return}
-  nav.pop();scr=nav[nav.length-1];
-  if(scr===2)startTmr();else stopTmr();
-  render();syncUI();
-}
 function render(){
   ['dS1','dS2','dS3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',scr===i));
-  document.getElementById('dBack').style.opacity=nav.length>1?'1':'0.45';
+  document.getElementById('dBack').style.opacity=nh.length>1?'1':'0.45';
 }
-
-function startTmr(){
-  stopTmr();secs=0;
-  tmr=setInterval(()=>{secs++;const el=document.getElementById('dWaitTime');if(el)el.textContent=pad(Math.floor(secs/60))+':'+pad(secs%60);},1000);
+function goTo(k){
+  scr=k;if(nh[nh.length-1]!==k)nh.push(k);
+  k===2?startT():stopT();render();sync();
 }
-function stopTmr(){if(tmr){clearInterval(tmr);tmr=null;}}
+function goBack(){
+  if(nh.length<2)return;
+  nh.pop();scr=nh[nh.length-1];
+  scr===2?startT():stopT();render();sync();
+}
+function startT(){
+  stopT();ws=0;
+  tmr=setInterval(()=>{ws++;const e=document.getElementById('dWaitTime');if(e)e.textContent=pad(Math.floor(ws/60))+':'+pad(ws%60);},1000);
+}
+function stopT(){if(tmr){clearInterval(tmr);tmr=null;}}
 
-/* Events */
+/* show modal with slide-in */
+const modal=document.getElementById('depModal');
+requestAnimationFrame(()=>requestAnimationFrame(()=>modal.classList.remove('dep-hidden')));
+
+/* events */
 document.getElementById('dBack').onclick=goBack;
-document.getElementById('dClose').onclick=()=>{stopTmr();window.history.back&&window.history.length>1?window.history.back():document.title='Closed';};
+document.getElementById('dClose').onclick=()=>{stopT();modal.classList.add('dep-hidden');};
 grid.addEventListener('click',e=>{
   const el=e.target.closest('.damt');if(!el)return;
   amt=parseInt(el.dataset.v,10);
   grid.querySelectorAll('.damt').forEach(a=>a.classList.toggle('on',parseInt(a.dataset.v,10)===amt));
-  syncUI();
+  sync();
 });
 document.getElementById('dAmtIn').oninput=e=>{
   amt=parseInt(e.target.value.replace(/\D/g,''),10)||0;
   grid.querySelectorAll('.damt').forEach(a=>a.classList.remove('on'));
-  syncUI();
+  sync();
 };
 document.getElementById('dBonusToggle').onclick=e=>{
-  e.preventDefault();bonOpen=!bonOpen;
-  document.getElementById('dBonusBox').classList.toggle('show',bonOpen);
+  e.preventDefault();bOpen=!bOpen;
+  document.getElementById('dBonusBox').classList.toggle('show',bOpen);
 };
-document.getElementById('dBonusIn').oninput=e=>{bonIn=e.target.value;};
+document.getElementById('dBonusIn').oninput=e=>{bIn=e.target.value;};
 document.getElementById('dBonusApply').onclick=()=>{
-  const c=bonIn.trim();
-  if(!c){bonSt='bad_empty';bonOn=false;}
-  else if(c===PROMO){bonSt='ok';bonOn=true;}
-  else{bonSt='bad';bonOn=false;}
-  const m={ok:'<div class="dOk">✔ Bonus activated: '+Math.round(BRATE*100)+'%</div>',bad:'<div class="dBad">✖ Invalid code</div>',bad_empty:'<div class="dBad">✖ Enter a promo code</div>'};
-  document.getElementById('dBonusState').innerHTML=m[bonSt]||'';
-  syncUI();
+  const c=bIn.trim();
+  if(!c){bSt='bad_empty';bOn=false;}
+  else if(c===PROMO){bSt='ok';bOn=true;}
+  else{bSt='bad';bOn=false;}
+  const m={ok:'<div class="dOk">✔ Bonus activated: '+Math.round(BR*100)+'%</div>',bad:'<div class="dBad">✖ Invalid code</div>',bad_empty:'<div class="dBad">✖ Enter a promo code</div>'};
+  document.getElementById('dBonusState').innerHTML=m[bSt]||'';
+  sync();
 };
-document.getElementById('dAgree').onchange=e=>{agreed=e.target.checked;};
+document.getElementById('dAgree').onchange=e=>{ok=e.target.checked;};
 document.getElementById('dPayBtn').onclick=()=>{
-  if(!agreed){alert('Please accept the terms first.');return;}
+  if(!ok){alert('Please accept the terms first.');return;}
   goTo(1);
 };
 document.getElementById('dPayNow').onclick=()=>goTo(2);
@@ -270,11 +247,6 @@ document.getElementById('dCpy').onclick=async()=>{
   catch{window.prompt('Copy address:',ADDR);}
 };
 })();
-
-function bNav(i){
-  const ns=document.querySelectorAll('#bnav .bn');
-  ns.forEach((n,j)=>n.classList.toggle('act',j===i));
-}
 </script>
 </body>
 </html>
