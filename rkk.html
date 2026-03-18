@@ -1,26 +1,82 @@
-<div id="app">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Mini App</title>
 
-  <div id="content">الرئيسية</div>
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #0f172a;
+  color: white;
+}
 
-  <div id="bottom-bar">
-    <button onclick="loadScript('traders.js')">Traders</button>
-    <button onclick="loadScript('assets.js')">Assets</button>
-    <button onclick="loadScript('deposit.js')">Deposit</button>
-  </div>
+/* المحتوى */
+#content {
+  padding: 20px;
+  padding-bottom: 100px; /* مهم حتى ما يغطيه الشريط */
+}
 
+/* الشريط السفلي */
+#bottom-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  background: #111827;
+  border-top: 2px solid #333;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+/* الأزرار */
+.nav-btn {
+  color: #aaa;
+  text-align: center;
+  font-size: 14px;
+}
+
+.nav-btn:active {
+  color: white;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- المحتوى -->
+<div id="content">
+  <h2>الرئيسية</h2>
+  <p>أهلاً بك</p>
+</div>
+
+<!-- الشريط السفلي -->
+<div id="bottom-bar">
+  <div class="nav-btn" onclick="loadPage('traders')">📊<br>Traders</div>
+  <div class="nav-btn" onclick="loadPage('assets')">💰<br>Assets</div>
+  <div class="nav-btn" onclick="loadPage('deposit')">➕<br>Deposit</div>
 </div>
 
 <script>
-function loadScript(file) {
-  // نحذف السكربت القديم
-  let old = document.getElementById("dynamic-script");
-  if (old) old.remove();
+function loadPage(page) {
+  const content = document.getElementById("content");
 
-  // ننشئ سكربت جديد
-  let script = document.createElement("script");
-  script.src = file;
-  script.id = "dynamic-script";
+  if (page === "traders") {
+    content.innerHTML = "<h2>Traders</h2><p>صفحة المتداولين</p>";
+  }
 
-  document.body.appendChild(script);
+  if (page === "assets") {
+    content.innerHTML = "<h2>Assets</h2><p>صفحة الأصول</p>";
+  }
+
+  if (page === "deposit") {
+    content.innerHTML = "<h2>Deposit</h2><p>صفحة الإيداع</p>";
+  }
 }
 </script>
+
+</body>
+</html>
