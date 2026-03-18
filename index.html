@@ -11,7 +11,7 @@
   <body>
   <!doctype html><html lang=ar dir=rtl><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>AIMBIT</title><style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:Segoe UI,Tahoma,Arial,sans-serif}
-body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bottom:var(--bnav-safe,70px)}
+body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .hdr{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:99}
 .hdr-icons{display:flex;gap:10px;align-items:center}
 .hdr-icon{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer}
@@ -99,7 +99,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 .pill{flex:1;background:#141526;border-radius:12px;padding:10px}
 .pl1{font-size:11px;color:#aaa}
 .pl2{margin-top:4px;font-size:14px;font-weight:900}
-.bnav{position:fixed;bottom:0;left:0;width:100%;background:#141526;display:flex;border-top:1px solid #1e2035;z-index:9990;padding:6px 0 10px}
+.bnav{position:fixed;bottom:0;left:0;width:100%;background:#141526;display:flex;border-top:1px solid #1e2035;z-index:9990;padding:6px 0 calc(10px + env(safe-area-inset-bottom,0px))}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
 .bnav-item svg{width:24px;height:24px;fill:none;stroke:#666;stroke-width:1.8}
 .bnav-item span{font-size:10px;color:#666}
@@ -111,7 +111,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #prof .ph{position:sticky;top:0;z-index:9;background:#0d0e1a;display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}
 #prof .phb,#prof .phs{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 #prof .phb svg,#prof .phs svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
-#prof .pwrap{padding:6px 16px 92px}
+#prof .pwrap{padding:6px 16px calc(92px + env(safe-area-inset-bottom,0px))}
 #prof .puser{display:flex;justify-content:flex-end;align-items:center;margin-top:2px}
 #prof .puser .uico{width:72px;height:72px;border-radius:50%;background:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJyKEGd9CI___Zhk2oWxXkP3xHlB-jSfThuE0n6bSgng&s=10) center/cover no-repeat;border:2px solid #1e1f2e}
 #prof .puid{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px;color:#fff}
@@ -127,7 +127,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #prof .ic{width:44px;height:44px;display:flex;align-items:center;justify-content:center}
 #prof .ic svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;opacity:.85}
 #prof .lb{font-size:14px;color:#fff}
-#prof .lo{position:fixed;left:14px;right:14px;bottom:76px;background:#1e1f2e;color:#fff;border:0;width:auto;padding:14px 0;font-size:18px;font-weight:700;cursor:pointer;border-radius:12px}
+#prof .lo{position:fixed;left:14px;right:14px;bottom:calc(76px + env(safe-area-inset-bottom,0px));background:#1e1f2e;color:#fff;border:0;width:auto;padding:14px 0;font-size:18px;font-weight:700;cursor:pointer;border-radius:12px}
 #pop-ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(4px)}
 #pop-box{width:100%;max-width:420px;background:linear-gradient(160deg,#0f1128 0%,#161830 50%,#0d0e1a 100%);border:1px solid rgba(245,166,35,.25);border-radius:20px;overflow:hidden;box-shadow:0 0 60px rgba(245,166,35,.12),0 24px 60px rgba(0,0,0,.7);animation:popIn .35s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
@@ -165,7 +165,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 #pop-skip{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:14px;padding:13px 0;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 #pop-ok{flex:1.4;background:linear-gradient(90deg,#f5a623,#ffb93e);border:0;color:#0d0e1a;border-radius:14px;padding:13px 0;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 18px rgba(245,166,35,.35)}
 #pop-skip:active,#pop-ok:active{opacity:.8}
-#wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:var(--bnav-safe,70px)}
+#wd{position:fixed;inset:0;background:#0d0e1a;z-index:300;display:none;direction:rtl;overflow-y:auto;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .wh{display:flex;align-items:center;padding:12px 14px;gap:8px;background:#0d0e1a;position:sticky;top:0;z-index:9;border-bottom:1px solid #1e1f2e}
 .wh-bk{width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .wh-bk svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
@@ -199,7 +199,7 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 .wo-t small{font-size:11px;color:#aaa}
 .wo-ck{color:#f5a623;font-size:16px;opacity:0}
 .wo.act .wo-ck{opacity:1}
-.pg{min-height:100vh;padding-bottom:calc(var(--bnav-safe,70px) + 15px)}
+.pg{min-height:100vh;padding-bottom:calc(85px + env(safe-area-inset-bottom,0px));scroll-padding-bottom:calc(85px + env(safe-area-inset-bottom,0px))}
 /* LOADER */
 #ld{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(13,14,26,.86);backdrop-filter:blur(3px);z-index:10050}
 #ld.on{display:flex}
@@ -209,17 +209,6 @@ body{background:#0d0e1a;color:#fff;min-height:100vh;overflow-x:hidden;padding-bo
 @keyframes rot{to{transform:rotate(360deg)}}
 #ld b{display:block;color:#f5a623;font-weight:900;margin-top:2px;letter-spacing:.4px}
 #ld small{display:block;color:#c8cde8;margin-top:6px;line-height:1.6;font-size:12px}
-
-/* --- Fixed bottom bar safe scrolling (added) --- */
-:root{--bnav-h:70px;--bnav-safe:calc(var(--bnav-h) + env(safe-area-inset-bottom,0px))}
-/* Ensure last content not hidden behind fixed bottom nav */
-body{padding-bottom:var(--bnav-safe,70px)}
-.pg{padding-bottom:calc(var(--bnav-safe,70px) + 15px);scroll-padding-bottom:var(--bnav-safe,70px)}
-#prof .pwrap{padding-bottom:calc(var(--bnav-safe,70px) + 22px)}
-#pop-body{scroll-padding-bottom:var(--bnav-safe,70px)}
-/* Keep bnav above iPhone safe area */
-.bnav{padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
-
 </style><body>
 
 <div id=pop-ov><div id=pop-box><div id=pop-head><div class=ph-badge>🔔 إعلان</div><div class=ph-logo><svg width=22 height=22 viewBox="0 0 24 24" fill=none><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 17l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path><path d="M2 12l10 5 10-5" stroke="#f5a623" stroke-width=1.8 stroke-linejoin=round></path></svg><span>binexia</span></div></div><div id=pop-body><div class=pop-intro>🌐 مرحباً بك في منصة <strong style="color:#f5a623">binexia</strong> — منصة استثمار متكاملة تجمع بين التداول الذكي وإدارة الأموال الرقمية بأعلى معايير الأمان والشفافية.</div><div class=pop-sec-title>💰 مستويات الأرباح</div><div class=pop-plans><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+1000<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 6 أيام</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>500<span>$</span></div></div></div><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+600<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 10 أيام</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>300<span>$</span></div></div></div><div class=pop-plan><div class=pp-left><div class=pp-lbl>الربح + رأس المال</div><div class=pp-profit>+100<span>$</span></div></div><div class=pp-mid><div class=pp-arrow>←</div><div class=pp-days>⏳ 20 يوماً</div></div><div class=pp-right><div class=pp-dep>الإيداع</div><div class=pp-amt>100<span>$</span></div></div></div></div><div class=pop-note><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1=12 y1=9 x2=12 y2=13></line><line x1=12 y1=17 x2=12.01 y2=17></line></svg><p><strong>⚙️ ملاحظة هامة</strong>المنصة حالياً <strong style="display:inline;color:#fca5a5">قيد التطوير</strong> لذا لا يمكن إجراء عمليات تداول في الوقت الراهن. تابع آخر الأخبار والتحديثات عبر صفحاتنا الرسمية لمنصة <strong style="display:inline;color:#f5a623">binexia</strong> 🎉</p></div></div><div id=pop-foot><button id=pop-skip>لا تعرض مرة أخرى</button><button id=pop-ok>✓ تأكيد</button></div></div></div>
@@ -341,23 +330,6 @@ body{padding-bottom:var(--bnav-safe,70px)}
 <div id=ld><div class=bx><img class=lg src="https://i.ibb.co/qLdnCh4S/file-0000000003f07246bcfad573087229bb.png" alt=""><div class=sp></div><b>جاري التحميل…</b><small id=ldTxt>لحظة واحدة</small></div></div>
 
 <script>
-/* --- Fixed bottom bar safe scrolling (added) --- */
-(()=>{
-  const setVars=()=>{
-    const bnav=document.getElementById('bnav');
-    if(!bnav) return;
-    const h=Math.ceil(bnav.getBoundingClientRect().height||70);
-    document.documentElement.style.setProperty('--bnav-h', h+'px');
-    document.documentElement.style.setProperty('--bnav-safe', `calc(${h}px + env(safe-area-inset-bottom,0px))`);
-  };
-  window.addEventListener('resize', setVars, {passive:true});
-  window.addEventListener('load', setVars, {passive:true});
-  // run now + after layout
-  try{setVars();}catch(e){}
-  requestAnimationFrame(()=>{try{setVars();}catch(e){}});
-  setTimeout(()=>{try{setVars();}catch(e){}}, 150);
-})();
-
 (()=>{const pov=document.getElementById('pop-ov');if(localStorage.getItem('aimbit_pop_hide')==='1')pov.style.display='none';document.getElementById('pop-ok').onclick=()=>pov.style.display='none';document.getElementById('pop-skip').onclick=()=>{localStorage.setItem('aimbit_pop_hide','1');pov.style.display='none';};})();
 (()=>{const mkt=document.getElementById('mkt'),tabs=document.getElementById('tabs'),q=document.getElementById('q'),md=document.getElementById('md'),mdx=document.getElementById('mdx');let mode='tHot',D=[];const nf=x=>x==null?'—':(Math.abs(x)>=1?x.toLocaleString('en-US',{maximumFractionDigits:2}):x.toLocaleString('en-US',{maximumFractionDigits:6})),cf=x=>{x=+x||0;return(x>0?'+':'')+x.toFixed(2)+'%'},cls=x=>((+x||0)>=0?'up':'dn'),cbg=x=>((+x||0)>=0?'up-bg':'dn-bg');const BTC='https://s3.ap-southeast-1.amazonaws.com/tradingonline/BTC.png',ETH='https://s3.ap-southeast-1.amazonaws.com/tradingonline/ETH.png',LTC='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVpemCpwbfTqwJMo8JeZl-fkjENUaXuP80KWzVODIRzA&s=10',DOGE='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyhabizz9NSTZXUadK0u7Wbl4LihIyTxpsF4sQBEGgfA&s=10',SOL='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVAHG3GcftLVC5BkAyikLREaycVH_iMaVSCLFtERuoMw&s=10';const seed=()=>{D=[{id:'bitcoin',name:'Bitcoin',symbol:'BTC',rank:1,price:74724.94,chg:3.67,vol:3.2e10,ico:BTC},{id:'ethereum',name:'Ethereum',symbol:'ETH',rank:2,price:2364.94,chg:10.45,vol:1.8e10,ico:ETH},{id:'litecoin',name:'Litecoin',symbol:'LTC',rank:3,price:58.88,chg:5.65,vol:8.2e8,ico:LTC},{id:'dogecoin',name:'Dogecoin',symbol:'DOGE',rank:4,price:.10,chg:7.24,vol:1.7e9,ico:DOGE},{id:'solana',name:'Solana',symbol:'SOL',rank:5,price:96.70,chg:6.38,vol:6.2e9,ico:SOL}]};const sortData=()=>{let A=[...D];if(mode=='tGainers')A.sort((a,b)=>(b.chg||0)-(a.chg||0));else if(mode=='tLosers')A.sort((a,b)=>(a.chg||0)-(b.chg||0));else if(mode=='tVol')A.sort((a,b)=>(b.vol||0)-(a.vol||0));else A.sort((a,b)=>(a.rank||99)-(b.rank||99));const s=(q.value||'').trim().toLowerCase();if(s)A=A.filter(x=>(x.name||'').toLowerCase().includes(s)||(x.symbol||'').toLowerCase().includes(s));return A;};const render=()=>{const A=sortData();mkt.innerHTML=A.map(x=>`<div class=row data-id="${x.id}"><div class=r-badge><span class="chg-badge ${cbg(x.chg)}">${cf(x.chg)}</span></div><div class=r-price><div class=r-p>${nf(x.price)}</div><div class=r-ps>$${nf(x.price)} ≈</div></div><div class=r-name><div class=r-name-txt><div class=r-name-top>USDT/</div><div class=r-name-bot>${x.symbol}</div></div><img class=r-ico src="${x.ico}" onerror="this.style.opacity=.25" alt="${x.symbol}"></div></div>`).join('');};const updBTC=()=>{const b=D.find(x=>x.symbol=='BTC');if(!b)return;document.getElementById('btcP').textContent='$'+nf(b.price);const c=document.getElementById('btcC');c.textContent=cf(b.chg);c.className=cls(b.chg);};const openMD=x=>{document.getElementById('mdi').src=x.ico;document.getElementById('mdn').textContent=x.name;document.getElementById('mds').textContent='USDT/ '+x.symbol;document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);md.classList.add('on');};const closeMD=()=>md.classList.remove('on');window.closeMarketModal=closeMD;mdx.onclick=closeMD;md.onclick=e=>{if(e.target===md)closeMD();};mkt.onclick=e=>{const r=e.target.closest('.row');if(!r)return;const x=D.find(z=>z.id==r.dataset.id);if(x)openMD(x);};tabs.onclick=e=>{const t=e.target.closest('.tab');if(!t)return;mode=t.dataset.t;[...tabs.children].forEach(x=>x.classList.toggle('active',x===t));render();};q.oninput=render;document.getElementById('mdtbtn').onclick=()=>{closeMD();window.AppNav&&window.AppNav.go('trd');};const tick=()=>{for(const x of D){let k=(Math.random()-.5)*(x.price>1000?.002:x.price>10?.006:.012);x.price=Math.max(.000001,x.price*(1+k));x.chg=Math.max(-30,Math.min(30,(x.chg+(Math.random()-.5)*1.2)));x.vol=Math.max(1,x.vol*(1+(Math.random()-.5)*.02));}render();updBTC();if(md.classList.contains('on')){const n=document.getElementById('mdn').textContent,x=D.find(z=>z.name==n);if(x){document.getElementById('mdpp').textContent='$'+nf(x.price);const c=document.getElementById('mdch');c.textContent=cf(x.chg);c.className='pl2 '+cls(x.chg);document.getElementById('mdvl').textContent=nf(x.vol);}}};seed();render();updBTC();setInterval(tick,1200);})();
 (()=>{const prof=document.getElementById('prof'),ava=document.getElementById('ava'),back=document.getElementById('pback'),copy=document.getElementById('copyUid'),uid=document.getElementById('uidText'),logout=document.getElementById('logout');const show=on=>{prof.style.display=on?'block':'none';prof.setAttribute('aria-hidden',on?'false':'true');document.body.style.overflow=on?'hidden':'auto';window.scrollTo(0,0);};window.ProfUI={show};ava.onclick=()=>show(1);back.onclick=()=>show(0);copy.onclick=async()=>{const t=uid.textContent||'';try{await navigator.clipboard.writeText(t);}catch(e){prompt('انسخ UID:',t);}};logout.onclick=()=>alert('تسجيل الخروج');})();
