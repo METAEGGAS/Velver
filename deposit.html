@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Deposit — USDT TRC20</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g:#ffd700;--g2:#b8860b;--bg:#0a0e1a;--card:#12192e}
+html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,sans-serif;font-size:11px;color:#fff}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+.dtop{flex-shrink:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:linear-gradient(135deg,#0d1527 0%,#1a1000 50%,#0d1527 100%);border-bottom:2.5px solid var(--g)}
+.dtop .t{font-size:14px;font-weight:900;color:var(--g);letter-spacing:.2px}
+.dic{width:34px;height:34px;background:transparent;border:1.5px solid rgba(255,215,0,.4);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,215,0,.75);font-size:17px;transition:.2s}
+.dic:hover{background:rgba(255,215,0,.1);color:var(--g);border-color:var(--g)}
+.dScr{display:none;flex:1;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:68px}
+.dScr.on{display:flex}
+.dp{padding:12px 14px}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.damt{background:rgba(17,31,53,.65);border:1.5px solid rgba(255,215,0,.2);border-radius:11px;padding:12px;color:#fff;text-align:center;font-weight:1000;cursor:pointer;position:relative;transition:.15s;user-select:none}
+.damt:hover{border-color:rgba(255,215,0,.4)}
+.damt.on{background:rgba(255,215,0,.12);border-color:var(--g);color:var(--g)}
+.damt.on::after{content:"✓";position:absolute;left:9px;top:7px;font-size:11px;color:var(--g)}
+.dbar{margin-top:10px;display:flex;gap:8px;align-items:center}
+.din{background:rgba(17,31,53,.65);border:1.5px solid rgba(255,215,0,.3);border-radius:11px;padding:10px 12px;color:#fff;font-weight:900;outline:none;transition:.2s;flex:1;text-align:right;font-family:Arial,sans-serif;font-size:11px;width:100%}
+.din:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(255,215,0,.08)}
+.dhint{margin:12px 0 0;color:rgba(255,215,0,.6);font-size:11px;display:flex;align-items:center;gap:7px;font-weight:900}
+.dhint .q{width:15px;height:15px;border-radius:999px;border:1px solid rgba(255,215,0,.35);display:grid;place-items:center;font-size:10px;color:rgba(255,215,0,.6);flex-shrink:0}
+.dfoot{margin-top:auto;padding:15px 14px 18px;flex-shrink:0}
+.dref{text-align:center;margin:15px 0 8px;font-size:12px;font-weight:900}
+.dref a{color:var(--g);text-decoration:none;cursor:pointer}
+.dchk{display:flex;align-items:flex-start;gap:8px;color:rgba(255,215,0,.7);font-size:11px;line-height:1.5;margin:8px 0 12px;font-weight:900}
+.dchk input{margin-top:2px;accent-color:var(--g)}
+.dbtn{width:100%;height:44px;border:0;border-radius:11px;font-weight:1000;letter-spacing:.3px;cursor:pointer;transition:.18s;font-size:11px;font-family:Arial,sans-serif}
+.dbtn.g{background:linear-gradient(135deg,var(--g),var(--g2));color:#000;box-shadow:0 8px 16px rgba(255,215,0,.2)}
+.dbtn.b{background:linear-gradient(135deg,#5ea1ff,#2f7cff);color:#fff;box-shadow:0 8px 16px rgba(94,161,255,.18)}
+.dbtn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.dbtn:active{filter:brightness(.96);transform:translateY(0)}
+.dcard{margin:10px 10px 0;background:linear-gradient(180deg,#0d1527,#0a0e1a);border-radius:13px;padding:12px;box-shadow:0 8px 20px rgba(0,0,0,.3);border:1.5px solid rgba(255,215,0,.22)}
+.dttl{font-weight:1000;text-align:center;margin:2px 0 9px;letter-spacing:.3px;color:var(--g)}
+.dbig{font-size:40px;font-weight:1000;text-align:center;margin:0 0 10px;direction:ltr;color:var(--g)}
+.dkv{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-top:1px solid rgba(255,215,0,.13)}
+.dkv:first-of-type{border-top:0}
+.dkv .k{color:rgba(255,215,0,.6);font-size:11px;font-weight:900}
+.dkv .v{font-weight:1000;font-size:11px;white-space:nowrap;direction:ltr;color:#fff}
+.dnote{color:rgba(255,215,0,.6);font-size:11px;line-height:1.55;margin-top:9px;text-align:center;font-weight:900}
+.daddr{width:calc(100% - 28px);margin:3px 14px;background:rgba(17,31,53,.65);border:1.5px solid rgba(255,215,0,.4);border-radius:12px;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.daddr code{color:#fff;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;font-size:10px}
+.dcpy{border:0;background:transparent;color:rgba(255,215,0,.85);cursor:pointer;font-weight:1000;font-size:15px;flex-shrink:0}
+.dsm{color:rgba(255,215,0,.5);font-size:10px;line-height:1.6;margin:7px 14px 14px;font-weight:900;text-align:center}
+#dBonusBox{display:none;margin:8px 14px 0;padding:10px;border-radius:12px;border:1.5px solid rgba(255,215,0,.3);background:rgba(17,31,53,.55)}
+#dBonusBox.show{display:block}
+#dBonusBox .h{font-weight:1000;margin-bottom:9px;color:var(--g);letter-spacing:.15px}
+#dBonusBox .r{display:flex;gap:8px;align-items:center}
+.dOk{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:#19d28f;font-weight:1000;font-size:11px}
+.dBad{display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:#ff4d5a;font-weight:1000;font-size:11px}
+@keyframes depSpin{to{transform:rotate(360deg)}}
+@keyframes depPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,.55)}70%{box-shadow:0 0 0 10px rgba(255,215,0,0)}}
+@keyframes depFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes depGlow{0%,100%{opacity:.7}50%{opacity:1}}
+.dRing{position:absolute;inset:-4px;border-radius:50%;border:2.5px solid rgba(255,215,0,.12);border-top-color:var(--g);animation:depSpin .85s linear infinite}
+.dRing2{position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(255,215,0,.06);border-bottom-color:rgba(255,215,0,.35);animation:depSpin 1.6s linear infinite reverse}
+.dDot{width:9px;height:9px;background:var(--g);border-radius:50%;flex-shrink:0;animation:depPulse 1.6s ease infinite;box-shadow:0 0 7px rgba(255,215,0,.6)}
+.dWaitBadge{display:flex;align-items:center;gap:9px;background:rgba(255,215,0,.07);border:1.5px solid rgba(255,215,0,.3);border-radius:12px;padding:10px 18px;animation:depFloat 3s ease infinite}
+.dNetBadge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:7px;padding:4px 10px;font-size:10px;font-weight:900;color:rgba(255,215,0,.85);animation:depGlow 2.5s ease infinite}
+.dQR{width:170px;height:170px;background:#fff;border-radius:11px;padding:7px;border:1.5px solid rgba(255,215,0,.4);box-shadow:0 0 18px rgba(255,215,0,.13)}
+/* ── Bottom Nav ── */
+#bnav{position:fixed;bottom:0;left:0;right:0;height:56px;background:linear-gradient(180deg,#0d1527,#080c18);border-top:1.5px solid rgba(255,215,0,.18);display:flex;align-items:center;justify-content:space-around;z-index:9999}
+#bnav .bn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:rgba(255,215,0,.45);font-size:9px;font-weight:900;padding:6px 14px;border-radius:10px;transition:.18s;-webkit-tap-highlight-color:transparent}
+#bnav .bn .bi{font-size:20px;line-height:1}
+#bnav .bn.act{color:var(--g)}
+#bnav .bn:hover{color:var(--g);background:rgba(255,215,0,.07)}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- TOP BAR -->
+  <div class="dtop">
+    <button class="dic" id="dBack">←</button>
+    <div class="t">Deposit — USDT TRC20</div>
+    <button class="dic" id="dClose">×</button>
+  </div>
+
+  <!-- SCREEN 1: Amount Picker -->
+  <section class="dScr on" id="dS1">
+    <div class="dp">
+      <div class="dgrid" id="dAmtGrid"></div>
+      <div class="dbar">
+        <input class="din" id="dAmtIn" inputmode="numeric" placeholder="Custom amount">
+      </div>
+      <div class="dhint"><span class="q">?</span><span>USD only (fixed currency)</span></div>
+    </div>
+    <div id="dBonusBox">
+      <div class="h">🎁 Promo code</div>
+      <div class="r">
+        <input class="din" id="dBonusIn" placeholder="Enter promo code" style="text-align:right">
+        <button class="dbtn b" id="dBonusApply" style="height:40px;width:130px;flex-shrink:0">Apply</button>
+      </div>
+      <div id="dBonusState"></div>
+    </div>
+    <div class="dfoot">
+      <div class="dref"><a href="#" id="dBonusToggle">🎟 Do you have a promo code?</a></div>
+      <label class="dchk"><input type="checkbox" id="dAgree" checked> I agree to the Terms &amp; Conditions and Refund Policy</label>
+      <button class="dbtn g" id="dPayBtn">Pay</button>
+      <div style="height:8px"></div>
+      <div style="text-align:center;font-size:10px;opacity:.7;color:rgba(255,215,0,.6);font-weight:900">🔒 PCI DSS &nbsp;•&nbsp; Mastercard ID Check &nbsp;•&nbsp; VISA</div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: Confirmation -->
+  <section class="dScr" id="dS2">
+    <div class="dcard">
+      <div class="dttl">Payment confirmation</div>
+      <div style="text-align:center;font-size:12px;margin-top:2px;color:rgba(255,215,0,.6);font-weight:900">Amount</div>
+      <div class="dbig" id="dConfBal"></div>
+      <div class="dkv"><div class="k">Payment method</div><div class="v">USDT TRC20</div></div>
+      <div class="dkv"><div class="k">Network</div><div class="v">TRON (TRC20)</div></div>
+      <div class="dkv"><div class="k">Currency</div><div class="v">USD</div></div>
+      <div class="dnote">Please review the details carefully before sending.</div>
+    </div>
+    <div class="dfoot"><button class="dbtn b" id="dPayNow">✅ Confirm &amp; Pay now</button></div>
+  </section>
+
+  <!-- SCREEN 3: Waiting / QR -->
+  <section class="dScr" id="dS3">
+    <div style="display:flex;flex-direction:column;align-items:center;padding:18px 14px 8px;gap:12px">
+      <div style="position:relative;width:68px;height:68px;display:flex;align-items:center;justify-content:center">
+        <div class="dRing2"></div>
+        <div class="dRing"></div>
+        <img src="https://static.expertoption.finance/crypto-icons/color/usdt_trc20.svg" style="width:34px;height:34px;border-radius:50%;position:relative;z-index:1;box-shadow:0 0 14px rgba(255,215,0,.3)" alt="USDT" onerror="this.src=''">
+      </div>
+      <div class="dWaitBadge">
+        <div class="dDot"></div>
+        <span style="font-weight:900;font-size:12.5px;color:var(--g)">Waiting for payment…</span>
+      </div>
+      <div style="font-size:10px;color:rgba(255,215,0,.55);font-weight:900;display:flex;align-items:center;gap:5px">
+        <span>⏱</span>
+        <span id="dWaitTime" style="font-family:monospace;font-size:12px;color:var(--g);font-weight:900">00:00</span>
+        <span>since you opened this screen</span>
+      </div>
+      <div class="dNetBadge">🔗 TRON Network · TRC20 <span style="opacity:.6">|</span> <span style="color:#19d28f">Active</span></div>
+    </div>
+    <div class="dcard" style="margin:0 10px">
+      <div class="dkv" style="border-top:0"><div class="k">Base amount</div><div class="v" id="dBaseLine"></div></div>
+      <div class="dkv"><div class="k">Bonus</div><div class="v" id="dBonusLine"></div></div>
+      <div class="dkv"><div class="k">Total to send</div><div class="v" id="dTotalLine" style="color:var(--g);font-size:13px"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;padding:12px 14px 5px;gap:7px">
+      <div style="font-size:11px;color:rgba(255,215,0,.7);font-weight:900">Scan to deposit <b id="dS3amt" style="color:var(--g)"></b></div>
+      <div class="dQR"><img id="dQRimg" style="width:100%;height:100%;display:block" alt="QR"></div>
+    </div>
+    <div style="margin:3px 14px;font-size:11px;text-align:center;color:rgba(255,215,0,.65);font-weight:900">Send exactly <b style="color:var(--g)">USDT (TRC20)</b> to this address:</div>
+    <div class="daddr">
+      <button class="dcpy" id="dCpy">⎘</button>
+      <code id="dAddrTxt"></code>
+    </div>
+    <div class="dsm">✅ Payment confirmed automatically after network confirmation.<br>⏳ Typically takes 1–10 minutes.</div>
+  </section>
+</div>
+
+<!-- BOTTOM NAV (position:fixed) -->
+<nav id="bnav">
+  <div class="bn" onclick="bNav(0)"><div class="bi">🏠</div><span>Home</span></div>
+  <div class="bn" onclick="bNav(1)"><div class="bi">📊</div><span>Trade</span></div>
+  <div class="bn act" onclick="bNav(2)"><div class="bi">💳</div><span>Deposit</span></div>
+  <div class="bn" onclick="bNav(3)"><div class="bi">👤</div><span>Profile</span></div>
+</nav>
+
+<script>
+(function(){
+'use strict';
+const ADDR='TJuW6QiLBZBgNgPZ4W2sUkqHa3i7gfvVch';
+const PROMO='70ZARCH';
+const BRATE=0.70;
+const AMTS=[500,900,1300,2200,4300,10550,42350,105800];
+
+let scr=0,nav=[0],amt=4300,bonOn=false,bonIn='',bonSt='',bonOpen=false,agreed=true,secs=0,tmr=null;
+
+const fmt=n=>'$'+String(Math.max(0,Math.floor(n||0))).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+const pad=n=>String(n).padStart(2,'0');
+const base=()=>Math.max(0,Math.floor(amt||0));
+const bon=()=>bonOn?Math.floor(base()*BRATE):0;
+const total=()=>base()+bon();
+
+/* Init grid */
+const grid=document.getElementById('dAmtGrid');
+AMTS.forEach(v=>{
+  const d=document.createElement('div');
+  d.className='damt'+(v===amt?' on':'');
+  d.dataset.v=v;
+  d.textContent=fmt(v);
+  grid.appendChild(d);
+});
+document.getElementById('dAmtIn').value=amt;
+document.getElementById('dAddrTxt').textContent=ADDR;
+
+function syncUI(){
+  const b=base(),bn=bon(),tt=total();
+  document.getElementById('dPayBtn').textContent='Pay '+fmt(b);
+  document.getElementById('dConfBal').textContent=fmt(b);
+  document.getElementById('dBaseLine').textContent=fmt(b);
+  document.getElementById('dBonusLine').textContent=bonOn?'+'+fmt(bn)+' ('+Math.round(BRATE*100)+'%)':'—';
+  const tl=document.getElementById('dTotalLine');
+  tl.textContent=fmt(tt);
+  document.getElementById('dS3amt').textContent=fmt(tt);
+  document.getElementById('dQRimg').src='https://api.qrserver.com/v1/create-qr-code/?size=190x190&data='+encodeURIComponent(JSON.stringify({network:'USDT_TRC20',address:ADDR,currency:'USD',base:b,bonus:bn,total:tt}));
+}
+syncUI();
+
+function goTo(k){
+  scr=k;
+  if(nav[nav.length-1]!==k)nav.push(k);
+  if(k===2)startTmr();else stopTmr();
+  render();syncUI();
+}
+function goBack(){
+  if(nav.length<2){return}
+  nav.pop();scr=nav[nav.length-1];
+  if(scr===2)startTmr();else stopTmr();
+  render();syncUI();
+}
+function render(){
+  ['dS1','dS2','dS3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',scr===i));
+  document.getElementById('dBack').style.opacity=nav.length>1?'1':'0.45';
+}
+
+function startTmr(){
+  stopTmr();secs=0;
+  tmr=setInterval(()=>{secs++;const el=document.getElementById('dWaitTime');if(el)el.textContent=pad(Math.floor(secs/60))+':'+pad(secs%60);},1000);
+}
+function stopTmr(){if(tmr){clearInterval(tmr);tmr=null;}}
+
+/* Events */
+document.getElementById('dBack').onclick=goBack;
+document.getElementById('dClose').onclick=()=>{stopTmr();window.history.back&&window.history.length>1?window.history.back():document.title='Closed';};
+grid.addEventListener('click',e=>{
+  const el=e.target.closest('.damt');if(!el)return;
+  amt=parseInt(el.dataset.v,10);
+  grid.querySelectorAll('.damt').forEach(a=>a.classList.toggle('on',parseInt(a.dataset.v,10)===amt));
+  syncUI();
+});
+document.getElementById('dAmtIn').oninput=e=>{
+  amt=parseInt(e.target.value.replace(/\D/g,''),10)||0;
+  grid.querySelectorAll('.damt').forEach(a=>a.classList.remove('on'));
+  syncUI();
+};
+document.getElementById('dBonusToggle').onclick=e=>{
+  e.preventDefault();bonOpen=!bonOpen;
+  document.getElementById('dBonusBox').classList.toggle('show',bonOpen);
+};
+document.getElementById('dBonusIn').oninput=e=>{bonIn=e.target.value;};
+document.getElementById('dBonusApply').onclick=()=>{
+  const c=bonIn.trim();
+  if(!c){bonSt='bad_empty';bonOn=false;}
+  else if(c===PROMO){bonSt='ok';bonOn=true;}
+  else{bonSt='bad';bonOn=false;}
+  const m={ok:'<div class="dOk">✔ Bonus activated: '+Math.round(BRATE*100)+'%</div>',bad:'<div class="dBad">✖ Invalid code</div>',bad_empty:'<div class="dBad">✖ Enter a promo code</div>'};
+  document.getElementById('dBonusState').innerHTML=m[bonSt]||'';
+  syncUI();
+};
+document.getElementById('dAgree').onchange=e=>{agreed=e.target.checked;};
+document.getElementById('dPayBtn').onclick=()=>{
+  if(!agreed){alert('Please accept the terms first.');return;}
+  goTo(1);
+};
+document.getElementById('dPayNow').onclick=()=>goTo(2);
+document.getElementById('dCpy').onclick=async()=>{
+  const btn=document.getElementById('dCpy');
+  try{await navigator.clipboard.writeText(ADDR);btn.textContent='✓';setTimeout(()=>btn.textContent='⎘',900);}
+  catch{window.prompt('Copy address:',ADDR);}
+};
+})();
+
+function bNav(i){
+  const ns=document.querySelectorAll('#bnav .bn');
+  ns.forEach((n,j)=>n.classList.toggle('act',j===i));
+}
+</script>
+</body>
+</html>
