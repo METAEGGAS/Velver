@@ -15,8 +15,8 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
 .dic{width:34px;height:34px;background:transparent;border:1.5px solid rgba(255,215,0,.4);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,215,0,.75);font-size:17px;transition:.2s}
 .dic:hover{background:rgba(255,215,0,.1);color:var(--g);border-color:var(--g)}
 
-/* ─── padding-bottom:68px لتفادي تغطية الـ bnav الثابت ─── */
-.dScr{display:none;flex:1;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:68px}
+/* ✅ padding-bottom يترك مساحة للـ bnav مع safe-area */
+.dScr{display:none;flex:1;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .dScr.on{display:flex}
 
 .dp{padding:12px 14px}
@@ -68,6 +68,14 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
 .dWaitBadge{display:flex;align-items:center;gap:9px;background:rgba(255,215,0,.07);border:1.5px solid rgba(255,215,0,.3);border-radius:12px;padding:10px 18px;animation:depFloat 3s ease infinite}
 .dNetBadge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.25);border-radius:7px;padding:4px 10px;font-size:10px;font-weight:900;color:rgba(255,215,0,.85);animation:depGlow 2.5s ease infinite}
 .dQR{width:170px;height:170px;background:#fff;border-radius:11px;padding:7px;border:1.5px solid rgba(255,215,0,.4);box-shadow:0 0 18px rgba(255,215,0,.13)}
+
+/* ✅ Bottom Navigation — مطابق لصفحة السحب والرئيسية */
+.bnav{position:fixed;bottom:0;left:0;width:100%;background:#141526;display:flex;border-top:1px solid #1e2035;z-index:9999;padding:6px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0}
+.bnav-item img{width:24px;height:24px;opacity:.55;filter:grayscale(1) brightness(.9)}
+.bnav-item span{font-size:10px;color:#666}
+.bnav-item.active img{opacity:1;filter:none}
+.bnav-item.active span{color:#f5a623}
 </style>
 </head>
 <body>
@@ -75,8 +83,10 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
 <div id="depModal" class="dep-hidden">
 
   <div class="dtop">
+    <!-- ✅ السهم: يرجع للشاشة السابقة أو لـ index.html إذا كان في الشاشة الأولى -->
     <button class="dic" id="dBack">←</button>
     <div class="t">Deposit — USDT TRC20</div>
+    <!-- ✅ إغلاق: يرجع دائماً لـ index.html -->
     <button class="dic" id="dClose">×</button>
   </div>
 
@@ -147,6 +157,30 @@ html,body{height:100dvh;overflow:hidden;background:var(--bg);font-family:Arial,s
     <div class="dsm">✅ Payment confirmed automatically after network confirmation.<br>⏳ Typically takes 1–10 minutes.</div>
   </section>
 
+  <!-- ✅ Bottom Navigation داخل الـ modal ليظهر فوق المحتوى -->
+  <nav class="bnav" id="bnav">
+    <div class="bnav-item" data-nav="home">
+      <img src="https://www.maltexma.com/static/images/binance-theme/home.png" alt="">
+      <span>الرئيسية</span>
+    </div>
+    <div class="bnav-item" data-nav="markets">
+      <img src="https://www.maltexma.com/static/images/binance-theme/price.png" alt="">
+      <span>الأسواق</span>
+    </div>
+    <div class="bnav-item active" data-nav="trade">
+      <img src="https://www.maltexma.com/static/images/binance-theme/price.png" alt="">
+      <span>التداول</span>
+    </div>
+    <div class="bnav-item" data-nav="fav">
+      <img src="https://www.maltexma.com/static/images/binance-theme/option.png" alt="">
+      <span>التسمية</span>
+    </div>
+    <div class="bnav-item" data-nav="ast">
+      <img src="https://www.maltexma.com/static/images/binance-theme/assets.png" alt="">
+      <span>الرصيد</span>
+    </div>
+  </nav>
+
 </div>
 
 <script>
@@ -186,14 +220,20 @@ sync();
 
 function render(){
   ['dS1','dS2','dS3'].forEach((id,i)=>document.getElementById(id).classList.toggle('on',scr===i));
-  document.getElementById('dBack').style.opacity=nh.length>1?'1':'0.45';
+  /* ✅ السهم يظهر بوضوح دائماً لأنه يرجع لـ index.html في الشاشة الأولى */
+  document.getElementById('dBack').style.opacity='1';
 }
 function goTo(k){
   scr=k;if(nh[nh.length-1]!==k)nh.push(k);
   k===2?startT():stopT();render();sync();
 }
 function goBack(){
-  if(nh.length<2)return;
+  /* ✅ إذا كنا في الشاشة الأولى أو لا يوجد تاريخ → اذهب للرئيسية */
+  if(nh.length<=1||scr===0){
+    stopT();
+    location.href='index.html';
+    return;
+  }
   nh.pop();scr=nh[nh.length-1];
   scr===2?startT():stopT();render();sync();
 }
@@ -207,9 +247,12 @@ function stopT(){if(tmr){clearInterval(tmr);tmr=null;}}
 const modal=document.getElementById('depModal');
 requestAnimationFrame(()=>requestAnimationFrame(()=>modal.classList.remove('dep-hidden')));
 
-/* events */
+/* ✅ زر السهم ← */
 document.getElementById('dBack').onclick=goBack;
-document.getElementById('dClose').onclick=()=>{stopT();modal.classList.add('dep-hidden');};
+
+/* ✅ زر الإغلاق × → دائماً للرئيسية */
+document.getElementById('dClose').onclick=()=>{stopT();location.href='index.html';};
+
 grid.addEventListener('click',e=>{
   const el=e.target.closest('.damt');if(!el)return;
   amt=parseInt(el.dataset.v,10);
@@ -246,6 +289,15 @@ document.getElementById('dCpy').onclick=async()=>{
   try{await navigator.clipboard.writeText(ADDR);btn.textContent='✓';setTimeout(()=>btn.textContent='⎘',900);}
   catch{window.prompt('Copy address:',ADDR);}
 };
+
+/* ✅ Bottom Nav Navigation */
+const MAP={home:'index.html',markets:'markets.html',trade:'traders.html',fav:'friends.html',ast:'assets.html'};
+document.getElementById('bnav').addEventListener('click',e=>{
+  const it=e.target.closest('.bnav-item');
+  if(!it)return;
+  stopT();
+  location.href=MAP[it.dataset.nav]||'index.html';
+});
 })();
 </script>
 </body>
