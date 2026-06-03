@@ -1,4 +1,3 @@
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
 import { getAnalytics, isSupported as analyticsSupported } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
@@ -24,11 +23,28 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUid = null;
-let authBooted = false;
+let authReady = false;
 let pendingLang = localStorage.getItem("langShort") || null;
+
+async function ensureAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  try {
+    await signInAnonymously(auth);
+    return auth.currentUser;
+  } catch (e) {
+    console.warn("Anonymous auth failed:", e);
+    return null;
+  }
+}
 
 async function saveLangToFirebase(shortLang) {
   pendingLang = shortLang;
+
+  if (!currentUid) {
+    const user = await ensureAuth();
+    currentUid = user?.uid || null;
+  }
+
   if (!currentUid) return false;
 
   try {
@@ -51,15 +67,11 @@ async function saveLangToFirebase(shortLang) {
 onAuthStateChanged(auth, async (user) => {
   currentUid = user?.uid || null;
 
-  if (!authBooted) {
-    authBooted = true;
+  if (!authReady) {
+    authReady = true;
     if (!currentUid) {
-      try {
-        await signInAnonymously(auth);
-        return;
-      } catch (e) {
-        console.warn("Anonymous auth is not enabled or failed:", e);
-      }
+      await ensureAuth();
+      return;
     }
   }
 
@@ -69,140 +81,166 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 (() => {
-  let d = window.DynamicInjectTarget || document.body;
+  const host = window.DynamicInjectTarget || document.body;
 
-  const safeClose = () => {
+  const old = document.getElementById("lgpg");
+  if (old) old.remove();
+
+  const wrap = document.createElement("div");
+  wrap.id = "lgpg_mount";
+  wrap.innerHTML = `
+    <style id="lgpg_style">
+      #lgpg{position:fixed;inset:0;z-index:9999;background:#000;color:#fff;overflow:auto;direction:ltr}
+      #lgpg *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif}
+      #lgpg .lwrap{direction:ltr;background:#000;color:#fff;min-height:100vh;padding:0 0 calc(20px + env(safe-area-inset-bottom))}
+      #lgpg .ltop{position:sticky;top:0;height:54px;display:flex;align-items:center;justify-content:center;background:#000;z-index:5}
+      #lgpg .lback{position:absolute;left:8px;top:7px;width:40px;height:40px;border:0;background:transparent;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+      #lgpg .lback svg{width:22px;height:22px;display:block}
+      #lgpg .ltop h2{font-size:20px;font-weight:500;margin:0}
+      #lgpg .llist{background:#000}
+      #lgpg .langOpt{height:74px;padding:0 16px;text-decoration:none;color:#fff;background:#000;border-bottom:1px solid rgba(255,255,255,.11);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+      #lgpg .langrow{display:flex;align-items:center;gap:14px}
+      #lgpg .fi{width:30px;height:22px;object-fit:cover;display:block;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.06)}
+      #lgpg .txt{font-size:16px}
+      #lgpg .arr{opacity:0;color:#1e88ff;font-size:20px;font-weight:900}
+      #lgpg .langOpt.on .arr{opacity:1}
+    </style>
+
+    <section id="lgpg">
+      <div class="lwrap">
+        <div class="ltop">
+          <button class="lback" id="lgback" type="button" aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <h2>Language</h2>
+        </div>
+
+        <div class="llist">
+          <a class="langOpt" data-lang="zh-HK" data-name="繁体中文">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/hk.png" alt=""><span class="txt">繁体中文</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="zh-CN" data-name="简体中文">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/cn.png" alt=""><span class="txt">简体中文</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="en" data-name="English">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/us.png" alt=""><span class="txt">English</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="pl" data-name="Polski">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/pl.png" alt=""><span class="txt">Polski</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="ko" data-name="한국인">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/kr.png" alt=""><span class="txt">한국인</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="de" data-name="Deutsch">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/de.png" alt=""><span class="txt">Deutsch</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="fr" data-name="Français">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/fr.png" alt=""><span class="txt">Français</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="ja" data-name="日本語">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/jp.png" alt=""><span class="txt">日本語</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="th" data-name="ไทย">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/th.png" alt=""><span class="txt">ไทย</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="es" data-name="español">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/es.png" alt=""><span class="txt">español</span></span>
+            <span class="arr">✓</span>
+          </a>
+
+          <a class="langOpt" data-lang="ar" data-name="عرب">
+            <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/ae.png" alt=""><span class="txt">عرب</span></span>
+            <span class="arr">✓</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  `;
+
+  host.appendChild(wrap);
+
+  const root = wrap.querySelector("#lgpg");
+  const q = (s) => wrap.querySelector(s);
+  const qa = (s) => wrap.querySelectorAll(s);
+
+  function closePage() {
     try {
-      if (typeof closeDyn === "function") closeDyn();
-      else document.getElementById("lgpg")?.remove();
-    } catch (e) {
-      document.getElementById("lgpg")?.remove();
-    }
-  };
+      if (typeof closeDyn === "function") {
+        closeDyn();
+      }
+    } catch (e) {}
+    if (wrap && wrap.parentNode) wrap.parentNode.removeChild(wrap);
+  }
 
-  d.innerHTML = `
-  <style>
-    #lgpg{position:fixed;inset:0;z-index:9999;background:#000;color:#fff;overflow:auto;direction:ltr}
-    #lgpg *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif}
-    #lgpg .lwrap{direction:ltr;background:#000;color:#fff;min-height:100vh;padding:0 0 calc(20px + env(safe-area-inset-bottom))}
-    #lgpg .ltop{position:sticky;top:0;height:54px;display:flex;align-items:center;justify-content:center;background:#000;z-index:5}
-    #lgpg .lback{position:absolute;left:8px;top:7px;width:40px;height:40px;border:0;background:transparent;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-    #lgpg .lback svg{width:22px;height:22px;display:block}
-    #lgpg .ltop h2{font-size:20px;font-weight:500;margin:0}
-    #lgpg .llist{background:#000}
-    #lgpg .langOpt{height:74px;padding:0 16px;text-decoration:none;color:#fff;background:#000;border-bottom:1px solid rgba(255,255,255,.11);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
-    #lgpg .langrow{display:flex;align-items:center;gap:14px}
-    #lgpg .fi{width:30px;height:22px;object-fit:cover;display:block;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.06)}
-    #lgpg .txt{font-size:16px}
-    #lgpg .arr{opacity:0;color:#1e88ff;font-size:20px;font-weight:900}
-    #lgpg .langOpt.on .arr{opacity:1}
-  </style>
-
-  <section id="lgpg">
-    <div class="lwrap">
-      <div class="ltop">
-        <button class="lback" id="lgback" type="button" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M15 6L9 12L15 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </button>
-        <h2>Language</h2>
-      </div>
-
-      <div class="llist">
-        <a class="langOpt" data-lang="zh-HK" data-name="繁体中文">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/hk.png" alt=""><span class="txt">繁体中文</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="zh-CN" data-name="简体中文">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/cn.png" alt=""><span class="txt">简体中文</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="en" data-name="English">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/us.png" alt=""><span class="txt">English</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="pl" data-name="Polski">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/pl.png" alt=""><span class="txt">Polski</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="ko" data-name="한국인">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/kr.png" alt=""><span class="txt">한국인</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="de" data-name="Deutsch">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/de.png" alt=""><span class="txt">Deutsch</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="fr" data-name="Français">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/fr.png" alt=""><span class="txt">Français</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="ja" data-name="日本語">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/jp.png" alt=""><span class="txt">日本語</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="th" data-name="ไทย">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/th.png" alt=""><span class="txt">ไทย</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="es" data-name="español">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/es.png" alt=""><span class="txt">español</span></span>
-          <span class="arr">✓</span>
-        </a>
-
-        <a class="langOpt" data-lang="ar" data-name="عرب">
-          <span class="langrow"><img class="fi" src="https://flagcdn.com/w40/ae.png" alt=""><span class="txt">عرب</span></span>
-          <span class="arr">✓</span>
-        </a>
-      </div>
-    </div>
-  </section>`;
-
-  let q = (s) => d.querySelector(s),
-      qa = (s) => d.querySelectorAll(s);
-
-  const getStoredFullLang = () => {
-    let c = localStorage.getItem("langCode") || "";
-    if (!c) {
+  function getStoredFullLang() {
+    let full = localStorage.getItem("langCode") || "";
+    if (!full) {
       let short = (localStorage.getItem("langShort") || "en").toLowerCase();
-      c = short === "zh" ? "zh-CN" : short;
+      full = short === "zh" ? "zh-CN" : short;
     }
-    if (c === "zh") c = "zh-CN";
-    return c;
-  };
+    if (full === "zh") full = "zh-CN";
+    return full;
+  }
 
-  const mark = () => {
-    let c = getStoredFullLang();
-    qa(".langOpt").forEach(x => x.classList.toggle("on", x.dataset.lang === c));
-  };
+  function mark() {
+    const current = getStoredFullLang();
+    qa(".langOpt").forEach((x) => {
+      x.classList.toggle("on", x.dataset.lang === current);
+    });
+  }
 
-  q("#lgback").onclick = safeClose;
+  q("#lgback").addEventListener("click", () => {
+    closePage();
+  });
 
-  qa(".langOpt").forEach((b) => {
-    b.onclick = () => {
-      const fullLang = b.dataset.lang || "en";
+  qa(".langOpt").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+
+      const fullLang = btn.dataset.lang || "en";
       const shortLang = fullLang.slice(0, 2).toLowerCase();
+      const langName = btn.dataset.name || shortLang;
 
       localStorage.setItem("langCode", fullLang);
       localStorage.setItem("langShort", shortLang);
-      localStorage.setItem("langName", b.dataset.name || shortLang);
+      localStorage.setItem("langName", langName);
+
+      if (document.documentElement) {
+        document.documentElement.lang = shortLang;
+        document.documentElement.dir = shortLang === "ar" ? "rtl" : "ltr";
+      }
 
       mark();
-      saveLangToFirebase(shortLang);
-      safeClose();
-    };
+      await saveLangToFirebase(shortLang);
+      closePage();
+    });
   });
 
   mark();
+
+  const firstShort = (localStorage.getItem("langShort") || "").toLowerCase();
+  if (firstShort && document.documentElement) {
+    document.documentElement.lang = firstShort;
+    document.documentElement.dir = firstShort === "ar" ? "rtl" : "ltr";
+  }
 })();
-</script>
