@@ -1,219 +1,148 @@
-(()=>{const A=window.App||{},W=window,D=document,C=["United States","United Kingdom","Canada","Australia","Germany","France","Italy","Spain","Netherlands","Brazil","Mexico","Argentina","Japan","South Korea","China","India","Saudi Arabia","United Arab Emirates","Turkey","Egypt"],L={ar:{safe:"الأمان",pwd:"تغيير كلمة المرور",app:"تنزيل التطبيق",ref:"برنامج الإحالة",rec:"سجل الاستهلاك",pc:"التوثيق الأساسي",ac:"التوثيق المتقدم",gen:"عام",logout:"تسجيل الخروج",pwdTitle:"تغيير كلمة مرور الدخول",old:"كلمة المرور القديمة",new:"كلمة المرور الجديدة",confirmNew:"تأكيد كلمة المرور الجديدة",hint:"أدخل 6 إلى 12 حرفًا أو رقمًا",warn:"لحماية أموالك وأمان التداول، سيتم تقييد عمليات السحب لمدة 24 ساعة بعد تغيير كلمة المرور",confirm:"تأكيد",recTitle:"سجل الاستهلاك",all:"الكل",fiat:"معاملات العملات",contract:"معاملات العقود",spot:"التداول الفوري",noRec:"لا توجد سجلات",kycTitle:"توثيق الهوية",nat:"الجنسية",name:"الاسم القانوني الكامل",namePh:"يرجى إدخال اسمك الحقيقي",doc:"رقم الهوية/جواز السفر",docPh:"يرجى إدخال رقم الهوية أو جواز السفر",upload:"رفع صور الهوية/الجواز",cap1:"الوجه الأمامي للهوية",cap2:"الوجه الخلفي للهوية",cap3:"صورة شخصية مع الهوية",shot:"مثال التصوير",apply:"تقديم طلب التوثيق",loading:"جاري التحميل...",vip:"VIP0",unauth:"غير موثق",pending:"قيد المعالجة",approved:"موثق",notEligible:"غير متاح الفتح",fill:"يرجى تعبئة جميع الحقول",passRule:"كلمة المرور يجب أن تكون 6-12 أحرف أو أرقام",passMatch:"كلمتا المرور غير متطابقتين",wrongOld:"كلمة المرور القديمة غير صحيحة",passDone:"تم تغيير كلمة المرور بنجاح",need3:"يرجى رفع الصور الثلاث كاملة",kycDone:"تم إرسال طلب التوثيق",kycPending:"طلبك قيد المعالجة",kycApproved:"حسابك موثق"},en:{safe:"Safe",pwd:"Change Password",app:"Download App",ref:"Referral Program",rec:"Consume Record",pc:"Primary Certification",ac:"Advanced Certification",gen:"General",logout:"Logout",pwdTitle:"Change Login Password",old:"Old Password",new:"New Password",confirmNew:"Confirm New Password",hint:"Please enter 6-12 characters, including numbers or letters",warn:"To protect your funds and trading security, withdrawal related actions will be restricted for 24 hours after changing the password",confirm:"Confirm",recTitle:"Consume Record",all:"All",fiat:"Fiat Transaction",contract:"Contract Transaction",spot:"Spot Trading",noRec:"No record",kycTitle:"KYC Authentication",nat:"Nationality",name:"Full legal name",namePh:"Please enter your real name",doc:"Document/passport number",docPh:"Please enter your ID/passport number",upload:"ID photo/upload passport",cap1:"Front page of ID",cap2:"Back page of ID",cap3:"Hand-held of ID photo",shot:"Shooting example",apply:"Apply for certification",loading:"Loading...",vip:"VIP0",unauth:"Unauthenticated",pending:"Pending",approved:"Authenticated",notEligible:"Not available",fill:"Please fill in all fields",passRule:"Password must be 6-12 letters or numbers",passMatch:"Passwords do not match",wrongOld:"Old password is incorrect",passDone:"Password changed successfully",need3:"Please upload all 3 photos",kycDone:"Verification request submitted",kycPending:"Your request is under review",kycApproved:"Your account is verified"}},S=()=>W.__PF||(W.__PF={UF:{b1:null,b2:null,b3:null}}),lang=v=>/^ar/i.test((v||"").trim())?"ar":"en",T=()=>L[lang((S().UD||{}).lang||A.lang||"ar")]||L.ar,$=i=>D.getElementById(i),txt=(i,v)=>$(i)&&($(i).textContent=v),ph=(i,v)=>$(i)&&($(i).placeholder=v),uid=()=>Math.floor(1e7+9e7*Math.random())+"",toast=m=>{let x=$("tst");if(!x)return;x.textContent=m;x.classList.add("on");clearTimeout(S().tt);S().tt=setTimeout(()=>x.classList.remove("on"),2200)},eyeSvg=o=>o?`<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/></svg>`:`<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/><path d="M3 3l18 18"/></svg>`,H=`<style>
-#pf,#pf *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-#pf,#pf *{direction:rtl!important}
-#pf{margin:0;min-height:100vh;background:#000;color:#fff;font-family:Tahoma,Arial,sans-serif;overflow-x:hidden;padding:calc(env(safe-area-inset-top,0px) + 18px) 0 calc(env(safe-area-inset-bottom,0px) + 22px)}
-#pf button,#pf input,#pf select{font:inherit;border:0;outline:0;background:none;color:inherit;direction:inherit;text-align:right}
-#pf .app{width:100%;max-width:563px;min-height:calc(100vh - 40px);margin:0 auto;background:#000;overflow:hidden;position:relative;padding-top:8px}
-#pf .p{display:none;min-height:100%;padding-bottom:16px}
-#pf .p.on{display:block}
-#pf .top{padding:18px 20px 16px;border-bottom:1px solid #161616}
-#pf .bk{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;color:#bfc5ca;cursor:pointer;margin:0 0 16px}
-#pf .bk svg{width:24px;height:24px;stroke:#bfc5ca;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
-#pf .pr{display:flex;align-items:center;gap:15px}
-#pf .av{width:62px;height:62px;border-radius:50%;object-fit:cover;background:#111;flex:0 0 62px}
-#pf .nm{font-size:20px;font-weight:700;line-height:1.25;word-break:break-word}
-#pf .sb{margin-top:6px;font-size:14px;color:#90959c;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-#pf .vb{display:inline-flex;align-items:center;height:22px;padding:0 10px;background:#3d3208;border-radius:11px;color:#fff;font-weight:700;font-size:12px}
-#pf .sec{height:48px;display:flex;align-items:center;padding:0 20px;background:#232523;color:#8f949b;font-size:16px;margin-top:8px}
-#pf .rw{display:flex;align-items:center;gap:16px;min-height:68px;padding:0 20px;background:#000;color:#fff;width:100%;cursor:pointer}
-#pf .rw:active{background:#121212}
-#pf .ic{width:28px;height:28px;object-fit:contain;flex:0 0 28px;opacity:.96;display:flex;align-items:center;justify-content:center}
-#pf .tx{font-size:19px;font-weight:500;flex:1;text-align:right}
-#pf .ar{width:20px;height:20px;display:flex;align-items:center;justify-content:center}
-#pf .ar svg{width:100%;height:100%;stroke:#9aa0a7;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
-#pf .st{font-size:17px;font-weight:500}
-#pf .st.r{color:#ff4b55}#pf .st.y{color:#f5b800}#pf .st.g{color:#11b95c}
-#pf .pw{padding:18px 16px 28px}
-#pf .tt{font-size:30px;line-height:1.35;font-weight:600;margin:12px 0 22px}
-#pf .card{background:#353947;border-radius:18px;padding:18px 16px 22px}
-#pf .hero{width:100%;display:flex;justify-content:center;margin:2px 0 18px}
-#pf .hero img{width:70%;max-width:330px}
-#pf .fld{margin:16px 0 10px}
-#pf .ibox{height:74px;background:#222520;border-radius:38px;display:flex;align-items:center;padding:0 16px;gap:12px}
-#pf .ibox input{flex:1;color:#fff;font-size:18px}
-#pf .ibox input::placeholder{color:#8e939b}
-#pf .act{display:flex;align-items:center;gap:14px}
-#pf .x{width:22px;height:22px;border-radius:50%;background:#d8dbe0;color:#40444a;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer}
-#pf .eye{width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-#pf .eye svg{width:23px;height:23px;stroke:#aab0b7;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
-#pf .hint{color:#a5aab2;font-size:15px;line-height:1.7;padding:10px 8px 0}
-#pf .warn{display:flex;gap:8px;color:#f34d56;font-size:15px;line-height:1.8;padding:16px 8px 0}
-#pf .ok{width:100%;height:60px;margin-top:24px;border-radius:12px;background:#05b246;color:#031b08;font-size:22px;font-weight:700;cursor:pointer}
-#pf .ok:disabled,#pf .ap:disabled{opacity:.6}
-#pf .rh{position:relative;text-align:center;font-size:20px;padding:18px 0;border-bottom:1px solid #161616}
-#pf .rh .bk{position:absolute;right:14px;top:10px;margin:0}
-#pf .dd{margin:18px 16px 0;position:relative}
-#pf .sel{width:100%;height:54px;background:#1b1f1c;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#16b55c;font-size:17px;cursor:pointer;position:relative}
-#pf .sel em{position:absolute;left:18px;font-style:normal;transition:.2s;font-size:13px}
-#pf .dd.o .sel{border-radius:14px 14px 0 0}
-#pf .dd.o .sel em{transform:rotate(180deg)}
-#pf .mn{display:none;background:#1b1f1c;border-radius:0 0 14px 14px;overflow:hidden}
-#pf .dd.o .mn{display:block}
-#pf .it{width:100%;padding:16px 20px;background:none;color:#fff;text-align:right;font-size:16px;position:relative;cursor:pointer}
-#pf .it+.it{border-top:1px solid #2e312f}
-#pf .it.on{color:#11b95c}
-#pf .it.on:after{content:"✓";position:absolute;left:18px;color:#11b95c}
-#pf .emp{text-align:center;padding:80px 20px 0;color:#a7acb2;font-size:18px}
-#pf .emp img{width:140px;display:block;margin:0 auto 14px}
-#pf .sp{width:34px;height:34px;border:3px solid #21492f;border-top-color:#14c05f;border-radius:50%;margin:50px auto 0;animation:pfr .8s linear infinite}
-#pf .kyc2{min-height:100%;background:#0b0b0b;padding:12px 16px 22px}
-#pf .kyh{position:relative;text-align:center;padding:6px 0 14px;font-size:18px;font-weight:600}
-#pf .kyh .bk{position:absolute;right:0;top:0;margin:0}
-#pf .kyttl{margin:2px 0 18px}
-#pf .lbl{font-size:14px;color:#fff;margin:0 4px 8px 0}
-#pf .ndd{position:relative;height:54px;background:#191b19;border:1px solid #222;display:flex;align-items:center;padding:0 16px;color:#fff;font-size:16px;cursor:pointer}
-#pf .ndd .cv{flex:1}
-#pf .ndd .cr{color:#9aa0a7;font-size:12px;transition:.2s}
-#pf .ndd.o .cr{transform:rotate(180deg)}
-#pf .nmn{display:none;position:absolute;left:0;right:0;top:100%;z-index:9;background:#191b19;border:1px solid #222;border-top:0;max-height:260px;overflow-y:auto}
-#pf .ndd.o .nmn{display:block}
-#pf .ni{padding:12px 16px;color:#fff;font-size:15px;border-top:1px solid #2a2c2a;cursor:pointer}
-#pf .ni:first-child{border-top:0}
-#pf .ni:hover{background:#222}
-#pf .ni.on{color:#11b95c}
-#pf .round{height:56px;background:#1a1c1a;border-radius:28px;padding:0 16px;display:flex;align-items:center;gap:10px}
-#pf .round input{flex:1;background:none;color:#fff;font-size:16px}
-#pf .round input::placeholder{color:#90959b}
-#pf .cx{width:18px;height:18px;border-radius:50%;background:#d8dbe0;color:#4c5055;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex:0 0 18px;cursor:pointer}
-#pf .upl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px}
-#pf .up{display:flex;flex-direction:column;align-items:center}
-#pf .ub{width:100%;aspect-ratio:1/1;background:#5d6584;border:1px dashed #d6d9e8;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
-#pf .ub img{width:100%;height:100%;object-fit:cover}
-#pf .cam{width:38px;height:38px}
-#pf .cap{margin-top:10px;font-size:12px;color:#d9d9d9;text-align:center;line-height:1.3;min-height:32px}
-#pf .sh{margin-top:18px;font-size:13px;color:#fff}
-#pf .shex{margin-top:10px;width:100%}
-#pf .shex img{display:block;width:100%;height:auto}
-#pf .ap{margin-top:22px;width:100%;height:62px;background:#08ae43;color:#fff;border-radius:8px;font-size:18px;font-weight:700}
-#pf .uploader{cursor:pointer}
-#pf .uploader input{display:none}
-#pf .logout{color:#ff4b55}
-#pf .tst{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:12px 22px;border-radius:8px;font-size:15px;z-index:99;display:none;max-width:90%;text-align:center}
-#pf .tst.on{display:block}
+(()=>{const A=window.App||{},W=window,D=document,C=["United States","United Kingdom","Canada","Australia","Germany","France","Italy","Spain","Netherlands","Brazil","Mexico","Argentina","Japan","South Korea","China","India","Saudi Arabia","United Arab Emirates","Turkey","Egypt"],I={en:{dir:"ltr",safe:"Safe",pwd:"Change Password",app:"Download App",ref:"Referral Program",rec:"Consume Record",pc:"Primary Certification",ac:"Advanced Certification",gen:"General",logout:"Logout",pwdTitle:"Change Login Password",old:"Old Password",new:"New Password",confirmNew:"Confirm New Password",hint:"Please enter 6-12 characters, including numbers or letters",warn:"To protect your funds and trading security, withdrawal related actions will be restricted for 24 hours after changing the password",confirm:"Confirm",recTitle:"Consume Record",all:"All",fiat:"Fiat Transaction",contract:"Contract Transaction",spot:"Spot Trading",noRec:"No record",kycTitle:"KYC Authentication",nat:"Nationality",name:"Full legal name",namePh:"Please enter your real name",doc:"Document/passport number",docPh:"Please enter your ID/passport number",upload:"ID photo/upload passport",cap1:"Front page of ID",cap2:"Back page of ID",cap3:"Hand-held of ID photo",shot:"Shooting example",apply:"Apply for certification",loading:"Loading...",vip:"VIP0",unauth:"Unauthenticated",pending:"Pending",approved:"Authenticated",notEligible:"Not available",fill:"Please fill in all fields",passRule:"Password must be 6-12 letters or numbers",passMatch:"Passwords do not match",wrongOld:"Old password is incorrect",passDone:"Password changed successfully",need3:"Please upload all 3 photos",kycDone:"Verification request submitted",kycPending:"Your request is under review",kycApproved:"Your account is verified"},ar:{dir:"rtl",safe:"الأمان",pwd:"تغيير كلمة المرور",app:"تنزيل التطبيق",ref:"برنامج الإحالة",rec:"سجل الاستهلاك",pc:"التوثيق الأساسي",ac:"التوثيق المتقدم",gen:"عام",logout:"تسجيل الخروج",pwdTitle:"تغيير كلمة مرور الدخول",old:"كلمة المرور القديمة",new:"كلمة المرور الجديدة",confirmNew:"تأكيد كلمة المرور الجديدة",hint:"أدخل 6 إلى 12 حرفًا أو رقمًا",warn:"لحماية أموالك وأمان التداول، سيتم تقييد عمليات السحب لمدة 24 ساعة بعد تغيير كلمة المرور",confirm:"تأكيد",recTitle:"سجل الاستهلاك",all:"الكل",fiat:"معاملات العملات",contract:"معاملات العقود",spot:"التداول الفوري",noRec:"لا توجد سجلات",kycTitle:"توثيق الهوية",nat:"الجنسية",name:"الاسم القانوني الكامل",namePh:"يرجى إدخال اسمك الحقيقي",doc:"رقم الهوية/جواز السفر",docPh:"يرجى إدخال رقم الهوية أو جواز السفر",upload:"رفع صور الهوية/الجواز",cap1:"الوجه الأمامي للهوية",cap2:"الوجه الخلفي للهوية",cap3:"صورة شخصية مع الهوية",shot:"مثال التصوير",apply:"تقديم طلب التوثيق",loading:"جاري التحميل...",vip:"VIP0",unauth:"غير موثق",pending:"قيد المعالجة",approved:"موثق",notEligible:"غير متاح الفتح",fill:"يرجى تعبئة جميع الحقول",passRule:"كلمة المرور يجب أن تكون 6-12 أحرف أو أرقام",passMatch:"كلمتا المرور غير متطابقتين",wrongOld:"كلمة المرور القديمة غير صحيحة",passDone:"تم تغيير كلمة المرور بنجاح",need3:"يرجى رفع الصور الثلاث كاملة",kycDone:"تم إرسال طلب التوثيق",kycPending:"طلبك قيد المعالجة",kycApproved:"حسابك موثق"},de:{dir:"ltr",safe:"Sicherheit",pwd:"Passwort ändern",app:"App herunterladen",ref:"Empfehlungsprogramm",rec:"Verbrauchsverlauf",pc:"Primäre Verifizierung",ac:"Erweiterte Verifizierung",gen:"Allgemein",logout:"Abmelden",pwdTitle:"Login-Passwort ändern",old:"Altes Passwort",new:"Neues Passwort",confirmNew:"Neues Passwort bestätigen",hint:"Bitte 6-12 Zeichen mit Zahlen oder Buchstaben eingeben",warn:"Zum Schutz Ihrer Gelder und Handelssicherheit werden Auszahlungen 24 Stunden nach Passwortänderung eingeschränkt",confirm:"Bestätigen",recTitle:"Verbrauchsverlauf",all:"Alle",fiat:"Fiat-Transaktion",contract:"Kontrakt-Transaktion",spot:"Spot-Handel",noRec:"Keine Einträge",kycTitle:"KYC-Verifizierung",nat:"Nationalität",name:"Vollständiger rechtlicher Name",namePh:"Bitte echten Namen eingeben",doc:"Ausweis-/Passnummer",docPh:"Bitte Ausweis- oder Passnummer eingeben",upload:"Ausweisfoto/Pass hochladen",cap1:"Vorderseite des Ausweises",cap2:"Rückseite des Ausweises",cap3:"Foto mit Ausweis in der Hand",shot:"Aufnahmebeispiel",apply:"Verifizierung beantragen",loading:"Wird geladen...",vip:"VIP0",unauth:"Nicht verifiziert",pending:"In Bearbeitung",approved:"Verifiziert",notEligible:"Nicht verfügbar",fill:"Bitte alle Felder ausfüllen",passRule:"Passwort muss 6-12 Zeichen lang sein",passMatch:"Passwörter stimmen nicht überein",wrongOld:"Altes Passwort ist falsch",passDone:"Passwort erfolgreich geändert",need3:"Bitte alle 3 Fotos hochladen",kycDone:"Verifizierungsantrag gesendet",kycPending:"Ihr Antrag wird bearbeitet",kycApproved:"Ihr Konto ist verifiziert"},fr:{dir:"ltr",safe:"Sécurité",pwd:"Changer le mot de passe",app:"Télécharger l’application",ref:"Programme de parrainage",rec:"Historique de consommation",pc:"Certification primaire",ac:"Certification avancée",gen:"Général",logout:"Déconnexion",pwdTitle:"Changer le mot de passe de connexion",old:"Ancien mot de passe",new:"Nouveau mot de passe",confirmNew:"Confirmer le nouveau mot de passe",hint:"Veuillez saisir 6 à 12 caractères, chiffres ou lettres",warn:"Pour protéger vos fonds et la sécurité des transactions, les retraits seront limités pendant 24 heures après le changement du mot de passe",confirm:"Confirmer",recTitle:"Historique de consommation",all:"Tout",fiat:"Transaction fiduciaire",contract:"Transaction contrat",spot:"Trading spot",noRec:"Aucun enregistrement",kycTitle:"Vérification KYC",nat:"Nationalité",name:"Nom légal complet",namePh:"Veuillez saisir votre vrai nom",doc:"Numéro d’identité/passeport",docPh:"Veuillez saisir votre numéro d’identité ou passeport",upload:"Téléverser la pièce d’identité/le passeport",cap1:"Recto de la pièce",cap2:"Verso de la pièce",cap3:"Photo tenant la pièce d’identité",shot:"Exemple de prise de vue",apply:"Demander la certification",loading:"Chargement...",vip:"VIP0",unauth:"Non certifié",pending:"En cours",approved:"Certifié",notEligible:"Ouverture non disponible",fill:"Veuillez remplir tous les champs",passRule:"Le mot de passe doit contenir 6 à 12 caractères",passMatch:"Les mots de passe ne correspondent pas",wrongOld:"Ancien mot de passe incorrect",passDone:"Mot de passe modifié avec succès",need3:"Veuillez téléverser les 3 photos",kycDone:"Demande envoyée",kycPending:"Votre demande est en cours",kycApproved:"Votre compte est certifié"},pl:{dir:"ltr",safe:"Bezpieczeństwo",pwd:"Zmień hasło",app:"Pobierz aplikację",ref:"Program poleceń",rec:"Historia zużycia",pc:"Weryfikacja podstawowa",ac:"Weryfikacja zaawansowana",gen:"Ogólne",logout:"Wyloguj",pwdTitle:"Zmień hasło logowania",old:"Stare hasło",new:"Nowe hasło",confirmNew:"Potwierdź nowe hasło",hint:"Wpisz 6-12 znaków: litery lub cyfry",warn:"Aby chronić środki i bezpieczeństwo handlu, wypłaty będą ograniczone przez 24 godziny po zmianie hasła",confirm:"Potwierdź",recTitle:"Historia zużycia",all:"Wszystko",fiat:"Transakcja fiat",contract:"Transakcja kontraktowa",spot:"Handel spot",noRec:"Brak rekordów",kycTitle:"Weryfikacja KYC",nat:"Narodowość",name:"Pełne imię i nazwisko",namePh:"Wpisz prawdziwe imię i nazwisko",doc:"Numer dokumentu/paszportu",docPh:"Wpisz numer dokumentu lub paszportu",upload:"Prześlij zdjęcie dokumentu/paszportu",cap1:"Przód dokumentu",cap2:"Tył dokumentu",cap3:"Zdjęcie z dokumentem w ręku",shot:"Przykład zdjęcia",apply:"Złóż wniosek",loading:"Ładowanie...",vip:"VIP0",unauth:"Niezweryfikowano",pending:"W trakcie",approved:"Zweryfikowano",notEligible:"Niedostępne",fill:"Wypełnij wszystkie pola",passRule:"Hasło musi mieć 6-12 znaków",passMatch:"Hasła nie są takie same",wrongOld:"Stare hasło jest nieprawidłowe",passDone:"Hasło zmienione pomyślnie",need3:"Prześlij wszystkie 3 zdjęcia",kycDone:"Wniosek wysłany",kycPending:"Twój wniosek jest przetwarzany",kycApproved:"Twoje konto jest zweryfikowane"},ja:{dir:"ltr",safe:"セキュリティ",pwd:"パスワード変更",app:"アプリをダウンロード",ref:"紹介プログラム",rec:"利用履歴",pc:"基本認証",ac:"高度認証",gen:"一般",logout:"ログアウト",pwdTitle:"ログインパスワードを変更",old:"旧パスワード",new:"新しいパスワード",confirmNew:"新しいパスワードを確認",hint:"6〜12文字の英字または数字を入力してください",warn:"資金と取引の安全を守るため、パスワード変更後24時間は出金が制限されます",confirm:"確認",recTitle:"利用履歴",all:"すべて",fiat:"法定通貨取引",contract:"契約取引",spot:"現物取引",noRec:"記録なし",kycTitle:"本人確認",nat:"国籍",name:"正式な氏名",namePh:"本名を入力してください",doc:"身分証/パスポート番号",docPh:"身分証またはパスポート番号を入力してください",upload:"身分証/パスポートをアップロード",cap1:"身分証の表面",cap2:"身分証の裏面",cap3:"身分証を持った写真",shot:"撮影例",apply:"認証を申請",loading:"読み込み中...",vip:"VIP0",unauth:"未認証",pending:"審査中",approved:"認証済み",notEligible:"利用不可",fill:"すべての項目を入力してください",passRule:"パスワードは6〜12文字である必要があります",passMatch:"パスワードが一致しません",wrongOld:"旧パスワードが正しくありません",passDone:"パスワードを変更しました",need3:"3枚の写真をすべてアップロードしてください",kycDone:"申請を送信しました",kycPending:"申請は審査中です",kycApproved:"アカウントは認証済みです"},ko:{dir:"ltr",safe:"보안",pwd:"비밀번호 변경",app:"앱 다운로드",ref:"추천 프로그램",rec:"소비 기록",pc:"기본 인증",ac:"고급 인증",gen:"일반",logout:"로그아웃",pwdTitle:"로그인 비밀번호 변경",old:"기존 비밀번호",new:"새 비밀번호",confirmNew:"새 비밀번호 확인",hint:"6~12자의 영문 또는 숫자를 입력하세요",warn:"자금과 거래 보안을 위해 비밀번호 변경 후 24시간 동안 출금이 제한됩니다",confirm:"확인",recTitle:"소비 기록",all:"전체",fiat:"법정화폐 거래",contract:"계약 거래",spot:"현물 거래",noRec:"기록 없음",kycTitle:"신원 인증",nat:"국적",name:"법적 성명",namePh:"실명을 입력하세요",doc:"신분증/여권 번호",docPh:"신분증 또는 여권 번호를 입력하세요",upload:"신분증/여권 업로드",cap1:"신분증 앞면",cap2:"신분증 뒷면",cap3:"신분증을 들고 있는 사진",shot:"촬영 예시",apply:"인증 신청",loading:"로딩 중...",vip:"VIP0",unauth:"미인증",pending:"처리 중",approved:"인증됨",notEligible:"열 수 없음",fill:"모든 항목을 입력하세요",passRule:"비밀번호는 6~12자여야 합니다",passMatch:"비밀번호가 일치하지 않습니다",wrongOld:"기존 비밀번호가 올바르지 않습니다",passDone:"비밀번호가 변경되었습니다",need3:"사진 3장을 모두 업로드하세요",kycDone:"인증 요청이 제출되었습니다",kycPending:"요청이 처리 중입니다",kycApproved:"계정이 인증되었습니다"},th:{dir:"ltr",safe:"ความปลอดภัย",pwd:"เปลี่ยนรหัสผ่าน",app:"ดาวน์โหลดแอป",ref:"โปรแกรมแนะนำ",rec:"ประวัติการใช้จ่าย",pc:"การยืนยันขั้นต้น",ac:"การยืนยันขั้นสูง",gen:"ทั่วไป",logout:"ออกจากระบบ",pwdTitle:"เปลี่ยนรหัสผ่านเข้าสู่ระบบ",old:"รหัสผ่านเดิม",new:"รหัสผ่านใหม่",confirmNew:"ยืนยันรหัสผ่านใหม่",hint:"กรุณากรอก 6-12 ตัวอักษรหรือตัวเลข",warn:"เพื่อปกป้องเงินทุนและความปลอดภัยในการซื้อขาย การถอนจะถูกจำกัด 24 ชั่วโมงหลังเปลี่ยนรหัสผ่าน",confirm:"ยืนยัน",recTitle:"ประวัติการใช้จ่าย",all:"ทั้งหมด",fiat:"ธุรกรรมเงิน Fiat",contract:"ธุรกรรมสัญญา",spot:"สปอตเทรด",noRec:"ไม่มีบันทึก",kycTitle:"ยืนยันตัวตน KYC",nat:"สัญชาติ",name:"ชื่อจริงตามกฎหมาย",namePh:"กรุณากรอกชื่อจริง",doc:"เลขบัตร/หนังสือเดินทาง",docPh:"กรุณากรอกเลขบัตรหรือพาสปอร์ต",upload:"อัปโหลดบัตร/พาสปอร์ต",cap1:"ด้านหน้าบัตร",cap2:"ด้านหลังบัตร",cap3:"ถือบัตรถ่ายรูป",shot:"ตัวอย่างการถ่าย",apply:"ยื่นขอการยืนยัน",loading:"กำลังโหลด...",vip:"VIP0",unauth:"ยังไม่ยืนยัน",pending:"กำลังดำเนินการ",approved:"ยืนยันแล้ว",notEligible:"ไม่สามารถเปิดได้",fill:"กรุณากรอกทุกช่อง",passRule:"รหัสผ่านต้องมี 6-12 ตัวอักษร",passMatch:"รหัสผ่านไม่ตรงกัน",wrongOld:"รหัสผ่านเดิมไม่ถูกต้อง",passDone:"เปลี่ยนรหัสผ่านสำเร็จ",need3:"กรุณาอัปโหลดรูปทั้ง 3 รูป",kycDone:"ส่งคำขอแล้ว",kycPending:"คำขอของคุณกำลังดำเนินการ",kycApproved:"บัญชีของคุณได้รับการยืนยันแล้ว"},"zh-CN":{dir:"ltr",safe:"安全",pwd:"修改密码",app:"下载应用",ref:"推荐计划",rec:"消费记录",pc:"初级认证",ac:"高级认证",gen:"通用",logout:"退出登录",pwdTitle:"修改登录密码",old:"旧密码",new:"新密码",confirmNew:"确认新密码",hint:"请输入6-12位字母或数字",warn:"为保护您的资金和交易安全，修改密码后24小时内将限制提现相关操作",confirm:"确认",recTitle:"消费记录",all:"全部",fiat:"法币交易",contract:"合约交易",spot:"现货交易",noRec:"暂无记录",kycTitle:"身份认证",nat:"国籍",name:"法定全名",namePh:"请输入真实姓名",doc:"证件/护照号码",docPh:"请输入证件或护照号码",upload:"上传证件/护照",cap1:"证件正面",cap2:"证件反面",cap3:"手持证件照",shot:"拍摄示例",apply:"提交认证申请",loading:"加载中...",vip:"VIP0",unauth:"未认证",pending:"审核中",approved:"已认证",notEligible:"暂不可用",fill:"请填写所有字段",passRule:"密码必须为6-12位字母或数字",passMatch:"两次密码不一致",wrongOld:"旧密码错误",passDone:"密码修改成功",need3:"请上传3张照片",kycDone:"认证申请已提交",kycPending:"您的申请正在审核中",kycApproved:"您的账户已认证"},"zh-TW":{dir:"ltr",safe:"安全",pwd:"變更密碼",app:"下載應用程式",ref:"推薦計畫",rec:"消費紀錄",pc:"初級認證",ac:"高級認證",gen:"一般",logout:"登出",pwdTitle:"變更登入密碼",old:"舊密碼",new:"新密碼",confirmNew:"確認新密碼",hint:"請輸入6-12位英數字",warn:"為保護您的資金與交易安全，變更密碼後24小時內將限制提現相關操作",confirm:"確認",recTitle:"消費紀錄",all:"全部",fiat:"法幣交易",contract:"合約交易",spot:"現貨交易",noRec:"暫無紀錄",kycTitle:"身份驗證",nat:"國籍",name:"法定全名",namePh:"請輸入真實姓名",doc:"證件/護照號碼",docPh:"請輸入證件或護照號碼",upload:"上傳證件/護照",cap1:"證件正面",cap2:"證件反面",cap3:"手持證件照",shot:"拍攝範例",apply:"提交認證申請",loading:"載入中...",vip:"VIP0",unauth:"未認證",pending:"審核中",approved:"已認證",notEligible:"暫不可開啟",fill:"請填寫所有欄位",passRule:"密碼必須為6-12位英數字",passMatch:"密碼不一致",wrongOld:"舊密碼錯誤",passDone:"密碼修改成功",need3:"請上傳3張照片",kycDone:"認證申請已提交",kycPending:"您的申請正在審核中",kycApproved:"您的帳戶已認證"}},S=()=>W.__PFX||(W.__PFX={UF:{b1:null,b2:null,b3:null}}),N=v=>{v=((A.norm?A.norm(v):v)||"ar")+"";
+return I[v]?v:/^zh(-hk|-tw)$/i.test(v)?"zh-TW":/^zh-cn$/i.test(v)?"zh-CN":/^ar/i.test(v)?"ar":"en"},T=()=>I[N((S().UD||{}).lang||A.lang||"ar")]||I.ar,$=i=>D.getElementById(i),X=(i,v)=>$(i)&&($(i).textContent=v),P=(i,v)=>$(i)&&($(i).placeholder=v),U=()=>Math.floor(1e7+9e7*Math.random())+"",M=m=>{let x=$("pft");if(!x)return;x.textContent=m;x.classList.add("on");clearTimeout(S().to);S().to=setTimeout(()=>x.classList.remove("on"),2200)},V=s=>{let p=$("pcs"),a=$("acs"),t=T();[p,a].forEach(x=>x&&(x.className="st r",x.textContent=t.unauth));s==="pending"&&p&&(p.className="st y",p.textContent=t.pending);s==="approved"&&p&&(p.className="st g",p.textContent=t.approved)},H=`<style>
+#pfp,#pfp *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+#pfp{min-height:100%;background:#000;color:#fff;font-family:Tahoma,Arial,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeSpeed;overflow:hidden}
+#pfp a,#pfp button,#pfp input{font:inherit;color:inherit;border:0;outline:0;background:none;text-decoration:none}
+#pfp .m{width:100%;min-height:100%;background:#000;display:flex;flex-direction:column}
+#pfp .main{flex:1;min-height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain;scroll-behavior:smooth;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+#pfp .main::-webkit-scrollbar{display:none}
+#pfp .p{display:none;width:100%;min-height:100%}
+#pfp .p.on{display:block}
+#pfp .top{padding:18px 16px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}
+#pfp .bk{width:40px;height:40px;border-radius:12px;background:#101317;display:grid;place-items:center;overflow:hidden;flex:none;box-shadow:inset 0 0 0 1px #ffffff14,0 8px 18px #0008;cursor:pointer}
+#pfp .bk svg{width:22px;height:22px;display:block;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#pfp .pr{display:flex;align-items:center;gap:10px;min-width:0;max-width:calc(100% - 52px)}
+#pfp .id{min-width:0;line-height:1.15;text-shadow:0 2px 8px #0008}
+#pfp .id b,#pfp .id span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pfp .id b{font:400 17px/1.2 Tahoma}
+#pfp .id span{color:#65f3ff;font-size:16px}
+#pfp .px{width:40px;height:40px;border-radius:12px;background:#101317;display:grid;place-items:center;overflow:hidden;flex:none;box-shadow:inset 0 0 0 1px #ffffff14,0 8px 18px #0008}
+#pfp .px img{width:100%;height:100%;display:block;object-fit:cover}
+#pfp .sec{padding:16px 16px 8px;color:#8b8d8a;font-size:15px}
+#pfp .card{background:#050505;border:1px solid #1f2629;border-radius:18px;box-shadow:0 8px 18px #000c;margin:0 10px 12px;overflow:hidden}
+#pfp .row{min-height:68px;padding:0 14px;display:flex;align-items:center;gap:14px;cursor:pointer}
+#pfp .row+.row{border-top:1px solid rgba(255,255,255,.08)}
+#pfp .ic{width:30px;height:30px;flex:none;display:block;object-fit:contain}
+#pfp .tx{flex:1;font-size:18px;min-width:0}
+#pfp .ar{width:18px;height:18px;flex:none}
+#pfp .ar svg{width:100%;height:100%;stroke:#9aa0a7;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#pfp .st{font-size:16px;white-space:nowrap}
+#pfp .st.r{color:#ff6677}#pfp .st.y{color:#f5b800}#pfp .st.g{color:#21d07a}
+#pfp .logout{color:#ff6677}
+#pfp .head{position:sticky;top:0;z-index:3;height:54px;display:flex;align-items:center;justify-content:center;background:#000;padding:0 12px}
+#pfp .head .bk{position:absolute;inset-inline-start:8px;top:7px;width:40px;height:40px}
+#pfp .head h2{font-size:20px;font-weight:500}
+#pfp .body{padding:12px 10px 18px}
+#pfp .box{background:#050505;border:1px solid #1f2629;border-radius:18px;padding:14px;box-shadow:0 8px 18px #000c}
+#pfp .hero{display:flex;justify-content:center;padding:4px 0 16px}
+#pfp .hero img{width:min(72%,320px);display:block}
+#pfp .fld{margin:0 0 14px}
+#pfp .ibox,#pfp .round{height:58px;background:#1b1f27;border:1px solid #2b3944;border-radius:29px;display:flex;align-items:center;padding:0 16px;gap:12px}
+#pfp .ibox input,#pfp .round input{flex:1;min-width:0;background:none;color:#fff;font-size:16px}
+#pfp .ibox input::placeholder,#pfp .round input::placeholder{color:#8e939b}
+#pfp .act{display:flex;align-items:center;gap:12px}
+#pfp .x,#pfp .cx{width:22px;height:22px;border-radius:50%;background:#d8dbe0;color:#40444a;display:grid;place-items:center;font-size:14px;font-weight:700;cursor:pointer;flex:none}
+#pfp .eye{width:24px;height:24px;display:grid;place-items:center;cursor:pointer}
+#pfp .eye svg{width:22px;height:22px;stroke:#aab0b7;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#pfp .hint{padding:10px 8px 0;color:#a5afba;font-size:14px;line-height:1.7}
+#pfp .warn{display:flex;gap:8px;padding:14px 8px 0;color:#ff6677;font-size:14px;line-height:1.75}
+#pfp .ok,#pfp .ap{width:100%;height:54px;border-radius:14px;background:#00b14f;color:#fff;font:700 18px/1 Tahoma;cursor:pointer;box-shadow:inset 0 0 0 2px #4cff9e33,inset 0 -10px 18px #0006,0 0 16px #00b14f22;margin-top:10px}
+#pfp .ok:disabled,#pfp .ap:disabled{opacity:.6}
+#pfp .tabs{display:flex;gap:10px;padding:0 0 12px;direction:ltr}
+#pfp .tb{flex:1;height:48px;border-radius:14px;background:#1b1f27;color:#d1d8e0;font:700 14px/1 Tahoma;cursor:pointer;box-shadow:inset 0 0 0 2px #2b3944,inset 0 -10px 18px #0008}
+#pfp .tb.on{background:#00b14f;color:#fff;box-shadow:inset 0 0 0 2px #4cff9e66,inset 0 -10px 18px #0006,0 0 16px #00b14f33}
+#pfp .emp{text-align:center;padding:70px 10px 18px;color:#a7acb2;font-size:17px}
+#pfp .emp img{width:126px;display:block;margin:0 auto 12px}
+#pfp .sp{width:34px;height:34px;border:3px solid #21492f;border-top-color:#14c05f;border-radius:50%;margin:32px auto 0;animation:pfr .8s linear infinite}
+#pfp .lbl{font-size:14px;margin:0 4px 8px}
+#pfp .dd{position:relative}
+#pfp .ndd{height:54px;background:#1b1f27;border:1px solid #2b3944;border-radius:14px;display:flex;align-items:center;padding:0 16px;gap:10px;cursor:pointer}
+#pfp .cv{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pfp .cr{font-size:12px;color:#9aa0a7;transition:.2s}
+#pfp .dd.o .cr{transform:rotate(180deg)}
+#pfp .nmn{display:none;position:absolute;inset:100% 0 auto;max-height:250px;overflow:auto;background:#11161c;border:1px solid #2b3944;border-top:0;border-radius:0 0 14px 14px;z-index:4}
+#pfp .dd.o .nmn{display:block}
+#pfp .ni{padding:12px 14px;font-size:15px;border-top:1px solid rgba(255,255,255,.06);cursor:pointer}
+#pfp .ni:first-child{border-top:0}
+#pfp .ni.on{color:#21d07a}
+#pfp .upl{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+#pfp .ub{width:100%;aspect-ratio:1/1;background:#5d6584;border:1px dashed #d6d9e8;border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#pfp .ub img{width:100%;height:100%;display:block;object-fit:cover}
+#pfp .cam{width:38px;height:38px}
+#pfp .cap{margin-top:8px;font-size:12px;color:#d9d9d9;text-align:center;line-height:1.3}
+#pfp .sh{margin-top:16px;font-size:13px}
+#pfp .shex{margin-top:10px}
+#pfp .shex img{width:100%;display:block;border-radius:14px}
+#pfp .up input{display:none}
+#pfp .up{cursor:pointer}
+#pfp .tst{position:fixed;top:18px;left:50%;transform:translateX(-50%);max-width:90%;padding:12px 18px;background:rgba(0,0,0,.88);border-radius:10px;font-size:14px;z-index:9999;display:none;text-align:center}
+#pfp .tst.on{display:block}
+#pfp[dir=rtl] .id{text-align:right;direction:rtl}
+#pfp[dir=ltr] .id{text-align:left;direction:ltr}
 @keyframes pfr{to{transform:rotate(1turn)}}
 @media(max-width:420px){
-#pf{padding-top:calc(env(safe-area-inset-top,0px) + 14px)}
-#pf .app{padding-top:6px}
-#pf .top{padding:16px 14px 14px}
-#pf .pr{gap:12px}
-#pf .av{width:56px;height:56px;flex-basis:56px}
-#pf .nm{font-size:17px}
-#pf .tx{font-size:17px}
-#pf .st{font-size:15px}
-#pf .tt{font-size:25px}
-#pf .ibox{height:68px}
-#pf .ok{height:56px;font-size:21px}
-#pf .pw{padding:16px 12px 24px}
-#pf .kyc2{padding:10px 12px 18px}
-#pf .upl{gap:10px}
-#pf .ap{height:58px;font-size:17px}
+#pfp .top{padding:16px 14px 0}
+#pfp .id b{font-size:16px}
+#pfp .id span{font-size:15px}
+#pfp .tx{font-size:17px}
+#pfp .box{padding:12px}
+#pfp .upl{gap:8px}
 }
-</style>
-<div id="pf"><div class="app">
-<div id="tst" class="tst"></div>
-
+</style><div id="pfp"><div class="m"><div class="main" id="pfmain"><div id="pft" class="tst"></div>
 <section id="home" class="p on">
-  <div class="top">
-    <button class="bk" data-a="back"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
-    <div class="pr">
-      <img class="av" src="https://bdyy365ue.com/h5/css/owner-ufQ69ccO.png">
-      <div>
-        <div class="nm" id="ue">loading...</div>
-        <div class="sb"><span id="uu">UID:--</span><span class="vb" id="vip">VIP0</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec" id="safeSec">Safe</div>
-  <button class="rw" data-a="safe"><img class="ic" src="https://i.ibb.co/pj7R7kQJ/71.png"><span class="tx" id="mSafe">Safe</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
-  <button class="rw" data-a="safe"><img class="ic" src="https://i.ibb.co/spfZpcMV/72.png"><span class="tx" id="mPwd">Change Password</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
-  <button class="rw"><img class="ic" src="https://i.ibb.co/KzbSLLJ1/73.png"><span class="tx" id="mApp">Download App</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
-  <button class="rw"><img class="ic" src="https://i.ibb.co/rR8JxrfY/74.png"><span class="tx" id="mRef">Referral Program</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
-  <button class="rw" data-a="rec"><img class="ic" src="https://i.ibb.co/fVNQ060d/75.png"><span class="tx" id="mRec">Consume Record</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
-  <button id="pcb" class="rw" data-a="op"><img class="ic" src="https://i.ibb.co/spHzKqyk/76.png"><span class="tx" id="mPc">Primary Certification</span><span id="pcs" class="st r">Unauthenticated</span></button>
-  <button class="rw" data-a="ne"><img class="ic" src="https://i.ibb.co/spHzKqyk/76.png"><span class="tx" id="mAc">Advanced Certification</span><span id="acs" class="st r">Unauthenticated</span></button>
-
-  <div class="sec" id="genSec">General</div>
-  <button class="rw logout" data-a="logout">
-    <span class="ic"><svg viewBox="0 0 24 24" width="29" height="29" fill="none" stroke="#ff4b55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span>
-    <span class="tx" id="mLogout">Logout</span>
-    <span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span>
-  </button>
+<div class="top"><button class="bk" data-a="back"><svg viewBox="0 0 24 24"><path d="M15 6 9 12l6 6"/></svg></button><div class="pr"><div class="id"><b id="ue">loading...</b><span id="uu">UID:--</span></div><div class="px"><img src="https://bdyy365ue.com/h5/css/owner-ufQ69ccO.png"></div></div></div>
+<div class="sec" id="safeSec">Safe</div>
+<div class="card">
+<button class="row" data-a="safe"><img class="ic" src="https://i.ibb.co/pj7R7kQJ/71.png"><span class="tx" id="mSafe">Safe</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
+<button class="row" data-a="safe"><img class="ic" src="https://i.ibb.co/spfZpcMV/72.png"><span class="tx" id="mPwd">Change Password</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
+<button class="row"><img class="ic" src="https://i.ibb.co/KzbSLLJ1/73.png"><span class="tx" id="mApp">Download App</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
+<button class="row"><img class="ic" src="https://i.ibb.co/rR8JxrfY/74.png"><span class="tx" id="mRef">Referral Program</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
+<button class="row" data-a="rec"><img class="ic" src="https://i.ibb.co/fVNQ060d/75.png"><span class="tx" id="mRec">Consume Record</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button>
+<button class="row" data-a="op"><img class="ic" src="https://i.ibb.co/spHzKqyk/76.png"><span class="tx" id="mPc">Primary Certification</span><span id="pcs" class="st r">Unauthenticated</span></button>
+<button class="row" data-a="ne"><img class="ic" src="https://i.ibb.co/spHzKqyk/76.png"><span class="tx" id="mAc">Advanced Certification</span><span id="acs" class="st r">Unauthenticated</span></button>
+</div>
+<div class="sec" id="genSec">General</div>
+<div class="card"><button class="row logout" data-a="logout"><span class="ic"><svg viewBox="0 0 24 24" width="29" height="29" fill="none" stroke="#ff4b55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></span><span class="tx" id="mLogout">Logout</span><span class="ar"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></span></button></div>
 </section>
 
 <section id="safe" class="p">
-  <div class="pw">
-    <button class="bk" data-a="home"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
-    <div class="tt" id="pwdTitle">Change Login Password</div>
-    <div class="card">
-      <div class="hero"><img src="https://www.vipteelxme.com/wap/img/pwd.fbdfd1de.png"></div>
-
-      <div class="fld">
-        <div class="ibox">
-          <input id="o" type="password" placeholder="Old Password">
-          <div class="act"><span class="x" data-clr="o">×</span><span class="eye" data-eye="o">${eyeSvg(0)}</span></div>
-        </div>
-      </div>
-
-      <div class="fld">
-        <div class="ibox">
-          <input id="n" type="password" placeholder="New Password">
-          <div class="act"><span class="x" data-clr="n">×</span><span class="eye" data-eye="n">${eyeSvg(0)}</span></div>
-        </div>
-        <div class="hint" id="nh">Please enter 6-12 characters, including numbers or letters</div>
-      </div>
-
-      <div class="fld">
-        <div class="ibox">
-          <input id="c" type="password" placeholder="Confirm New Password">
-          <div class="act"><span class="x" data-clr="c">×</span><span class="eye" data-eye="c">${eyeSvg(0)}</span></div>
-        </div>
-        <div class="hint" id="ch">Please enter 6-12 characters, including numbers or letters</div>
-      </div>
-
-      <div class="warn"><span>ⓘ</span><span id="warnTxt">To protect your funds and trading security, withdrawal related actions will be restricted for 24 hours after changing the password</span></div>
-      <button id="okb" class="ok" data-a="cp">Confirm</button>
-    </div>
-  </div>
+<div class="head"><button class="bk" data-a="home"><svg viewBox="0 0 24 24"><path d="M15 6 9 12l6 6"/></svg></button><h2 id="pwdTitle">Change Login Password</h2></div>
+<div class="body"><div class="box">
+<div class="hero"><img src="https://www.vipteelxme.com/wap/img/pwd.fbdfd1de.png"></div>
+<div class="fld"><div class="ibox"><input id="o" type="password" placeholder="Old Password"><div class="act"><span class="x" data-clr="o">×</span><span class="eye" data-eye="o"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/><path d="M3 3l18 18"/></svg></span></div></div></div>
+<div class="fld"><div class="ibox"><input id="n" type="password" placeholder="New Password"><div class="act"><span class="x" data-clr="n">×</span><span class="eye" data-eye="n"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/><path d="M3 3l18 18"/></svg></span></div></div><div class="hint" id="nh">Please enter 6-12 characters, including numbers or letters</div></div>
+<div class="fld"><div class="ibox"><input id="c" type="password" placeholder="Confirm New Password"><div class="act"><span class="x" data-clr="c">×</span><span class="eye" data-eye="c"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/><path d="M3 3l18 18"/></svg></span></div></div><div class="hint" id="ch">Please enter 6-12 characters, including numbers or letters</div></div>
+<div class="warn"><span>ⓘ</span><span id="warnTxt">To protect your funds and trading security, withdrawal related actions will be restricted for 24 hours after changing the password</span></div>
+<button id="okb" class="ok" data-a="cp">Confirm</button></div></div>
 </section>
 
 <section id="rec" class="p">
-  <div class="rh"><button class="bk" data-a="home"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button><span id="recTitle">Consume Record</span></div>
-  <div id="dd" class="dd">
-    <button class="sel" data-a="td"><span id="sv" data-k="spot">Spot Trading</span><em>▾</em></button>
-    <div class="mn">
-      <button class="it" data-k="all">All</button>
-      <button class="it" data-k="fiat">Fiat Transaction</button>
-      <button class="it" data-k="contract">Contract Transaction</button>
-      <button class="it on" data-k="spot">Spot Trading</button>
-    </div>
-  </div>
-  <div id="emp" class="emp"><img src="https://cdn3d.iconscout.com/3d/premium/thumb/no-results-3d-icon-png-download-6672513.png"><div id="noRec">No record</div></div>
+<div class="head"><button class="bk" data-a="home"><svg viewBox="0 0 24 24"><path d="M15 6 9 12l6 6"/></svg></button><h2 id="recTitle">Consume Record</h2></div>
+<div class="body">
+<div class="tabs"><button class="tb" data-r="all" id="rb-all">All</button><button class="tb" data-r="fiat" id="rb-fiat">Fiat Transaction</button><button class="tb" data-r="contract" id="rb-contract">Contract Transaction</button><button class="tb on" data-r="spot" id="rb-spot">Spot Trading</button></div>
+<div class="box" id="emp"><div class="emp"><img src="https://cdn3d.iconscout.com/3d/premium/thumb/no-results-3d-icon-png-download-6672513.png"><div id="noRec">No record</div></div></div>
+</div>
 </section>
 
 <section id="pc" class="p">
-  <div class="kyc2">
-    <div class="kyh"><button class="bk" data-a="home"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button><div class="kyttl" id="kycTitle">KYC Authentication</div></div>
-    <div class="lbl" id="natLbl">Nationality</div>
-    <div id="nd" class="ndd" data-a="tn"><span id="ncv" class="cv">United States</span><span class="cr">▾</span><div class="nmn" id="nmn"></div></div>
-
-    <div class="lbl" style="margin-top:18px" id="nameLbl">Full legal name</div>
-    <div class="round"><input id="fn" placeholder="Please enter your real name"><span class="cx" data-clr="fn">×</span></div>
-
-    <div class="lbl" style="margin-top:16px" id="docLbl">Document/passport number</div>
-    <div class="round"><input id="dn" placeholder="Please enter your ID/passport number"><span class="cx" data-clr="dn">×</span></div>
-
-    <div class="lbl" style="margin-top:16px" id="upLbl">ID photo/upload passport</div>
-    <div class="upl">
-      <label class="up uploader"><div class="ub" id="b1"><svg class="cam" viewBox="0 0 64 64"><path fill="#f2f2f2" d="M18 22h7l4-5h6l4 5h7c3 0 5 2 5 5v17c0 3-2 5-5 5H18c-3 0-5-2-5-5V27c0-3 2-5 5-5z"/><circle cx="32" cy="35.5" r="9" fill="#6f7786"/><rect x="24" y="19" width="8" height="4" rx="1" fill="#f2f2f2"/></svg><input type="file" accept="image/*" data-up="b1"></div><div class="cap" id="cap1">Front page of ID</div></label>
-      <label class="up uploader"><div class="ub" id="b2"><svg class="cam" viewBox="0 0 64 64"><path fill="#f2f2f2" d="M18 22h7l4-5h6l4 5h7c3 0 5 2 5 5v17c0 3-2 5-5 5H18c-3 0-5-2-5-5V27c0-3 2-5 5-5z"/><circle cx="32" cy="35.5" r="9" fill="#6f7786"/><rect x="24" y="19" width="8" height="4" rx="1" fill="#f2f2f2"/></svg><input type="file" accept="image/*" data-up="b2"></div><div class="cap" id="cap2">Back page of ID</div></label>
-      <label class="up uploader"><div class="ub" id="b3"><svg class="cam" viewBox="0 0 64 64"><path fill="#f2f2f2" d="M18 22h7l4-5h6l4 5h7c3 0 5 2 5 5v17c0 3-2 5-5 5H18c-3 0-5-2-5-5V27c0-3 2-5 5-5z"/><circle cx="32" cy="35.5" r="9" fill="#6f7786"/><rect x="24" y="19" width="8" height="4" rx="1" fill="#f2f2f2"/></svg><input type="file" accept="image/*" data-up="b3"></div><div class="cap" id="cap3">Hand-held of ID photo</div></label>
-    </div>
-
-    <div class="sh" id="shotLbl">Shooting example</div>
-    <div class="shex"><img src="https://www.vipteelxme.com/wap/img/kyc-demo.b8a3decf.png"></div>
-    <button id="apb" class="ap" data-a="ak">Apply for certification</button>
-  </div>
+<div class="head"><button class="bk" data-a="home"><svg viewBox="0 0 24 24"><path d="M15 6 9 12l6 6"/></svg></button><h2 id="kycTitle">KYC Authentication</h2></div>
+<div class="body"><div class="box">
+<div class="lbl" id="natLbl">Nationality</div>
+<div class="dd" id="dd"><div class="ndd" data-a="tn"><span id="ncv" class="cv">United States</span><span class="cr">▾</span></div><div class="nmn" id="nmn"></div></div>
+<div class="lbl" style="margin-top:16px" id="nameLbl">Full legal name</div>
+<div class="round"><input id="fn" placeholder="Please enter your real name"><span class="cx" data-clr="fn">×</span></div>
+<div class="lbl" style="margin-top:16px" id="docLbl">Document/passport number</div>
+<div class="round"><input id="dn" placeholder="Please enter your ID/passport number"><span class="cx" data-clr="dn">×</span></div>
+<div class="lbl" style="margin-top:16px" id="upLbl">ID photo/upload passport</div>
+<div class="upl">
+<label class="up"><div class="ub" id="b1"><svg class="cam" viewBox="0 0 64 64"><path fill="#f2f2f2" d="M18 22h7l4-5h6l4 5h7c3 0 5 2 5 5v17c0 3-2 5-5 5H18c-3 0-5-2-5-5V27c0-3 2-5 5-5z"/><circle cx="32" cy="35.5" r="9" fill="#6f7786"/><rect x="24" y="19" width="8" height="4" rx="1" fill="#f2f2f2"/></svg><input type="file" accept="image/*" data-up="b1"></div><div class="cap" id="cap1">Front page of ID</div></label>
+<label class="up"><div class="ub" id="b2"><svg class="cam" viewBox="0 0 64 64"><path fill="#f2f2f2" d="M18 22h7l4-5h6l4 5h7c3 0 5 2 5 5v17c0 3-2 5-5 5H18c-3 0-5-2-5-5V27c0-3 2-5 5-5z"/><circle cx="32" cy="35.5" r="9" fill="#6f7786"/><rect x="24" y="19" width="8" height="4" rx="1" fill="#f2f2f2"/></svg><input type="file" accept="image/*" data-up="b2"></div><div class="cap" id="cap2">Back page of ID</div></label>
+<label class="up"><div class="ub" id="b3"><svg class="cam" viewBox="0 0 64 64"><path fill="#f2f2f2" d="M18 22h7l4-5h6l4 5h7c3 0 5 2 5 5v17c0 3-2 5-5 5H18c-3 0-5-2-5-5V27c0-3 2-5 5-5z"/><circle cx="32" cy="35.5" r="9" fill="#6f7786"/><rect x="24" y="19" width="8" height="4" rx="1" fill="#f2f2f2"/></svg><input type="file" accept="image/*" data-up="b3"></div><div class="cap" id="cap3">Hand-held of ID photo</div></label>
+</div>
+<div class="sh" id="shotLbl">Shooting example</div>
+<div class="shex"><img src="https://www.vipteelxme.com/wap/img/kyc-demo.b8a3decf.png"></div>
+<button id="apb" class="ap" data-a="ak">Apply for certification</button>
+</div></div>
 </section>
 
-</div></div>`,fillCountries=()=>{let x=$("nmn");if(!x||x.dataset.ok)return;x.innerHTML=C.map((v,i)=>`<div class="ni${i?"":" on"}" data-v="${v.replace(/"/g,"&quot;")}">${v}</div>`).join("");x.dataset.ok=1},setStatus=s=>{let t=T(),p=$("pcs"),a=$("acs");[p,a].forEach(x=>x&&(x.className="st r",x.textContent=t.unauth));if(!p)return;s==="pending"&&(p.className="st y",p.textContent=t.pending);s==="approved"&&(p.className="st g",p.textContent=t.approved)},applyText=()=>{let t=T(),sv=$("sv"),m={all:t.all,fiat:t.fiat,contract:t.contract,spot:t.spot};txt("safeSec",t.safe);txt("mSafe",t.safe);txt("mPwd",t.pwd);txt("mApp",t.app);txt("mRef",t.ref);txt("mRec",t.rec);txt("mPc",t.pc);txt("mAc",t.ac);txt("genSec",t.gen);txt("mLogout",t.logout);txt("pwdTitle",t.pwdTitle);ph("o",t.old);ph("n",t.new);ph("c",t.confirmNew);txt("nh",t.hint);txt("ch",t.hint);txt("warnTxt",t.warn);txt("okb",t.confirm);txt("recTitle",t.recTitle);txt("noRec",t.noRec);txt("kycTitle",t.kycTitle);txt("natLbl",t.nat);txt("nameLbl",t.name);ph("fn",t.namePh);txt("docLbl",t.doc);ph("dn",t.docPh);txt("upLbl",t.upload);txt("cap1",t.cap1);txt("cap2",t.cap2);txt("cap3",t.cap3);txt("shotLbl",t.shot);txt("apb",t.apply);txt("vip",t.vip);D.querySelectorAll("#dd .it").forEach(b=>b.textContent=m[b.dataset.k]||b.textContent);if(sv){sv.textContent=m[sv.dataset.k||"spot"]||t.spot;sv.dataset.k=sv.dataset.k||"spot"}setStatus((S().UD||{}).kyc||"none");$("uu")&&( $("uu").textContent="UID:"+((S().UD||{}).uid||"--") );$("ue")&&( $("ue").textContent=(S().U&&S().U.email)||t.loading )},nav=id=>{D.querySelectorAll("#pf .p").forEach(x=>x.classList.remove("on"));$(id)&&$(id).classList.add("on");$("dd")&&$("dd").classList.remove("o");$("nd")&&$("nd").classList.remove("o");W.scrollTo?.(0,0);document.scrollingElement?.scrollTo?.(0,0)},toggleEye=(id,el)=>{let x=$(id);if(!x)return;let o=x.type==="password";x.type=o?"text":"password";el.innerHTML=eyeSvg(o)},pickRec=k=>{let t=T(),m={all:t.all,fiat:t.fiat,contract:t.contract,spot:t.spot},sv=$("sv"),emp=$("emp");sv&&(sv.dataset.k=k,sv.textContent=m[k]||t.spot);D.querySelectorAll("#dd .it").forEach(x=>x.classList.toggle("on",x.dataset.k===k));$("dd")&&$("dd").classList.remove("o");if(emp){emp.innerHTML='<div class="sp"></div>';clearTimeout(S().rt);S().rt=setTimeout(()=>emp.innerHTML=`<img src="https://cdn3d.iconscout.com/3d/premium/thumb/no-results-3d-icon-png-download-6672513.png"><div>${T().noRec}</div>`,700)}},readFile=i=>{let f=i.files&&i.files[0],k=i.dataset.up;if(!f||!k)return;let r=new FileReader;r.onload=e=>{S().UF[k]=e.target.result;let b=$(k);b&&(b.innerHTML=`<img src="${e.target.result}">`)};r.readAsDataURL(f)},initEvents=()=>{let root=$("pf");if(!root||root.dataset.bind)return;root.dataset.bind=1;root.onclick=async e=>{let a=e.target.closest("[data-a]"),clr=e.target.closest("[data-clr]"),eye=e.target.closest("[data-eye]"),it=e.target.closest("#dd .it"),ni=e.target.closest("#nmn .ni");if(clr){let x=$(clr.dataset.clr);x&&(x.value="");return}if(eye){toggleEye(eye.dataset.eye,eye);return}if(it){pickRec(it.dataset.k);return}if(ni){$("ncv")&&($("ncv").textContent=ni.dataset.v);D.querySelectorAll("#nmn .ni").forEach(x=>x.classList.remove("on"));ni.classList.add("on");$("nd")&&$("nd").classList.remove("o");return}if(!a)return;switch(a.dataset.a){case"back":history.back();break;case"home":nav("home");break;case"safe":nav("safe");break;case"rec":nav("rec");break;case"op":{let k=(S().UD||{}).kyc;return k==="pending"?toast(T().kycPending):k==="approved"?toast(T().kycApproved):nav("pc")}case"ne":toast(T().notEligible);break;case"td":$("dd")&&$("dd").classList.toggle("o");break;case"tn":$("nd")&&$("nd").classList.toggle("o");break;case"logout":try{await S().AU.signOut(A.auth)}catch(_){}location.replace("login.html");break;case"cp":{let t=T(),s=S(),o=$("o").value,n=$("n").value,c=$("c").value,b=$("okb");if(!o||!n||!c)return toast(t.fill);if(!/^[A-Za-z0-9]{6,12}$/.test(n))return toast(t.passRule);if(n!==c)return toast(t.passMatch);try{b.disabled=1;let cr=s.AU.EmailAuthProvider.credential(s.U.email,o);await s.AU.reauthenticateWithCredential(s.U,cr);await s.AU.updatePassword(s.U,n);toast(t.passDone);["o","n","c"].forEach(id=>$(id).value="");setTimeout(()=>nav("home"),1000)}catch(err){toast(err.code==="auth/wrong-password"?t.wrongOld:(err.message||err))}finally{b.disabled=0}break}case"ak":{let t=T(),s=S(),name=$("fn").value.trim(),doc=$("dn").value.trim(),nat=$("ncv").textContent,btn=$("apb");if(!name||!doc)return toast(t.fill);if(!s.UF.b1||!s.UF.b2||!s.UF.b3)return toast(t.need3);try{btn.disabled=1;let F=s.FS,data={uid:s.U.uid,userDocId:s.U.uid,userEmail:s.U.email||"",userUidDisplay:s.UD?.uid||"",lang:lang((s.UD||{}).lang||A.lang||"ar"),nationality:nat,fullName:name,docNumber:doc,front:s.UF.b1,back:s.UF.b2,hand:s.UF.b3,status:"pending",source:"web",createdAt:F.serverTimestamp(),submittedAt:Date.now()};await F.addDoc(F.collection(A.db,"توثيق"),data);await F.updateDoc(F.doc(A.db,"users",s.U.uid),{kyc:"pending",kycData:data});toast(t.kycDone);setTimeout(()=>nav("home"),900)}catch(err){toast(err.message||err)}finally{btn.disabled=0}break}}};D.querySelectorAll('#pf input[type="file"][data-up]').forEach(i=>i.onchange=()=>readFile(i));D.addEventListener("click",e=>{let dd=$("dd"),nd=$("nd");dd&&!dd.contains(e.target)&&dd.classList.remove("o");nd&&!nd.contains(e.target)&&nd.classList.remove("o")})},initUser=async u=>{let s=S(),F=s.FS,ref=F.doc(A.db,"users",u.uid),snap=await F.getDoc(ref),data;if(snap.exists()){data=snap.data();if(!data.uid){data.uid=uid();await F.updateDoc(ref,{uid:data.uid})}}else{data={email:u.email||"",uid:uid(),kyc:"none",createdAt:F.serverTimestamp(),lang:lang(A.lang||"ar")};await F.setDoc(ref,data)}s.U=u;s.UD=data;fillCountries();applyText();s.off&&s.off();s.off=F.onSnapshot(ref,x=>{if(!x.exists())return;s.UD=x.data();applyText()})};injectPage("profile",{h:H,i:async()=>{initEvents();fillCountries();applyText();let s=S();if(!s.mod)s.mod=Promise.all([import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")]).then(([AU,FS])=>(s.AU=AU,s.FS=FS));await s.mod;let u=A.user||A.auth?.currentUser;u?initUser(u):!s.wait&&(s.wait=1,s.AU.onAuthStateChanged(A.auth,x=>x?initUser(x):location.replace("login.html")))}})})();
+</div></div></div>`,F=()=>{let t=T(),r=$("rb-all"),f=$("rb-fiat"),c=$("rb-contract"),s=$("rb-spot"),k={all:t.all,fiat:t.fiat,contract:t.contract,spot:t.spot};$("pfp")&&($("pfp").dir=t.dir||"rtl");X("safeSec",t.safe);X("mSafe",t.safe);X("mPwd",t.pwd);X("mApp",t.app);X("mRef",t.ref);X("mRec",t.rec);X("mPc",t.pc);X("mAc",t.ac);X("genSec",t.gen);X("mLogout",t.logout);X("pwdTitle",t.pwdTitle);P("o",t.old);P("n",t.new);P("c",t.confirmNew);X("nh",t.hint);X("ch",t.hint);X("warnTxt",t.warn);X("okb",t.confirm);X("recTitle",t.recTitle);X("noRec",t.noRec);X("kycTitle",t.kycTitle);X("natLbl",t.nat);X("nameLbl",t.name);P("fn",t.namePh);X("docLbl",t.doc);P("dn",t.docPh);X("upLbl",t.upload);X("cap1",t.cap1);X("cap2",t.cap2);X("cap3",t.cap3);X("shotLbl",t.shot);X("apb",t.apply);r&&(r.textContent=k.all);f&&(f.textContent=k.fiat);c&&(c.textContent=k.contract);s&&(s.textContent=k.spot);X("uu","UID:"+((S().UD||{}).uid||"--"));X("ue",(S().U&&S().U.email)||t.loading);V((S().UD||{}).kyc||"none")},J=()=>{let x=$("nmn");if(!x||x.dataset.ok)return;x.innerHTML=C.map((v,i)=>`<div class="ni${i?"":" on"}" data-v="${v.replace(/"/g,"&quot;")}">${v}</div>`).join("");x.dataset.ok=1},G=id=>{D.querySelectorAll("#pfp .p").forEach(x=>x.classList.remove("on"));$(id)&&$(id).classList.add("on");$("dd")&&$("dd").classList.remove("o");$("pfmain")&&($("pfmain").scrollTop=0)},E=(id,el)=>{let x=$(id);if(!x)return;let o=x.type==="password";x.type=o?"text":"password";el.innerHTML=o?'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/></svg>':'<svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.8"/><path d="M3 3l18 18"/></svg>'},K=k=>{D.querySelectorAll("#pfp .tb").forEach(b=>b.classList.toggle("on",b.dataset.r===k));let e=$("emp"),t=T();e&&(e.innerHTML='<div class="sp"></div>',clearTimeout(S().rt),S().rt=setTimeout(()=>e.innerHTML=`<div class="emp"><img src="https://cdn3d.iconscout.com/3d/premium/thumb/no-results-3d-icon-png-download-6672513.png"><div>${t.noRec}</div></div>`,700))},R=i=>{let f=i.files&&i.files[0],k=i.dataset.up;if(!f||!k)return;let r=new FileReader;r.onload=e=>{S().UF[k]=e.target.result;let b=$(k);b&&(b.innerHTML=`<img src="${e.target.result}">`)};r.readAsDataURL(f)},B=()=>{let root=$("pfp");if(!root||root.dataset.bind)return;root.dataset.bind=1;root.onclick=async e=>{let a=e.target.closest("[data-a]"),c=e.target.closest("[data-clr]"),y=e.target.closest("[data-eye]"),n=e.target.closest("#nmn .ni"),r=e.target.closest(".tb");if(c){let x=$(c.dataset.clr);x&&(x.value="");return}if(y){E(y.dataset.eye,y);return}if(n){$("ncv")&&($("ncv").textContent=n.dataset.v);D.querySelectorAll("#nmn .ni").forEach(x=>x.classList.remove("on"));n.classList.add("on");$("dd")&&$("dd").classList.remove("o");return}if(r){K(r.dataset.r);return}if(!a)return;switch(a.dataset.a){case"back":W.H?W.H():history.back();break;case"home":G("home");break;case"safe":G("safe");break;case"rec":G("rec");break;case"op":{let k=(S().UD||{}).kyc,t=T();k==="pending"?M(t.kycPending):k==="approved"?M(t.kycApproved):G("pc");break}case"ne":M(T().notEligible);break;case"tn":$("dd")&&$("dd").classList.toggle("o");break;case"logout":try{await S().AU.signOut(A.auth)}catch(_){}location.replace("login.html");break;case"cp":{let t=T(),s=S(),o=$("o").value,n=$("n").value,c=$("c").value,b=$("okb");if(!o||!n||!c)return M(t.fill);if(!/^[A-Za-z0-9]{6,12}$/.test(n))return M(t.passRule);if(n!==c)return M(t.passMatch);try{b.disabled=1;let cr=s.AU.EmailAuthProvider.credential(s.U.email,o);await s.AU.reauthenticateWithCredential(s.U,cr);await s.AU.updatePassword(s.U,n);M(t.passDone);["o","n","c"].forEach(id=>$(id).value="");setTimeout(()=>G("home"),900)}catch(err){M(err.code==="auth/wrong-password"?t.wrongOld:(err.message||err))}finally{b.disabled=0}break}case"ak":{let t=T(),s=S(),nm=$("fn").value.trim(),dn=$("dn").value.trim(),na=$("ncv").textContent,bt=$("apb");if(!nm||!dn)return M(t.fill);if(!s.UF.b1||!s.UF.b2||!s.UF.b3)return M(t.need3);try{bt.disabled=1;let F=s.FS,d={uid:s.U.uid,userDocId:s.U.uid,userEmail:s.U.email||"",userUidDisplay:s.UD?.uid||"",lang:N((s.UD||{}).lang||A.lang||"ar"),nationality:na,fullName:nm,docNumber:dn,front:s.UF.b1,back:s.UF.b2,hand:s.UF.b3,status:"pending",source:"web",createdAt:F.serverTimestamp(),submittedAt:Date.now()};await F.addDoc(F.collection(A.db,"توثيق"),d);await F.updateDoc(F.doc(A.db,"users",s.U.uid),{kyc:"pending",kycData:d});M(t.kycDone);setTimeout(()=>G("home"),900)}catch(err){M(err.message||err)}finally{bt.disabled=0}break}}};D.querySelectorAll('#pfp input[type="file"][data-up]').forEach(i=>i.onchange=()=>R(i));if(!S().docbind){S().docbind=1;D.addEventListener("click",e=>{let d=$("dd");d&&!d.contains(e.target)&&d.classList.remove("o")})}},Q=async u=>{let s=S(),F=s.FS,ref=F.doc(A.db,"users",u.uid),snap=await F.getDoc(ref),d;if(snap.exists()){d=snap.data();d.uid||(d.uid=U(),await F.updateDoc(ref,{uid:d.uid}))}else{d={email:u.email||"",uid:U(),kyc:"none",createdAt:F.serverTimestamp(),lang:N(A.lang||"ar")};await F.setDoc(ref,d)}s.U=u;s.UD=d;J();F&&F.onSnapshot&&(s.off&&s.off(),s.off=F.onSnapshot(ref,x=>{x.exists()&&(s.UD=x.data(),F&&F.doc&&setTimeout(F?F:0,0),F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0,F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0, F&&0,F&&0),F()}));F()},Z=()=>{J();F();B();K("spot")};injectPage("profile",{h:H,i:async()=>{let s=S();Z();if(!s.mod)s.mod=Promise.all([import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"),import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js")]).then(([AU,FS])=>(s.AU=AU,s.FS=FS));await s.mod;let u=A.user||A.auth?.currentUser;u?await Q(u):!s.wait&&(s.wait=1,s.AU.onAuthStateChanged(A.auth,async x=>x?await Q(x):location.replace("login.html")))}})})();
