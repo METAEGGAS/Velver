@@ -5,8 +5,7 @@ import{getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmail
 import{getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,query,where,getDocs,limit}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyBvzfJOOjRFZnTgTUrwEZQPr8Ba7zKKlNg",authDomain:"hhhxh-5ebe4.firebaseapp.com",projectId:"hhhxh-5ebe4",storageBucket:"hhhxh-5ebe4.firebasestorage.app",messagingSenderId:"79243000696",appId:"1:79243000696:web:ee0fb2d2ccce791954e68d",measurementId:"G-08BR6LN6PT"},app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 isSupported().then(v=>v&&getAnalytics(app)).catch(()=>{});
-/* ===== استخراج كود الدعوة من الرابط: يدعم /login.html/inf=XXX و ?inf=XXX و ?code=XXX و #inf=XXX ===== */
-function getInv(){try{let u=location.href,m;m=u.match(/[\/?&#]inf=([A-Za-z0-9_-]+)/i);if(m)return m[1];m=u.match(/[?&#]code=([A-Za-z0-9_-]+)/i);if(m)return m[1];}catch(e){}return""}
+function getInv(){try{let u=location.href,m;m=u.match(/[?&#]inf=([A-Za-z0-9_-]+)/i);if(m)return m[1];m=u.match(/\/inf=([A-Za-z0-9_-]+)/i);if(m)return m[1];m=u.match(/[?&#]code=([A-Za-z0-9_-]+)/i);if(m)return m[1]}catch(e){}return""}
 const URL_INV=getInv();
 let $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),
 st={m:URL_INV?"register":"login",t:URL_INV?"email":"phone",l:localStorage.lang||"ar"},
@@ -27,6 +26,7 @@ function draw(v=""){v=v.toLowerCase().trim();L.innerHTML=D.map((x,i)=>[x,i]).fil
 function renderLang(){let x=I[st.l]||I.en,u=LG.find(v=>v.k==st.l)||LG[3];$("#lt").textContent=x.lang;$("#cll").textContent=x.cur;$("#clv").textContent=u.n;LL.innerHTML=LG.map(v=>`<button class=li type=button data-k=${v.k}><span class=tx><b>${v.n}</b><i>${v.a}</i></span>${st.l==v.k?"<em>✓</em>":""}</button>`).join("")}
 function apply(){let x=I[st.l]||I.en,r=st.m=="register",e=st.t=="email";document.documentElement.lang=st.l;document.documentElement.dir=st.l=="ar"?"rtl":"ltr";$("#tt").textContent=r?x.regTitle:x.logTitle;$("#sb").textContent=r?x.reg:x.log;T[0].textContent=x.email;T[1].textContent=x.phone;$("#email").placeholder=r?x.eReg:x.eLogin;$("#phone").placeholder=x.phonePH;$("#p1").placeholder=x.p1;$("#p2").placeholder=x.p2;$("#inv").placeholder=x.inv;$("#capin").placeholder=x.cap;$("#s").placeholder=x.search;$("#re").classList.toggle("hide",!e);$("#rp").classList.toggle("hide",e);$("#r2").classList.toggle("hide",!r);$("#ri").classList.toggle("hide",!r);$("#rc").classList.remove("hide");T.forEach(x=>x.classList.toggle("on",x.dataset.t==st.t));$("#bt").innerHTML=r?`${x.regd}? <a href="#" id="log">${x.toLog}</a>`:`<div class=row><a class=fp href="#" id="fp">${x.forgot}</a><a href="#" id="reg">${x.toReg}</a></div>`;renderLang();$("#reg")&&($("#reg").onclick=e=>(e.preventDefault(),st.m="register",apply()));$("#log")&&($("#log").onclick=e=>(e.preventDefault(),st.m="login",st.t="phone",apply()));$("#fp")&&($("#fp").onclick=async e=>{e.preventDefault();if(st.t!="email")return alert("استخدم البريد الإلكتروني");let m=$("#email").value.trim();if(!m)return alert("أدخل البريد");try{await sendPasswordResetEmail(auth,m);alert("تم الإرسال")}catch(r){alert(r.message)}});if(URL_INV&&r){let i=$("#inv");i.value=URL_INV;i.readOnly=true;i.style.opacity=.85}}
 T.forEach(x=>x.onclick=()=>{st.t=x.dataset.t;apply()});
+
 $$(".eye").forEach(b=>b.onclick=()=>{let i=b.previousElementSibling;i.type=i.type=="password"?"text":"password"});
 $("#open").onclick=e=>(e.preventDefault(),M.classList.add("on"),S.value="",draw());
 $("#cl").onclick=()=>M.classList.remove("on");
@@ -40,25 +40,9 @@ $("#cap").onclick=cg;
 function P(){return $("#phone").value.replace(/\D/g,"")}
 function authMail(){return st.t=="email"?$("#email").value.trim():P()+"@phone.local"}
 function saveMail(){return st.t=="email"?$("#email").value.trim():P()+"@.local"}
-/* ===== توليد كود دعوة فريد 6 خانات (أرقام) للمستخدم وحفظه ===== */
-async function genInvCode(uid){
-  for(let i=0;i<8;i++){
-    let c=String(Math.floor(100000+Math.random()*900000));
-    let q=await getDocs(query(collection(db,"users"),where("inviteCode","==",c),limit(1)));
-    if(q.empty){await setDoc(doc(db,"users",uid),{inviteCode:c},{merge:!0});return c}
-  }
-  let c=uid.slice(-6).toUpperCase();await setDoc(doc(db,"users",uid),{inviteCode:c},{merge:!0});return c;
-}
-/* ===== إيجاد uid المالك لكود الدعوة ===== */
-async function findInviterUid(code){if(!code)return"";let q=await getDocs(query(collection(db,"users"),where("inviteCode","==",code),limit(1)));return q.empty?"":q.docs[0].id}
-async function afterLogin(u){
-  try{
-    let r=await getDoc(doc(db,"users",u.uid)),d=r.exists()?r.data():{};
-    if(d.lang){st.l=d.lang;localStorage.lang=st.l}else await setDoc(doc(db,"users",u.uid),{lang:st.l,updatedAt:serverTimestamp()},{merge:!0});
-    if(!d.inviteCode)await genInvCode(u.uid);
-  }catch(e){}
-  location.replace("index.html")
-}
+async function genInvCode(uid){for(let i=0;i<8;i++){let c=String(Math.floor(100000+Math.random()*900000));let q=await getDocs(query(collection(db,"users"),where("inviteCode","==",c),limit(1)));if(q.empty){await setDoc(doc(db,"users",uid),{inviteCode:c},{merge:!0});return c}}let c=uid.slice(-6).toUpperCase();await setDoc(doc(db,"users",uid),{inviteCode:c},{merge:!0});return c}
+async function findInviter(code){if(!code)return null;let q=await getDocs(query(collection(db,"users"),where("inviteCode","==",code),limit(1)));return q.empty?null:{uid:q.docs[0].id,code}}
+async function afterLogin(u){try{let r=await getDoc(doc(db,"users",u.uid)),d=r.exists()?r.data():{};if(d.lang){st.l=d.lang;localStorage.lang=st.l}else await setDoc(doc(db,"users",u.uid),{lang:st.l,updatedAt:serverTimestamp()},{merge:!0});if(!d.inviteCode)await genInvCode(u.uid)}catch(e){}location.replace("index.html")}
 $("#f").onsubmit=async e=>{
   e.preventDefault();if(busy)return;
   let p1=$("#p1").value.trim(),p2=$("#p2").value.trim(),inv=($("#inv").value||URL_INV||"").trim(),cap=$("#capin").value.trim().toUpperCase(),pm=P(),em=$("#email").value.trim(),am=authMail(),sm=saveMail();
@@ -70,15 +54,13 @@ $("#f").onsubmit=async e=>{
   try{
     if(st.m=="register"){
       if(p1!==p2)throw Error("كلمتا المرور غير متطابقتين");
-      let inviterUid="";
-      if(inv){inviterUid=await findInviterUid(inv);if(!inviterUid)throw Error("كود الدعوة غير صحيح")}
+      let inviter=null;
+      if(inv){inviter=await findInviter(inv);if(!inviter)throw Error("كود الدعوة غير صحيح")}
       let c=await createUserWithEmailAndPassword(auth,am,p1);
-      let d={lang:st.l,loginType:st.t,email:sm,authEmail:am,phone:pm,phoneCode:C.textContent,balance:0,updatedAt:serverTimestamp(),createdAt:serverTimestamp()};
-      if(inv){d.invite=inv;d.inviterUid=inviterUid}
+      let d={lang:st.l,loginType:st.t,email:sm,authEmail:am,phone:pm,phoneCode:C.textContent,balance:0,deposit:0,updatedAt:serverTimestamp(),createdAt:serverTimestamp()};
+      if(inviter){d.invite=inv;d.inviterUid=inviter.uid;d.inviterCode=inviter.code}
       await setDoc(doc(db,"users",c.user.uid),d,{merge:!0});
       await genInvCode(c.user.uid);
-      /* تسجيل سجل الإحالة لدى الداعي */
-      if(inviterUid){try{await setDoc(doc(db,"users",inviterUid,"referrals",c.user.uid),{uid:c.user.uid,email:sm,phone:pm,phoneCode:C.textContent,deposit:0,createdAt:serverTimestamp()},{merge:!0})}catch(e){}}
       localStorage.lang=st.l;location.replace("index.html")
     }else{
       let c=await signInWithEmailAndPassword(auth,am,p1);
