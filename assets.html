@@ -1,1 +1,325 @@
-<!doctype html><html lang=ar dir=rtl><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>FXER</title><style>:root{--u:#0d1730;--bd:#223252}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}html,body{height:100%;overflow:hidden}body{background:var(--u);font:500 11px/1.15 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;color:#eef5ff;user-select:none}.app{width:100vw;height:100vh;height:100dvh;background:var(--u);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom);padding-top:env(safe-area-inset-top)}.top{padding:5px 5px 3px;display:flex;justify-content:space-between;align-items:flex-start;direction:ltr;flex:none}.tc{background:var(--u);border:1px solid var(--bd);border-radius:8px;padding:5px 9px;direction:ltr;max-width:255px}.dep{color:#f1ad24;text-align:center;font-size:9px;line-height:1.05;cursor:pointer}.dep img{display:block;width:32px;height:32px;margin:0 auto 3px;filter:brightness(0) saturate(100%) invert(72%) sepia(58%) saturate(720%) hue-rotate(360deg) brightness(97%) contrast(94%)}.t1,.lg,.t2,.asset,.pair{display:flex;align-items:center}.t1{justify-content:space-between;gap:8px}.lg{gap:6px}.d{width:17px;height:17px;border-radius:4px;background:#f1ad24;display:grid;place-items:center;color:#fff;font:800 12px/1 system-ui}.nm{display:flex;align-items:center;gap:4px;color:#fff;font-size:12px;white-space:nowrap}.nm b{color:#f1ad24;font-size:14px;line-height:1}.t2{margin-top:3px;color:#ffcf54;font-size:15px;font-weight:800}.usd{margin-left:6px;padding:1px 5px;border:1px solid #8d6b1f;border-radius:4px;color:#ffcf54;font-size:8px;line-height:1}.dd{color:#f1ad24;font-size:11px;line-height:1;margin-top:-2px}.asset{gap:5px;padding:3px 5px 4px;direction:ltr;flex:none}.sq{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;color:#cad6eb;font-size:22px;flex:none;background:var(--u);border:1px solid var(--bd)}.pair{flex:none;width:132px;height:32px;background:var(--u);border:1px solid var(--bd);border-radius:7px;padding:0 8px;gap:6px}.fg{position:relative;width:30px;height:17px;flex:none}.fg em{position:absolute;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#fff;font-style:normal;font-size:11px;top:0}.fg .c{left:0}.fg .j{left:12px}.pair small{display:block;color:rgba(255,255,255,.58);font-size:7px;margin-bottom:1px}.pair b{font-size:12px;color:#fff}.chart{position:relative;flex:1 1 0;min-height:0;background:var(--u);overflow:hidden;touch-action:none}#cv{position:absolute;inset:0;width:100%;height:100%;display:block}.bar{height:30px;padding:0 7px;background:var(--u);display:flex;align-items:center;justify-content:space-between;direction:ltr;flex:none}.tool,.inf,.pm{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;color:#c7d5ef;font-size:12px;background:var(--u);border:1px solid var(--bd)}.pm img{width:14px;height:14px;object-fit:contain;filter:brightness(0) saturate(100%) invert(86%) sepia(12%) saturate(448%) hue-rotate(184deg) brightness(93%) contrast(93%)}.tf{color:#c7d5ef;font-size:11px}.on{color:#56a0ff;font-weight:800;font-size:11px}.ctrl{padding:3px 3px 0;flex:none}.rw,.rw2{display:flex;gap:3px;direction:ltr}.rw{height:34px}.rw2{height:33px;margin-top:3px}.bx,.bx3{background:var(--u);border:1px solid #1e2a43}.bx{flex:1;display:flex;align-items:center;justify-content:center;color:#fff}.bx3{width:36px;display:flex;align-items:center;justify-content:center;color:#dbe7ff;font-size:17px}.bx .bx3{height:100%;border-top:0;border-bottom:0}.mid,.val{flex:1;text-align:center;font-size:12px}.acts{display:flex;gap:3px;padding:3px;flex:none}.btn{flex:1;height:54px;border:0;color:#fff;padding:7px 10px;position:relative;text-align:left}.btn b{font-size:15px;letter-spacing:.5px}.btn .rt{position:absolute;right:10px;top:7px;font-size:12px;font-weight:800}.btn i{display:block;font-style:normal;font-size:9px;opacity:.9;margin-top:3px}.btn small{position:absolute;right:10px;bottom:7px;font-size:12px}.up{background:linear-gradient(180deg,#25b35b,#169547);border-radius:0 0 0 7px}.dn{background:linear-gradient(180deg,#ea1566,#c50b50);border-radius:0 0 7px 0}.nav{height:50px;background:var(--u);border-top:1px solid #111b31;display:flex;direction:ltr;flex:none}.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#7d8fae;gap:3px;position:relative;cursor:pointer}.ni img{width:19px;height:19px;object-fit:contain;opacity:.7}.ni span{font-size:9px}.ni.a{color:#3e8cff}.ni.a img{opacity:1}.ni.a:before{content:"";position:absolute;top:0;left:12%;right:12%;height:3px;background:#2f84ff}.pop{position:fixed;inset:0;background:rgba(4,8,18,.35);display:none;align-items:flex-end;justify-content:center;z-index:99}.pop.s{display:flex}.sh{background:#202332;border:1px solid #2a3147;border-radius:12px 12px 0 0;width:min(100%,540px);height:30vh;height:30dvh;padding:8px 10px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}.hd{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex:none}.ttl{font-size:14px;font-weight:700;color:#f3f7ff;white-space:nowrap}.ipt{flex:1;height:28px;border-radius:7px;background:#181c29;border:1px solid #20283b;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#fff;font-size:14px;direction:ltr}.ipt em{font-style:normal;opacity:.75;margin-right:5px;font-size:12px}.line{height:1px;background:#39415633;margin:3px 0 5px;flex:none}.ag{display:grid;grid-template-columns:60px 1fr;gap:5px;direction:ltr;flex:1;min-height:0}.ql{display:grid;grid-template-rows:repeat(2,1fr);gap:3px;overflow:hidden}.qb,.kb,.db,.clb,.okb,.tp{border:1px solid #222a3f;background:#171b24;color:#e8edf8;border-radius:5px}.qb{font-size:11px;font-weight:600;padding:0 2px}.qb.a{background:#255c8d;color:#9bd0ff;border-color:#3174ad}.kg{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:3px}.kb,.db{font-size:14px;background:#253447}.z{grid-column:span 2}.db{font-size:12px}.ab{display:grid;grid-template-columns:1fr 1.35fr;gap:4px;margin-top:4px;flex:none}.clb,.okb{height:28px;font-size:12px;font-weight:600}.clb{background:#465470}.okb{background:#2796e8}.tps{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;direction:rtl;margin-bottom:5px;flex:none}.tp{height:22px;font-size:12px;background:#171b24}.wh{position:relative;flex:1;min-height:0;border-radius:6px;overflow:hidden;background:linear-gradient(180deg,rgba(13,23,48,.95),#171a24 22%,#171a24 78%,rgba(13,23,48,.95))}.wh:before,.wh:after{content:"";position:absolute;left:0;right:0;height:35%;z-index:2;pointer-events:none}.wh:before{top:0;background:linear-gradient(180deg,#0d1730,rgba(13,23,48,0))}.wh:after{bottom:0;background:linear-gradient(0deg,#0d1730,rgba(13,23,48,0))}.sel{position:absolute;left:4px;right:4px;top:50%;height:26px;transform:translateY(-50%);border-radius:5px;background:#26374c;border:1px solid #324663;z-index:1}.wrs{position:relative;z-index:3;display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;height:100%;direction:ltr}.col{overflow:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:y mandatory}.col::-webkit-scrollbar{display:none}.it{height:26px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:12px;color:#a8b7cb}.it.s{color:#fff;font-weight:600}.day .it{gap:3px}.day .it span:last-child{font-size:11px}.done{margin-top:5px;height:28px;width:100%;border:0;border-radius:5px;background:#2796e8;color:#fff;font-size:12px;font-weight:600;flex:none}.cp{cursor:pointer}.hide{display:none}</style><div class=app><div class=top><div class=tc><div class=t1><div class=lg><span class=d>D</span><span class=nm><span>الخيار</span><b>FXER</b></span></div><span class=dd>▾</span></div><div class=t2><span>$ 29,960.00</span><span class=usd>USD</span></div></div><div class=dep><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_deposit_2x.png alt="">شحن<br>الرصيد</div></div><div class=asset><div class=sq>+</div><div class=pair><div class=fg><em class=c>🇨🇦</em><em class=j>🇯🇵</em></div><div><small>UP &amp; DOWN</small><b>CAD/JPY</b></div></div></div><div class=chart id=CH><canvas id=cv></canvas></div><div class=bar><div class=tool>✎</div><div class=pm><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_chart_type.png alt=""></div><div class=tf id=tfD>1 D</div><div class=tf id=tfH>1 h</div><div class=tf id=tfM>1 m</div><div class=on id=tfS>5 s</div><div class=inf>i</div></div><div class=ctrl><div class=rw><div class=bx3 id=tmM>-</div><div class="bx cp" id=tOpen><div class=mid id=tVal>0 00:01:00 ي</div></div><div class=bx3 id=tmP>+</div></div><div class=rw2><div class="bx cp" id=aOpen><div class=bx3 id=amM>-</div><div class=val id=aVal>$ 23</div><div class=bx3 id=amP>+</div></div><div class=bx><div class=bx3>-</div><div class=val>0.0000</div><div class=bx3>+</div></div></div></div><div class=acts><button class="btn up"><b>UP</b><div class=rt>93%</div><i>الربح</i><small id=p1>$ 21.39</small></button><button class="btn dn"><b>DOWN</b><div class=rt>93%</div><i>الربح</i><small id=p2>$ 21.39</small></button></div><div class=nav id=nv><div class="ni a"><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-chart.png><span>الرسم البياني</span></div><div class=ni><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-portfolio-real.png><span>المحفظة</span></div><div class=ni><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-history-real.png><span>السجل</span></div><div class=ni><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-more-real.png><span>المزيد</span></div></div></div><div class="pop amt" id=ap><div class=sh><div class=hd><div class=ttl>المبلغ</div><div class=ipt><em>$</em><span id=apv>2,000</span></div></div><div class=line></div><div class=ag><div class=ql id=ql></div><div class=kg id=kg></div></div><div class=ab><button class=clb id=acl>مسح</button><button class=okb id=aok>تم</button></div></div></div><div class="pop time" id=tp><div class=sh><div class=tps id=tps></div><div class=wh><div class=sel></div><div class=wrs><div class="col day" id=cd></div><div class=col id=chh></div><div class=col id=cmm></div><div class=col id=css></div></div></div><button class=done id=tok>تم</button></div></div><script>(()=>{let s=document.getElementById("CH"),c=document.getElementById("cv"),U=c.getContext("2d"),R=0,j=0,z=1,X=6e4,Y=[],$=0,H=0,J=0,N=0,tt=0,et=0,at=0,lt=null,it=null,ot=null,rt=0,st=0,ct=0,dt=0,ht=0,mt=22,ut=53,vt=113.646,yt=8e-4,At=vt,xt=vt,tr=0,IH=26,ft=1;const D=document,F0=(t,e,a)=>t<e?e:t>a?a:t,F=(t,d=4)=>t.toFixed(d),Q0=t=>("0"+t).slice(-2),ne=t=>{let e=new Date(t);return Q0(e.getHours())+":"+Q0(e.getMinutes())},G=(q,p=D)=>p.querySelector(q),GA=(q,p=D)=>[...p.querySelectorAll(q)],fmt=n=>"$ "+(+n).toLocaleString("en-US"),R2=n=>"$ "+(Math.round(n*93)/100).toFixed(2);let A=23,T=1,TV={d:0,h:0,m:0,s:1},AM=[10,50,100,500,1000,1500,2000],PS=[["ث1",{d:0,h:0,m:0,s:1}],["د1",{d:0,h:0,m:1,s:0}],["2س",{d:0,h:2,m:0,s:0}],["ي1",{d:1,h:0,m:0,s:0}]],COL={d:[...Array(8)].map((_,i)=>i),h:[...Array(24)].map((_,i)=>i),m:[...Array(60)].map((_,i)=>i),s:[...Array(60)].map((_,i)=>i)},LOCK=0,Q=0,fa=0;const ZM={min:4,max:56,gap:8,live:12,target:12,offset:0,tOffset:0,anchorX:0,anchorIndex:0,anchorOn:0,anim:.18,eps:.01,pEps:.05,wheel:.16,pinch:.22,panVX:0,panAnim:.22,pinchOn:0,panOn:0,lastVisible:0};function sync(){G("#aVal").textContent=fmt(A);G("#p1").textContent=G("#p2").textContent=R2(A);G("#apv").textContent=(LOCK||A).toLocaleString("en-US");G("#tVal").textContent=`${TV.d} ${Q0(TV.h)}:${Q0(TV.m)}:${Q0(TV.s)} ي`}function mk(tag,cl,tx,p){let e=D.createElement(tag);cl&&(e.className=cl);tx!=null&&(e.textContent=tx);p&&p.appendChild(e);return e}function fillAmt(){let ql=G("#ql"),kg=G("#kg");ql.innerHTML=kg.innerHTML="";AM.slice(0,6).forEach(v=>{let b=mk("button","qb"+(v===LOCK?" a":""),fmt(v),ql);b.onclick=()=>{LOCK=v;fillAmt();sync()}});[1,2,3,4,5,6,7,8,9].forEach(v=>{let b=mk("button","kb",v,kg);b.onclick=()=>{LOCK=+(String(LOCK||"")+v).replace(/^0+/,'')||0;if(LOCK>999999999)LOCK=999999999;fillAmt();sync()}});let z=mk("button","kb z",0,kg);z.onclick=()=>{LOCK=+(String(LOCK||"")+0).replace(/^0+/,'')||0;if(LOCK>999999999)LOCK=999999999;fillAmt();sync()};let d=mk("button","db","del",kg);d.onclick=()=>{LOCK=+String(LOCK||"").slice(0,-1)||0;fillAmt();sync()}}function cent(col,v){let h=IH,p=v*h-(col.clientHeight-h)/2;col.scrollTo({top:p,behavior:"smooth"})}function selCol(col,v){let h=IH,t=Math.round((col.scrollTop+(col.clientHeight-h)/2)/h);t=F0(t,0,col.children.length-1);[...col.children].forEach((x,i)=>x.classList.toggle("s",i===t));v.k=="d"?TV.d=COL.d[t]:v.k=="h"?TV.h=COL.h[t]:v.k=="m"?TV.m=COL.m[t]:TV.s=COL.s[t];sync()}function buildTime(){G("#tps").innerHTML="";[["#cd","d"],["#chh","h"],["#cmm","m"],["#css","s"]].forEach(([id,k])=>{let col=G(id);col.innerHTML="";let pad=mk("div","",null,col);pad.style.height="calc(50% - 13px)";COL[k].forEach(v=>{let tx=k=="d"?null:Q0(v),it=mk("div","it",null,col);if(k=="d")it.innerHTML=`<span>${v}</span><span>ي</span>`;else it.textContent=tx});let pad2=mk("div","",null,col);pad2.style.height="calc(50% - 13px)";col.onscroll=()=>{clearTimeout(col._t);col._t=setTimeout(()=>{selCol(col,{k})},60)}});PS.forEach(([lb,v])=>{let b=mk("button","tp",lb,G("#tps"));b.onclick=()=>{TV={...v};openT(1)}})}function openA(){LOCK=A;fillAmt();sync();G("#ap").classList.add("s")}function closeA(ok){if(ok&&LOCK>=0)A=LOCK||0;LOCK=0;sync();G("#ap").classList.remove("s")}function openT(re){G("#tp").classList.add("s");requestAnimationFrame(()=>{[[G("#cd"),TV.d],[G("#chh"),TV.h],[G("#cmm"),TV.m],[G("#css"),TV.s]].forEach(([c,v])=>{let h=IH;c.scrollTop=v*h-(c.clientHeight-h)/2});setTimeout(()=>[["#cd","d"],["#chh","h"],["#cmm","m"],["#css","s"]].forEach(([id,k])=>selCol(G(id),{k})),re?20:80)})}function closeT(){T=TV.d*86400+TV.h*3600+TV.m*60+TV.s;sync();G("#tp").classList.remove("s")}function Ce(){let t=0,e=0;for(;!t;)t=Math.random();for(;!e;)e=Math.random();return Math.sqrt(-2*Math.log(t))*Math.cos(2*Math.PI*e)}function _e(t,e,a){let n=t,l=a*e*.15,i=e*(.7+.6*Math.random()),o=n*(1+l+Ce()*i*.5),r=Math.max(n,o),s=Math.min(n,o),c=(r-s)*(.3+.7*Math.random())+n*e*.1;return{o:n,h:r+Math.random()*c*.5,l:s-Math.random()*c*.5,c:o}}function Ee(t,e,a,n,l){let i=180,o=[],c=Math.max(2,Math.min(177,i*(.18+.18*Math.random())|0)),d=Math.max(3,Math.min(178,i*(.42+.24*Math.random())|0)),h=e*yt;for(let x=0;x<i;x++){let g=x/179,r=g<.5?2*g*g:1-Math.pow(-2*g+2,2)/2,sn=Math.sin(g*Math.PI*(2.3+1.2*Math.random())+2*Math.random())*h*(.22*(1-g)+.02),cn=Ce()*h*(.07*(1-g)+.006);o.push(F0(e+(a-e)*r+sn+cn,.9998*l,1.0002*n))}o[0]=e;o[179]=a;o[c]=n;o[d]=l;for(let k=0;k<3;k++)for(let x=1;x<179;x++)x!=c&&x!=d&&(o[x]=(o[x-1]+2*o[x]+o[x+1])/4);o[c]=n;o[d]=l;t._p=o;t._v=e}function pe(c){let a=yt*(.7+.6*Math.random()),o=c*(1+(Ce()+tr*.35)*a*.45),h=Math.max(o,c),l=Math.min(o,c),r=(h-l)*(.3+.7*Math.random())+c*yt*.1;return{o,c,h:h+Math.random()*r*.5,l:l-Math.random()*r*.5}}function ge(n=240){let f=Y[0],c=f.o,t=f.t,A=[];for(let k=0;k<n;k++){Math.random()<.05?tr=2*(Math.random()-.5):tr*=.98;let g=pe(c);t-=X;A.push({o:g.o,c:g.c,h:g.h,l:g.l,t});c=g.o}Y=A.reverse().concat(Y)}function ke(){let t=Y[Y.length-1];if(!t)return At;if(!t._th){let e=t.o,a=yt*(.7+.6*Math.random()),l=e*(1+Ce()*a*.5),i=Math.max(e,l),o=Math.min(e,l),r=(i-o)*(.3+.7*Math.random())+e*yt*.1;t._th=i+Math.random()*r*.5;t._tl=o-Math.random()*r*.5;t._tc=l;Ee(t,e,l,t._th,t._tl)}let e=F0((Date.now()-$)/X,0,1),a=t._p||[t.o,t._tc||t.o],n=e*(a.length-1),l=0|n,i=n-l,o=a[l],r=a[Math.min(a.length-1,l+1)],s=F0(o+(r-o)*i,.9995*t._tl,1.0005*t._th);return t._v=s,t.c=s,s>t.h&&(t.h=s),s<t.l&&(t.l=s),xt=At=s}function gap(){return ZM.live+ZM.gap}function vis(){return Math.max(2,(R-6)/gap())}function maxOff(){return Math.max(0,Y.length-1+8-vis())}function norm(){let m=maxOff();ZM.target=F0(ZM.target,ZM.min,ZM.max);ZM.live=F0(ZM.live,ZM.min,ZM.max);ZM.tOffset=F0(ZM.tOffset,0,m);ZM.offset=F0(ZM.offset,0,m)}function ix2x(i){return 6+(i-ZM.offset)*gap()}function x2ix(x,o=ZM.offset,b=ZM.live){return o+(x-6)/(b+ZM.gap)}function bind(x,ix,b=ZM.target){let sp=b+ZM.gap,off=ix-(x-6)/sp,m=Math.max(0,Y.length-1+8-Math.max(2,(R-6)/sp));ZM.tOffset=F0(off,0,m)}function zoomAt(x,n,str){let b=F0(n,ZM.min,ZM.max),ix=x2ix(x,ZM.offset,ZM.live);ZM.anchorX=x;ZM.anchorIndex=ix;ZM.anchorOn=1;ZM.target+=((b-ZM.target)||0)*(str||1);ZM.target=F0(ZM.target,ZM.min,ZM.max);bind(x,ix,ZM.target)}function panBy(px){let d=px/gap();ZM.tOffset=F0(ZM.tOffset-d,0,maxOff())}function Oe(t){let e=t.touches[0],a=t.touches[1],n=s.getBoundingClientRect(),mx=(e.clientX+a.clientX)/2-n.left;st=Math.hypot(e.clientX-a.clientX,e.clientY-a.clientY);ct=ZM.target;dt=mx;ht=x2ix(mx,ZM.offset,ZM.live);ZM.anchorX=mx;ZM.anchorIndex=ht;ZM.anchorOn=1;ZM.pinchOn=1;Q=0;N=0}function ha(t){let e=s.getBoundingClientRect();return(t.touches?t.touches[0].clientX:t.clientX)-e.left}function ma(t){let e=s.getBoundingClientRect();return(t.touches?t.touches[0].clientY:t.clientY)-e.top}let ua=0,ga=0;function sa(t){if(ZM.pinchOn)return;Q=1;tt=ha(t);et=ZM.tOffset;at=0;ua=tt;ga=Date.now();N=0;ZM.panOn=1;ZM.anchorOn=0}function ca(t){if(Q){let e=ha(t),a=e-tt;ZM.tOffset=F0(et-a/gap(),0,maxOff());let r=Date.now()-ga;r>0&&(at=(e-ua)/r);ua=e;ga=Date.now()}else H=ha(t),J=ma(t),N=1}function da(){Q=0;ZM.panOn=0;ZM.panVX=at;at=0}function Be(){lt=it=ot=null;ft=1}function Pe(){let t=s.getBoundingClientRect();R=t.width;j=t.height;z=devicePixelRatio||1;c.width=R*z;c.height=j*z;c.style.width=R+"px";c.style.height=j+"px";U.setTransform(z,0,0,z,0,0);norm();ft=1}function Re(t,e,a){let n=(t+e)/2,l=Math.max(5e-6,t-e);a||!ot?(ot=l,pt=n):pt+=(n-pt)*.12;it=pt+ot/2;lt=pt-ot/2}function le(t,e,a,n,l,i){U.fillStyle=i;U.beginPath();U.moveTo(t+l,e);U.arcTo(t+a,e,t+a,e+n,l);U.arcTo(t+a,e+n,t,e+n,l);U.arcTo(t,e+n,t,e,l);U.arcTo(t,e,t+a,e,l);U.closePath();U.fill()}function seed(){let n0=Math.floor(Date.now()/X)*X,lc=vt;for(let k=359;k>=1;k--){Math.random()<.05?tr=2*(Math.random()-.5):tr*=.98;let cc=_e(lc,yt,tr);Y.push({o:cc.o,c:cc.c,h:cc.h,l:cc.l,t:n0-k*X});lc=cc.c}Y.push({o:lc,c:lc,h:lc,l:lc,t:n0});$=n0;At=xt=lc;ft=1}function newCandle(){let lc=Y[Y.length-1].c;Math.random()<.05?tr=2*(Math.random()-.5):tr*=.98;let cc=_e(lc,yt,tr);$+=X;Y.push({o:lc,c:lc,h:cc.h,l:cc.l,t:$,_th:cc.h,_tl:cc.l,_tc:cc.c});Ee(Y[Y.length-1],lc,cc.c,cc.h,cc.l)}function snap(){if(!ZM.anchorOn)return;bind(ZM.anchorX,ZM.anchorIndex,ZM.target)}function step(){if(ZM.panOn||ZM.pinchOn)return;let d=ZM.tOffset-ZM.offset;Math.abs(d)>ZM.eps&&(ZM.offset+=d*ZM.panAnim);let v=Math.abs(ZM.panVX);if(v>.001&&!Q){panBy(ZM.panVX*8);ZM.panVX*=.9}else ZM.panVX=0}function He(){Pe();ke();let now=Date.now();now-$>=X&&newCandle();for(let q=0;q<4&&ZM.offset-vis()<40;q++)ge(240);snap();ZM.live+=(ZM.target-ZM.live)*(ZM.pinchOn?ZM.pinch:.18);Math.abs(ZM.target-ZM.live)<ZM.eps&&(ZM.live=ZM.target);snap();step();norm();U.clearRect(0,0,R,j);U.fillStyle="#0d1730";U.fillRect(0,0,R,j);let sp=gap(),pv=Math.max(2,(R-6)/sp),start=Math.max(0,Math.floor(ZM.offset)-2),end=Math.min(Y.length-1,Math.ceil(ZM.offset+pv)+2),act=Y.length-1,pw=R-6,rw=Y.slice(start,end+1);rw.length||(rw=[Y[act]]);let g=Math.max(...rw.map(x=>x.h)),f=Math.min(...rw.map(x=>x.l)),pad=.05*Math.max(5e-4,g-f),top=g+pad,bot=f-pad;Re(top,bot,ft);ft=0;let h=j-8-mt,bw=F0(ZM.live*.84,2,28),toY=t=>8+(it-t)*h/ot,toX=t=>ix2x(t),leftIx=ZM.offset-1,rightIx=ZM.offset+pv+1,gridStep=5,labelMin=42,tmStep=gridStep;for(;tmStep*sp<labelMin;)tmStep+=gridStep;let priceStep=(t=>{let e=10**Math.floor(Math.log10(t)),a=t/e;return(a<=1?1:a<=2?2:a<=5?5:10)*e})(ot/Math.max(2,Math.floor(h/60)));U.save();U.beginPath();U.rect(6,8,pw,h);U.clip();U.strokeStyle="#1a2433";U.lineWidth=1;for(let t=Math.ceil(leftIx/gridStep)*gridStep;t<=rightIx+gridStep;t+=gridStep){let x=toX(t);if(x<6-sp||x>R+sp)continue;U.beginPath();U.moveTo(x,8);U.lineTo(x,j-mt);U.stroke()}for(let t=Math.floor(lt/priceStep)*priceStep;t<=it+priceStep;t+=priceStep){let y=toY(t);U.beginPath();U.moveTo(6,y);U.lineTo(R,y);U.stroke()}let cx=toX(act),c2=cx+3*sp,py=toY(Y[act].c);U.setLineDash([5,5]);U.strokeStyle="rgba(255,255,255,.45)";cx>=6&&cx<=R&&(U.beginPath(),U.moveTo(cx,8),U.lineTo(cx,j-mt),U.stroke());c2>=6&&c2<=R&&(U.beginPath(),U.moveTo(c2,8),U.lineTo(c2,j-mt),U.stroke());U.strokeStyle="rgba(255,255,255,.8)";U.beginPath();U.moveTo(6,py);U.lineTo(R,py);U.stroke();U.setLineDash([]);for(let t=start;t<=end;t++){let k=Y[t],x=toX(t);if(x<6-bw||x>R+bw)continue;let hi=Math.max(k.o,k.c),lo=Math.min(k.o,k.c),yo=toY(k.o),yc=toY(k.c),yh=toY(k.h),yl=toY(k.l),up=k.c>=k.o,xx=.5+(0|x),ww=Math.max(2,Math.round(bw)),hh=Math.max(1,Math.abs(yc-yo));U.strokeStyle=U.fillStyle=up?"#26a69a":"#ef5350";U.lineWidth=1;U.beginPath();U.moveTo(xx,yh);U.lineTo(xx,yl);U.stroke();U.fillRect(Math.round(x-ww/2),Math.min(yo,yc),ww,hh)}N&&H>=6&&H<=R&&J>=8&&J<=j-mt&&(U.setLineDash([4,4]),U.strokeStyle="rgba(195,188,219,.55)",U.beginPath(),U.moveTo(H,8),U.lineTo(H,j-mt),U.stroke(),U.beginPath(),U.moveTo(6,J),U.lineTo(R,J),U.stroke(),U.setLineDash([]));U.restore();U.fillStyle="#fff";U.font="10px Arial";U.textAlign="center";for(let t=Math.ceil(leftIx/tmStep)*tmStep;t<=rightIx;t+=tmStep){let x=toX(t);x>=6&&x<=R&&Y[t]&&U.fillText(ne(Y[t].t),x,j-7)}U.textAlign="right";for(let t=Math.floor(lt/priceStep)*priceStep;t<=it+priceStep;t+=priceStep){let y=toY(t);if(y<8||y>j-mt)continue;le(R-ut,y-8,50,16,4,"rgba(14,21,33,.85)");U.fillStyle="#a5b7d6";U.fillText(F(t),R-8,y+4)}let lk=Y[act],ly=toY(lk.c),lx=toX(act),pu=.5+.5*Math.sin(now/120),ri=3.25+.25*pu,ro=4.8+.8*pu;le(R-ut,ly-11,50,22,10,"#1b2b4b");U.strokeStyle="#3e5f9b";U.lineWidth=1;U.strokeRect(R-ut+.5,ly-10.5,49,21);U.fillStyle="#fff";U.font="bold 11px Arial";U.textAlign="center";U.fillText(F(lk.c),R-ut+25,ly+4);U.fillStyle="#3c6cff";U.globalAlpha=.22+.2*pu;U.beginPath();U.arc(lx,ly,ro+1.5*pu,0,7);U.fill();U.globalAlpha=1;U.beginPath();U.arc(lx,ly,ri,0,7);U.fill();U.strokeStyle="#d7ecff";U.lineWidth=1.6;U.globalAlpha=.85+.15*pu;U.beginPath();U.arc(lx,ly,ro,0,7);U.stroke();U.globalAlpha=1}addEventListener("resize",Pe);seed();Pe();buildTime();sync();(function loop(){He();requestAnimationFrame(loop)})();s.addEventListener("mousedown",sa);s.addEventListener("mousemove",ca);addEventListener("mouseup",da);s.addEventListener("mouseleave",()=>N=0);s.addEventListener("wheel",t=>{t.preventDefault();let x=ha(t),m=t.deltaY>0?1-ZM.wheel:1+ZM.wheel;zoomAt(x,ZM.target*m,1)},{passive:!1});s.addEventListener("touchstart",t=>{let e=Date.now();if(t.touches.length===2){Oe(t);fa=0;return}if(t.touches.length===1){if(e-fa<320){ZM.target=ZM.live=12;ZM.tOffset=ZM.offset=0;ZM.panVX=0;Be();fa=0;Q=0;ZM.pinchOn=0;return}fa=e;sa(t)}},{passive:!0});s.addEventListener("touchmove",t=>{if(t.touches.length===2){ZM.pinchOn||Oe(t);let e=t.touches[0],a=t.touches[1],n=Math.hypot(e.clientX-a.clientX,e.clientY-a.clientY),mx=(e.clientX+a.clientX)/2-s.getBoundingClientRect().left,scale=st/n;ZM.anchorX=mx;ZM.anchorIndex=ht+(mx-dt)/(gap());zoomAt(mx,F0(ct/scale,ZM.min,ZM.max),1);return}ZM.pinchOn||ca(t)},{passive:!0});s.addEventListener("touchend",t=>{ZM.pinchOn&&t.touches.length<2&&(ZM.pinchOn=0,Q=0,t.touches.length===1?sa(t):N=0);t.touches.length||da()},{passive:!0});GA("#nv .ni").forEach(n=>n.addEventListener("click",()=>{GA("#nv .ni").forEach(x=>x.classList.remove("a"));n.classList.add("a")}));G("#aOpen").onclick=openA;G("#tOpen").onclick=()=>openT();G("#aok").onclick=()=>closeA(1);G("#acl").onclick=()=>{LOCK=0;fillAmt();sync()};G("#tok").onclick=closeT;G("#ap").onclick=e=>e.target.id=="ap"&&closeA();G("#tp").onclick=e=>e.target.id=="tp"&&closeT();G("#amM").onclick=e=>{e.stopPropagation();A=Math.max(0,A-1);sync()};G("#amP").onclick=e=>{e.stopPropagation();A++;sync()};G("#tmM").onclick=()=>{T=Math.max(1,T-1);TV={d:T/86400|0,h:T%86400/3600|0,m:T%3600/60|0,s:T%60};sync()};G("#tmP").onclick=()=>{T++;TV={d:T/86400|0,h:T%86400/3600|0,m:T%3600/60|0,s:T%60};sync()}})();</script></html>
+<!doctype html><html lang=ar dir=rtl><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><title>FXER</title><style>:root{--u:#0d1730;--bd:#223252}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}html,body{height:100%;overflow:hidden}body{background:var(--u);font:500 11px/1.15 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;color:#eef5ff;user-select:none}.app{width:100vw;height:100vh;height:100dvh;background:var(--u);display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom);padding-top:env(safe-area-inset-top)}.top{padding:5px 5px 3px;display:flex;justify-content:space-between;align-items:flex-start;direction:ltr;flex:none}.tc{background:var(--u);border:1px solid var(--bd);border-radius:8px;padding:5px 9px;direction:ltr;max-width:255px}.dep{color:#f1ad24;text-align:center;font-size:9px;line-height:1.05;cursor:pointer}.dep img{display:block;width:32px;height:32px;margin:0 auto 3px;filter:brightness(0) saturate(100%) invert(72%) sepia(58%) saturate(720%) hue-rotate(360deg) brightness(97%) contrast(94%)}.t1,.lg,.t2,.asset,.pair{display:flex;align-items:center}.t1{justify-content:space-between;gap:8px}.lg{gap:6px}.d{width:17px;height:17px;border-radius:4px;background:#f1ad24;display:grid;place-items:center;color:#fff;font:800 12px/1 system-ui}.nm{display:flex;align-items:center;gap:4px;color:#fff;font-size:12px;white-space:nowrap}.nm b{color:#f1ad24;font-size:14px;line-height:1}.t2{margin-top:3px;color:#ffcf54;font-size:15px;font-weight:800}.usd{margin-left:6px;padding:1px 5px;border:1px solid #8d6b1f;border-radius:4px;color:#ffcf54;font-size:8px;line-height:1}.dd{color:#f1ad24;font-size:11px;line-height:1;margin-top:-2px}.asset{gap:5px;padding:3px 5px 4px;direction:ltr;flex:none}.sq{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;color:#cad6eb;font-size:22px;flex:none;background:var(--u);border:1px solid var(--bd)}.pair{flex:none;width:132px;height:32px;background:var(--u);border:1px solid var(--bd);border-radius:7px;padding:0 8px;gap:6px}.fg{position:relative;width:30px;height:17px;flex:none}.fg em{position:absolute;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;background:#fff;font-style:normal;font-size:11px;top:0}.fg .c{left:0}.fg .j{left:12px}.pair small{display:block;color:rgba(255,255,255,.58);font-size:7px;margin-bottom:1px}.pair b{font-size:12px;color:#fff}.chart{position:relative;flex:1 1 0;min-height:0;background:var(--u);overflow:hidden;touch-action:none}#cv{position:absolute;inset:0;width:100%;height:100%;display:block}.bar{height:30px;padding:0 7px;background:var(--u);display:flex;align-items:center;justify-content:space-between;direction:ltr;flex:none}.tool,.inf,.pm{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;color:#c7d5ef;font-size:12px;background:var(--u);border:1px solid var(--bd)}.pm img{width:14px;height:14px;object-fit:contain;filter:brightness(0) saturate(100%) invert(86%) sepia(12%) saturate(448%) hue-rotate(184deg) brightness(93%) contrast(93%)}.tf{color:#c7d5ef;font-size:11px}.on{color:#56a0ff;font-weight:800;font-size:11px}.ctrl{padding:3px 3px 0;flex:none}.rw,.rw2{display:flex;gap:3px;direction:ltr}.rw{height:34px}.rw2{height:33px;margin-top:3px}.bx,.bx3{background:var(--u);border:1px solid #1e2a43}.bx{flex:1;display:flex;align-items:center;justify-content:center;color:#fff}.bx3{width:36px;display:flex;align-items:center;justify-content:center;color:#dbe7ff;font-size:17px}.bx .bx3{height:100%;border-top:0;border-bottom:0}.mid,.val{flex:1;text-align:center;font-size:12px}.acts{display:flex;gap:3px;padding:3px;flex:none}.btn{flex:1;height:54px;border:0;color:#fff;padding:7px 10px;position:relative;text-align:left}.btn b{font-size:15px;letter-spacing:.5px}.btn .rt{position:absolute;right:10px;top:7px;font-size:12px;font-weight:800}.btn i{display:block;font-style:normal;font-size:9px;opacity:.9;margin-top:3px}.btn small{position:absolute;right:10px;bottom:7px;font-size:12px}.up{background:linear-gradient(180deg,#25b35b,#169547);border-radius:0 0 0 7px}.dn{background:linear-gradient(180deg,#ea1566,#c50b50);border-radius:0 0 7px 0}.nav{height:50px;background:var(--u);border-top:1px solid #111b31;display:flex;direction:ltr;flex:none}.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#7d8fae;gap:3px;position:relative;cursor:pointer}.ni img{width:19px;height:19px;object-fit:contain;opacity:.7}.ni span{font-size:9px}.ni.a{color:#3e8cff}.ni.a img{opacity:1}.ni.a:before{content:"";position:absolute;top:0;left:12%;right:12%;height:3px;background:#2f84ff}.pop{position:fixed;inset:0;background:rgba(4,8,18,.35);display:none;align-items:flex-end;justify-content:center;z-index:99}.pop.s{display:flex}.sh{background:#202332;border:1px solid #2a3147;border-radius:12px 12px 0 0;width:min(100%,540px);height:30vh;height:30dvh;padding:8px 10px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -6px 18px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden}.hd{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex:none}.ttl{font-size:14px;font-weight:700;color:#f3f7ff;white-space:nowrap}.ipt{flex:1;height:28px;border-radius:7px;background:#181c29;border:1px solid #20283b;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#fff;font-size:14px;direction:ltr}.ipt em{font-style:normal;opacity:.75;margin-right:5px;font-size:12px}.line{height:1px;background:#39415633;margin:3px 0 5px;flex:none}.ag{display:grid;grid-template-columns:60px 1fr;gap:5px;direction:ltr;flex:1;min-height:0}.ql{display:grid;grid-template-rows:repeat(2,1fr);gap:3px;overflow:hidden}.qb,.kb,.db,.clb,.okb,.tp{border:1px solid #222a3f;background:#171b24;color:#e8edf8;border-radius:5px}.qb{font-size:11px;font-weight:600;padding:0 2px}.qb.a{background:#255c8d;color:#9bd0ff;border-color:#3174ad}.kg{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);gap:3px}.kb,.db{font-size:14px;background:#253447}.z{grid-column:span 2}.db{font-size:12px}.ab{display:grid;grid-template-columns:1fr 1.35fr;gap:4px;margin-top:4px;flex:none}.clb,.okb{height:28px;font-size:12px;font-weight:600}.clb{background:#465470}.okb{background:#2796e8}.tps{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;direction:rtl;margin-bottom:5px;flex:none}.tp{height:22px;font-size:12px;background:#171b24}.wh{position:relative;flex:1;min-height:0;border-radius:6px;overflow:hidden;background:linear-gradient(180deg,rgba(13,23,48,.95),#171a24 22%,#171a24 78%,rgba(13,23,48,.95))}.wh:before,.wh:after{content:"";position:absolute;left:0;right:0;height:35%;z-index:2;pointer-events:none}.wh:before{top:0;background:linear-gradient(180deg,#0d1730,rgba(13,23,48,0))}.wh:after{bottom:0;background:linear-gradient(0deg,#0d1730,rgba(13,23,48,0))}.sel{position:absolute;left:4px;right:4px;top:50%;height:26px;transform:translateY(-50%);border-radius:5px;background:#26374c;border:1px solid #324663;z-index:1}.wrs{position:relative;z-index:3;display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr;height:100%;direction:ltr}.col{overflow:auto;scrollbar-width:none;-ms-overflow-style:none;scroll-snap-type:y mandatory}.col::-webkit-scrollbar{display:none}.it{height:26px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;font-size:12px;color:#a8b7cb}.it.s{color:#fff;font-weight:600}.day .it{gap:3px}.day .it span:last-child{font-size:11px}.done{margin-top:5px;height:28px;width:100%;border:0;border-radius:5px;background:#2796e8;color:#fff;font-size:12px;font-weight:600;flex:none}.cp{cursor:pointer}.hide{display:none}</style><div class=app><div class=top><div class=tc><div class=t1><div class=lg><span class=d>D</span><span class=nm><span>الخيار</span><b>FXER</b></span></div><span class=dd>▾</span></div><div class=t2><span>$ 29,960.00</span><span class=usd>USD</span></div></div><div class=dep><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_deposit_2x.png alt="">شحن<br>الرصيد</div></div><div class=asset><div class=sq>+</div><div class=pair><div class=fg><em class=c>🇨🇦</em><em class=j>🇯🇵</em></div><div><small>UP &amp; DOWN</small><b>CAD/JPY</b></div></div></div><div class=chart id=CH><canvas id=cv></canvas></div><div class=bar><div class=tool>✎</div><div class=pm><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_chart_type.png alt=""></div><div class=tf id=tfD>1 D</div><div class=tf id=tfH>1 h</div><div class=tf id=tfM>1 m</div><div class=on id=tfS>5 s</div><div class=inf>i</div></div><div class=ctrl><div class=rw><div class=bx3 id=tmM>-</div><div class="bx cp" id=tOpen><div class=mid id=tVal>0 00:01:00 ي</div></div><div class=bx3 id=tmP>+</div></div><div class=rw2><div class="bx cp" id=aOpen><div class=bx3 id=amM>-</div><div class=val id=aVal>$ 23</div><div class=bx3 id=amP>+</div></div><div class=bx><div class=bx3>-</div><div class=val>0.0000</div><div class=bx3>+</div></div></div></div><div class=acts><button class="btn up"><b>UP</b><div class=rt>93%</div><i>الربح</i><small id=p1>$ 21.39</small></button><button class="btn dn"><b>DOWN</b><div class=rt>93%</div><i>الربح</i><small id=p2>$ 21.39</small></button></div><div class=nav id=nv><div class="ni a"><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-chart.png><span>الرسم البياني</span></div><div class=ni><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-portfolio-real.png><span>المحفظة</span></div><div class=ni><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-history-real.png><span>السجل</span></div><div class=ni><img src=https://www.babaoption.com/mwebterminal/mobile-assets/images/icon-more-real.png><span>المزيد</span></div></div></div><div class="pop amt" id=ap><div class=sh><div class=hd><div class=ttl>المبلغ</div><div class=ipt><em>$</em><span id=apv>2,000</span></div></div><div class=line></div><div class=ag><div class=ql id=ql></div><div class=kg id=kg></div></div><div class=ab><button class=clb id=acl>مسح</button><button class=okb id=aok>تم</button></div></div></div><div class="pop time" id=tp><div class=sh><div class=tps id=tps></div><div class=wh><div class=sel></div><div class=wrs><div class="col day" id=cd></div><div class=col id=chh></div><div class=col id=cmm></div><div class=col id=css></div></div></div><button class=done id=tok>تم</button></div></div><script>(()=>{
+/* ===== ثوابت ومراجع ===== */
+const s=document.getElementById("CH"),c=document.getElementById("cv"),U=c.getContext("2d"),D=document,
+X=6e4,RM=53,BM=22,PAD=6,MINBW=2,MAXBW=28,MIN_BS=3,MAX_BS=180,
+F0=(t,e,a)=>t<e?e:t>a?a:t,F=(t,d=4)=>t.toFixed(d),Q0=t=>("0"+t).slice(-2),
+ne=t=>{let e=new Date(t);return Q0(e.getHours())+":"+Q0(e.getMinutes())},
+G=(q,p=D)=>p.querySelector(q),GA=(q,p=D)=>[...p.querySelectorAll(q)],
+fmt=n=>"$ "+(+n).toLocaleString("en-US"),R2=n=>"$ "+(Math.round(n*93)/100).toFixed(2);
+
+/* ===== حالة الرسم ===== */
+let W=0,H=0,DPR=1,Y=[],baseT=0,lastP=113.646,vol=8e-4,trend=0,
+/* --- محرك الزوم (Time-anchored) ---
+   barSpacing: المسافة بين مركز شمعة والشمعة التالية (بالبكسل). القيمة الهدف.
+   barSpacingR: نفس القيمة معروضة مع Smooth Interpolation.
+   scrollOffset: كم شمعة (float) مزاحة يمينًا عن الشمعة الأخيرة. 0 = آخر شمعة عند الحافة اليمنى.
+   scrollOffsetR: نسخة معروضة مع lerp.
+   دائمًا: screenX(idx) = axisRight - (lastIdx + scrollOffsetR - idx) * barSpacingR */
+barSpacing=8,barSpacingR=8,scrollOffset=0,scrollOffsetR=0,
+priceHi=1,priceLo=0,priceHiR=null,priceLoR=null,
+/* Pan */panActive=0,panStartX=0,panStartOff=0,panVel=0,panLastX=0,panLastT=0,
+/* Pinch */pinchActive=0,pinchStartDist=0,pinchStartBS=8,pinchAnchorTime=0,pinchAnchorPx=0,
+/* Crosshair */chOn=0,chX=0,chY=0,
+/* Live candle animation */liveTh=null,liveTl=null,liveTc=null,livePath=null,liveVal=lastP,
+/* UI state */A=23,T=1,TV={d:0,h:0,m:0,s:1},LOCK=0,
+AM=[10,50,100,500,1000,1500,2000],
+PS=[["ث1",{d:0,h:0,m:0,s:1}],["د1",{d:0,h:0,m:1,s:0}],["2س",{d:0,h:2,m:0,s:0}],["ي1",{d:1,h:0,m:0,s:0}]],
+COL={d:[...Array(8)].map((_,i)=>i),h:[...Array(24)].map((_,i)=>i),m:[...Array(60)].map((_,i)=>i),s:[...Array(60)].map((_,i)=>i)},
+IH=26;
+
+/* ===== UI sync ===== */
+function sync(){G("#aVal").textContent=fmt(A);G("#p1").textContent=G("#p2").textContent=R2(A);G("#apv").textContent=(LOCK||A).toLocaleString("en-US");G("#tVal").textContent=`${TV.d} ${Q0(TV.h)}:${Q0(TV.m)}:${Q0(TV.s)} ي`}
+function mk(t,cl,tx,p){let e=D.createElement(t);cl&&(e.className=cl);tx!=null&&(e.textContent=tx);p&&p.appendChild(e);return e}
+function fillAmt(){let ql=G("#ql"),kg=G("#kg");ql.innerHTML=kg.innerHTML="";AM.slice(0,6).forEach(v=>{let b=mk("button","qb"+(v===LOCK?" a":""),fmt(v),ql);b.onclick=()=>{LOCK=v;fillAmt();sync()}});[1,2,3,4,5,6,7,8,9].forEach(v=>{let b=mk("button","kb",v,kg);b.onclick=()=>{LOCK=+(String(LOCK||"")+v).replace(/^0+/,'')||0;if(LOCK>999999999)LOCK=999999999;fillAmt();sync()}});let z=mk("button","kb z",0,kg);z.onclick=()=>{LOCK=+(String(LOCK||"")+0).replace(/^0+/,'')||0;if(LOCK>999999999)LOCK=999999999;fillAmt();sync()};let d=mk("button","db","del",kg);d.onclick=()=>{LOCK=+String(LOCK||"").slice(0,-1)||0;fillAmt();sync()}}
+function selCol(col,v){let h=IH,t=Math.round((col.scrollTop+(col.clientHeight-h)/2)/h);t=F0(t,0,col.children.length-3);[...col.children].forEach((x,i)=>x.classList.toggle("s",i===t+1));v.k=="d"?TV.d=COL.d[t]:v.k=="h"?TV.h=COL.h[t]:v.k=="m"?TV.m=COL.m[t]:TV.s=COL.s[t];sync()}
+function buildTime(){G("#tps").innerHTML="";[["#cd","d"],["#chh","h"],["#cmm","m"],["#css","s"]].forEach(([id,k])=>{let col=G(id);col.innerHTML="";let pad=mk("div","",null,col);pad.style.height="calc(50% - 13px)";COL[k].forEach(v=>{let it=mk("div","it",null,col);if(k=="d")it.innerHTML=`<span>${v}</span><span>ي</span>`;else it.textContent=Q0(v)});let pad2=mk("div","",null,col);pad2.style.height="calc(50% - 13px)";col.onscroll=()=>{clearTimeout(col._t);col._t=setTimeout(()=>selCol(col,{k}),60)}});PS.forEach(([lb,v])=>{let b=mk("button","tp",lb,G("#tps"));b.onclick=()=>{TV={...v};openT(1)}})}
+function openA(){LOCK=A;fillAmt();sync();G("#ap").classList.add("s")}
+function closeA(ok){if(ok&&LOCK>=0)A=LOCK||0;LOCK=0;sync();G("#ap").classList.remove("s")}
+function openT(re){G("#tp").classList.add("s");requestAnimationFrame(()=>{[[G("#cd"),TV.d],[G("#chh"),TV.h],[G("#cmm"),TV.m],[G("#css"),TV.s]].forEach(([c,v])=>{c.scrollTop=v*IH-(c.clientHeight-IH)/2});setTimeout(()=>[["#cd","d"],["#chh","h"],["#cmm","m"],["#css","s"]].forEach(([id,k])=>selCol(G(id),{k})),re?20:80)})}
+function closeT(){T=TV.d*86400+TV.h*3600+TV.m*60+TV.s;sync();G("#tp").classList.remove("s")}
+
+/* ===== توليد الشموع ===== */
+function gauss(){let a=0,b=0;while(!a)a=Math.random();while(!b)b=Math.random();return Math.sqrt(-2*Math.log(a))*Math.cos(2*Math.PI*b)}
+function genC(prev,v,tr){let o=prev,dr=tr*v*.15,mag=v*(.7+.6*Math.random()),cl=o*(1+dr+gauss()*mag*.5),hi=Math.max(o,cl),lo=Math.min(o,cl),wick=(hi-lo)*(.3+.7*Math.random())+o*v*.1;return{o,h:hi+Math.random()*wick*.5,l:lo-Math.random()*wick*.5,c:cl}}
+function genPath(cd,openV,closeV,hi,lo){let N=180,p=[],iH=Math.max(2,Math.min(N-3,N*(.18+.18*Math.random())|0)),iL=Math.max(3,Math.min(N-2,N*(.42+.24*Math.random())|0)),amp=openV*vol;for(let x=0;x<N;x++){let g=x/(N-1),ease=g<.5?2*g*g:1-Math.pow(-2*g+2,2)/2,sn=Math.sin(g*Math.PI*(2.3+1.2*Math.random())+2*Math.random())*amp*(.22*(1-g)+.02),nz=gauss()*amp*(.07*(1-g)+.006);p.push(F0(openV+(closeV-openV)*ease+sn+nz,.9998*lo,1.0002*hi))}p[0]=openV;p[N-1]=closeV;p[iH]=hi;p[iL]=lo;for(let k=0;k<3;k++)for(let x=1;x<N-1;x++)x!=iH&&x!=iL&&(p[x]=(p[x-1]+2*p[x]+p[x+1])/4);p[iH]=hi;p[iL]=lo;return p}
+function seed(){let n0=Math.floor(Date.now()/X)*X,lc=lastP;for(let k=359;k>=1;k--){Math.random()<.05?trend=2*(Math.random()-.5):trend*=.98;let cc=genC(lc,vol,trend);Y.push({o:cc.o,c:cc.c,h:cc.h,l:cc.l,t:n0-k*X});lc=cc.c}Y.push({o:lc,c:lc,h:lc,l:lc,t:n0});baseT=n0;liveVal=lc;lastP=lc}
+function prepend(n=240){let f=Y[0],pc=f.o,t=f.t,A=[];for(let k=0;k<n;k++){Math.random()<.05?trend=2*(Math.random()-.5):trend*=.98;let cc=genC(pc,vol,trend);A.push({o:cc.o,c:cc.c,h:cc.h,l:cc.l,t:t-X});pc=cc.o;t-=X}Y=A.reverse().concat(Y)}
+function newCandle(){let lc=Y[Y.length-1].c;Math.random()<.05?trend=2*(Math.random()-.5):trend*=.98;let cc=genC(lc,vol,trend);baseT+=X;Y.push({o:lc,c:lc,h:cc.h,l:cc.l,t:baseT});liveTh=cc.h;liveTl=cc.l;liveTc=cc.c;livePath=genPath(cc,lc,cc.c,cc.h,cc.l);liveVal=lc}
+function tickLive(){let last=Y[Y.length-1];if(!last)return liveVal;if(!livePath){liveTh=last.h;liveTl=last.l;liveTc=last.c;livePath=genPath(last,last.o,last.c,last.h,last.l)}let e=F0((Date.now()-baseT)/X,0,1),i=e*(livePath.length-1),lo=0|i,fr=i-lo,a=livePath[lo],b=livePath[Math.min(livePath.length-1,lo+1)],v=F0(a+(b-a)*fr,.9995*liveTl,1.0005*liveTh);last.c=v;if(v>last.h)last.h=v;if(v<last.l)last.l=v;liveVal=v;return v}
+
+/* ========================================================
+   ========== محرك الزوم الاحترافي (Time-anchored) =========
+   ======================================================== */
+
+/* حدود barSpacing المسموحة (لتقييد المستخدم لا لتغيير حجم الشموع). */
+function clampBS(v){return F0(v,MIN_BS,MAX_BS)}
+
+/* عرض جسم الشمعة كنسبة من barSpacing، مع حد أدنى/أعلى. */
+function barWidth(bs){return F0(Math.round(bs*.72),MINBW,MAXBW)}
+
+/* المحور الأيمن للرسم (قبل شريط السعر). */
+function axisRight(){return PAD+(W-PAD-6)/2 + (W-PAD-6)/2}  /* = W - 6 */
+function plotRight(){return W-6}
+function plotWidth(){return W-6-PAD}
+
+/* أقصى إزاحة يسارية مسموحة (لا نسمح بالخروج من الشموع). */
+function maxScroll(){let bs=barSpacingR||barSpacing;let visible=plotWidth()/bs;return Math.max(0,Y.length-1-2)+Math.max(0,visible-8)}
+
+/* تحويل: index شمعة → x على الشاشة (باستخدام القيم المعروضة). */
+function idxToX(i){let last=Y.length-1;return plotRight() - (last + scrollOffsetR - i)*barSpacingR}
+
+/* تحويل عكسي: x شاشة → index شمعة (قد يكون خارج المصفوفة). */
+function xToIdx(x){let last=Y.length-1;return last + scrollOffsetR - (plotRight()-x)/barSpacingR}
+
+/* تحويل idx → time (خطي، حتى للـ idx خارج المصفوفة). */
+function idxToTime(i){let last=Y.length-1;return Y[last].t + (i-last)*X}
+function timeToIdx(t){let last=Y.length-1;return last + (t-Y[last].t)/X}
+
+/* ⭐ قلب المحرك:
+   zoomAt(pivotX, newBS): اضبط barSpacing إلى newBS بحيث تبقى النقطة تحت pivotX
+   على نفس x بالضبط. نستخدم time-anchor لضمان ثبات مطلق حتى مع إضافة شموع. */
+function zoomAt(pivotX,newBS){
+  newBS=clampBS(newBS);
+  /* التقط الوقت تحت المؤشر بالقيم الحالية المعروضة */
+  const anchorIdx = xToIdx(pivotX);
+  const anchorTime = idxToTime(anchorIdx);
+  /* عدّل الهدف */
+  barSpacing = newBS;
+  /* أعد حساب scrollOffset المطلوب بحيث screenX(anchorTime)==pivotX عند barSpacing الجديد.
+     نجعل barSpacingR = newBS مباشرةً (فرض القيمة المعروضة أيضًا) لضمان ثبات فوري بلا انزياح. */
+  barSpacingR = newBS;
+  const last = Y.length-1;
+  const idxAtNewBS = timeToIdx(anchorTime);
+  /* من idxToX: pivotX = plotRight - (last + newOff - idxAtNewBS)*newBS
+     => newOff = idxAtNewBS - last + (plotRight - pivotX)/newBS  */
+  const newOff = idxAtNewBS - last + (plotRight()-pivotX)/newBS;
+  scrollOffset = F0(newOff,-8, maxScroll());
+  scrollOffsetR = scrollOffset;
+}
+
+/* لبدء pinch: خزّن نقطة الارتكاز كوقت، ونحدثها بلا تراكم أخطاء. */
+function pinchBegin(t){
+  let a=t.touches[0],b=t.touches[1],r=s.getBoundingClientRect();
+  pinchStartDist=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  pinchStartBS=barSpacing;
+  pinchAnchorPx=F0((a.clientX+b.clientX)/2-r.left,PAD,W-6);
+  pinchAnchorTime=idxToTime(xToIdx(pinchAnchorPx));
+  pinchActive=1;panActive=0;chOn=0;
+}
+function pinchMove(t){
+  let a=t.touches[0],b=t.touches[1];
+  let d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+  let ratio=d/pinchStartDist;
+  let newBS=clampBS(pinchStartBS*ratio);
+  /* نطبق zoom عند نفس نقطة الشاشة المخزنة مع الوقت الأصلي */
+  barSpacing=newBS;barSpacingR=newBS;
+  const last=Y.length-1;
+  const idxAtNewBS = timeToIdx(pinchAnchorTime);
+  scrollOffset = idxAtNewBS - last + (plotRight()-pinchAnchorPx)/newBS;
+  scrollOffset = F0(scrollOffset,-8,maxScroll());
+  scrollOffsetR=scrollOffset;
+}
+
+/* ===== Pan (بالوقت أيضًا لضمان الاتساق مع الزوم) ===== */
+function evX(e){let r=s.getBoundingClientRect();return(e.touches?e.touches[0].clientX:e.clientX)-r.left}
+function evY(e){let r=s.getBoundingClientRect();return(e.touches?e.touches[0].clientY:e.clientY)-r.top}
+function panStart(e){if(pinchActive)return;panActive=1;panStartX=evX(e);panStartOff=scrollOffset;panLastX=panStartX;panLastT=performance.now();panVel=0;chOn=0}
+function panMove(e){
+  if(pinchActive)return;
+  if(panActive){
+    let x=evX(e),dx=x-panStartX;
+    /* dx بالبكسل → تحويل إلى عدد شموع بحسب barSpacingR */
+    scrollOffset=F0(panStartOff + dx/barSpacingR, -8, maxScroll());
+    let now=performance.now(),dt=now-panLastT;
+    if(dt>0){panVel=(x-panLastX)/dt/barSpacingR*16;panLastX=x;panLastT=now}
+  }else{chOn=1;chX=evX(e);chY=evY(e)}
+}
+function panEnd(){
+  if(!panActive)return;
+  panActive=0;
+  /* inertia خفيف */
+  scrollOffset=F0(scrollOffset + panVel*6, -8, maxScroll());
+  panVel*=.5;
+}
+
+/* ===== Resize ===== */
+function resize(){let r=s.getBoundingClientRect();W=r.width;H=r.height;DPR=devicePixelRatio||1;c.width=W*DPR;c.height=H*DPR;c.style.width=W+"px";c.style.height=H+"px";U.setTransform(DPR,0,0,DPR,0,0)}
+
+/* ===== نطاق السعر مع smoothing ===== */
+function smoothPrice(hi,lo,force){let mid=(hi+lo)/2,sp=Math.max(5e-6,hi-lo);if(force||priceHiR==null){priceHiR=hi;priceLoR=lo;return}let midR=(priceHiR+priceLoR)/2,spR=priceHiR-priceLoR;spR+=(sp-spR)*.12;midR+=(mid-midR)*.12;priceHiR=midR+spR/2;priceLoR=midR-spR/2}
+
+/* ===== رسم مساعد ===== */
+function roundRect(x,y,w,h,r,fill){U.fillStyle=fill;U.beginPath();U.moveTo(x+r,y);U.arcTo(x+w,y,x+w,y+h,r);U.arcTo(x+w,y+h,x,y+h,r);U.arcTo(x,y+h,x,y,r);U.arcTo(x,y,x+w,y,r);U.closePath();U.fill()}
+
+/* ===== الحلقة الرئيسية ===== */
+let forcePrice=1;
+function frame(){
+  resize();
+  tickLive();
+
+  /* ⭐ Smooth interpolation للـ barSpacing و scrollOffset */
+  barSpacingR += (barSpacing - barSpacingR) * .22;
+  if(Math.abs(barSpacing - barSpacingR) < .003) barSpacingR = barSpacing;
+  scrollOffsetR += (scrollOffset - scrollOffsetR) * .28;
+  if(Math.abs(scrollOffset - scrollOffsetR) < .01) scrollOffsetR = scrollOffset;
+
+  /* شمعة جديدة كل X */
+  if(Date.now()-baseT>=X)newCandle();
+
+  /* prepend عند الاقتراب من اليسار */
+  for(let g=0;g<4;g++){
+    let leftIdx = Y.length-1 + scrollOffsetR - (plotRight()-PAD)/barSpacingR;
+    if(leftIdx<40)prepend(240);else break;
+  }
+
+  const pw=plotWidth(),ph=H-8-BM,axR=plotRight();
+  const last=Y.length-1;
+
+  /* نطاق العرض بالمؤشرات */
+  const iL = Math.max(0, Math.floor(last + scrollOffsetR - pw/barSpacingR) - 2);
+  const iR = Math.min(last, Math.ceil(last + scrollOffsetR) + 2);
+
+  /* حساب نطاق السعر من الشموع المرئية */
+  let hi=-Infinity,lo=Infinity;
+  for(let i=iL;i<=iR;i++){let k=Y[i];if(k.h>hi)hi=k.h;if(k.l<lo)lo=k.l}
+  if(!isFinite(hi)){hi=lastP*1.001;lo=lastP*.999}
+  const pad=.05*Math.max(5e-4,hi-lo);
+  smoothPrice(hi+pad,lo-pad,forcePrice);forcePrice=0;
+  const rng=priceHiR-priceLoR;
+  const p2y=p=>8+(priceHiR-p)*ph/rng;
+
+  /* خلفية */
+  U.clearRect(0,0,W,H);U.fillStyle="#0d1730";U.fillRect(0,0,W,H);
+
+  /* خطوط الشبكة */
+  U.save();U.beginPath();U.rect(PAD,8,pw,ph);U.clip();
+  U.strokeStyle="#1a2433";U.lineWidth=1;
+
+  /* شبكة زمنية: كل D شمعة */
+  let stepD=5,minGap=30;while((iR-iL+12)/stepD>minGap)stepD*=2;
+  const lQ = last + scrollOffsetR - pw/barSpacingR;
+  const rQ = last + scrollOffsetR;
+  for(let t=Math.ceil(lQ/stepD)*stepD;t<=rQ+stepD;t+=stepD){
+    const x=idxToX(t);
+    if(x<PAD-barSpacingR||x>W+barSpacingR)continue;
+    U.beginPath();U.moveTo(x,8);U.lineTo(x,H-BM);U.stroke();
+  }
+  /* شبكة سعرية */
+  const stepP=(t=>{let e=10**Math.floor(Math.log10(t)),a=t/e;return(a<=1?1:a<=2?2:a<=5?5:10)*e})(rng/Math.max(2,Math.floor(ph/60)));
+  for(let p=Math.floor(priceLoR/stepP)*stepP;p<=priceHiR+stepP;p+=stepP){
+    const y=p2y(p);U.beginPath();U.moveTo(PAD,y);U.lineTo(W,y);U.stroke();
+  }
+
+  /* خطوط زمن الصفقة */
+  const nowIdx=last, expIdx=nowIdx + 3; /* توضيحي */
+  U.setLineDash([5,5]);U.strokeStyle="rgba(255,255,255,.45)";
+  const xNow=idxToX(nowIdx)+barSpacingR/2, xExp=idxToX(expIdx)+barSpacingR/2;
+  if(xNow>=PAD&&xNow<=W){U.beginPath();U.moveTo(xNow,8);U.lineTo(xNow,H-BM);U.stroke()}
+  if(xExp>=PAD&&xExp<=W){U.beginPath();U.moveTo(xExp,8);U.lineTo(xExp,H-BM);U.stroke()}
+  U.strokeStyle="rgba(255,255,255,.8)";
+  const yPr=p2y(Y[last].c);
+  U.beginPath();U.moveTo(PAD,yPr);U.lineTo(W,yPr);U.stroke();
+  U.setLineDash([]);
+
+  /* ⭐ رسم الشموع — الحجم والموضع محسوبان من barSpacingR فقط */
+  const bw = barWidth(barSpacingR);
+  for(let i=iL;i<=iR;i++){
+    const k=Y[i],x=idxToX(i);
+    if(x<PAD-bw||x>W+bw)continue;
+    const yO=p2y(k.o),yC=p2y(k.c),yH=p2y(k.h),yL=p2y(k.l),up=k.c>=k.o;
+    U.strokeStyle=U.fillStyle=up?"#26a69a":"#ef5350";U.lineWidth=1;
+    U.beginPath();U.moveTo(.5+(0|x),yH);U.lineTo(.5+(0|x),yL);U.stroke();
+    U.fillRect(Math.round(x-bw/2),Math.min(yO,yC),bw,Math.max(1,Math.abs(yC-yO)));
+  }
+
+  /* Crosshair */
+  if(chOn&&chX>=PAD&&chX<=W&&chY>=8&&chY<=H-BM){
+    U.setLineDash([4,4]);U.strokeStyle="rgba(195,188,219,.55)";
+    U.beginPath();U.moveTo(chX,8);U.lineTo(chX,H-BM);U.stroke();
+    U.beginPath();U.moveTo(PAD,chY);U.lineTo(W,chY);U.stroke();
+    U.setLineDash([]);
+  }
+  U.restore();
+
+  /* تسميات المحور الزمني */
+  U.fillStyle="#fff";U.font="10px Arial";U.textAlign="center";
+  let labelPx=42,stepL=stepD;while(stepL*barSpacingR<labelPx)stepL+=stepD;
+  for(let t=Math.ceil(lQ/stepL)*stepL;t<=rQ;t+=stepL){
+    const x=idxToX(t);if(x<PAD||x>W)continue;
+    U.fillText(ne(Y[last].t+(t-last)*X),x,H-7);
+  }
+
+  /* تسميات السعر */
+  U.textAlign="right";
+  for(let p=Math.floor(priceLoR/stepP)*stepP;p<=priceHiR+stepP;p+=stepP){
+    const y=p2y(p);if(y<8||y>H-BM)continue;
+    roundRect(W-RM,y-8,50,16,4,"rgba(14,21,33,.85)");
+    U.fillStyle="#a5b7d6";U.fillText(F(p),W-8,y+4);
+  }
+
+  /* شارة السعر الحالي + نقطة نبض */
+  const lk=Y[last],py=p2y(lk.c),px=idxToX(last),pulse=.5+.5*Math.sin(performance.now()/120);
+  const ri=3.25+.25*pulse,ro=4.8+.8*pulse;
+  roundRect(W-RM,py-11,50,22,10,"#1b2b4b");
+  U.strokeStyle="#3e5f9b";U.lineWidth=1;U.strokeRect(W-RM+.5,py-10.5,49,21);
+  U.fillStyle="#fff";U.font="bold 11px Arial";U.textAlign="center";
+  U.fillText(F(lk.c),W-RM+25,py+4);
+  U.fillStyle="#3c6cff";U.globalAlpha=.22+.2*pulse;
+  U.beginPath();U.arc(px,py,ro+1.5*pulse,0,7);U.fill();U.globalAlpha=1;
+  U.beginPath();U.arc(px,py,ri,0,7);U.fill();
+  U.strokeStyle="#d7ecff";U.lineWidth=1.6;U.globalAlpha=.85+.15*pulse;
+  U.beginPath();U.arc(px,py,ro,0,7);U.stroke();U.globalAlpha=1;
+
+  requestAnimationFrame(frame);
+}
+
+/* ===== ربط الأحداث ===== */
+addEventListener("resize",resize);
+seed();resize();buildTime();sync();
+requestAnimationFrame(frame);
+
+/* Mouse */
+s.addEventListener("mousedown",panStart);
+s.addEventListener("mousemove",panMove);
+addEventListener("mouseup",panEnd);
+s.addEventListener("mouseleave",()=>chOn=0);
+
+/* Wheel = zoom */
+s.addEventListener("wheel",e=>{
+  e.preventDefault();
+  const px=evX(e);
+  const factor=e.deltaY>0 ? 1/1.12 : 1.12;
+  zoomAt(px, barSpacing*factor);
+},{passive:!1});
+
+/* Touch */
+let lastTap=0;
+s.addEventListener("touchstart",e=>{
+  const now=Date.now();
+  if(e.touches.length===2){pinchBegin(e);lastTap=0;return}
+  if(e.touches.length===1){
+    if(now-lastTap<320){/* double-tap → reset */
+      barSpacing=8;barSpacingR=8;scrollOffset=0;scrollOffsetR=0;panVel=0;chOn=0;lastTap=0;return;
+    }
+    lastTap=now;panStart(e);
+  }
+},{passive:!0});
+s.addEventListener("touchmove",e=>{
+  if(e.touches.length===2){if(!pinchActive)pinchBegin(e);else pinchMove(e);return}
+  if(!pinchActive)panMove(e);
+},{passive:!0});
+s.addEventListener("touchend",e=>{
+  if(pinchActive&&e.touches.length<2){pinchActive=0;panActive=0;if(e.touches.length===1)panStart(e);else chOn=0}
+  if(!e.touches.length)panEnd();
+},{passive:!0});
+
+/* Nav & popups */
+GA("#nv .ni").forEach(n=>n.addEventListener("click",()=>{GA("#nv .ni").forEach(x=>x.classList.remove("a"));n.classList.add("a")}));
+G("#aOpen").onclick=openA;G("#tOpen").onclick=()=>openT();
+G("#aok").onclick=()=>closeA(1);G("#acl").onclick=()=>{LOCK=0;fillAmt();sync()};G("#tok").onclick=closeT;
+G("#ap").onclick=e=>e.target.id=="ap"&&closeA();G("#tp").onclick=e=>e.target.id=="tp"&&closeT();
+G("#amM").onclick=e=>{e.stopPropagation();A=Math.max(0,A-1);sync()};
+G("#amP").onclick=e=>{e.stopPropagation();A++;sync()};
+G("#tmM").onclick=()=>{T=Math.max(1,T-1);TV={d:T/86400|0,h:T%86400/3600|0,m:T%3600/60|0,s:T%60};sync()};
+G("#tmP").onclick=()=>{T++;TV={d:T/86400|0,h:T%86400/3600|0,m:T%3600/60|0,s:T%60};sync()};
+})();</script></html>
