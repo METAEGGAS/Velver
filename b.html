@@ -1,1 +1,260 @@
-<!doctype html><html lang=ar dir=rtl><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>مساعدة</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f1722;font-family:Tajawal,Cairo,system-ui}.p{position:relative;width:min(100vw,631px);aspect-ratio:631/1080;background:url(https://www.genspark.ai/api/files/s/Mr1xBehR) center/cover no-repeat}.b{position:absolute;border:0;background:0;cursor:pointer;-webkit-tap-highlight-color:transparent}.b:focus{outline:2px solid #2da1ff;outline-offset:-2px;border-radius:12px}.m1{left:8px;top:20px;width:42px;height:42px}.m2{right:8px;top:20px;width:42px;height:42px}.t1{left:26px;top:166px;width:120px;height:54px}.t2{left:152px;top:166px;width:145px;height:54px}.t3{left:302px;top:166px;width:178px;height:54px}.t4{right:0;top:152px;width:135px;height:68px}.c1{left:143px;top:667px;width:128px;height:32px}.e{left:351px;top:667px;width:160px;height:32px}.o{left:37px;top:987px;width:557px;height:60px;border-radius:14px}.s{position:absolute;left:16px;right:16px;bottom:18px;transform:translateY(140%);background:rgba(20,29,43,.96);color:#fff;padding:12px 14px;border-radius:14px;font-size:14px;line-height:1.6;box-shadow:0 10px 24px rgba(0,0,0,.35);transition:.25s;z-index:5}.s.v{transform:translateY(0)}.x{position:absolute;inset:0;background:rgba(5,10,18,.62);opacity:0;pointer-events:none;transition:.25s;z-index:6}.x.v{opacity:1;pointer-events:auto}.d{position:absolute;left:16px;right:16px;bottom:16px;background:#1f2c40;color:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 40px rgba(0,0,0,.45)}.d h3{margin:0 0 8px;font-size:20px}.d p{margin:0;font-size:15px;color:#d8e4ff;line-height:1.7}.a{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}.a button{border:0;border-radius:12px;padding:10px 16px;cursor:pointer}.a .p1{background:#2da1ff;color:#fff}.a .p2{background:#e8eefc;color:#152131}</style><div class=p><button class="b m1" onclick="msg('تم الضغط على زر القائمة')" aria-label=القائمة></button><button class="b m2" onclick="msg('تم الضغط على زر القائمة')" aria-label=القائمة></button><button class="b t1" onclick="msg('تبويب اللائحة')" aria-label=اللائحة></button><button class="b t2" onclick="msg('تبويب الملاحظات')" aria-label=الملاحظات></button><button class="b t3" onclick="msg('تبويب الأسئلة الشائعة')" aria-label="الأسئلة الشائعة"></button><button class="b t4" onclick="msg('تبويب الدعم')" aria-label=الدعم></button><button class="b c1" onclick="chat(1)" aria-label="فتح الدردشة"></button><button class="b e" onclick="msg('أضف بريدك الإلكتروني هنا')" aria-label="البريد الإلكتروني"></button><button class="b o" onclick="chat(1)" aria-label="افتح الدردشة"></button><div id=s class=s></div><div id=x class=x onclick="event.target==this&&chat()"><div class=d><h3>بدء الدردشة</h3><p>واجهة الدردشة جاهزة للربط بالخدمة الفعلية.</p><div class=a><button class=p1 onclick="msg('واجهة الدردشة جاهزة للربط بالخدمة الفعلية.')">متابعة</button><button class=p2 onclick="chat()">إغلاق</button></div></div></div></div><script>let t,s=document.getElementById('s'),x=document.getElementById('x');function msg(v){s.textContent=v;s.classList.add('v');clearTimeout(t);t=setTimeout(_=>s.classList.remove('v'),2200)}function chat(v=0){x.classList.toggle('v',!!v)}addEventListener('keydown',e=>e.key=='Escape'&&chat())</script></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>مساعدة</title>
+  <style>
+    *{box-sizing:border-box}html,body{margin:0;padding:0;background:#172231;font-family:Arial,Tahoma,sans-serif;color:#fff}
+    :root{
+      --bg:#172231;--bg2:#2a3650;--tab:#2b3752;--muted:#adb8ca;--blue:#2da4ff;--blue2:#4db3ff;
+      --card:#31415f;--card2:#283754;--shadow:0 14px 30px rgba(0,0,0,.35)
+    }
+    body{display:flex;justify-content:center}
+    .phone{width:100%;max-width:631px;min-height:100vh;background:linear-gradient(180deg,#172231 0%,#283654 100%);position:relative;overflow:hidden}
+    .top{background:#182330;padding:26px 16px 0;position:relative}
+    .title{margin:0;text-align:center;font-size:24px;font-weight:700;letter-spacing:.5px}
+    .icon-btn{position:absolute;top:28px;width:34px;height:34px;border:0;background:transparent;cursor:pointer}
+    .icon-btn.left{left:12px}.icon-btn.right{right:12px}
+    .menu-lines,.menu-lines:before,.menu-lines:after{
+      content:"";display:block;height:2px;background:#c9d3e3;border-radius:4px;position:absolute;left:7px;right:7px
+    }
+    .menu-lines{top:16px}.menu-lines:before{top:-7px}.menu-lines:after{top:7px}
+
+    .tabs{margin-top:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;color:#c2cbda;font-size:14px}
+    .tab{
+      flex:1;text-align:center;padding:16px 4px 18px;color:#c8d0de;cursor:pointer;position:relative;white-space:nowrap
+    }
+    .tab.active{
+      background:#2a3550;color:#fff;border-radius:16px 16px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
+    }
+
+    .hero-wrap{background:#2b3752;padding:16px 0 10px;position:relative}
+    .hero-wrap:before,.hero-wrap:after{
+      content:"";position:absolute;left:-8%;width:116%;height:52px;background:#2e3a56;transform:skewY(-4deg);z-index:0
+    }
+    .hero-wrap:before{top:-32px}.hero-wrap:after{bottom:-30px;transform:skewY(4deg)}
+    .hero{
+      width:88%;height:280px;margin:8px auto 10px;border-radius:12px;position:relative;overflow:hidden;
+      background:
+        radial-gradient(circle at 50% 18%,rgba(70,175,255,.95),rgba(52,113,223,.72) 18%,rgba(11,36,85,.35) 42%,transparent 56%),
+        radial-gradient(circle at 50% 52%,rgba(20,91,214,.28),transparent 60%),
+        linear-gradient(180deg,#071a41 0%,#0d2554 26%,#0c1f45 62%,#09152e 100%);
+      box-shadow:var(--shadow);z-index:1
+    }
+    .hero .mesh{
+      position:absolute;inset:0;opacity:.18;
+      background:
+        radial-gradient(circle at 50% 50%,transparent 0 33%,rgba(255,255,255,.25) 33.5% 34%,transparent 34.5%),
+        radial-gradient(circle at 50% 50%,transparent 0 48%,rgba(255,255,255,.18) 48.5% 49%,transparent 49.5%),
+        radial-gradient(circle at 50% 50%,transparent 0 63%,rgba(255,255,255,.12) 63.5% 64%,transparent 64.5%);
+    }
+    .support-text{
+      position:absolute;left:50%;top:55%;transform:translate(-50%,-50%);
+      font-size:86px;font-weight:900;letter-spacing:2px;color:#fff;opacity:.95;line-height:1
+    }
+    .orb{
+      position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+      width:150px;height:150px;border-radius:50%;
+      background:
+        radial-gradient(circle at 30% 28%,#57c7ff 0,#347cff 28%,#0f48cb 62%,#092e93 100%);
+      box-shadow:0 0 40px rgba(53,143,255,.55),inset -18px -20px 30px rgba(0,0,0,.28),inset 10px 10px 20px rgba(255,255,255,.1);
+      z-index:2
+    }
+    .orb .eye,.orb .eye2{
+      position:absolute;top:48px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.75)
+    }
+    .orb .eye{left:43px}.orb .eye2{right:43px}
+    .orb .mouth{
+      position:absolute;left:50%;top:82px;width:40px;height:18px;transform:translateX(-50%);
+      border:5px solid #fff;border-top:0;border-left-color:transparent;border-right-color:transparent;border-bottom-left-radius:40px;border-bottom-right-radius:40px
+    }
+    .orb .mic{
+      position:absolute;right:13px;bottom:28px;width:56px;height:56px;border-radius:50%;
+      border:13px solid #e7ebf7;border-left-color:transparent;transform:rotate(18deg)
+    }
+    .orb .mic:after{
+      content:"";position:absolute;left:-35px;bottom:-14px;width:52px;height:14px;border-radius:14px;background:#fff;transform:rotate(-30deg)
+    }
+    .orb .mic:before{
+      content:"";position:absolute;right:2px;top:12px;width:28px;height:44px;border-radius:18px;background:linear-gradient(180deg,#ffffff,#cbd4e5)
+    }
+    .stage{
+      position:absolute;left:50%;bottom:24px;transform:translateX(-50%);
+      width:220px;height:46px;border-radius:50%;
+      background:linear-gradient(180deg,#f0f3ff,#bcc5da 65%,#8d99b7);box-shadow:0 10px 22px rgba(0,0,0,.35)
+    }
+    .stage:before{
+      content:"";position:absolute;left:-10px;right:-10px;bottom:-12px;height:14px;border-radius:50%;
+      background:radial-gradient(circle,#36c1ff 0,#237cff 46%,rgba(35,124,255,0) 73%)
+    }
+    .alert{
+      position:absolute;width:58px;height:58px;background:linear-gradient(180deg,#4cbcff,#237dff);
+      clip-path:polygon(50% 0,0 100%,100% 100%);filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))
+    }
+    .alert:before{
+      content:"!";position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);font-size:32px;font-weight:900;color:#fff
+    }
+    .a1{right:28px;bottom:24px;transform:rotate(18deg)}
+    .a2{left:42px;top:92px;transform:rotate(-18deg) scale(.72)}
+    .a3{right:76px;top:66px;transform:rotate(12deg) scale(.62)}
+
+    .content{padding:24px 22px 28px;text-align:center}
+    .content h2{margin:8px 0 22px;font-size:25px;line-height:1.4}
+    .content p{margin:0 auto 30px;max-width:520px;font-size:18px;line-height:1.85;color:#edf2ff}
+    .content a{color:#42a8ff;text-decoration:none}
+    .content a:hover{text-decoration:underline}
+
+    .profile{
+      background:linear-gradient(180deg,#344667,#2f3f5e);border-radius:14px;padding:20px 18px;margin:0 auto 24px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05),var(--shadow);display:flex;align-items:center;justify-content:space-between;gap:16px
+    }
+    .avatar{
+      width:96px;height:96px;border-radius:50%;
+      background:radial-gradient(circle at 40% 25%,#c3d8ff 0,#9dbcfb 40%,#6e96f6 68%,#5a7fe8 100%);
+      position:relative;flex:0 0 96px
+    }
+    .avatar:before{
+      content:"";position:absolute;left:50%;top:29px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:#5c83e8
+    }
+    .avatar:after{
+      content:"";position:absolute;left:50%;bottom:17px;transform:translateX(-50%);width:58px;height:34px;border-radius:40px 40px 18px 18px;background:#5c83e8
+    }
+    .user{flex:1;text-align:center}
+    .user .hello{color:#d8def0;font-size:17px;margin-bottom:6px}
+    .user .name{font-size:22px;font-weight:700;margin-bottom:12px}
+    .badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+    .badge{
+      min-width:64px;height:28px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;
+      padding:0 10px;font-size:14px
+    }
+    .badge.dark{background:#4f5f8e;color:#fff;gap:6px}
+    .badge.light{background:#fff;color:#111;font-weight:700}
+    .star{font-size:14px}
+
+    .chat-btn{
+      width:100%;height:62px;border:0;border-radius:14px;background:linear-gradient(180deg,#41b3ff,#2d9fff);
+      color:#fff;font-size:28px;cursor:pointer;box-shadow:0 10px 24px rgba(45,159,255,.35)
+    }
+    .chat-btn:hover{filter:brightness(1.03)}
+
+    .modal{
+      position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:flex-end;justify-content:center;padding:16px;z-index:999
+    }
+    .modal.show{display:flex}
+    .sheet{
+      width:min(631px,100%);background:#22324b;color:#fff;border-radius:18px 18px 0 0;padding:18px 18px 22px;box-shadow:0 -10px 30px rgba(0,0,0,.3)
+    }
+    .sheet h3{margin:0 0 10px;font-size:22px}
+    .sheet p{margin:0 0 16px;line-height:1.8;color:#d7e3ff}
+    .sheet .row{display:flex;gap:10px;flex-wrap:wrap}
+    .sheet .row button{border:0;border-radius:12px;padding:12px 18px;font-size:16px;cursor:pointer}
+    .sheet .ok{background:#2da4ff;color:#fff}.sheet .close{background:#edf2ff;color:#172231}
+
+    @media (max-width:520px){
+      .title{font-size:20px}
+      .tab{font-size:12px}
+      .hero{height:236px}
+      .support-text{font-size:64px}
+      .orb{width:118px;height:118px}
+      .orb .eye,.orb .eye2{top:38px;width:14px;height:14px}
+      .orb .eye{left:33px}.orb .eye2{right:33px}
+      .orb .mouth{top:67px;width:33px;height:14px;border-width:4px}
+      .orb .mic{width:46px;height:46px;border-width:10px;right:10px;bottom:23px}
+      .orb .mic:before{width:22px;height:34px}
+      .orb .mic:after{width:42px;height:11px;left:-28px;bottom:-11px}
+      .stage{width:178px;height:38px}
+      .content h2{font-size:20px}
+      .content p{font-size:16px}
+      .profile{padding:16px}
+      .avatar{width:84px;height:84px;flex-basis:84px}
+      .user .name{font-size:18px}
+      .chat-btn{font-size:22px;height:56px}
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="top">
+      <button class="icon-btn left" aria-label="القائمة"><span class="menu-lines"></span></button>
+      <h1 class="title">مساعدة</h1>
+      <button class="icon-btn right" aria-label="القائمة"><span class="menu-lines"></span></button>
+
+      <div class="tabs">
+        <div class="tab active">الدعم</div>
+        <div class="tab">الأسئلة الشائعة</div>
+        <div class="tab">الملاحظات</div>
+        <div class="tab">اللائحة</div>
+      </div>
+    </div>
+
+    <div class="hero-wrap">
+      <div class="hero">
+        <div class="mesh"></div>
+        <div class="support-text">SUPPORT</div>
+
+        <div class="alert a1"></div>
+        <div class="alert a2"></div>
+        <div class="alert a3"></div>
+
+        <div class="orb">
+          <span class="eye"></span>
+          <span class="eye2"></span>
+          <span class="mouth"></span>
+          <span class="mic"></span>
+        </div>
+
+        <div class="stage"></div>
+      </div>
+    </div>
+
+    <div class="content">
+      <h2>نحن هنا لمساعدتك 24/7</h2>
+      <p>
+        للحصول على استجابة سريعة، انقر فوق الزر
+        <a href="#" id="openInline">فتح الدردشة</a>
+        أو أرسل لنا بريدًا إلكترونيًا.
+      </p>
+
+      <div class="profile">
+        <div class="avatar"></div>
+
+        <div class="user">
+          <div class="hello">مرحبا،</div>
+          <div class="name">Gggg Hhhh</div>
+          <div class="badges">
+            <span class="badge light">NEWBIE</span>
+            <span class="badge dark"><span class="star">☆</span> 0 🛡</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="chat-btn" id="openChat">افتح الدردشة 🗨</button>
+    </div>
+  </div>
+
+  <div class="modal" id="chatModal">
+    <div class="sheet">
+      <h3>بدء الدردشة</h3>
+      <p>هذه واجهة أمامية مشابهة للصورة، ويمكنك ربط زر الدردشة بأي نظام دردشة حقيقي عندك لاحقًا.</p>
+      <div class="row">
+        <button class="ok" id="continueChat">متابعة</button>
+        <button class="close" id="closeChat">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal=document.getElementById('chatModal');
+    const open=()=>modal.classList.add('show');
+    const close=()=>modal.classList.remove('show');
+
+    document.getElementById('openChat').onclick=open;
+    document.getElementById('openInline').onclick=e=>{e.preventDefault();open()};
+    document.getElementById('closeChat').onclick=close;
+    document.getElementById('continueChat').onclick=()=>alert('اربط هنا نظام الدردشة الفعلي الذي تريده');
+    modal.onclick=e=>{if(e.target===modal)close()};
+    document.onkeydown=e=>{if(e.key==='Escape')close()};
+  </script>
+</body>
+</html>
