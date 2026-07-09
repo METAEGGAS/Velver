@@ -58,6 +58,17 @@
   .icon-btn:active{ transform:scale(0.92); }
   .icon-btn.close{ background:transparent; color:var(--muted); }
   .icon-btn.close:hover{ color:var(--text); }
+  .icon-btn.close img.close-icon{ width:20px; height:20px; }
+  .bonus-modal-head button img.close-icon{ width:20px; height:20px; display:block; }
+
+  /* Lock overlay for disabled methods */
+  .method.locked{ opacity:.5; cursor:not-allowed; }
+  .method-icon{ position:relative; }
+  .lock-overlay{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.5); border-radius:50%;
+  }
+  .lock-overlay img{ width:18px; height:18px; }
 
   /* Main Tabs */
   .tabs{
@@ -252,7 +263,9 @@
   .progress-wrap{ display:flex; align-items:center; margin-bottom:8px; }
   .progress-seg{ flex:1; height:6px; background:var(--panel-3); border-radius:4px; position:relative; overflow:hidden; }
   .progress-seg .fill{ position:absolute; inset:0; width:0%; background:var(--accent); border-radius:4px; transition:width .4s ease; }
-  .progress-gem{ font-size:20px; padding:0 6px; }
+  .progress-gem{ padding:0 6px; display:flex; align-items:center; }
+  .gem-icon{ width:22px; height:22px; display:block; }
+  .gem-icon-sm{ width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:3px; }
   .progress-labels{ display:flex; margin-bottom:26px; }
   .progress-labels span{ flex:1; text-align:center; font-size:13px; font-weight:700; color:var(--text); }
   .progress-labels span:first-child{ text-align:left; flex:0.001; white-space:nowrap; padding-right: 30px;}
@@ -336,9 +349,10 @@
   .hist-title{ font-size:17px; font-weight:800; }
   .hist-right{ text-align:right; }
   .hist-amount{ font-size:17px; font-weight:800; display:flex; align-items:center; gap:6px; justify-content:flex-end; }
-  .hist-amount .st-icon{ font-size:15px; }
+  .hist-amount .st-icon{ font-size:15px; display:inline-flex; align-items:center; }
   .hist-amount.failed .st-icon{ color:var(--danger); }
   .hist-amount.pending .st-icon{ color:var(--muted); }
+  .status-icon{ width:16px; height:16px; display:block; }
   .hist-date{ color:var(--muted); font-size:13.5px; margin-top:4px; }
 
   .empty-state{ text-align:center; color:var(--muted); padding:60px 20px; font-size:15px; line-height:1.6; }
@@ -354,7 +368,7 @@
     </div>
     <div class="header-actions">
       <button class="icon-btn" title="Help">?</button>
-      <button class="icon-btn close" title="Close">✕</button>
+      <button class="icon-btn close" title="Close"><img class="close-icon" src="https://cdn-icons-png.flaticon.com/128/5610/5610944.png" alt="Close"></button>
     </div>
   </div>
 
@@ -375,7 +389,7 @@
   <div class="bonus-modal">
     <div class="bonus-modal-head">
       <h2>Bonus conditions</h2>
-      <button id="bonusModalClose">&#10005;</button>
+      <button id="bonusModalClose"><img class="close-icon" src="https://cdn-icons-png.flaticon.com/128/5610/5610944.png" alt="Close"></button>
     </div>
     <h3>General info</h3>
     <ol>
@@ -402,18 +416,18 @@
 <script>
 /* ---------------- Data ---------------- */
 const methods = [
-  { id:'usdt-trc20', name:'Tether (USDT TRC-20)', ticker:'USDTT', img:'https://i.ibb.co/dsfpmRxD/USDTT-dark-rnd.jpg', meta:'instant', min:20, max:50000, group:'crypto', popular:true, cashback:true },
-  { id:'binance-pay', name:'Binance Pay', ticker:'USDT', img:'https://i.ibb.co/Xk8GJhF6/binance-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', popular:true, cashback:true },
-  { id:'usdt-more', name:'USDT More Networks', ticker:'USDT', img:'https://i.ibb.co/vxnZ1x4h/pic-usdt.jpg', meta:'15 min', min:20, max:50000, group:'crypto', cashback:true },
-  { id:'btc', name:'Bitcoin (BTC)', ticker:'BTC', img:'https://i.ibb.co/dsLbyNXx/BTC-1.jpg', meta:'5 min', min:20, max:50000, group:'crypto', cashback:true },
-  { id:'eth', name:'Ethereum (ETH)', ticker:'ETH', img:'https://i.ibb.co/N2HKWSXB/eth-dark-rnd.jpg', meta:'5 min', min:20, max:50000, group:'crypto', cashback:true },
+  { id:'usdt-trc20', name:'Tether (USDT TRC-20)', ticker:'USDTT', img:'https://cdn-icons-png.flaticon.com/128/12114/12114244.png', meta:'instant', min:20, max:50000, group:'crypto', popular:true, cashback:true },
+  { id:'binance-pay', name:'Binance Pay', ticker:'USDT', img:'https://cdn-icons-png.flaticon.com/128/14446/14446125.png', meta:'instant', min:10, max:50000, group:'crypto', popular:true, cashback:true },
+  { id:'usdt-more', name:'USDT More Networks', ticker:'USDT', img:'https://cdn-icons-png.flaticon.com/128/12114/12114244.png', meta:'15 min', min:20, max:50000, group:'crypto', cashback:true, locked:true },
+  { id:'btc', name:'Bitcoin (BTC)', ticker:'BTC', img:'https://cdn-icons-png.flaticon.com/128/5968/5968260.png', meta:'5 min', min:20, max:50000, group:'crypto', cashback:true },
+  { id:'eth', name:'Ethereum (ETH)', ticker:'ETH', img:'https://cdn-icons-png.flaticon.com/128/14446/14446149.png', meta:'5 min', min:20, max:50000, group:'crypto', cashback:true },
   { id:'ltc', name:'Litecoin (LTC)', ticker:'LTC', img:'https://i.ibb.co/qM25T4bx/LTC-dark-rnd.jpg', meta:'5 min', min:20, max:50000, group:'crypto', cashback:true },
   { id:'usdc', name:'USD Coin (USDC)', ticker:'USDC', img:'https://i.ibb.co/cXxc2yy6/USDC-dark-rnd.jpg', meta:'instant', min:20, max:50000, group:'crypto', cashback:true },
-  { id:'gate-pay', name:'Gate Pay', ticker:'USDT', img:'https://i.ibb.co/pvdtfcmc/Gate-pay-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', cashback:true },
-  { id:'bybit-pay', name:'Bybit Pay', ticker:'USDT', img:'https://i.ibb.co/fVFT3t0N/Bybit-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', cashback:true },
-  { id:'tonkeeper', name:'Tonkeeper Pay (USDT)', ticker:'USDT', img:'https://i.ibb.co/Xf5p0zGm/tonkeeper-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', cashback:true },
-  { id:'havale2', name:'Havale2', ticker:null, img:'https://i.ibb.co/hJHfS6Gz/havale-dark-rnd.jpg', meta:'15 min', min:45, max:50000, group:'bank', popular:true },
-  { id:'havale', name:'Havale', ticker:null, img:'https://i.ibb.co/hJHfS6Gz/havale-dark-rnd.jpg', meta:'15 min', min:25, max:50000, group:'bank' },
+  { id:'gate-pay', name:'Gate Pay', ticker:'USDT', img:'https://i.ibb.co/pvdtfcmc/Gate-pay-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', cashback:true, locked:true },
+  { id:'bybit-pay', name:'Bybit Pay', ticker:'USDT', img:'https://i.ibb.co/fVFT3t0N/Bybit-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', cashback:true, locked:true },
+  { id:'tonkeeper', name:'Tonkeeper Pay (USDT)', ticker:'USDT', img:'https://i.ibb.co/Xf5p0zGm/tonkeeper-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'crypto', cashback:true, locked:true },
+  { id:'havale2', name:'Havale2', ticker:null, img:'https://cdn-icons-png.flaticon.com/128/15301/15301840.png', meta:'15 min', min:45, max:50000, group:'bank', popular:true, locked:true },
+  { id:'havale', name:'Havale', ticker:null, img:'https://cdn-icons-png.flaticon.com/128/1018/1018197.png', meta:'15 min', min:25, max:50000, group:'bank', locked:true },
   { id:'internet-banking', name:'Internet Banking', ticker:null, img:'https://i.ibb.co/Fky8rdcR/Alternate-dark-rnd.jpg', meta:'instant', min:18, max:50000, group:'bank', popular:true },
   { id:'bank-transfer', name:'Bank Transfer', ticker:null, img:'https://i.ibb.co/bMFMDWFW/qrcode-dark-rnd.jpg', meta:'instant', min:10, max:50000, group:'bank' },
 ];
@@ -429,7 +443,11 @@ const historyData = [
 const labels = { all:'All', popular:'Popular', crypto:'Crypto', bank:'Internet banking' };
 const labelClass = { all:'', popular:'popular', crypto:'crypto', bank:'' };
 const amountTiers = [500, 1000, 3000];
-const gemFor = { 500:'\u{1F538}', 1000:'\u{1F539}', 3000:'\u{1F49C}' };
+const gemImgFor = {
+  500: 'https://i.ibb.co/bg8t5BbR/IMG.png',
+  1000: 'https://i.ibb.co/qFcnsjxb/IMG.png',
+  3000: 'https://i.ibb.co/7tZcxb6y/IMG.png',
+};
 const networksFor = {
   USDTT: ['TRC20'],
   USDT: ['TRC20','ERC20','BEP20','TON'],
@@ -572,9 +590,12 @@ function renderList(){
       <p class="section-label ${labelClass[state.filter]}">${labels[state.filter]}</p>
       <div class="list" id="list">
         ${items.map((m,i)=>`
-          <div class="method" data-id="${m.id}" data-nav="${m.group==='crypto'?1:0}" style="animation-delay:${i*35}ms">
+          <div class="method ${m.locked?'locked':''}" data-id="${m.id}" data-nav="${m.group==='crypto'?1:0}" style="animation-delay:${i*35}ms">
             ${m.cashback ? `<span class="badge">Cashback &#9889;</span>` : ''}
-            <div class="method-icon"><img src="${m.img}" alt="${m.name}" loading="lazy"></div>
+            <div class="method-icon">
+              <img src="${m.img}" alt="${m.name}" loading="lazy">
+              ${m.locked ? `<div class="lock-overlay"><img src="https://cdn-icons-png.flaticon.com/128/747/747305.png" alt=""></div>` : ''}
+            </div>
             <div class="method-info">
               <span class="method-name">${m.name}</span>
               <span class="method-meta ${m.meta==='instant'?'instant':''}">
@@ -597,6 +618,7 @@ function renderList(){
     const row = e.target.closest('.method');
     if(!row || row.dataset.nav !== '1') return;
     const m = methods.find(x => x.id === row.dataset.id);
+    if(m.locked) return;
     state.method = m;
     state.amount = 200;
     state.bonusesOn = false;
@@ -625,8 +647,11 @@ function renderWithdrawList(){
       <p class="section-label ${labelClass[state.wFilter]}">${labels[state.wFilter]}</p>
       <div class="list" id="wList">
         ${items.map((m,i)=>`
-          <div class="method" data-id="${m.id}" style="animation-delay:${i*35}ms">
-            <div class="method-icon"><img src="${m.img}" alt="${m.name}" loading="lazy"></div>
+          <div class="method ${m.locked?'locked':''}" data-id="${m.id}" style="animation-delay:${i*35}ms">
+            <div class="method-icon">
+              <img src="${m.img}" alt="${m.name}" loading="lazy">
+              ${m.locked ? `<div class="lock-overlay"><img src="https://cdn-icons-png.flaticon.com/128/747/747305.png" alt=""></div>` : ''}
+            </div>
             <div class="method-info">
               <span class="method-name">${m.name}</span>
               <span class="method-meta ${m.meta==='instant'?'instant':''}">
@@ -649,6 +674,7 @@ function renderWithdrawList(){
     const row = e.target.closest('.method');
     if(!row) return;
     const m = methods.find(x => x.id === row.dataset.id);
+    if(m.locked) return;
     state.wMethod = m;
     state.wAmount = m.min;
     state.wNetwork = (networksFor[m.ticker] || [null])[0];
@@ -768,7 +794,7 @@ function renderHistory(){
             <div class="hist-right">
               <div class="hist-amount ${h.status}">
                 +$${h.amount.toLocaleString('en-US', {minimumFractionDigits:2})}
-                <span class="st-icon">${h.status==='failed' ? '&#8855;' : '&#128337;'}</span>
+                <span class="st-icon">${h.status==='failed' ? '<img class="status-icon" src="https://cdn-icons-png.flaticon.com/128/190/190406.png" alt="">' : '<img class="status-icon" src="https://cdn-icons-png.flaticon.com/128/6816/6816658.png" alt="">'}</span>
               </div>
               <div class="hist-date">${h.date}</div>
             </div>
@@ -803,25 +829,25 @@ function renderAmount(){
         </div>
         <button class="gift-btn ${state.bonusesOn?'active':''}" id="giftBtn">
           <img src="https://cdn-icons-png.flaticon.com/128/8146/8146553.png" alt="">
-          Add $60 &#127873;
+          Add $60
         </button>
       </div>
 
       <div class="chips-row" id="chipsRow">
         ${[100,200,500,1000,3000].map(v => `
           <button class="amt-chip ${state.amount===v?'active':''}" data-val="${v}">
-            ${gemFor[v] ? gemFor[v]+' ' : ''}$${v.toLocaleString('en-US')}
+            ${gemImgFor[v] ? `<img class="gem-icon-sm" src="${gemImgFor[v]}" alt="">` : ''}$${v.toLocaleString('en-US')}
           </button>
         `).join('')}
       </div>
 
       <div class="progress-wrap" id="progressWrap">
         <div class="progress-seg"><div class="fill" id="fill1"></div></div>
-        <span class="progress-gem">${gemFor[500]}</span>
+        <span class="progress-gem"><img class="gem-icon" src="${gemImgFor[500]}" alt=""></span>
         <div class="progress-seg"><div class="fill" id="fill2"></div></div>
-        <span class="progress-gem">${gemFor[1000]}</span>
+        <span class="progress-gem"><img class="gem-icon" src="${gemImgFor[1000]}" alt=""></span>
         <div class="progress-seg"><div class="fill" id="fill3"></div></div>
-        <span class="progress-gem">${gemFor[3000]}</span>
+        <span class="progress-gem"><img class="gem-icon" src="${gemImgFor[3000]}" alt=""></span>
       </div>
       <div class="progress-labels">
         <span></span><span>$500</span><span>$1,000</span><span>$3,000</span>
