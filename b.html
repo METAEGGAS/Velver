@@ -3,170 +3,304 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>اختر أحد الأصول</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
-body{background:#0d1526;color:#fff;padding:18px 16px 40px;direction:rtl}
-.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-.search-icon{font-size:22px;color:#aab4c8}
-.asset-pick{display:flex;align-items:center;gap:10px;color:#c7cede;font-size:17px}
-.tabs{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #1c273d;margin-bottom:16px}
-.tab{padding-bottom:13px;font-size:18px;font-weight:600;color:#6b7690;position:relative}
-.tab.active{color:#fff}
-.tab.active::after{content:"";position:absolute;bottom:-1px;right:0;left:0;height:3px;background:#ff7a1a;border-radius:2px}
-.filters{display:flex;align-items:center;gap:8px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
-.pill{border:1px solid #2b3752;border-radius:24px;padding:11px 16px;font-size:14px;color:#dfe3ec;white-space:nowrap;cursor:pointer;flex-shrink:0}
-.pill.sel{border-color:#ff7a1a;color:#ff7a1a}
-.gear{border:1px solid #2b3752;border-radius:50%;width:44px;height:44px;min-width:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:#c7cede;flex-shrink:0}
-.row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid #182238}
-.row-right{display:flex;align-items:center;gap:14px;min-width:0}
-.row-left{display:flex;align-items:center;gap:14px;flex-shrink:0}
-.icon{position:relative;width:40px;height:40px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.icon img{width:36px;height:36px;object-fit:contain}
-.icon .ph{width:36px;height:36px;background:#26314c;border-radius:6px}
-.otc{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#ff7a1a;color:#fff;font-size:8px;font-weight:700;padding:1px 6px;border-radius:6px;white-space:nowrap}
-.name{font-size:17px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pct{color:#25d998;font-size:18px;font-weight:700;direction:ltr;unicode-bidi:embed}
-.star{font-size:24px;color:#4b5670;cursor:pointer;user-select:none;line-height:1}
-.empty{padding:30px 0;text-align:center;color:#5c6785;font-size:15px}
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Tahoma,Arial,sans-serif; }
+  body { background:#0d1526; color:#fff; padding:18px 16px 40px; direction:rtl; }
+
+  .top { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+  .search-icon { font-size:22px; color:#aab4c8; }
+  .asset-pick { display:flex; align-items:center; gap:10px; color:#c7cede; font-size:17px; }
+
+  .tabs { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid #1c273d; margin-bottom:16px; }
+  .tab { padding-bottom:13px; font-size:18px; font-weight:600; color:#6b7690; position:relative; }
+  .tab.active { color:#fff; }
+  .tab.active::after { content:""; position:absolute; bottom:-1px; right:0; left:0; height:3px; background:#ff7a1a; border-radius:2px; }
+
+  .filters { display:flex; align-items:center; gap:8px; margin-bottom:20px; overflow-x:auto; padding-bottom:4px; }
+  .pill { border:1px solid #2b3752; border-radius:24px; padding:11px 16px; font-size:14px; color:#dfe3ec; white-space:nowrap; cursor:pointer; flex-shrink:0; background:transparent; }
+  .pill.sel { border-color:#ff7a1a; color:#ff7a1a; }
+  .gear { border:1px solid #2b3752; border-radius:50%; width:44px; height:44px; min-width:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; color:#c7cede; flex-shrink:0; }
+
+  .row { display:flex; align-items:center; justify-content:space-between; padding:16px 0; border-bottom:1px solid #182238; }
+  .row-right { display:flex; align-items:center; gap:14px; min-width:0; }
+  .row-left { display:flex; align-items:center; gap:14px; flex-shrink:0; }
+  .icon { position:relative; width:40px; height:40px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .icon img { width:36px; height:36px; object-fit:contain; }
+  .icon .ph { width:36px; height:36px; background:#26314c; border-radius:6px; display:none; }
+  .otc { position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); background:#ff7a1a; color:#fff; font-size:8px; font-weight:700; padding:1px 6px; border-radius:6px; white-space:nowrap; }
+  .name { font-size:17px; font-weight:600; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pct { color:#25d998; font-size:18px; font-weight:700; direction:ltr; unicode-bidi:embed; }
+  .star { font-size:24px; color:#4b5670; cursor:pointer; user-select:none; line-height:1; }
+  .empty { padding:30px 0; text-align:center; color:#5c6785; font-size:15px; }
 </style>
 </head>
 <body>
 
-<div class="top">
-  <div class="asset-pick"><span>→</span><span>اختر أحد الأصول</span></div>
-  <div class="search-icon">🔍</div>
-</div>
+  <div class="top">
+    <div class="asset-pick"><span>&#8594;</span><span>اختر أحد الأصول</span></div>
+    <div class="search-icon">&#128269;</div>
+  </div>
 
-<div class="tabs">
-  <div class="tab">Blitz</div>
-  <div class="tab active">خيارات ثنائية (Binary)</div>
-</div>
+  <div class="tabs">
+    <div class="tab">Blitz</div>
+    <div class="tab active">خيارات ثنائية (Binary)</div>
+  </div>
 
-<div class="filters" id="filters">
-  <div class="gear">⎓</div>
-  <div class="pill" data-cat="forex">أزواج العملات</div>
-  <div class="pill" data-cat="stocks">أسهم مالية</div>
-  <div class="pill" data-cat="commodities">السلع</div>
-  <div class="pill" data-cat="indices">مؤشرات</div>
-  <div class="pill" data-cat="crypto">عملات مشفرة</div>
-</div>
+  <div class="filters" id="filters">
+    <div class="gear">&#9074;</div>
+    <div class="pill" data-cat="forex">أزواج العملات</div>
+    <div class="pill" data-cat="stocks">أسهم مالية</div>
+    <div class="pill" data-cat="commodities">السلع</div>
+    <div class="pill" data-cat="indices">مؤشرات</div>
+    <div class="pill" data-cat="crypto">عملات مشفرة</div>
+  </div>
 
-<div id="list"></div>
+  <div id="list"></div>
 
 <script>
-var DEF_PCT = 85;
+"use strict";
 
+var DEF_PCT = 85;
 var DATA = {};
 
 DATA.crypto = [
-["Anthropic (OTC)","https://static.cdnroute.io/files/storage/public/d8/nc/mdsvadhc706tofh0.png"],
-["OpenAI (OTC)","https://static.cdnroute.io/files/storage/public/d8/nc/m92qhisc704s122g.png"],
-["US 500 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
-["Ondo (OTC)","https://static.cdnroute.io/files/storage/public/cu/s7/mgvtcunv9k281jr0.png"],
-["DYDX (OTC)","https://static.cdnroute.io/files/storage/public/cu/s7/nuehdlj890it5cb0.png"],
-["Pudgy Penguins (OTC)","https://static.cdnroute.io/files/storage/public/cu/s7/ro6srdaffhuft1gg.png"],
-["Raydium (OTC)","https://static.cdnroute.io/files/storage/public/cu/s9/bsecfqitu6l4q1sg.png"],
-["Sui (OTC)","https://static.cdnroute.io/files/storage/public/cu/s9/cndbd2ee5d51dsng.png"],
-["HBAR (OTC)","https://static.cdnroute.io/files/storage/public/cu/s9/dg7tcunv9k281sh0.png"],
-["FET (OTC)","https://static.cdnroute.io/files/storage/public/cu/s9/e1dbd2ee5d51dso0.png"],
-["Render (OTC)","https://static.cdnroute.io/files/storage/public/cu/s9/ejesrdaffhuftb30.png"],
-["TAO (OTC)","https://static.cdnroute.io/files/storage/public/cu/s9/f6ftcunv9k281sv0.png"],
-["BTC/USD","https://static.cdnroute.io/files/storage/public/cm/j3/mgor041u0fok0glg.png"],
-["SHIB/USD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6s0r041lqa2j3s50.png"],
-["Ripple (OTC)","https://static.cdnroute.io/files/storage/public/cr/89/tte440du7ifjpvf0.png"],
-["Litecoin (OTC)","https://static.cdnroute.io/files/storage/public/cr/89/u7e440du7ifjpvfg.png"],
-["Vaulta (OTC)","https://static.cdnroute.io/files/storage/public/d0/s6/jjesrdaffhulctdg.png"],
-["ICP (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/agmdi6mgp05i1ea0.png"],
-["Immutable (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/aev6f6cdcft2breg.png"],
-["Jupiter (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/acpfgh5id3hvse10.png"],
-["Bonk (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/aahfgh5id3hvse0g.png"],
-["Chainlink (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/a9edi6mgp05i1e90.png"],
-["Dogwifhat (OTC)",""],
-["Pepe (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/a63jcddrnsg61mvg.png"],
-["Floki (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/a3edi6mgp05i1e8g.png"],
-["Bitcoin Cash (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9v9igo7etklthjig.png"],
-["Polkadot (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9t6440du7ifjr9kg.png"],
-["Cosmos (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9rjjcddrnsg61mv0.png"],
-["Injective (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9q1igo7etklthji0.png"],
-["Sei (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9o76f6cdcft2br80.png"],
-["IOTA (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9m1igo7etklthjhg.png"],
-["ETH/USD","https://static.cdnroute.io/files/storage/public/cm/j3/ok1l2563aaprs860.png"],
-["Dash (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9iv6f6cdcft2br3g.png"],
-["Arbitrum (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9hf6f6cdcft2br30.png"],
-["Worldcoin (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9f6di6mgp05i1e70.png"],
-["ORDI (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/9b6di6mgp05i1e6g.png"],
-["1000Sats (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/981igo7etklthjh0.png"],
-["Pyth (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/91hfgh5id3hvsdtg.png"],
-["Ronin (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/8tmdi6mgp05i1e60.png"],
-["Celestia (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/8q9igo7etklthjgg.png"],
-["Decentraland (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/8mrjcddrnsg61mug.png"],
-["Graph (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/8fv6f6cdcft2br2g.png"],
-["Stacks (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/8d76f6cdcft2br20.png"],
-["Polygon (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/83m440du7ifjr9k0.png"],
-["TRUMP Coin (OTC)","https://static.cdnroute.io/files/storage/public/cu/73/ijmlff2ljna34l00.png"],
-["MELANIA Coin (OTC)","https://static.cdnroute.io/files/storage/public/cu/78/1ej647qprk693tbg.png"],
-["Fartcoin (OTC)","https://static.cdnroute.io/files/storage/public/cu/s7/qu54nhqu072pfnhg.png"],
-["ETH/USD (OTC)","https://static.cdnroute.io/files/storage/public/cn/0v/m8cnv5sp2rmt8kb0.png"],
-["CARDANO (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/78ce8qlrt2limipg.png"],
-["TRON/USD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6opb24v7kcjgpefg.png"],
-["SOL/USD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/63pl2569tv5t1o5g.png"],
-["BTC/USD (OTC)","https://static.cdnroute.io/files/storage/public/cu/mv/coesrdaffhufciqg.png"],
-["Gala (OTC)","https://static.cdnroute.io/files/storage/public/cr/ad/0t76f6cdcft2gajg.png"],
-["Sandbox (OTC)","https://static.cdnroute.io/files/storage/public/cr/8o/8jedi6mgp05i1e5g.png"],
-["Onyxcoin (OTC)","https://static.cdnroute.io/files/storage/public/cu/s7/pfuhdlj890it5cqg.png"],
-["Labubu (OTC)","https://static.cdnroute.io/files/storage/public/d2/av/gd47o1su501jrg5g.png"],
-["Hyperliquid (OTC)","https://static.cdnroute.io/files/storage/public/d8/hf/90oo505c700h1u5g.png"]
+  ["Anthropic (OTC)", "https://static.cdnroute.io/files/storage/public/d8/nc/mdsvadhc706tofh0.png"],
+  ["OpenAI (OTC)", "https://static.cdnroute.io/files/storage/public/d8/nc/m92qhisc704s122g.png"],
+  ["US 500 (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
+  ["Ondo (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s7/mgvtcunv9k281jr0.png"],
+  ["DYDX (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s7/nuehdlj890it5cb0.png"],
+  ["Pudgy Penguins (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s7/ro6srdaffhuft1gg.png"],
+  ["Raydium (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s9/bsecfqitu6l4q1sg.png"],
+  ["Sui (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s9/cndbd2ee5d51dsng.png"],
+  ["HBAR (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s9/dg7tcunv9k281sh0.png"],
+  ["FET (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s9/e1dbd2ee5d51dso0.png"],
+  ["Render (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s9/ejesrdaffhuftb30.png"],
+  ["TAO (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s9/f6ftcunv9k281sv0.png"],
+  ["BTC/USD", "https://static.cdnroute.io/files/storage/public/cm/j3/mgor041u0fok0glg.png"],
+  ["SHIB/USD (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/6s0r041lqa2j3s50.png"],
+  ["Ripple (OTC)", "https://static.cdnroute.io/files/storage/public/cr/89/tte440du7ifjpvf0.png"],
+  ["Litecoin (OTC)", "https://static.cdnroute.io/files/storage/public/cr/89/u7e440du7ifjpvfg.png"],
+  ["Vaulta (OTC)", "https://static.cdnroute.io/files/storage/public/d0/s6/jjesrdaffhulctdg.png"],
+  ["ICP (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/agmdi6mgp05i1ea0.png"],
+  ["Immutable (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/aev6f6cdcft2breg.png"],
+  ["Jupiter (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/acpfgh5id3hvse10.png"],
+  ["Bonk (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/aahfgh5id3hvse0g.png"],
+  ["Chainlink (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/a9edi6mgp05i1e90.png"],
+  ["Dogwifhat (OTC)", ""],
+  ["Pepe (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/a63jcddrnsg61mvg.png"],
+  ["Floki (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/a3edi6mgp05i1e8g.png"],
+  ["Bitcoin Cash (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9v9igo7etklthjig.png"],
+  ["Polkadot (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9t6440du7ifjr9kg.png"],
+  ["Cosmos (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9rjjcddrnsg61mv0.png"],
+  ["Injective (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9q1igo7etklthji0.png"],
+  ["Sei (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9o76f6cdcft2br80.png"],
+  ["IOTA (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9m1igo7etklthjhg.png"],
+  ["ETH/USD", "https://static.cdnroute.io/files/storage/public/cm/j3/ok1l2563aaprs860.png"],
+  ["Dash (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9iv6f6cdcft2br3g.png"],
+  ["Arbitrum (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9hf6f6cdcft2br30.png"],
+  ["Worldcoin (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9f6di6mgp05i1e70.png"],
+  ["ORDI (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/9b6di6mgp05i1e6g.png"],
+  ["1000Sats (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/981igo7etklthjh0.png"],
+  ["Pyth (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/91hfgh5id3hvsdtg.png"],
+  ["Ronin (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/8tmdi6mgp05i1e60.png"],
+  ["Celestia (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/8q9igo7etklthjgg.png"],
+  ["Decentraland (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/8mrjcddrnsg61mug.png"],
+  ["Graph (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/8fv6f6cdcft2br2g.png"],
+  ["Stacks (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/8d76f6cdcft2br20.png"],
+  ["Polygon (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/83m440du7ifjr9k0.png"],
+  ["TRUMP Coin (OTC)", "https://static.cdnroute.io/files/storage/public/cu/73/ijmlff2ljna34l00.png"],
+  ["MELANIA Coin (OTC)", "https://static.cdnroute.io/files/storage/public/cu/78/1ej647qprk693tbg.png"],
+  ["Fartcoin (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s7/qu54nhqu072pfnhg.png"],
+  ["ETH/USD (OTC)", "https://static.cdnroute.io/files/storage/public/cn/0v/m8cnv5sp2rmt8kb0.png"],
+  ["CARDANO (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/78ce8qlrt2limipg.png"],
+  ["TRON/USD (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/6opb24v7kcjgpefg.png"],
+  ["SOL/USD (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/63pl2569tv5t1o5g.png"],
+  ["BTC/USD (OTC)", "https://static.cdnroute.io/files/storage/public/cu/mv/coesrdaffhufciqg.png"],
+  ["Gala (OTC)", "https://static.cdnroute.io/files/storage/public/cr/ad/0t76f6cdcft2gajg.png"],
+  ["Sandbox (OTC)", "https://static.cdnroute.io/files/storage/public/cr/8o/8jedi6mgp05i1e5g.png"],
+  ["Onyxcoin (OTC)", "https://static.cdnroute.io/files/storage/public/cu/s7/pfuhdlj890it5cqg.png"],
+  ["Labubu (OTC)", "https://static.cdnroute.io/files/storage/public/d2/av/gd47o1su501jrg5g.png"],
+  ["Hyperliquid (OTC)", "https://static.cdnroute.io/files/storage/public/d8/hf/90oo505c700h1u5g.png"]
 ];
 
 DATA.indices = [
-["US 500 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
-["US 100 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
-["US 30 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
-["AUS 200 (OTC)","https://static.cdnroute.io/files/storage/public/cp/et/5f5c0kj0rvhnkcu0.png"],
-["HK 33 (OTC)","https://static.cdnroute.io/files/storage/public/cp/et/5a9stlnrdtehlos0.png"],
-["JP 225 (OTC)","https://static.cdnroute.io/files/storage/public/d4/2b/78m6dq12h96d14gg.png"],
-["US30/JP225 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
-["US100/JP225 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
-["US500/JP225 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
-["GER30/UK100 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/eh9fgh5id3htvlng.png"]
+  ["US 500 (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
+  ["US 100 (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
+  ["US 30 (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
+  ["AUS 200 (OTC)", "https://static.cdnroute.io/files/storage/public/cp/et/5f5c0kj0rvhnkcu0.png"],
+  ["HK 33 (OTC)", "https://static.cdnroute.io/files/storage/public/cp/et/5a9stlnrdtehlos0.png"],
+  ["JP 225 (OTC)", "https://static.cdnroute.io/files/storage/public/d4/2b/78m6dq12h96d14gg.png"],
+  ["US30/JP225 (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
+  ["US100/JP225 (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
+  ["US500/JP225 (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
+  ["GER30/UK100 (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/eh9fgh5id3htvlng.png"]
 ];
 
 DATA.commodities = [
-["XAGUSD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7i4nv5sj8cgcqqsg.png"],
-["الغاز الطبيعي (OTC)","https://static.cdnroute.io/files/storage/public/d0/d6/nq54nhqu072tmam0.png"],
-["UKOUSD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6c8n68mh0vavejtg.png"],
-["البلاتين (OTC)","https://static.cdnroute.io/files/storage/public/d5/jq/t6rv72ciomkt1qb0.png"],
-["البلاديوم (OTC)","https://static.cdnroute.io/files/storage/public/d5/kv/kvbv72ciomkt44jg.png"],
-["Uranium (OTC)","https://static.cdnroute.io/files/storage/public/d4/g2/chinkfh3gjbdb4g0.png"],
-["ذهب/فضة (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/i03jcddrnsg45rgg.png"],
-["Gold","https://static.cdnroute.io/files/storage/public/cm/j3/46h2fl4ft9bfvftg.png"]
+  ["XAGUSD (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/7i4nv5sj8cgcqqsg.png"],
+  ["الغاز الطبيعي (OTC)", "https://static.cdnroute.io/files/storage/public/d0/d6/nq54nhqu072tmam0.png"],
+  ["UKOUSD (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/6c8n68mh0vavejtg.png"],
+  ["البلاتين (OTC)", "https://static.cdnroute.io/files/storage/public/d5/jq/t6rv72ciomkt1qb0.png"],
+  ["البلاديوم (OTC)", "https://static.cdnroute.io/files/storage/public/d5/kv/kvbv72ciomkt44jg.png"],
+  ["Uranium (OTC)", "https://static.cdnroute.io/files/storage/public/d4/g2/chinkfh3gjbdb4g0.png"],
+  ["ذهب/فضة (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/i03jcddrnsg45rgg.png"],
+  ["Gold", "https://static.cdnroute.io/files/storage/public/cm/j3/46h2fl4ft9bfvftg.png"]
 ];
 
 DATA.stocks = [
-["Google (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6fpl2569tv5t1oa0.png"],
-["Amazon (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/74on68mh0vavek1g.png"],
-["Tesla (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7l1l2569tv5t1oe0.png"],
-["Meta (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/820n68mh0vavek2g.png"],
-["Nvidia/AMD (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/ii1fgh5id3htvmf0.png"],
-["Klarna Group plc (OTC)","https://static.cdnroute.io/files/storage/public/d3/0l/pj6req4fe553h9gg.png"],
-["Formula One Group (OTC)","https://static.cdnroute.io/files/storage/public/d3/0l/p7mhbmjhvubtcasg.png"],
-["Magnificent 7 (OTC)","https://static.cdnroute.io/files/storage/public/d4/g2/58n9ftg8k8gqsfjg.png"],
-["Apple (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6l1b24v7kcjgped0.png"],
-["Amazon/Alibaba (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/j1mdi6mgp05g5ah0.png"],
-["Amazon/Ebay (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/iu1fgh5id3htvmfg.png"]
+  ["Google (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/6fpl2569tv5t1oa0.png"],
+  ["Amazon (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/74on68mh0vavek1g.png"],
+  ["Tesla (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/7l1l2569tv5t1oe0.png"],
+  ["Meta (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/820n68mh0vavek2g.png"],
+  ["Nvidia/AMD (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/ii1fgh5id3htvmf0.png"],
+  ["Klarna Group plc (OTC)", "https://static.cdnroute.io/files/storage/public/d3/0l/pj6req4fe553h9gg.png"],
+  ["Formula One Group (OTC)", "https://static.cdnroute.io/files/storage/public/d3/0l/p7mhbmjhvubtcasg.png"],
+  ["Magnificent 7 (OTC)", "https://static.cdnroute.io/files/storage/public/d4/g2/58n9ftg8k8gqsfjg.png"],
+  ["Apple (OTC)", "https://static.cdnroute.io/files/storage/public/cn/ta/6l1b24v7kcjgped0.png"],
+  ["Amazon/Alibaba (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/j1mdi6mgp05g5ah0.png"],
+  ["Amazon/Ebay (OTC)", "https://static.cdnroute.io/files/storage/public/cq/mc/iu1fgh5id3htvmfg.png"]
 ];
 
 DATA.forex = [
-["EUR/USD","https://static.cdnroute.io/files/storage/public/cm/ds/c40r041u0fojl3c0.png"],
-["EUR/AUD","https://static.cdnroute.io/files/storage/public/cm/j1/pmpl2563aaprs4pg.png"],
-["GBP/CAD","https://static.cdnroute.io/files/storage/public/cm/j2/f88r041u0fok0ev0.png"],
-["EUR/GBP","https://static.cdnroute.io/files/storage/public/cm/ft/vssnv5smkfdie40g.png"],
-["EUR/JPY","https://static.cdnroute.io/files/storage/public/cm/ij/vfgn68mt06gta1sg.png"],
-["USD/JPY","https://static.cdnroute.io/files/storage/public/cm/ik/0kknv5smkfdijljg.png"],
-["GBP/JPY","https://static.cdnroute.io/files/storage/public/cm/ik/2nh2fl4ft9bfudvg.png"],
-["GBP/USD","https://static.cdnroute.io/files/storage/public/cm/ik/4uce8qln4ana4qm0.png"],
-["AUD/USD","https://static.cdnroute.io/files/storage/public/cm/ik/6pcnv5smkfdijlsg.png"],
-["CAD/CHF","https://static.cdnroute.io/files/storage/public/cm/ik/78se8qln4ana4qpg.png"],
-["EUR/CAD","https://static.cdnroute.io/files/storage/public/cm/j1/q78r041u0fok0dog.png"],
-["GBP/AUD","https://static.cdnroute.io/files/storage/public/cm/j1/rg1l2563aaprs54g.png"],
-["USD/CAD","https://static.cdnroute.io/files/storage/public/cm/j1/rvsnv5smkfdikj80.png"],
+  ["EUR/USD", "https://static.cdnroute.io/files/storage/public/cm/ds/c40r041u0fojl3c0.png"],
+  ["EUR/AUD", "https://static.cdnroute.io/files/storage/public/cm/j1/pmpl2563aaprs4pg.png"],
+  ["GBP/CAD", "https://static.cdnroute.io/files/storage/public/cm/j2/f88r041u0fok0ev0.png"],
+  ["EUR/GBP", "https://static.cdnroute.io/files/storage/public/cm/ft/vssnv5smkfdie40g.png"],
+  ["EUR/JPY", "https://static.cdnroute.io/files/storage/public/cm/ij/vfgn68mt06gta1sg.png"],
+  ["USD/JPY", "https://static.cdnroute.io/files/storage/public/cm/ik/0kknv5smkfdijljg.png"],
+  ["GBP/JPY", "https://static.cdnroute.io/files/storage/public/cm/ik/2nh2fl4ft9bfudvg.png"],
+  ["GBP/USD", "https://static.cdnroute.io/files/storage/public/cm/ik/4uce8qln4ana4qm0.png"],
+  ["AUD/USD", "https://static.cdnroute.io/files/storage/public/cm/ik/6pcnv5smkfdijlsg.png"],
+  ["CAD/CHF", "https://static.cdnroute.io/files/storage/public/cm/ik/78se8qln4ana4qpg.png"],
+  ["EUR/CAD", "https://static.cdnroute.io/files/storage/public/cm/j1/q78r041u0fok0dog.png"],
+  ["GBP/AUD", "https://static.cdnroute.io/files/storage/public/cm/j1/rg1l2563aaprs54g.png"],
+  ["USD/CAD", "https://static.cdnroute.io/files/storage/public/cm/j1/rvsnv5smkfdikj80.png"],
+  ["NZD/CAD", "https://static.cdnroute.io/files/storage/public/cm/j1/tnsnv5smkfdikjb0.png"]
+];
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function buildRow(name, url) {
+  var row = document.createElement("div");
+  row.className = "row";
+
+  var rowRight = document.createElement("div");
+  rowRight.className = "row-right";
+
+  var iconWrap = document.createElement("div");
+  iconWrap.className = "icon";
+
+  if (url) {
+    var img = document.createElement("img");
+    img.src = url;
+    img.alt = "";
+    var ph = document.createElement("div");
+    ph.className = "ph";
+    img.onerror = function () {
+      img.style.display = "none";
+      ph.style.display = "block";
+    };
+    iconWrap.appendChild(img);
+    iconWrap.appendChild(ph);
+  } else {
+    var ph2 = document.createElement("div");
+    ph2.className = "ph";
+    ph2.style.display = "block";
+    iconWrap.appendChild(ph2);
+  }
+
+  var otc = document.createElement("span");
+  otc.className = "otc";
+  otc.textContent = "OTC";
+  iconWrap.appendChild(otc);
+
+  var nameEl = document.createElement("div");
+  nameEl.className = "name";
+  nameEl.textContent = name;
+
+  rowRight.appendChild(iconWrap);
+  rowRight.appendChild(nameEl);
+
+  var rowLeft = document.createElement("div");
+  rowLeft.className = "row-left";
+
+  var pct = document.createElement("div");
+  pct.className = "pct";
+  pct.textContent = "+" + DEF_PCT + "%";
+
+  var star = document.createElement("div");
+  star.className = "star";
+  star.textContent = "\u2606";
+  star.addEventListener("click", function () {
+    if (star.textContent === "\u2606") {
+      star.textContent = "\u2605";
+      star.style.color = "#ff9f2e";
+    } else {
+      star.textContent = "\u2606";
+      star.style.color = "#4b5670";
+    }
+  });
+
+  rowLeft.appendChild(pct);
+  rowLeft.appendChild(star);
+
+  row.appendChild(rowRight);
+  row.appendChild(rowLeft);
+
+  return row;
+}
+
+var listEl = document.getElementById("list");
+var activeCats = [];
+
+function render() {
+  var cats = activeCats.length ? activeCats : Object.keys(DATA);
+  var fragment = document.createDocumentFragment();
+  var count = 0;
+
+  for (var i = 0; i < cats.length; i++) {
+    var arr = DATA[cats[i]];
+    if (!arr) continue;
+    for (var j = 0; j < arr.length; j++) {
+      fragment.appendChild(buildRow(arr[j][0], arr[j][1]));
+      count++;
+    }
+  }
+
+  listEl.innerHTML = "";
+  if (count === 0) {
+    var empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "لا توجد أصول";
+    listEl.appendChild(empty);
+  } else {
+    listEl.appendChild(fragment);
+  }
+}
+
+var pills = document.querySelectorAll(".pill");
+for (var k = 0; k < pills.length; k++) {
+  pills[k].addEventListener("click", function () {
+    var cat = this.getAttribute("data-cat");
+    this.classList.toggle("sel");
+    var idx = activeCats.indexOf(cat);
+    if (idx === -1) {
+      activeCats.push(cat);
+    } else {
+      activeCats.splice(idx, 1);
+    }
+    render();
+  });
+}
+
+render();
+</script>
+</body>
+</html>
