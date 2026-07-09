@@ -27,6 +27,7 @@ body{background:#0d1526;color:#fff;padding:18px 16px 40px;direction:rtl}
 .name{font-size:17px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pct{color:#25d998;font-size:18px;font-weight:700;direction:ltr;unicode-bidi:embed}
 .star{font-size:24px;color:#4b5670;cursor:pointer;user-select:none;line-height:1}
+.empty{padding:30px 0;text-align:center;color:#5c6785;font-size:15px}
 </style>
 </head>
 <body>
@@ -53,10 +54,11 @@ body{background:#0d1526;color:#fff;padding:18px 16px 40px;direction:rtl}
 <div id="list"></div>
 
 <script>
-const DEF_PCT = 85;
+var DEF_PCT = 85;
 
-const data = {
-crypto: [
+var DATA = {};
+
+DATA.crypto = [
 ["Anthropic (OTC)","https://static.cdnroute.io/files/storage/public/d8/nc/mdsvadhc706tofh0.png"],
 ["OpenAI (OTC)","https://static.cdnroute.io/files/storage/public/d8/nc/m92qhisc704s122g.png"],
 ["US 500 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
@@ -114,8 +116,9 @@ crypto: [
 ["Onyxcoin (OTC)","https://static.cdnroute.io/files/storage/public/cu/s7/pfuhdlj890it5cqg.png"],
 ["Labubu (OTC)","https://static.cdnroute.io/files/storage/public/d2/av/gd47o1su501jrg5g.png"],
 ["Hyperliquid (OTC)","https://static.cdnroute.io/files/storage/public/d8/hf/90oo505c700h1u5g.png"]
-],
-indices: [
+];
+
+DATA.indices = [
 ["US 500 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
 ["US 100 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
 ["US 30 (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7r9b24v7kcjgpehg.png"],
@@ -126,8 +129,9 @@ indices: [
 ["US100/JP225 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
 ["US500/JP225 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/ji3jcddrnsg45rog.png"],
 ["GER30/UK100 (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/eh9fgh5id3htvlng.png"]
-],
-commodities: [
+];
+
+DATA.commodities = [
 ["XAGUSD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7i4nv5sj8cgcqqsg.png"],
 ["الغاز الطبيعي (OTC)","https://static.cdnroute.io/files/storage/public/d0/d6/nq54nhqu072tmam0.png"],
 ["UKOUSD (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6c8n68mh0vavejtg.png"],
@@ -136,8 +140,9 @@ commodities: [
 ["Uranium (OTC)","https://static.cdnroute.io/files/storage/public/d4/g2/chinkfh3gjbdb4g0.png"],
 ["ذهب/فضة (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/i03jcddrnsg45rgg.png"],
 ["Gold","https://static.cdnroute.io/files/storage/public/cm/j3/46h2fl4ft9bfvftg.png"]
-],
-stocks: [
+];
+
+DATA.stocks = [
 ["Google (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6fpl2569tv5t1oa0.png"],
 ["Amazon (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/74on68mh0vavek1g.png"],
 ["Tesla (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/7l1l2569tv5t1oe0.png"],
@@ -149,8 +154,9 @@ stocks: [
 ["Apple (OTC)","https://static.cdnroute.io/files/storage/public/cn/ta/6l1b24v7kcjgped0.png"],
 ["Amazon/Alibaba (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/j1mdi6mgp05g5ah0.png"],
 ["Amazon/Ebay (OTC)","https://static.cdnroute.io/files/storage/public/cq/mc/iu1fgh5id3htvmfg.png"]
-],
-forex: [
+];
+
+DATA.forex = [
 ["EUR/USD","https://static.cdnroute.io/files/storage/public/cm/ds/c40r041u0fojl3c0.png"],
 ["EUR/AUD","https://static.cdnroute.io/files/storage/public/cm/j1/pmpl2563aaprs4pg.png"],
 ["GBP/CAD","https://static.cdnroute.io/files/storage/public/cm/j2/f88r041u0fok0ev0.png"],
@@ -164,37 +170,3 @@ forex: [
 ["EUR/CAD","https://static.cdnroute.io/files/storage/public/cm/j1/q78r041u0fok0dog.png"],
 ["GBP/AUD","https://static.cdnroute.io/files/storage/public/cm/j1/rg1l2563aaprs54g.png"],
 ["USD/CAD","https://static.cdnroute.io/files/storage/public/cm/j1/rvsnv5smkfdikj80.png"],
-["NZD/CAD","https://static.cdnroute.io/files/storage/public/cm/j1/tnsnv5smkfdikjb0.png"]
-]
-};
-
-const listEl = document.getElementById('list');
-let activeCats = [];
-
-function render(){
-  const cats = activeCats.length ? activeCats : Object.keys(data);
-  let items = [];
-  cats.forEach(c => data[c].forEach(([n,u]) => items.push([n,u])));
-
-  listEl.innerHTML = items.map(([name,url]) => `
-    <div class="row">
-      <div class="row-right">
-        <div class="icon">
-          ${url ? `<img src="${url}" alt="">` : `<div class="ph"></div>`}
-          <span class="otc">OTC</span>
-        </div>
-        <div class="name">${name}</div>
-      </div>
-      <div class="row-left">
-        <div class="pct">+${DEF_PCT}%</div>
-        <div class="star" onclick="this.textContent=this.textContent==='☆'?'★':'☆';this.style.color=this.textContent==='★'?'#ff9f2e':'#4b5670'">☆</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-document.querySelectorAll('.pill').forEach(p => {
-  p.onclick = () => {
-    const cat = p.dataset.cat;
-    p.classList.toggle('sel');
-    activeCats = activeCats.includes(cat) ? activeCats.filter(c => c !== cat)
