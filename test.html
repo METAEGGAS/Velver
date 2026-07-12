@@ -24,7 +24,7 @@
   .price-box { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
   .price { font-size: 24px; font-weight: bold; color: #26a69a; }
   .info { font-size: 13px; color: #787b86; }
-  #chart { width: 100%; height: calc(100vh - 70px); }
+  #chart { width: 100%; height: calc(100vh - 200px); }
   .status {
     display: inline-block;
     width: 10px; height: 10px;
@@ -33,12 +33,42 @@
     animation: pulse 1.5s infinite;
     margin-left: 6px;
   }
-  .status.offline { background: #ef5350; }
+  .status.offline { background: #ef5350; animation: none; }
+  .status.loading { background: #ffa726; }
   @keyframes pulse {
     0%,100% { opacity: 1; }
     50% { opacity: 0.4; }
   }
-  #connStatus { font-size: 12px; color: #787b86; }
+
+  /* لوحة التشخيص */
+  #debug {
+    background: #0d1117;
+    color: #58a6ff;
+    padding: 10px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 130px;
+    overflow-y: auto;
+    border-bottom: 1px solid #2a2e39;
+    direction: ltr;
+    text-align: left;
+  }
+  #debug .log-info { color: #58a6ff; }
+  #debug .log-success { color: #56d364; }
+  #debug .log-error { color: #f85149; font-weight: bold; }
+  #debug .log-warn { color: #e3b341; }
+  #debug .log-data { color: #d2a8ff; }
+  .debug-line { margin: 2px 0; word-break: break-all; }
+  #closeDebug {
+    float: right;
+    background: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    padding: 2px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 11px;
+  }
 </style>
 
 <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -48,25 +78,61 @@
 <header>
   <h1>📊 EUR/USD — Live Chart (1M)</h1>
   <div class="price-box">
-    <span class="info"><span class="status" id="statusDot"></span> <span id="connStatus">LIVE</span></span>
-    <span class="info">Last Price:</span>
+    <span class="info"><span class="status loading" id="statusDot"></span> <span id="connStatus">CONNECTING...</span></span>
+    <span class="info">Price:</span>
     <span class="price" id="livePrice">---</span>
     <span class="info" id="candleCount">Candles: 0</span>
   </div>
 </header>
 
+<div id="debug">
+  <button id="closeDebug" onclick="document.getElementById('debug').style.display='none'">إخفاء ✕</button>
+  <div class="debug-line log-info">🔍 Diagnostic Panel — Initializing...</div>
+</div>
+
 <div id="chart"></div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    onSnapshot,
-    query,
-    orderBy,
-    limit
-  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+  // ============ لوحة التشخيص ============
+  const debugEl = document.getElementById('debug');
+  function log(msg, type = 'info') {
+    const line = document.createElement('div');
+    line.className = 'debug-line log-' + type;
+    const time = new Date().toLocaleTimeString();
+    line.textContent = `[${time}] ${msg}`;
+    debugEl.appendChild(line);
+    debugEl.scrollTop = debugEl.scrollHeight;
+    console.log(`[${type}]`, msg);
+  }
+
+  // اعتراض الأخطاء العامة
+  window.addEventListener('error', (e) => {
+    log(`❌ JS Error: ${e.message} @ ${e.filename}:${e.lineno}`, 'error');
+  });
+  window.addEventListener('unhandledrejection', (e) => {
+    log(`❌ Promise Rejected: ${e.reason?.message || e.reason}`, 'error');
+  });
+
+  log('✅ Script started', 'success');
+
+  // ============ استيراد Firebase ============
+  let initializeApp, getFirestore, collection, onSnapshot, query, orderBy, limit, getDocs;
+  try {
+    const appMod = await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js");
+    const fsMod  = await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js");
+    initializeApp = appMod.initializeApp;
+    getFirestore  = fsMod.getFirestore;
+    collection    = fsMod.collection;
+    onSnapshot    = fsMod.onSnapshot;
+    query         = fsMod.query;
+    orderBy       = fsMod.orderBy;
+    limit         = fsMod.limit;
+    getDocs       = fsMod.getDocs;
+    log('✅ Firebase SDK loaded (v12.16.0)', 'success');
+  } catch (e) {
+    log(`❌ Failed to load Firebase SDK: ${e.message}`, 'error');
+    throw e;
+  }
 
   // ============ إعدادات Firebase ============
   const firebaseConfig = {
@@ -79,8 +145,15 @@
     measurementId: "G-PSGZX896FR"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  let app, db;
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    log(`✅ Firebase initialized (project: ${firebaseConfig.projectId})`, 'success');
+  } catch (e) {
+    log(`❌ Firebase init failed: ${e.message}`, 'error');
+    throw e;
+  }
 
   // ============ إعداد الشارت ============
   const chart = LightweightCharts.createChart(document.getElementById('chart'), {
@@ -116,38 +189,83 @@
       minMove: 0.00001,
     },
   });
+  log('✅ Chart initialized', 'success');
 
-  // ============ متغيرات إدارة الشموع ============
-  const savedCandles = new Map();  // مفتاح: time، قيمة: بيانات الشمعة
-  let lastActiveTime = null;       // وقت آخر شمعة نشطة
-  let lastPrice = null;
-
+  // ============ عناصر الواجهة ============
   const priceEl = document.getElementById('livePrice');
   const statusDot = document.getElementById('statusDot');
   const connStatus = document.getElementById('connStatus');
   const candleCountEl = document.getElementById('candleCount');
 
-  // ============ الاستماع المباشر لـ Firestore ============
-  // المسار: candles / EURUSD / 1m
-  const candlesRef = collection(db, "candles", "EURUSD", "1m");
-  const q = query(candlesRef, orderBy("time", "asc"), limit(500));
+  function setStatus(state, text) {
+    statusDot.className = 'status ' + state;
+    connStatus.textContent = text;
+  }
 
-  onSnapshot(q,
+  // ============ إدارة الشموع ============
+  const savedCandles = new Map();
+  let lastPrice = null;
+
+  // ============ الاتصال بـ Firestore ============
+  // المسار: candles / EURUSD / 1m
+  log('📡 Connecting to Firestore path: candles/EURUSD/1m', 'info');
+
+  let candlesRef;
+  try {
+    candlesRef = collection(db, "candles", "EURUSD", "1m");
+    log('✅ Collection reference created', 'success');
+  } catch (e) {
+    log(`❌ Failed to create collection ref: ${e.message}`, 'error');
+    throw e;
+  }
+
+  // اختبار قراءة أولي (getDocs) قبل الاستماع المباشر
+  try {
+    log('🔎 Test read (getDocs)...', 'info');
+    const testSnap = await getDocs(query(candlesRef, limit(3)));
+    log(`✅ Test read OK. Documents found: ${testSnap.size}`, 'success');
+
+    if (testSnap.size === 0) {
+      log('⚠️ Collection is EMPTY at candles/EURUSD/1m. Check that your bot writes there.', 'warn');
+    } else {
+      testSnap.forEach(doc => {
+        const d = doc.data();
+        log(`📄 Doc "${doc.id}": time=${d.time}, O=${d.open}, H=${d.high}, L=${d.low}, C=${d.close}, active=${d.active}`, 'data');
+      });
+    }
+  } catch (e) {
+    log(`❌ TEST READ FAILED: ${e.code || ''} — ${e.message}`, 'error');
+    if (e.code === 'permission-denied') {
+      log('🔒 SECURITY RULES BLOCK READS. Go to Firebase Console → Firestore → Rules and allow reads.', 'error');
+      log('   Example rule: allow read: if true;', 'warn');
+    }
+    setStatus('offline', 'ERROR');
+    priceEl.textContent = 'خطأ';
+    // نستمر لمحاولة onSnapshot أيضاً
+  }
+
+  // الاستماع المباشر
+  const qLive = query(candlesRef, orderBy("time", "asc"), limit(500));
+
+  onSnapshot(qLive,
     (snapshot) => {
-      statusDot.classList.remove('offline');
-      connStatus.textContent = 'LIVE';
+      setStatus('', 'LIVE');
+      log(`📥 Snapshot received. Changes: ${snapshot.docChanges().length}, Total: ${snapshot.size}`, 'success');
 
       snapshot.docChanges().forEach((change) => {
         const data = change.doc.data();
 
-        // التحقق من صحة البيانات
+        // تحقق من صحة البيانات
         if (
           data.time == null ||
           data.open == null ||
           data.high == null ||
           data.low == null ||
           data.close == null
-        ) return;
+        ) {
+          log(`⚠️ Skipped doc ${change.doc.id} — missing fields`, 'warn');
+          return;
+        }
 
         const candle = {
           time: Number(data.time),
@@ -165,38 +283,47 @@
         }
       });
 
-      // ترتيب الشموع حسب الوقت
+      // ترتيب وإزالة أي أوقات مكررة
       const sorted = Array.from(savedCandles.values())
         .sort((a, b) => a.time - b.time);
 
       if (sorted.length === 0) {
-        priceEl.textContent = 'لا توجد بيانات';
+        priceEl.textContent = 'لا بيانات';
+        candleCountEl.textContent = 'Candles: 0';
         return;
       }
 
-      // عرض جميع الشموع على الشارت
-      candleSeries.setData(sorted.map(c => ({
-        time: c.time,
-        open: c.open,
-        high: c.high,
-        low: c.low,
-        close: c.close,
-      })));
+      // عرض الشموع
+      try {
+        candleSeries.setData(sorted.map(c => ({
+          time: c.time,
+          open: c.open,
+          high: c.high,
+          low: c.low,
+          close: c.close,
+        })));
+        log(`📊 Chart updated with ${sorted.length} candles. Latest close: ${sorted[sorted.length-1].close}`, 'success');
+      } catch (e) {
+        log(`❌ setData failed: ${e.message}`, 'error');
+      }
 
-      // تحديث آخر سعر ومعلومات الواجهة
       const latest = sorted[sorted.length - 1];
       updatePriceDisplay(latest);
       candleCountEl.textContent = `Candles: ${sorted.length}`;
 
-      // احتفظ بمرجع الشمعة النشطة إن وُجدت
-      const activeCandle = sorted.find(c => c.active === true);
-      lastActiveTime = activeCandle ? activeCandle.time : latest.time;
+      // ملاءمة العرض تلقائياً في أول تحميل
+      if (savedCandles.size === sorted.length && sorted.length > 0 && !window._fittedOnce) {
+        chart.timeScale().fitContent();
+        window._fittedOnce = true;
+      }
     },
     (error) => {
-      console.error("Firestore error:", error);
-      statusDot.classList.add('offline');
-      connStatus.textContent = 'OFFLINE';
-      priceEl.textContent = 'خطأ في الاتصال';
+      log(`❌ onSnapshot ERROR: ${error.code || ''} — ${error.message}`, 'error');
+      if (error.code === 'permission-denied') {
+        log('🔒 قواعد الأمان تمنع القراءة. عدّل Rules في Firebase Console.', 'error');
+      }
+      setStatus('offline', 'OFFLINE');
+      priceEl.textContent = 'خطأ اتصال';
     }
   );
 
@@ -206,13 +333,9 @@
     priceEl.textContent = price.toFixed(5);
 
     if (lastPrice !== null) {
-      if (price > lastPrice) {
-        priceEl.style.color = '#26a69a';
-      } else if (price < lastPrice) {
-        priceEl.style.color = '#ef5350';
-      }
+      if (price > lastPrice) priceEl.style.color = '#26a69a';
+      else if (price < lastPrice) priceEl.style.color = '#ef5350';
     } else {
-      // مقارنة بسعر الافتتاح للشمعة نفسها
       priceEl.style.color = price >= candle.open ? '#26a69a' : '#ef5350';
     }
     lastPrice = price;
