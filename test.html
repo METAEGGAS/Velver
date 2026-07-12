@@ -17,23 +17,28 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #2a2e39;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   h1 { margin: 0; font-size: 18px; color: #f0f0f0; }
-  .price-box { display: flex; gap: 20px; align-items: center; }
+  .price-box { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
   .price { font-size: 24px; font-weight: bold; color: #26a69a; }
   .info { font-size: 13px; color: #787b86; }
-  #chart { width: 100%; height: calc(100vh - 60px); }
+  #chart { width: 100%; height: calc(100vh - 70px); }
   .status {
     display: inline-block;
     width: 10px; height: 10px;
     background: #26a69a;
     border-radius: 50%;
     animation: pulse 1.5s infinite;
+    margin-left: 6px;
   }
+  .status.offline { background: #ef5350; }
   @keyframes pulse {
     0%,100% { opacity: 1; }
     50% { opacity: 0.4; }
   }
+  #connStatus { font-size: 12px; color: #787b86; }
 </style>
 
 <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
@@ -43,9 +48,10 @@
 <header>
   <h1>📊 EUR/USD — Live Chart (1M)</h1>
   <div class="price-box">
-    <span class="info"><span class="status"></span> LIVE</span>
+    <span class="info"><span class="status" id="statusDot"></span> <span id="connStatus">LIVE</span></span>
     <span class="info">Last Price:</span>
     <span class="price" id="livePrice">---</span>
+    <span class="info" id="candleCount">Candles: 0</span>
   </div>
 </header>
 
@@ -87,7 +93,10 @@
       horzLines: { color: '#1e222d' },
     },
     crosshair: { mode: 1 },
-    rightPriceScale: { borderColor: '#2a2e39' },
+    rightPriceScale: {
+      borderColor: '#2a2e39',
+      autoScale: true,
+    },
     timeScale: {
       borderColor: '#2a2e39',
       timeVisible: true,
@@ -101,116 +110,113 @@
     borderVisible: false,
     wickUpColor: '#26a69a',
     wickDownColor: '#ef5350',
+    priceFormat: {
+      type: 'price',
+      precision: 5,
+      minMove: 0.00001,
+    },
   });
 
-  // ============ متغيرات الشمعة الحية ============
-  const savedCandles = new Map();     // الشموع المحفوظة من Firestore
-  let lastSavedCandle = null;         // آخر شمعة محفوظة
-  let liveCandle = null;              // الشمعة الحية الحالية
-  let livePrice = 1.08500;            // السعر الحي
-  let anchorPrice = 1.08500;          // سعر الارتساء (سعر إغلاق آخر شمعة)
-  let volatility = 0.00015;           // تقلب واقعي
+  // ============ متغيرات إدارة الشموع ============
+  const savedCandles = new Map();  // مفتاح: time، قيمة: بيانات الشمعة
+  let lastActiveTime = null;       // وقت آخر شمعة نشطة
+  let lastPrice = null;
 
-  // ============ الاستماع المباشر لبيانات Firestore ============
+  const priceEl = document.getElementById('livePrice');
+  const statusDot = document.getElementById('statusDot');
+  const connStatus = document.getElementById('connStatus');
+  const candleCountEl = document.getElementById('candleCount');
+
+  // ============ الاستماع المباشر لـ Firestore ============
+  // المسار: candles / EURUSD / 1m
   const candlesRef = collection(db, "candles", "EURUSD", "1m");
   const q = query(candlesRef, orderBy("time", "asc"), limit(500));
 
-  onSnapshot(q, (snapshot) => {
-    snapshot.docChanges().forEach((change) => {
-      const data = change.doc.data();
-      savedCandles.set(data.time, {
-        time: data.time,
-        open: data.open,
-        high: data.high,
-        low: data.low,
-        close: data.close,
+  onSnapshot(q,
+    (snapshot) => {
+      statusDot.classList.remove('offline');
+      connStatus.textContent = 'LIVE';
+
+      snapshot.docChanges().forEach((change) => {
+        const data = change.doc.data();
+
+        // التحقق من صحة البيانات
+        if (
+          data.time == null ||
+          data.open == null ||
+          data.high == null ||
+          data.low == null ||
+          data.close == null
+        ) return;
+
+        const candle = {
+          time: Number(data.time),
+          open: Number(data.open),
+          high: Number(data.high),
+          low: Number(data.low),
+          close: Number(data.close),
+          active: data.active === true,
+        };
+
+        if (change.type === 'removed') {
+          savedCandles.delete(candle.time);
+        } else {
+          savedCandles.set(candle.time, candle);
+        }
       });
-    });
 
-    // ترتيب الشموع
-    const sorted = Array.from(savedCandles.values()).sort((a, b) => a.time - b.time);
+      // ترتيب الشموع حسب الوقت
+      const sorted = Array.from(savedCandles.values())
+        .sort((a, b) => a.time - b.time);
 
-    if (sorted.length > 0) {
-      candleSeries.setData(sorted);
+      if (sorted.length === 0) {
+        priceEl.textContent = 'لا توجد بيانات';
+        return;
+      }
 
-      // آخر شمعة محفوظة = مرجع الحركة الحية
-      lastSavedCandle = sorted[sorted.length - 1];
-      anchorPrice = lastSavedCandle.close;
+      // عرض جميع الشموع على الشارت
+      candleSeries.setData(sorted.map(c => ({
+        time: c.time,
+        open: c.open,
+        high: c.high,
+        low: c.low,
+        close: c.close,
+      })));
 
-      // تقدير التقلب من آخر شمعة (فرق high-low)
-      const range = lastSavedCandle.high - lastSavedCandle.low;
-      volatility = Math.max(range / 60, 0.00005); // على الأقل حد أدنى
+      // تحديث آخر سعر ومعلومات الواجهة
+      const latest = sorted[sorted.length - 1];
+      updatePriceDisplay(latest);
+      candleCountEl.textContent = `Candles: ${sorted.length}`;
 
-      // بدء شمعة حية جديدة
-      startNewLiveCandle();
+      // احتفظ بمرجع الشمعة النشطة إن وُجدت
+      const activeCandle = sorted.find(c => c.active === true);
+      lastActiveTime = activeCandle ? activeCandle.time : latest.time;
+    },
+    (error) => {
+      console.error("Firestore error:", error);
+      statusDot.classList.add('offline');
+      connStatus.textContent = 'OFFLINE';
+      priceEl.textContent = 'خطأ في الاتصال';
     }
-  });
+  );
 
-  // ============ توليد الشمعة الحية ============
-  function startNewLiveCandle() {
-    const now = Math.floor(Date.now() / 1000);
-    const candleTime = now - (now % 60) + 60; // بداية الدقيقة القادمة
+  // ============ تحديث عرض السعر ============
+  function updatePriceDisplay(candle) {
+    const price = candle.close;
+    priceEl.textContent = price.toFixed(5);
 
-    livePrice = anchorPrice;
-    liveCandle = {
-      time: candleTime,
-      open: anchorPrice,
-      high: anchorPrice,
-      low: anchorPrice,
-      close: anchorPrice,
-    };
+    if (lastPrice !== null) {
+      if (price > lastPrice) {
+        priceEl.style.color = '#26a69a';
+      } else if (price < lastPrice) {
+        priceEl.style.color = '#ef5350';
+      }
+    } else {
+      // مقارنة بسعر الافتتاح للشمعة نفسها
+      priceEl.style.color = price >= candle.open ? '#26a69a' : '#ef5350';
+    }
+    lastPrice = price;
   }
-
-  // ============ حركة عشوائية واقعية (Brownian + Mean Reversion) ============
-  function generateRealisticTick() {
-    // ضوضاء عشوائية طبيعية (Gaussian noise)
-    const u1 = Math.random();
-    const u2 = Math.random();
-    const gaussian = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-    const noise = gaussian * volatility;
-
-    // عودة للمتوسط (تجذب السعر نحو سعر الارتساء)
-    const meanReversion = (anchorPrice - livePrice) * 0.05;
-
-    // قفزات نادرة
-    let spike = 0;
-    if (Math.random() < 0.01) {
-      spike = (Math.random() - 0.5) * volatility * 8;
-    }
-
-    livePrice = livePrice + noise + meanReversion + spike;
-  }
-
-  // ============ تحديث الشمعة الحية كل 500ms ============
-  setInterval(() => {
-    if (!liveCandle || !lastSavedCandle) return;
-
-    const now = Math.floor(Date.now() / 1000);
-
-    // إذا انتهت الدقيقة، ابدأ شمعة جديدة
-    if (now >= liveCandle.time + 60) {
-      // آخر تحديث للشمعة قبل الانتقال
-      anchorPrice = livePrice;
-      startNewLiveCandle();
-      return;
-    }
-
-    // توليد سعر جديد
-    generateRealisticTick();
-
-    // تحديث بيانات الشمعة الحية
-    liveCandle.high = Math.max(liveCandle.high, livePrice);
-    liveCandle.low = Math.min(liveCandle.low, livePrice);
-    liveCandle.close = livePrice;
-
-    // عرض الشمعة الحية على الشارت
-    candleSeries.update(liveCandle);
-
-    // تحديث السعر في الواجهة
-    const priceEl = document.getElementById('livePrice');
-    priceEl.textContent = livePrice.toFixed(5);
-    priceEl.style.color = livePrice >= liveCandle.open ? '#26a69a' : '#ef5350';
-  }, 500);
 
   // ============ Resize ============
   window.addEventListener('resize', () => {
