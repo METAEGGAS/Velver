@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"/>
+<meta name="theme-color" content="#0d1730">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>EUR/USD Live Chart</title><style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#0d1730;color:#eef5ff;font-family:system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;overflow:hidden;user-select:none}
+header{background:#0d1730;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #223252;flex-wrap:wrap;gap:8px}
+h1{font-size:16px;color:#eef5ff}
+.pb{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.price{font-size:22px;font-weight:bold;color:#26a69a;transition:color .2s}
+.info{font-size:12px;color:#8a99b8}
+.status{display:inline-block;width:10px;height:10px;background:#26a69a;border-radius:50%;animation:p 1.5s infinite;margin-left:6px}
+.status.offline{background:#ef5350;animation:none}
+.status.loading{background:#ffa726}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+#debug{background:#0a0e17;color:#8ec4ff;padding:8px 16px;font-family:'Courier New',monospace;font-size:11px;max-height:120px;overflow-y:auto;border-bottom:1px solid #223252;direction:ltr;text-align:left}
+.log-success{color:#26a69a}.log-error{color:#ef5350;font-weight:bold}.log-warn{color:#f1ad24}.log-data{color:#c3bcdb}
+.dl{margin:2px 0;word-break:break-all}
+#cd{float:right;background:#1b2b4b;color:#c7d5ef;border:1px solid #3e5f9b;padding:2px 8px;cursor:pointer;border-radius:4px;font-size:11px}
+#wrap{position:relative;width:100%;height:calc(100vh - 190px);background:#0d1730;touch-action:none;overflow:hidden}
+#chart{display:block;width:100%;height:100%;cursor:crosshair;background:#0d1730;touch-action:none;position:absolute;inset:0}
+#tooltip{position:absolute;background:#1b2b4b;border:1px solid #3e5f9b;padding:6px 10px;font-size:11px;pointer-events:none;display:none;border-radius:6px;direction:ltr;z-index:10;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4);color:#eef5ff}
+</style></head><body>
+<header><h1>📊 EUR/USD — Live Chart (1M)</h1><div class="pb">
+<span class="info"><span class="status loading" id="sd"></span> <span id="cs">CONNECTING...</span></span>
+<span class="info">Price:</span><span class="price" id="lp">---</span><span class="info" id="cc">Candles: 0</span>
+</div></header>
+<div id="debug"><button id="cd" onclick="debug.style.display='none'">إخفاء ✕</button><div class="dl log-info">🔍 Diagnostic Panel — Initializing...</div></div>
+<div id="wrap"><canvas id="chart"></canvas><div id="tooltip"></div></div>
+<script type="module">
+const debug=document.getElementById('debug');
+function log(m,t='info'){const l=document.createElement('div');l.className='dl log-'+t;l.textContent=`[${new Date().toLocaleTimeString()}] ${m}`;debug.appendChild(l);debug.scrollTop=debug.scrollHeight;console.log(m)}
+window.addEventListener('error',e=>log(`❌ JS Error: ${e.message} @ ${e.filename}:${e.lineno}`,'error'));
+window.addEventListener('unhandledrejection',e=>log(`❌ Promise: ${e.reason?.message||e.reason}`,'error'));
+log('✅ Script started','success');
+
+let initializeApp,getFirestore,collection,onSnapshot,query,orderBy,limit,getDocs;
+try{
+  const a=await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js");
+  const f=await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js");
+  ({initializeApp}=a);({getFirestore,collection,onSnapshot,query,orderBy,limit,getDocs}=f);
+  log('✅ Firebase SDK loaded','success');
+}catch(e){log(`❌ Firebase SDK: ${e.message}`,'error');throw e}
+
+const cfg={apiKey:"AIzaSyD85Lebi9rKSoDbTAi-IgGxzPC4XjrCscs",authDomain:"snsjsjjshs-271bc.firebaseapp.com",projectId:"snsjsjjshs-271bc",storageBucket:"snsjsjjshs-271bc.firebasestorage.app",messagingSenderId:"753273974385",appId:"1:753273974385:web:7a3c7049f2d504f87d75d0",measurementId:"G-PSGZX896FR"};
+let app,db;
+try{app=initializeApp(cfg);db=getFirestore(app);log(`✅ Firebase init (${cfg.projectId})`,'success')}catch(e){log(`❌ Init: ${e.message}`,'error');throw e}
+
+/* =====================================================================
+   Canvas Chart Engine — FXER-style visuals + smooth zoom/pan
+   ( Colors / grid / paddings / animation / interactions ) taken from
+   eptinex.html . Firebase pricing logic left 100% untouched.
+   ===================================================================== */
+const cv=document.getElementById('chart'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap'),tt=document.getElementById('tooltip');
+
+// FXER color palette
+const COL={
+  bg:'#0d1730',
+  grid:'#1a2433',
+  bull:'#26a69a',
+  bear:'#ef5350',
+  axisText:'#a5b7d6',
+  crosshair:'rgba(195,188,219,.55)',
+  bubbleBg:'#1b2b4b',
+  bubbleBd:'#3e5f9b',
+  pulse:'#f1ad24',
+  pulseRing:'#fff6d6',
+  txt:'#fff'
+};
+
+// FXER paddings (tight)
+const PAD={t:8,r:53,b:22,l:6};
+
+let W=0,H=0,DPR=window.devicePixelRatio||1;
+let candles=[],liveCandle=null,liveTimer=null,liveStart=0,liveTargetClose=0,liveBaseCandle=null;
+
+/* smooth zoom/pan state — FXER easing constants:
+     candle width  P += 0.22*(C-P)          (target C, current P)
+     y-range       lerp factor 0.12
+     live close    __dp += 0.22*(target-__dp)
+   candle width bounds  2..28 , base 8 , wheel factor 1.32 */
+let C=8, P=8;                // target / current candle width (px)
+const GAP_RATIO=0.28;        // gap between candles ~28% of body
+let G=0;                     // right-offset in candle units (0 = latest at right)
+let yView={lo:0,hi:1,tLo:0,tHi:1,init:false};
+let __dp=null,__dpTi=null;   // animated last price
+let mouse={x:-1,y:-1,in:false};
+let drag={on:false,x:0,y:0,off:0,moved:false};
+let pinch={on:false,d:0,cw:0};
+let animRunning=false;
+
+function resize(){
+  const r=wrap.getBoundingClientRect();W=r.width;H=r.height;
+  cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize',resize);
+
+// clamp helpers
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const cwClamp=v=>clamp(Math.round(0.72*v),2,28);   // rendered body width from spacing
+const spClamp=v=>clamp(v,2,40);                    // spacing bound
+
+function all(){return candles.length+(liveCandle?1:0)}
+function getAt(i){return i<candles.length?candles[i]:liveCandle}
+
+// x mapping: index -> pixel center (with G = right-offset in candles)
+function xAt(i){
+  const n=all(); const rightIdx=n-1-G;
+  return (W-PAD.r) - (rightIdx-i)*P;
+}
+// pixel -> index (float)
+function idxAt(x){
+  const n=all(); const rightIdx=n-1-G;
+  return rightIdx - ((W-PAD.r)-x)/P;
+}
+
+function visRange(){
+  const start=Math.max(0,Math.floor(idxAt(PAD.l))-2);
+  const end  =Math.min(all()-1,Math.ceil(idxAt(W-PAD.r))+2);
+  return {start,end};
+}
+
+function calcTargetY(){
+  const {start,end}=visRange();
+  let lo=Infinity,hi=-Infinity;
+  for(let i=start;i<=end;i++){const c=getAt(i);if(!c)continue;if(c.low<lo)lo=c.low;if(c.high>hi)hi=c.high}
+  if(!isFinite(lo)){const last=candles[candles.length-1];lo=last?last.close*0.999:0;hi=last?last.close*1.001:1}
+  const pad=(hi-lo)*0.05||0.0001;
+  return {lo:lo-pad,hi:hi+pad};
+}
+function y2p(v){const plotH=H-PAD.t-PAD.b;return PAD.t+((yView.hi-v)/(yView.hi-yView.lo))*plotH}
+function p2y(y){const plotH=H-PAD.t-PAD.b;return yView.hi-((y-PAD.t)/plotH)*(yView.hi-yView.lo)}
+
+function niceStep(range,divisions){
+  const raw=range/Math.max(2,divisions);
+  const e=Math.pow(10,Math.floor(Math.log10(raw)));
+  const n=raw/e;
+  return (n<=1?1:n<=2?2:n<=5?5:10)*e;
+}
+function fmt(v){return v.toFixed(5)}
+
+function draw(){
+  if(!W||!H)return;
+  // ---- smooth interpolation (FXER-style) ----
+  P += 0.22*(C-P); if(Math.abs(C-P)<0.003) P=C;
+  // y-range easing 0.12
+  const t=calcTargetY(); yView.tLo=t.lo; yView.tHi=t.hi;
+  if(!yView.init){yView.lo=t.lo;yView.hi=t.hi;yView.init=true}
+  else{
+    yView.lo += 0.12*(yView.tLo-yView.lo);
+    yView.hi += 0.12*(yView.tHi-yView.hi);
+  }
+  // live close animation
+  const lastC=liveCandle||candles[candles.length-1];
+  if(lastC){
+    if(__dp==null||__dpTi!==lastC.time){if(__dp==null)__dp=lastC.close;__dpTi=lastC.time}
+    __dp += 0.22*(lastC.close-__dp);
+    if(Math.abs(lastC.close-__dp)<1e-9)__dp=lastC.close;
+  }
+
+  // ---- background ----
+  ctx.fillStyle=COL.bg;ctx.fillRect(0,0,W,H);
+  if(!all()){
+    ctx.fillStyle='#8a99b8';ctx.font='14px Arial';ctx.textAlign='center';
+    ctx.fillText('لا توجد بيانات',W/2,H/2);
+    requestAnimationFrame(draw);return;
+  }
+
+  const {start,end}=visRange();
+  const bodyW=cwClamp(P);
+
+  // ---- clip plot area ----
+  ctx.save();
+  ctx.beginPath();ctx.rect(PAD.l,PAD.t,W-PAD.l-PAD.r,H-PAD.t-PAD.b);ctx.clip();
+
+  // ---- grid (vertical, based on candle indices) ----
+  ctx.strokeStyle=COL.grid;ctx.lineWidth=1;
+  let step=5;
+  const visN=end-start+1;
+  while(visN/step>30)step*=2;
+  for(let i=Math.ceil(start/step)*step;i<=end;i+=step){
+    const x=xAt(i);
+    if(x<PAD.l-P||x>W-PAD.r+P)continue;
+    ctx.beginPath();ctx.moveTo(x,PAD.t);ctx.lineTo(x,H-PAD.b);ctx.stroke();
+  }
+  // horizontal grid (nice steps)
+  const yRange=yView.hi-yView.lo;
+  const yStep=niceStep(yRange,Math.max(2,Math.floor((H-PAD.t-PAD.b)/60)));
+  for(let v=Math.floor(yView.lo/yStep)*yStep;v<=yView.hi+yStep;v+=yStep){
+    const y=y2p(v);
+    ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(W-PAD.r,y);ctx.stroke();
+  }
+
+  // ---- candles ----
+  for(let i=start;i<=end;i++){
+    const c=getAt(i);if(!c)continue;
+    const x=xAt(i);
+    if(x<PAD.l-P||x>W-PAD.r+P)continue;
+    const yO=y2p(c.open),yC=y2p(i===candles.length-1&&liveCandle==null&&__dp!=null?__dp:c===lastC&&__dp!=null?__dp:c.close);
+    const yH=y2p(c.high),yL=y2p(c.low);
+    const useClose=(c===lastC && __dp!=null)?__dp:c.close;
+    const up=useClose>=c.open;
+    const col=up?COL.bull:COL.bear;
+    ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;
+    // wick
+    ctx.beginPath();ctx.moveTo(0.5+(x|0),yH);ctx.lineTo(0.5+(x|0),yL);ctx.stroke();
+    // body
+    const bx=Math.round(x-bodyW/2);
+    const bt=Math.min(yO,y2p(useClose));
+    const bh=Math.max(1,Math.abs(y2p(useClose)-yO));
+    ctx.fillRect(bx,bt,bodyW,bh);
+  }
+
+  // ---- last price dashed line ----
+  if(lastC){
+    const ly=y2p(__dp!=null?__dp:lastC.close);
+    ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.8)';
+    ctx.beginPath();ctx.moveTo(PAD.l,ly);ctx.lineTo(W-PAD.r,ly);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ---- crosshair inside clip ----
+  if(mouse.in&&mouse.x>PAD.l&&mouse.x<W-PAD.r&&mouse.y>PAD.t&&mouse.y<H-PAD.b){
+    ctx.setLineDash([4,4]);ctx.strokeStyle=COL.crosshair;
+    ctx.beginPath();ctx.moveTo(mouse.x,PAD.t);ctx.lineTo(mouse.x,H-PAD.b);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD.l,mouse.y);ctx.lineTo(W-PAD.r,mouse.y);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.restore();
+
+  // ---- axis labels (outside clip) ----
+  // time labels
+  ctx.fillStyle=COL.txt;ctx.font='10px Arial';ctx.textAlign='center';
+  let tstep=step;while(tstep*P<48)tstep+=step;
+  for(let i=Math.ceil(start/tstep)*tstep;i<=end;i+=tstep){
+    const c=getAt(i);if(!c)continue;
+    const x=xAt(i);if(x<PAD.l||x>W-PAD.r)continue;
+    const d=new Date(c.time*1000);
+    const lbl=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    ctx.fillStyle=COL.axisText;
+    ctx.fillText(lbl,x,H-PAD.b+13);
+  }
+
+  // price labels (right axis)
+  ctx.textAlign='right';ctx.font='10px Arial';
+  for(let v=Math.floor(yView.lo/yStep)*yStep;v<=yView.hi+yStep;v+=yStep){
+    const y=y2p(v);if(y<PAD.t||y>H-PAD.b)continue;
+    // small chip bg
+    roundRect(ctx,W-PAD.r,y-8,50,16,4);
+    ctx.fillStyle='rgba(14,21,33,.85)';ctx.fill();
+    ctx.fillStyle=COL.axisText;
+    ctx.fillText(fmt(v),W-8,y+4);
+  }
+
+  // last price bubble + pulsing gold dot
+  if(lastC){
+    const val=__dp!=null?__dp:lastC.close;
+    const ly=y2p(val),lx=xAt(all()-1);
+    const R=0.5+0.5*Math.sin(performance.now()/120);
+    const q=3.25+0.25*R, Y=4.8+0.8*R;
+    // bubble
+    roundRect(ctx,W-PAD.r,ly-11,50,22,10);
+    ctx.fillStyle=COL.bubbleBg;ctx.fill();
+    ctx.strokeStyle=COL.bubbleBd;ctx.lineWidth=1;ctx.strokeRect(W-PAD.r+0.5,ly-10.5,49,21);
+    ctx.fillStyle=COL.txt;ctx.font='bold 11px Arial';ctx.textAlign='center';
+    ctx.fillText(fmt(val),W-PAD.r+25,ly+4);
+    // pulsing dot at candle position
+    if(lx>=PAD.l&&lx<=W-PAD.r){
+      ctx.fillStyle=COL.pulse;ctx.globalAlpha=0.22+0.2*R;
+      ctx.beginPath();ctx.arc(lx,ly,Y+1.5*R,0,7);ctx.fill();
+      ctx.globalAlpha=1;
+      ctx.beginPath();ctx.arc(lx,ly,q,0,7);ctx.fill();
+      ctx.strokeStyle=COL.pulseRing;ctx.lineWidth=1.6;ctx.globalAlpha=0.85+0.15*R;
+      ctx.beginPath();ctx.arc(lx,ly,Y,0,7);ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+  }
+
+  // crosshair value chip (right axis)
+  if(mouse.in&&mouse.x>PAD.l&&mouse.x<W-PAD.r&&mouse.y>PAD.t&&mouse.y<H-PAD.b){
+    const pv=p2y(mouse.y);
+    roundRect(ctx,W-PAD.r,mouse.y-8,50,16,4);
+    ctx.fillStyle='#2a2e39';ctx.fill();
+    ctx.fillStyle='#d1d4dc';ctx.textAlign='center';ctx.font='10px Arial';
+    ctx.fillText(fmt(pv),W-PAD.r+25,mouse.y+4);
+    // tooltip
+    const i=Math.round(idxAt(mouse.x));
+    const c=getAt(i);
+    if(c){
+      const d=new Date(c.time*1000);
+      tt.style.display='block';
+      tt.style.left=Math.min(mouse.x+12,W-180)+'px';
+      tt.style.top=(mouse.y+12)+'px';
+      tt.innerHTML=`<b>${d.toLocaleString()}</b>${c===liveCandle?' 🔴':''}<br>O: ${c.open.toFixed(5)}<br>H: ${c.high.toFixed(5)}<br>L: ${c.low.toFixed(5)}<br>C: ${c.close.toFixed(5)}`;
+    }else tt.style.display='none';
+  }else tt.style.display='none';
+
+  requestAnimationFrame(draw);
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+/* ================= Interactions (FXER-style smooth) ================= */
+// mouse
+cv.addEventListener('mousemove',e=>{
+  const r=cv.getBoundingClientRect();
+  mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.in=true;
+  if(drag.on){
+    const dx=e.clientX-drag.x;
+    if(Math.abs(dx)>2)drag.moved=true;
+    G = Math.max(0, drag.off + dx/P);
+  }
+});
+cv.addEventListener('mouseleave',()=>{mouse.in=false;drag.on=false});
+cv.addEventListener('mousedown',e=>{drag.on=true;drag.x=e.clientX;drag.off=G;drag.moved=false;cv.style.cursor='grabbing'});
+window.addEventListener('mouseup',()=>{drag.on=false;cv.style.cursor='crosshair'});
+
+// wheel zoom (factor 1.32) anchored at cursor
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left;
+  const anchorIdx=idxAt(mx);
+  const factor=e.deltaY>0?1/1.32:1.32;
+  C=spClamp(P*factor);
+  // after zoom, keep anchorIdx under cursor:
+  // anchor pixel = (W-PAD.r) - (n-1-G - anchorIdx)*P  → solve for new G
+  const n=all(); const targetPixel=mx;
+  // using new C for new P after settle → approximate with C
+  G = Math.max(0, (n-1) - anchorIdx - ((W-PAD.r)-targetPixel)/C);
+},{passive:false});
+
+// touch — pan + pinch, double-tap resets
+let lastTap=0;
+cv.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+    pinch.on=true;
+    pinch.d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    pinch.cw=P;drag.on=false;
+  }else if(e.touches.length===1){
+    const now=Date.now();
+    if(now-lastTap<320){ // double-tap reset
+      C=P=8;G=0;lastTap=0;
+    }else{lastTap=now}
+    drag.on=true;drag.x=e.touches[0].clientX;drag.off=G;drag.moved=false;
+    const r=cv.getBoundingClientRect();
+    mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;mouse.in=true;
+  }
+},{passive:true});
+cv.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(pinch.on&&e.touches.length===2){
+    const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    const ratio=nd/pinch.d;
+    // FXER-style: extra sensitivity when spreading vs pinching
+    const eff = ratio>=1 ? 1+4*(ratio-1) : 1/(1+4*(1/ratio-1));
+    C=spClamp(pinch.cw*eff);
+  }else if(drag.on&&e.touches.length===1){
+    const dx=e.touches[0].clientX-drag.x;
+    if(Math.abs(dx)>2)drag.moved=true;
+    G=Math.max(0,drag.off+dx/P);
+    const r=cv.getBoundingClientRect();
+    mouse.x=e.touches[0].clientX-r.left;mouse.y=e.touches[0].clientY-r.top;
+  }
+},{passive:false});
+cv.addEventListener('touchend',e=>{
+  if(e.touches.length===0){drag.on=false;pinch.on=false;mouse.in=false}
+  else if(e.touches.length===1){pinch.on=false;drag.on=true;drag.x=e.touches[0].clientX;drag.off=G}
+},{passive:true});
+cv.addEventListener('touchcancel',()=>{drag.on=false;pinch.on=false;mouse.in=false});
+
+// reset button by keyboard R
+window.addEventListener('keydown',e=>{if(e.key==='r'||e.key==='R'){C=8;G=0}});
+
+/* ================= Live candle simulation (kept intact) ================= */
+function lerp(a,b,t){return a+(b-a)*t}
+function startLiveAnimation(baseCandle){
+  if(liveTimer){clearInterval(liveTimer);liveTimer=null}
+  const nextTime=baseCandle.time+60;
+  const openPrice=baseCandle.close;
+  liveCandle={time:nextTime,open:openPrice,high:openPrice,low:openPrice,close:openPrice,active:true};
+  liveBaseCandle=baseCandle;
+  liveStart=Date.now();
+  const vol=Math.max(Math.abs(baseCandle.high-baseCandle.low),openPrice*0.0005);
+  liveTargetClose=openPrice+(Math.random()-0.5)*vol*2;
+  log(`🔴 Live candle started (target close: ${liveTargetClose.toFixed(5)})`,'data');
+  liveTimer=setInterval(()=>{
+    const elapsed=(Date.now()-liveStart)/1000;
+    if(elapsed>=60){
+      const done={...liveCandle,active:false};
+      liveCandle=null;
+      clearInterval(liveTimer);liveTimer=null;
+      log(`✅ Live candle finalized. Close: ${done.close.toFixed(5)}`,'success');
+      candles.push(done);
+      startLiveAnimation(done);
+      updatePriceUI(done);
+      return;
+    }
+    const progress=elapsed/60;
+    const drift=(liveTargetClose-liveCandle.close)*0.05;
+    const noise=(Math.random()-0.5)*Math.abs(liveTargetClose-liveCandle.open)*0.15;
+    let newClose=liveCandle.close+drift+noise;
+    if(progress>0.9)newClose=lerp(newClose,liveTargetClose,0.3);
+    liveCandle.close=newClose;
+    if(newClose>liveCandle.high)liveCandle.high=newClose;
+    if(newClose<liveCandle.low)liveCandle.low=newClose;
+    updatePriceUI(liveCandle);
+  },100);
+}
+
+/* ================= UI ================= */
+const lp=document.getElementById('lp'),sd=document.getElementById('sd'),cs=document.getElementById('cs'),cc=document.getElementById('cc');
+function setStatus(s,t){sd.className='status '+s;cs.textContent=t}
+let lastPrice=null;
+function updatePriceUI(c){
+  lp.textContent=c.close.toFixed(5);
+  if(lastPrice!==null)lp.style.color=c.close>lastPrice?COL.bull:c.close<lastPrice?COL.bear:lp.style.color;
+  else lp.style.color=c.close>=c.open?COL.bull:COL.bear;
+  lastPrice=c.close;
+}
+
+const saved=new Map();
+log('📡 Connecting: candles/EURUSD/1m','info');
+let ref;try{ref=collection(db,"candles","EURUSD","1m");log('✅ Collection ref OK','success')}catch(e){log(`❌ Ref: ${e.message}`,'error');throw e}
+
+try{
+  log('🔎 Test read...','info');
+  const ts=await getDocs(query(ref,limit(3)));
+  log(`✅ Test read OK. Docs: ${ts.size}`,'success');
+  if(!ts.size)log('⚠️ Collection EMPTY','warn');
+  else ts.forEach(d=>{const x=d.data();log(`📄 ${d.id}: t=${x.time},O=${x.open},C=${x.close}`,'data')});
+}catch(e){log(`❌ TEST READ: ${e.code||''} — ${e.message}`,'error');if(e.code==='permission-denied')log('🔒 SECURITY RULES BLOCK','error');setStatus('offline','ERROR');lp.textContent='خطأ'}
+
+resize();
+requestAnimationFrame(draw);
+
+onSnapshot(query(ref,orderBy("time","asc"),limit(500)),
+  snap=>{
+    setStatus('','LIVE');
+    log(`📥 Snap. Changes: ${snap.docChanges().length}, Total: ${snap.size}`,'success');
+    snap.docChanges().forEach(ch=>{
+      const d=ch.doc.data();
+      if(d.time==null||d.open==null||d.high==null||d.low==null||d.close==null){log(`⚠️ Skip ${ch.doc.id}`,'warn');return}
+      const c={time:Number(d.time),open:Number(d.open),high:Number(d.high),low:Number(d.low),close:Number(d.close),active:d.active===true};
+      if(ch.type==='removed')saved.delete(c.time);else saved.set(c.time,c);
+    });
+    candles=Array.from(saved.values()).sort((a,b)=>a.time-b.time);
+    if(!candles.length){lp.textContent='لا بيانات';cc.textContent='Candles: 0';return}
+    const last=candles[candles.length-1];
+    if(!liveTimer||!liveBaseCandle||liveBaseCandle.time<last.time){
+      if(liveTimer){clearInterval(liveTimer);liveTimer=null}
+      liveCandle=null;
+      startLiveAnimation(last);
+    }
+    updatePriceUI(liveCandle||last);
+    cc.textContent=`Candles: ${candles.length}`;
+    log(`📊 Updated ${candles.length} candles. Close: ${last.close}`,'success');
+    if(!window._fit){window._fit=true;C=P=8;G=0;yView.init=false}
+  },
+  err=>{log(`❌ onSnapshot: ${err.code||''} — ${err.message}`,'error');if(err.code==='permission-denied')log('🔒 قواعد الأمان تمنع القراءة','error');setStatus('offline','OFFLINE');lp.textContent='خطأ اتصال'}
+);
+</script></body></html>
