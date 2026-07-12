@@ -1,354 +1,179 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8" />
-<title>EUR/USD Live Chart</title>
-<style>
-  body {
-    margin: 0;
-    background: #131722;
-    color: #d1d4dc;
-    font-family: Arial, sans-serif;
-  }
-  header {
-    background: #1e222d;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #2a2e39;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  h1 { margin: 0; font-size: 18px; color: #f0f0f0; }
-  .price-box { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
-  .price { font-size: 24px; font-weight: bold; color: #26a69a; }
-  .info { font-size: 13px; color: #787b86; }
-  #chart { width: 100%; height: calc(100vh - 200px); }
-  .status {
-    display: inline-block;
-    width: 10px; height: 10px;
-    background: #26a69a;
-    border-radius: 50%;
-    animation: pulse 1.5s infinite;
-    margin-left: 6px;
-  }
-  .status.offline { background: #ef5350; animation: none; }
-  .status.loading { background: #ffa726; }
-  @keyframes pulse {
-    0%,100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* لوحة التشخيص */
-  #debug {
-    background: #0d1117;
-    color: #58a6ff;
-    padding: 10px 20px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    max-height: 130px;
-    overflow-y: auto;
-    border-bottom: 1px solid #2a2e39;
-    direction: ltr;
-    text-align: left;
-  }
-  #debug .log-info { color: #58a6ff; }
-  #debug .log-success { color: #56d364; }
-  #debug .log-error { color: #f85149; font-weight: bold; }
-  #debug .log-warn { color: #e3b341; }
-  #debug .log-data { color: #d2a8ff; }
-  .debug-line { margin: 2px 0; word-break: break-all; }
-  #closeDebug {
-    float: right;
-    background: #21262d;
-    color: #c9d1d9;
-    border: 1px solid #30363d;
-    padding: 2px 8px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 11px;
-  }
-</style>
-
-<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-</head>
-<body>
-
-<header>
-  <h1>📊 EUR/USD — Live Chart (1M)</h1>
-  <div class="price-box">
-    <span class="info"><span class="status loading" id="statusDot"></span> <span id="connStatus">CONNECTING...</span></span>
-    <span class="info">Price:</span>
-    <span class="price" id="livePrice">---</span>
-    <span class="info" id="candleCount">Candles: 0</span>
-  </div>
-</header>
-
-<div id="debug">
-  <button id="closeDebug" onclick="document.getElementById('debug').style.display='none'">إخفاء ✕</button>
-  <div class="debug-line log-info">🔍 Diagnostic Panel — Initializing...</div>
-</div>
-
-<div id="chart"></div>
-
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>EUR/USD Live Chart</title><style>
+*{box-sizing:border-box;margin:0;padding:0}body{background:#131722;color:#d1d4dc;font-family:Arial,sans-serif;overflow:hidden}
+header{background:#1e222d;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2a2e39;flex-wrap:wrap;gap:8px}
+h1{font-size:16px;color:#f0f0f0}.pb{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.price{font-size:22px;font-weight:bold;color:#26a69a}.info{font-size:12px;color:#787b86}
+.status{display:inline-block;width:10px;height:10px;background:#26a69a;border-radius:50%;animation:p 1.5s infinite;margin-left:6px}
+.status.offline{background:#ef5350;animation:none}.status.loading{background:#ffa726}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
+#debug{background:#0d1117;color:#58a6ff;padding:8px 16px;font-family:'Courier New',monospace;font-size:11px;max-height:120px;overflow-y:auto;border-bottom:1px solid #2a2e39;direction:ltr;text-align:left}
+.log-success{color:#56d364}.log-error{color:#f85149;font-weight:bold}.log-warn{color:#e3b341}.log-data{color:#d2a8ff}
+.dl{margin:2px 0;word-break:break-all}
+#cd{float:right;background:#21262d;color:#c9d1d9;border:1px solid #30363d;padding:2px 8px;cursor:pointer;border-radius:4px;font-size:11px}
+#wrap{position:relative;width:100%;height:calc(100vh - 190px)}
+#chart{display:block;width:100%;height:100%;cursor:crosshair;background:#131722}
+#tooltip{position:absolute;background:#1e222d;border:1px solid #2a2e39;padding:6px 10px;font-size:11px;pointer-events:none;display:none;border-radius:4px;direction:ltr;z-index:10;white-space:nowrap}
+</style></head><body>
+<header><h1>📊 EUR/USD — Live Chart (1M)</h1><div class="pb">
+<span class="info"><span class="status loading" id="sd"></span> <span id="cs">CONNECTING...</span></span>
+<span class="info">Price:</span><span class="price" id="lp">---</span><span class="info" id="cc">Candles: 0</span>
+</div></header>
+<div id="debug"><button id="cd" onclick="debug.style.display='none'">إخفاء ✕</button><div class="dl log-info">🔍 Diagnostic Panel — Initializing...</div></div>
+<div id="wrap"><canvas id="chart"></canvas><div id="tooltip"></div></div>
 <script type="module">
-  // ============ لوحة التشخيص ============
-  const debugEl = document.getElementById('debug');
-  function log(msg, type = 'info') {
-    const line = document.createElement('div');
-    line.className = 'debug-line log-' + type;
-    const time = new Date().toLocaleTimeString();
-    line.textContent = `[${time}] ${msg}`;
-    debugEl.appendChild(line);
-    debugEl.scrollTop = debugEl.scrollHeight;
-    console.log(`[${type}]`, msg);
+const debug=document.getElementById('debug');
+function log(m,t='info'){const l=document.createElement('div');l.className='dl log-'+t;l.textContent=`[${new Date().toLocaleTimeString()}] ${m}`;debug.appendChild(l);debug.scrollTop=debug.scrollHeight;console.log(m)}
+window.addEventListener('error',e=>log(`❌ JS Error: ${e.message} @ ${e.filename}:${e.lineno}`,'error'));
+window.addEventListener('unhandledrejection',e=>log(`❌ Promise: ${e.reason?.message||e.reason}`,'error'));
+log('✅ Script started','success');
+
+let initializeApp,getFirestore,collection,onSnapshot,query,orderBy,limit,getDocs;
+try{
+  const a=await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js");
+  const f=await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js");
+  ({initializeApp}=a);({getFirestore,collection,onSnapshot,query,orderBy,limit,getDocs}=f);
+  log('✅ Firebase SDK loaded','success');
+}catch(e){log(`❌ Firebase SDK: ${e.message}`,'error');throw e}
+
+const cfg={apiKey:"AIzaSyD85Lebi9rKSoDbTAi-IgGxzPC4XjrCscs",authDomain:"snsjsjjshs-271bc.firebaseapp.com",projectId:"snsjsjjshs-271bc",storageBucket:"snsjsjjshs-271bc.firebasestorage.app",messagingSenderId:"753273974385",appId:"1:753273974385:web:7a3c7049f2d504f87d75d0",measurementId:"G-PSGZX896FR"};
+let app,db;
+try{app=initializeApp(cfg);db=getFirestore(app);log(`✅ Firebase init (${cfg.projectId})`,'success')}catch(e){log(`❌ Init: ${e.message}`,'error');throw e}
+
+// ============ Canvas Chart Engine ============
+const cv=document.getElementById('chart'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap'),tt=document.getElementById('tooltip');
+let W=0,H=0,DPR=window.devicePixelRatio||1;
+const PAD={t:10,r:70,b:30,l:10};
+let candles=[],view={offset:0,cw:8,gap:2},mouse={x:-1,y:-1,in:false},drag={on:false,x:0,off:0};
+
+function resize(){
+  const r=wrap.getBoundingClientRect();W=r.width;H=r.height;
+  cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);draw();
+}
+window.addEventListener('resize',resize);
+
+function getVis(){
+  const cw=view.cw+view.gap,plotW=W-PAD.l-PAD.r;
+  const cnt=Math.floor(plotW/cw),start=Math.max(0,candles.length-cnt-view.offset),end=Math.max(0,candles.length-view.offset);
+  return{start,end,cnt,plotW,cw}
+}
+function getRange(vis){
+  let lo=Infinity,hi=-Infinity;
+  for(let i=vis.start;i<vis.end;i++){const c=candles[i];if(c.low<lo)lo=c.low;if(c.high>hi)hi=c.high}
+  if(lo===Infinity)return{lo:0,hi:1};const pad=(hi-lo)*0.1||0.0001;return{lo:lo-pad,hi:hi+pad}
+}
+function y2p(v,r){const plotH=H-PAD.t-PAD.b;return PAD.t+plotH-((v-r.lo)/(r.hi-r.lo))*plotH}
+function p2y(y,r){const plotH=H-PAD.t-PAD.b;return r.hi-((y-PAD.t)/plotH)*(r.hi-r.lo)}
+
+function draw(){
+  ctx.fillStyle='#131722';ctx.fillRect(0,0,W,H);
+  if(!candles.length){ctx.fillStyle='#787b86';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('لا توجد بيانات',W/2,H/2);return}
+  const vis=getVis(),rng=getRange(vis);
+  // grid
+  ctx.strokeStyle='#1e222d';ctx.lineWidth=1;ctx.fillStyle='#787b86';ctx.font='10px Arial';ctx.textAlign='left';
+  const steps=6;
+  for(let i=0;i<=steps;i++){
+    const v=rng.lo+(rng.hi-rng.lo)*i/steps,y=y2p(v,rng);
+    ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(W-PAD.r,y);ctx.stroke();
+    ctx.fillText(v.toFixed(5),W-PAD.r+4,y+3);
   }
-
-  // اعتراض الأخطاء العامة
-  window.addEventListener('error', (e) => {
-    log(`❌ JS Error: ${e.message} @ ${e.filename}:${e.lineno}`, 'error');
-  });
-  window.addEventListener('unhandledrejection', (e) => {
-    log(`❌ Promise Rejected: ${e.reason?.message || e.reason}`, 'error');
-  });
-
-  log('✅ Script started', 'success');
-
-  // ============ استيراد Firebase ============
-  let initializeApp, getFirestore, collection, onSnapshot, query, orderBy, limit, getDocs;
-  try {
-    const appMod = await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js");
-    const fsMod  = await import("https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js");
-    initializeApp = appMod.initializeApp;
-    getFirestore  = fsMod.getFirestore;
-    collection    = fsMod.collection;
-    onSnapshot    = fsMod.onSnapshot;
-    query         = fsMod.query;
-    orderBy       = fsMod.orderBy;
-    limit         = fsMod.limit;
-    getDocs       = fsMod.getDocs;
-    log('✅ Firebase SDK loaded (v12.16.0)', 'success');
-  } catch (e) {
-    log(`❌ Failed to load Firebase SDK: ${e.message}`, 'error');
-    throw e;
+  // time labels
+  ctx.textAlign='center';
+  const tStep=Math.max(1,Math.floor(vis.cnt/6));
+  for(let i=vis.start;i<vis.end;i+=tStep){
+    const c=candles[i],x=PAD.l+(i-vis.start)*vis.cw+vis.cw/2;
+    const d=new Date(c.time*1000),lbl=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+    ctx.beginPath();ctx.moveTo(x,PAD.t);ctx.lineTo(x,H-PAD.b);ctx.strokeStyle='#1e222d';ctx.stroke();
+    ctx.fillStyle='#787b86';ctx.fillText(lbl,x,H-PAD.b+14);
   }
-
-  // ============ إعدادات Firebase ============
-  const firebaseConfig = {
-    apiKey: "AIzaSyD85Lebi9rKSoDbTAi-IgGxzPC4XjrCscs",
-    authDomain: "snsjsjjshs-271bc.firebaseapp.com",
-    projectId: "snsjsjjshs-271bc",
-    storageBucket: "snsjsjjshs-271bc.firebasestorage.app",
-    messagingSenderId: "753273974385",
-    appId: "1:753273974385:web:7a3c7049f2d504f87d75d0",
-    measurementId: "G-PSGZX896FR"
-  };
-
-  let app, db;
-  try {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app);
-    log(`✅ Firebase initialized (project: ${firebaseConfig.projectId})`, 'success');
-  } catch (e) {
-    log(`❌ Firebase init failed: ${e.message}`, 'error');
-    throw e;
+  // candles
+  for(let i=vis.start;i<vis.end;i++){
+    const c=candles[i],x=PAD.l+(i-vis.start)*vis.cw+view.gap/2,up=c.close>=c.open,col=up?'#26a69a':'#ef5350';
+    const yO=y2p(c.open,rng),yC=y2p(c.close,rng),yH=y2p(c.high,rng),yL=y2p(c.low,rng);
+    ctx.strokeStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+view.cw/2,yH);ctx.lineTo(x+view.cw/2,yL);ctx.stroke();
+    ctx.fillStyle=col;const bt=Math.min(yO,yC),bh=Math.max(1,Math.abs(yC-yO));ctx.fillRect(x,bt,view.cw,bh);
   }
-
-  // ============ إعداد الشارت ============
-  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-    layout: {
-      background: { color: '#131722' },
-      textColor: '#d1d4dc',
-    },
-    grid: {
-      vertLines: { color: '#1e222d' },
-      horzLines: { color: '#1e222d' },
-    },
-    crosshair: { mode: 1 },
-    rightPriceScale: {
-      borderColor: '#2a2e39',
-      autoScale: true,
-    },
-    timeScale: {
-      borderColor: '#2a2e39',
-      timeVisible: true,
-      secondsVisible: false,
-    },
-  });
-
-  const candleSeries = chart.addCandlestickSeries({
-    upColor: '#26a69a',
-    downColor: '#ef5350',
-    borderVisible: false,
-    wickUpColor: '#26a69a',
-    wickDownColor: '#ef5350',
-    priceFormat: {
-      type: 'price',
-      precision: 5,
-      minMove: 0.00001,
-    },
-  });
-  log('✅ Chart initialized', 'success');
-
-  // ============ عناصر الواجهة ============
-  const priceEl = document.getElementById('livePrice');
-  const statusDot = document.getElementById('statusDot');
-  const connStatus = document.getElementById('connStatus');
-  const candleCountEl = document.getElementById('candleCount');
-
-  function setStatus(state, text) {
-    statusDot.className = 'status ' + state;
-    connStatus.textContent = text;
+  // last price line
+  const last=candles[candles.length-1],ly=y2p(last.close,rng);
+  if(ly>=PAD.t&&ly<=H-PAD.b){
+    ctx.strokeStyle=last.close>=last.open?'#26a69a':'#ef5350';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(PAD.l,ly);ctx.lineTo(W-PAD.r,ly);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=last.close>=last.open?'#26a69a':'#ef5350';ctx.fillRect(W-PAD.r,ly-9,PAD.r-2,18);
+    ctx.fillStyle='#fff';ctx.textAlign='left';ctx.font='bold 10px Arial';ctx.fillText(last.close.toFixed(5),W-PAD.r+4,ly+3);
   }
+  // crosshair
+  if(mouse.in&&mouse.x>PAD.l&&mouse.x<W-PAD.r&&mouse.y>PAD.t&&mouse.y<H-PAD.b){
+    ctx.strokeStyle='#4a4e5a';ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.moveTo(mouse.x,PAD.t);ctx.lineTo(mouse.x,H-PAD.b);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(PAD.l,mouse.y);ctx.lineTo(W-PAD.r,mouse.y);ctx.stroke();
+    ctx.setLineDash([]);
+    const pv=p2y(mouse.y,rng);
+    ctx.fillStyle='#2a2e39';ctx.fillRect(W-PAD.r,mouse.y-9,PAD.r-2,18);
+    ctx.fillStyle='#d1d4dc';ctx.textAlign='left';ctx.font='10px Arial';ctx.fillText(pv.toFixed(5),W-PAD.r+4,mouse.y+3);
+    // tooltip
+    const idx=vis.start+Math.floor((mouse.x-PAD.l)/vis.cw);
+    if(idx>=vis.start&&idx<vis.end&&candles[idx]){
+      const c=candles[idx],d=new Date(c.time*1000);
+      tt.style.display='block';tt.style.left=Math.min(mouse.x+12,W-160)+'px';tt.style.top=(mouse.y+12)+'px';
+      tt.innerHTML=`<b>${d.toLocaleString()}</b><br>O: ${c.open.toFixed(5)}<br>H: ${c.high.toFixed(5)}<br>L: ${c.low.toFixed(5)}<br>C: ${c.close.toFixed(5)}`;
+    }else tt.style.display='none';
+  }else tt.style.display='none';
+}
 
-  // ============ إدارة الشموع ============
-  const savedCandles = new Map();
-  let lastPrice = null;
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.in=true;
+  if(drag.on){const dx=e.clientX-drag.x,cw=view.cw+view.gap;view.offset=Math.max(0,Math.min(candles.length-5,drag.off+Math.round(dx/cw)))}
+  draw()});
+cv.addEventListener('mouseleave',()=>{mouse.in=false;drag.on=false;draw()});
+cv.addEventListener('mousedown',e=>{drag.on=true;drag.x=e.clientX;drag.off=view.offset;cv.style.cursor='grabbing'});
+cv.addEventListener('mouseup',()=>{drag.on=false;cv.style.cursor='crosshair'});
+cv.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaY>0?-1:1;view.cw=Math.max(2,Math.min(30,view.cw+d));draw()},{passive:false});
+// touch
+let tch={x:0,off:0,d:0};
+cv.addEventListener('touchstart',e=>{if(e.touches.length===1){tch.x=e.touches[0].clientX;tch.off=view.offset}else if(e.touches.length===2){tch.d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}});
+cv.addEventListener('touchmove',e=>{e.preventDefault();
+  if(e.touches.length===1){const dx=e.touches[0].clientX-tch.x,cw=view.cw+view.gap;view.offset=Math.max(0,Math.min(candles.length-5,tch.off+Math.round(dx/cw)));draw()}
+  else if(e.touches.length===2){const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);const r=nd/tch.d;view.cw=Math.max(2,Math.min(30,view.cw*r));tch.d=nd;draw()}
+},{passive:false});
 
-  // ============ الاتصال بـ Firestore ============
-  // المسار: candles / EURUSD / 1m
-  log('📡 Connecting to Firestore path: candles/EURUSD/1m', 'info');
+// ============ UI ============
+const lp=document.getElementById('lp'),sd=document.getElementById('sd'),cs=document.getElementById('cs'),cc=document.getElementById('cc');
+function setStatus(s,t){sd.className='status '+s;cs.textContent=t}
+const saved=new Map();let lastPrice=null;
 
-  let candlesRef;
-  try {
-    candlesRef = collection(db, "candles", "EURUSD", "1m");
-    log('✅ Collection reference created', 'success');
-  } catch (e) {
-    log(`❌ Failed to create collection ref: ${e.message}`, 'error');
-    throw e;
-  }
+log('📡 Connecting: candles/EURUSD/1m','info');
+let ref;try{ref=collection(db,"candles","EURUSD","1m");log('✅ Collection ref OK','success')}catch(e){log(`❌ Ref: ${e.message}`,'error');throw e}
 
-  // اختبار قراءة أولي (getDocs) قبل الاستماع المباشر
-  try {
-    log('🔎 Test read (getDocs)...', 'info');
-    const testSnap = await getDocs(query(candlesRef, limit(3)));
-    log(`✅ Test read OK. Documents found: ${testSnap.size}`, 'success');
+try{
+  log('🔎 Test read...','info');
+  const ts=await getDocs(query(ref,limit(3)));
+  log(`✅ Test read OK. Docs: ${ts.size}`,'success');
+  if(!ts.size)log('⚠️ Collection EMPTY','warn');
+  else ts.forEach(d=>{const x=d.data();log(`📄 ${d.id}: t=${x.time},O=${x.open},C=${x.close}`,'data')});
+}catch(e){log(`❌ TEST READ: ${e.code||''} — ${e.message}`,'error');if(e.code==='permission-denied')log('🔒 SECURITY RULES BLOCK','error');setStatus('offline','ERROR');lp.textContent='خطأ'}
 
-    if (testSnap.size === 0) {
-      log('⚠️ Collection is EMPTY at candles/EURUSD/1m. Check that your bot writes there.', 'warn');
-    } else {
-      testSnap.forEach(doc => {
-        const d = doc.data();
-        log(`📄 Doc "${doc.id}": time=${d.time}, O=${d.open}, H=${d.high}, L=${d.low}, C=${d.close}, active=${d.active}`, 'data');
-      });
-    }
-  } catch (e) {
-    log(`❌ TEST READ FAILED: ${e.code || ''} — ${e.message}`, 'error');
-    if (e.code === 'permission-denied') {
-      log('🔒 SECURITY RULES BLOCK READS. Go to Firebase Console → Firestore → Rules and allow reads.', 'error');
-      log('   Example rule: allow read: if true;', 'warn');
-    }
-    setStatus('offline', 'ERROR');
-    priceEl.textContent = 'خطأ';
-    // نستمر لمحاولة onSnapshot أيضاً
-  }
+resize();
 
-  // الاستماع المباشر
-  const qLive = query(candlesRef, orderBy("time", "asc"), limit(500));
-
-  onSnapshot(qLive,
-    (snapshot) => {
-      setStatus('', 'LIVE');
-      log(`📥 Snapshot received. Changes: ${snapshot.docChanges().length}, Total: ${snapshot.size}`, 'success');
-
-      snapshot.docChanges().forEach((change) => {
-        const data = change.doc.data();
-
-        // تحقق من صحة البيانات
-        if (
-          data.time == null ||
-          data.open == null ||
-          data.high == null ||
-          data.low == null ||
-          data.close == null
-        ) {
-          log(`⚠️ Skipped doc ${change.doc.id} — missing fields`, 'warn');
-          return;
-        }
-
-        const candle = {
-          time: Number(data.time),
-          open: Number(data.open),
-          high: Number(data.high),
-          low: Number(data.low),
-          close: Number(data.close),
-          active: data.active === true,
-        };
-
-        if (change.type === 'removed') {
-          savedCandles.delete(candle.time);
-        } else {
-          savedCandles.set(candle.time, candle);
-        }
-      });
-
-      // ترتيب وإزالة أي أوقات مكررة
-      const sorted = Array.from(savedCandles.values())
-        .sort((a, b) => a.time - b.time);
-
-      if (sorted.length === 0) {
-        priceEl.textContent = 'لا بيانات';
-        candleCountEl.textContent = 'Candles: 0';
-        return;
-      }
-
-      // عرض الشموع
-      try {
-        candleSeries.setData(sorted.map(c => ({
-          time: c.time,
-          open: c.open,
-          high: c.high,
-          low: c.low,
-          close: c.close,
-        })));
-        log(`📊 Chart updated with ${sorted.length} candles. Latest close: ${sorted[sorted.length-1].close}`, 'success');
-      } catch (e) {
-        log(`❌ setData failed: ${e.message}`, 'error');
-      }
-
-      const latest = sorted[sorted.length - 1];
-      updatePriceDisplay(latest);
-      candleCountEl.textContent = `Candles: ${sorted.length}`;
-
-      // ملاءمة العرض تلقائياً في أول تحميل
-      if (savedCandles.size === sorted.length && sorted.length > 0 && !window._fittedOnce) {
-        chart.timeScale().fitContent();
-        window._fittedOnce = true;
-      }
-    },
-    (error) => {
-      log(`❌ onSnapshot ERROR: ${error.code || ''} — ${error.message}`, 'error');
-      if (error.code === 'permission-denied') {
-        log('🔒 قواعد الأمان تمنع القراءة. عدّل Rules في Firebase Console.', 'error');
-      }
-      setStatus('offline', 'OFFLINE');
-      priceEl.textContent = 'خطأ اتصال';
-    }
-  );
-
-  // ============ تحديث عرض السعر ============
-  function updatePriceDisplay(candle) {
-    const price = candle.close;
-    priceEl.textContent = price.toFixed(5);
-
-    if (lastPrice !== null) {
-      if (price > lastPrice) priceEl.style.color = '#26a69a';
-      else if (price < lastPrice) priceEl.style.color = '#ef5350';
-    } else {
-      priceEl.style.color = price >= candle.open ? '#26a69a' : '#ef5350';
-    }
-    lastPrice = price;
-  }
-
-  // ============ Resize ============
-  window.addEventListener('resize', () => {
-    chart.applyOptions({
-      width: document.getElementById('chart').clientWidth,
-      height: document.getElementById('chart').clientHeight,
+onSnapshot(query(ref,orderBy("time","asc"),limit(500)),
+  snap=>{
+    setStatus('','LIVE');
+    log(`📥 Snap. Changes: ${snap.docChanges().length}, Total: ${snap.size}`,'success');
+    snap.docChanges().forEach(ch=>{
+      const d=ch.doc.data();
+      if(d.time==null||d.open==null||d.high==null||d.low==null||d.close==null){log(`⚠️ Skip ${ch.doc.id}`,'warn');return}
+      const c={time:Number(d.time),open:Number(d.open),high:Number(d.high),low:Number(d.low),close:Number(d.close),active:d.active===true};
+      if(ch.type==='removed')saved.delete(c.time);else saved.set(c.time,c);
     });
-  });
-</script>
-
-</body>
-</html>
+    candles=Array.from(saved.values()).sort((a,b)=>a.time-b.time);
+    if(!candles.length){lp.textContent='لا بيانات';cc.textContent='Candles: 0';draw();return}
+    const last=candles[candles.length-1];
+    lp.textContent=last.close.toFixed(5);
+    if(lastPrice!==null)lp.style.color=last.close>lastPrice?'#26a69a':last.close<lastPrice?'#ef5350':lp.style.color;
+    else lp.style.color=last.close>=last.open?'#26a69a':'#ef5350';
+    lastPrice=last.close;
+    cc.textContent=`Candles: ${candles.length}`;
+    log(`📊 Updated ${candles.length} candles. Close: ${last.close}`,'success');
+    draw();
+  },
+  err=>{log(`❌ onSnapshot: ${err.code||''} — ${err.message}`,'error');if(err.code==='permission-denied')log('🔒 قواعد الأمان تمنع القراءة','error');setStatus('offline','OFFLINE');lp.textContent='خطأ اتصال'}
+);
+</script></body></html>
