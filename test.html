@@ -3,7 +3,7 @@
 *{box-sizing:border-box;margin:0;padding:0}body{background:#131722;color:#d1d4dc;font-family:Arial,sans-serif;overflow:hidden}
 header{background:#1e222d;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2a2e39;flex-wrap:wrap;gap:8px}
 h1{font-size:16px;color:#f0f0f0}.pb{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.price{font-size:22px;font-weight:bold;color:#26a69a}.info{font-size:12px;color:#787b86}
+.price{font-size:22px;font-weight:bold;color:#26a69a;transition:color .2s}.info{font-size:12px;color:#787b86}
 .status{display:inline-block;width:10px;height:10px;background:#26a69a;border-radius:50%;animation:p 1.5s infinite;margin-left:6px}
 .status.offline{background:#ef5350;animation:none}.status.loading{background:#ffa726}
 @keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
@@ -12,8 +12,8 @@ h1{font-size:16px;color:#f0f0f0}.pb{display:flex;gap:14px;align-items:center;fle
 .dl{margin:2px 0;word-break:break-all}
 #cd{float:right;background:#21262d;color:#c9d1d9;border:1px solid #30363d;padding:2px 8px;cursor:pointer;border-radius:4px;font-size:11px}
 #wrap{position:relative;width:100%;height:calc(100vh - 190px)}
-#chart{display:block;width:100%;height:100%;cursor:crosshair;background:#131722}
-#tooltip{position:absolute;background:#1e222d;border:1px solid #2a2e39;padding:6px 10px;font-size:11px;pointer-events:none;display:none;border-radius:4px;direction:ltr;z-index:10;white-space:nowrap}
+#chart{display:block;width:100%;height:100%;cursor:crosshair;background:#131722;touch-action:none}
+#tooltip{position:absolute;background:#1e222d;border:1px solid #2a2e39;padding:6px 10px;font-size:11px;pointer-events:none;display:none;border-radius:4px;direction:ltr;z-index:10;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.4)}
 </style></head><body>
 <header><h1>📊 EUR/USD — Live Chart (1M)</h1><div class="pb">
 <span class="info"><span class="status loading" id="sd"></span> <span id="cs">CONNECTING...</span></span>
@@ -44,62 +44,98 @@ try{app=initializeApp(cfg);db=getFirestore(app);log(`✅ Firebase init (${cfg.pr
 const cv=document.getElementById('chart'),ctx=cv.getContext('2d'),wrap=document.getElementById('wrap'),tt=document.getElementById('tooltip');
 let W=0,H=0,DPR=window.devicePixelRatio||1;
 const PAD={t:10,r:70,b:30,l:10};
-let candles=[],view={offset:0,cw:8,gap:2},mouse={x:-1,y:-1,in:false},drag={on:false,x:0,off:0};
+let candles=[],liveCandle=null,liveTimer=null,liveStart=0,liveTargetClose=0,liveBaseCandle=null;
+// smooth zoom/pan
+let view={cw:8,gap:2,tCw:8,offset:0,tOffset:0};
+let yRange={lo:0,hi:1,tLo:0,tHi:1,init:false};
+let mouse={x:-1,y:-1,in:false},drag={on:false,x:0,off:0};
+let animReq=null;
 
 function resize(){
   const r=wrap.getBoundingClientRect();W=r.width;H=r.height;
   cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
-  ctx.setTransform(DPR,0,0,DPR,0,0);draw();
+  ctx.setTransform(DPR,0,0,DPR,0,0);needDraw()
 }
 window.addEventListener('resize',resize);
 
+function needDraw(){if(!animReq)animReq=requestAnimationFrame(tick)}
+function lerp(a,b,t){return a+(b-a)*t}
+function tick(){
+  animReq=null;
+  // smooth interpolation
+  let dirty=false;
+  const cwD=view.tCw-view.cw;if(Math.abs(cwD)>0.01){view.cw=lerp(view.cw,view.tCw,0.25);dirty=true}else view.cw=view.tCw;
+  const oD=view.tOffset-view.offset;if(Math.abs(oD)>0.5){view.offset=lerp(view.offset,view.tOffset,0.3);dirty=true}else view.offset=view.tOffset;
+  draw();
+  if(dirty)needDraw();
+}
+
 function getVis(){
   const cw=view.cw+view.gap,plotW=W-PAD.l-PAD.r;
-  const cnt=Math.floor(plotW/cw),start=Math.max(0,candles.length-cnt-view.offset),end=Math.max(0,candles.length-view.offset);
-  return{start,end,cnt,plotW,cw}
+  const cnt=Math.max(1,Math.floor(plotW/cw));
+  const all=candles.length+(liveCandle?1:0);
+  const end=Math.max(1,all-Math.round(view.offset));
+  const start=Math.max(0,end-cnt);
+  return{start,end,cnt,plotW,cw,all}
 }
-function getRange(vis){
+function getAt(i){return i<candles.length?candles[i]:liveCandle}
+function calcRange(vis){
   let lo=Infinity,hi=-Infinity;
-  for(let i=vis.start;i<vis.end;i++){const c=candles[i];if(c.low<lo)lo=c.low;if(c.high>hi)hi=c.high}
+  for(let i=vis.start;i<vis.end;i++){const c=getAt(i);if(!c)continue;if(c.low<lo)lo=c.low;if(c.high>hi)hi=c.high}
   if(lo===Infinity)return{lo:0,hi:1};const pad=(hi-lo)*0.1||0.0001;return{lo:lo-pad,hi:hi+pad}
 }
-function y2p(v,r){const plotH=H-PAD.t-PAD.b;return PAD.t+plotH-((v-r.lo)/(r.hi-r.lo))*plotH}
-function p2y(y,r){const plotH=H-PAD.t-PAD.b;return r.hi-((y-PAD.t)/plotH)*(r.hi-r.lo)}
+function updateYRange(){
+  const vis=getVis(),r=calcRange(vis);
+  yRange.tLo=r.lo;yRange.tHi=r.hi;
+  if(!yRange.init){yRange.lo=r.lo;yRange.hi=r.hi;yRange.init=true}
+  const dLo=Math.abs(yRange.tLo-yRange.lo),dHi=Math.abs(yRange.tHi-yRange.hi);
+  if(dLo>1e-7||dHi>1e-7){yRange.lo=lerp(yRange.lo,yRange.tLo,0.2);yRange.hi=lerp(yRange.hi,yRange.tHi,0.2);needDraw()}
+}
+function y2p(v){const plotH=H-PAD.t-PAD.b;return PAD.t+plotH-((v-yRange.lo)/(yRange.hi-yRange.lo))*plotH}
+function p2y(y){const plotH=H-PAD.t-PAD.b;return yRange.hi-((y-PAD.t)/plotH)*(yRange.hi-yRange.lo)}
 
 function draw(){
   ctx.fillStyle='#131722';ctx.fillRect(0,0,W,H);
-  if(!candles.length){ctx.fillStyle='#787b86';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('لا توجد بيانات',W/2,H/2);return}
-  const vis=getVis(),rng=getRange(vis);
+  const all=candles.length+(liveCandle?1:0);
+  if(!all){ctx.fillStyle='#787b86';ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText('لا توجد بيانات',W/2,H/2);return}
+  updateYRange();
+  const vis=getVis();
   // grid
   ctx.strokeStyle='#1e222d';ctx.lineWidth=1;ctx.fillStyle='#787b86';ctx.font='10px Arial';ctx.textAlign='left';
   const steps=6;
   for(let i=0;i<=steps;i++){
-    const v=rng.lo+(rng.hi-rng.lo)*i/steps,y=y2p(v,rng);
+    const v=yRange.lo+(yRange.hi-yRange.lo)*i/steps,y=y2p(v);
     ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(W-PAD.r,y);ctx.stroke();
     ctx.fillText(v.toFixed(5),W-PAD.r+4,y+3);
   }
-  // time labels
+  // time
   ctx.textAlign='center';
   const tStep=Math.max(1,Math.floor(vis.cnt/6));
   for(let i=vis.start;i<vis.end;i+=tStep){
-    const c=candles[i],x=PAD.l+(i-vis.start)*vis.cw+vis.cw/2;
+    const c=getAt(i);if(!c)continue;
+    const x=PAD.l+(i-vis.start)*vis.cw+vis.cw/2;
     const d=new Date(c.time*1000),lbl=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
     ctx.beginPath();ctx.moveTo(x,PAD.t);ctx.lineTo(x,H-PAD.b);ctx.strokeStyle='#1e222d';ctx.stroke();
     ctx.fillStyle='#787b86';ctx.fillText(lbl,x,H-PAD.b+14);
   }
   // candles
   for(let i=vis.start;i<vis.end;i++){
-    const c=candles[i],x=PAD.l+(i-vis.start)*vis.cw+view.gap/2,up=c.close>=c.open,col=up?'#26a69a':'#ef5350';
-    const yO=y2p(c.open,rng),yC=y2p(c.close,rng),yH=y2p(c.high,rng),yL=y2p(c.low,rng);
-    ctx.strokeStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+view.cw/2,yH);ctx.lineTo(x+view.cw/2,yL);ctx.stroke();
+    const c=getAt(i);if(!c)continue;
+    const x=PAD.l+(i-vis.start)*vis.cw+view.gap/2,up=c.close>=c.open,col=up?'#26a69a':'#ef5350';
+    const yO=y2p(c.open),yC=y2p(c.close),yH=y2p(c.high),yL=y2p(c.low);
+    ctx.strokeStyle=col;ctx.lineWidth=Math.max(1,view.cw*.12);ctx.beginPath();ctx.moveTo(x+view.cw/2,yH);ctx.lineTo(x+view.cw/2,yL);ctx.stroke();
     ctx.fillStyle=col;const bt=Math.min(yO,yC),bh=Math.max(1,Math.abs(yC-yO));ctx.fillRect(x,bt,view.cw,bh);
   }
   // last price line
-  const last=candles[candles.length-1],ly=y2p(last.close,rng);
-  if(ly>=PAD.t&&ly<=H-PAD.b){
-    ctx.strokeStyle=last.close>=last.open?'#26a69a':'#ef5350';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(PAD.l,ly);ctx.lineTo(W-PAD.r,ly);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle=last.close>=last.open?'#26a69a':'#ef5350';ctx.fillRect(W-PAD.r,ly-9,PAD.r-2,18);
-    ctx.fillStyle='#fff';ctx.textAlign='left';ctx.font='bold 10px Arial';ctx.fillText(last.close.toFixed(5),W-PAD.r+4,ly+3);
+  const lastC=liveCandle||candles[candles.length-1];
+  if(lastC){
+    const ly=y2p(lastC.close);
+    if(ly>=PAD.t&&ly<=H-PAD.b){
+      const cl=lastC.close>=lastC.open?'#26a69a':'#ef5350';
+      ctx.strokeStyle=cl;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(PAD.l,ly);ctx.lineTo(W-PAD.r,ly);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=cl;ctx.fillRect(W-PAD.r,ly-9,PAD.r-2,18);
+      ctx.fillStyle='#fff';ctx.textAlign='left';ctx.font='bold 10px Arial';ctx.fillText(lastC.close.toFixed(5),W-PAD.r+4,ly+3);
+    }
   }
   // crosshair
   if(mouse.in&&mouse.x>PAD.l&&mouse.x<W-PAD.r&&mouse.y>PAD.t&&mouse.y<H-PAD.b){
@@ -107,39 +143,104 @@ function draw(){
     ctx.beginPath();ctx.moveTo(mouse.x,PAD.t);ctx.lineTo(mouse.x,H-PAD.b);ctx.stroke();
     ctx.beginPath();ctx.moveTo(PAD.l,mouse.y);ctx.lineTo(W-PAD.r,mouse.y);ctx.stroke();
     ctx.setLineDash([]);
-    const pv=p2y(mouse.y,rng);
+    const pv=p2y(mouse.y);
     ctx.fillStyle='#2a2e39';ctx.fillRect(W-PAD.r,mouse.y-9,PAD.r-2,18);
     ctx.fillStyle='#d1d4dc';ctx.textAlign='left';ctx.font='10px Arial';ctx.fillText(pv.toFixed(5),W-PAD.r+4,mouse.y+3);
-    // tooltip
     const idx=vis.start+Math.floor((mouse.x-PAD.l)/vis.cw);
-    if(idx>=vis.start&&idx<vis.end&&candles[idx]){
-      const c=candles[idx],d=new Date(c.time*1000);
-      tt.style.display='block';tt.style.left=Math.min(mouse.x+12,W-160)+'px';tt.style.top=(mouse.y+12)+'px';
-      tt.innerHTML=`<b>${d.toLocaleString()}</b><br>O: ${c.open.toFixed(5)}<br>H: ${c.high.toFixed(5)}<br>L: ${c.low.toFixed(5)}<br>C: ${c.close.toFixed(5)}`;
+    const c=getAt(idx);
+    if(idx>=vis.start&&idx<vis.end&&c){
+      const d=new Date(c.time*1000);
+      tt.style.display='block';tt.style.left=Math.min(mouse.x+12,W-170)+'px';tt.style.top=(mouse.y+12)+'px';
+      tt.innerHTML=`<b>${d.toLocaleString()}</b>${c===liveCandle?' 🔴':''}<br>O: ${c.open.toFixed(5)}<br>H: ${c.high.toFixed(5)}<br>L: ${c.low.toFixed(5)}<br>C: ${c.close.toFixed(5)}`;
     }else tt.style.display='none';
   }else tt.style.display='none';
 }
 
+// ============ Interactions (smooth zoom/pan) ============
 cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse.x=e.clientX-r.left;mouse.y=e.clientY-r.top;mouse.in=true;
-  if(drag.on){const dx=e.clientX-drag.x,cw=view.cw+view.gap;view.offset=Math.max(0,Math.min(candles.length-5,drag.off+Math.round(dx/cw)))}
-  draw()});
-cv.addEventListener('mouseleave',()=>{mouse.in=false;drag.on=false;draw()});
-cv.addEventListener('mousedown',e=>{drag.on=true;drag.x=e.clientX;drag.off=view.offset;cv.style.cursor='grabbing'});
+  if(drag.on){const dx=e.clientX-drag.x,cw=view.cw+view.gap;view.tOffset=Math.max(0,drag.off-dx/cw);view.offset=view.tOffset}
+  needDraw()});
+cv.addEventListener('mouseleave',()=>{mouse.in=false;drag.on=false;needDraw()});
+cv.addEventListener('mousedown',e=>{drag.on=true;drag.x=e.clientX;drag.off=view.tOffset;cv.style.cursor='grabbing'});
 cv.addEventListener('mouseup',()=>{drag.on=false;cv.style.cursor='crosshair'});
-cv.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaY>0?-1:1;view.cw=Math.max(2,Math.min(30,view.cw+d));draw()},{passive:false});
-// touch
-let tch={x:0,off:0,d:0};
-cv.addEventListener('touchstart',e=>{if(e.touches.length===1){tch.x=e.touches[0].clientX;tch.off=view.offset}else if(e.touches.length===2){tch.d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)}});
-cv.addEventListener('touchmove',e=>{e.preventDefault();
-  if(e.touches.length===1){const dx=e.touches[0].clientX-tch.x,cw=view.cw+view.gap;view.offset=Math.max(0,Math.min(candles.length-5,tch.off+Math.round(dx/cw)));draw()}
-  else if(e.touches.length===2){const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);const r=nd/tch.d;view.cw=Math.max(2,Math.min(30,view.cw*r));tch.d=nd;draw()}
+cv.addEventListener('wheel',e=>{e.preventDefault();
+  const r=cv.getBoundingClientRect(),mx=e.clientX-r.left;
+  const factor=e.deltaY>0?0.88:1.12;
+  const newCw=Math.max(2,Math.min(40,view.tCw*factor));
+  // zoom anchored at mouse position
+  const vis=getVis(),anchorIdx=vis.start+(mx-PAD.l)/(view.cw+view.gap);
+  const oldCw=view.tCw;view.tCw=newCw;
+  const plotW=W-PAD.l-PAD.r,cntNew=plotW/(newCw+view.gap);
+  const all=candles.length+(liveCandle?1:0);
+  const endNew=anchorIdx+(vis.end-anchorIdx)*(oldCw+view.gap)/(newCw+view.gap);
+  view.tOffset=Math.max(0,all-endNew);
+  needDraw();
 },{passive:false});
+// touch
+let tch={x:0,off:0,d:0,cw:0};
+cv.addEventListener('touchstart',e=>{if(e.touches.length===1){tch.x=e.touches[0].clientX;tch.off=view.tOffset;drag.on=true}else if(e.touches.length===2){tch.d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);tch.cw=view.tCw;drag.on=false}},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();
+  if(e.touches.length===1&&drag.on){const dx=e.touches[0].clientX-tch.x,cw=view.cw+view.gap;view.tOffset=Math.max(0,tch.off-dx/cw);view.offset=view.tOffset;needDraw()}
+  else if(e.touches.length===2){const nd=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);view.tCw=Math.max(2,Math.min(40,tch.cw*(nd/tch.d)));needDraw()}
+},{passive:false});
+cv.addEventListener('touchend',()=>{drag.on=false});
+
+// ============ Live candle simulation (60s animated) ============
+function startLiveAnimation(baseCandle){
+  if(liveTimer){clearInterval(liveTimer);liveTimer=null}
+  // build a live candle starting from base close
+  const nextTime=baseCandle.time+60;
+  const openPrice=baseCandle.close;
+  liveCandle={time:nextTime,open:openPrice,high:openPrice,low:openPrice,close:openPrice,active:true};
+  liveBaseCandle=baseCandle;
+  liveStart=Date.now();
+  // pick a target close within a realistic range (±0.15% of open)
+  const vol=Math.max(Math.abs(baseCandle.high-baseCandle.low),openPrice*0.0005);
+  liveTargetClose=openPrice+(Math.random()-0.5)*vol*2;
+  log(`🔴 Live candle started (target close: ${liveTargetClose.toFixed(5)})`,'data');
+  liveTimer=setInterval(()=>{
+    const elapsed=(Date.now()-liveStart)/1000;
+    if(elapsed>=60){
+      // finalize: push into candles, restart with new base
+      const done={...liveCandle,active:false};
+      // if firestore already has this time, saved will override on next snapshot
+      liveCandle=null;
+      clearInterval(liveTimer);liveTimer=null;
+      log(`✅ Live candle finalized. Close: ${done.close.toFixed(5)}`,'success');
+      // append temporarily so chart keeps moving
+      candles.push(done);
+      startLiveAnimation(done);
+      updatePriceUI(done);
+      needDraw();
+      return;
+    }
+    // random walk toward target
+    const progress=elapsed/60;
+    const drift=(liveTargetClose-liveCandle.close)*0.05;
+    const noise=(Math.random()-0.5)*Math.abs(liveTargetClose-liveCandle.open)*0.15;
+    let newClose=liveCandle.close+drift+noise;
+    // ensure it moves toward target as time runs out
+    if(progress>0.9)newClose=lerp(newClose,liveTargetClose,0.3);
+    liveCandle.close=newClose;
+    if(newClose>liveCandle.high)liveCandle.high=newClose;
+    if(newClose<liveCandle.low)liveCandle.low=newClose;
+    updatePriceUI(liveCandle);
+    needDraw();
+  },100);
+}
 
 // ============ UI ============
 const lp=document.getElementById('lp'),sd=document.getElementById('sd'),cs=document.getElementById('cs'),cc=document.getElementById('cc');
 function setStatus(s,t){sd.className='status '+s;cs.textContent=t}
-const saved=new Map();let lastPrice=null;
+let lastPrice=null;
+function updatePriceUI(c){
+  lp.textContent=c.close.toFixed(5);
+  if(lastPrice!==null)lp.style.color=c.close>lastPrice?'#26a69a':c.close<lastPrice?'#ef5350':lp.style.color;
+  else lp.style.color=c.close>=c.open?'#26a69a':'#ef5350';
+  lastPrice=c.close;
+}
 
+const saved=new Map();
 log('📡 Connecting: candles/EURUSD/1m','info');
 let ref;try{ref=collection(db,"candles","EURUSD","1m");log('✅ Collection ref OK','success')}catch(e){log(`❌ Ref: ${e.message}`,'error');throw e}
 
@@ -164,15 +265,20 @@ onSnapshot(query(ref,orderBy("time","asc"),limit(500)),
       if(ch.type==='removed')saved.delete(c.time);else saved.set(c.time,c);
     });
     candles=Array.from(saved.values()).sort((a,b)=>a.time-b.time);
-    if(!candles.length){lp.textContent='لا بيانات';cc.textContent='Candles: 0';draw();return}
+    if(!candles.length){lp.textContent='لا بيانات';cc.textContent='Candles: 0';needDraw();return}
     const last=candles[candles.length-1];
-    lp.textContent=last.close.toFixed(5);
-    if(lastPrice!==null)lp.style.color=last.close>lastPrice?'#26a69a':last.close<lastPrice?'#ef5350':lp.style.color;
-    else lp.style.color=last.close>=last.open?'#26a69a':'#ef5350';
-    lastPrice=last.close;
+    // start live animation from last saved candle if not already animating from a newer base
+    if(!liveTimer||!liveBaseCandle||liveBaseCandle.time<last.time){
+      if(liveTimer){clearInterval(liveTimer);liveTimer=null}
+      liveCandle=null;
+      startLiveAnimation(last);
+    }
+    updatePriceUI(liveCandle||last);
     cc.textContent=`Candles: ${candles.length}`;
     log(`📊 Updated ${candles.length} candles. Close: ${last.close}`,'success');
-    draw();
+    // auto-fit on first load
+    if(!window._fit){window._fit=true;view.tCw=8;view.tOffset=0}
+    needDraw();
   },
   err=>{log(`❌ onSnapshot: ${err.code||''} — ${err.message}`,'error');if(err.code==='permission-denied')log('🔒 قواعد الأمان تمنع القراءة','error');setStatus('offline','OFFLINE');lp.textContent='خطأ اتصال'}
 );
