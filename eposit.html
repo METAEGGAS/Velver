@@ -1,700 +1,219 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الأدمن - مولد الشموع</title>
-    <style>
-        /* === إعدادات عامة === */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: #0b1424;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            padding: 16px;
-        }
+<!doctype html><html dir=rtl lang=ar><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name=theme-color content=#0d1730><title>FXER · لوحة توليد الشموع</title><style>:root{--u:#0d1730;--bd:#223252;--ac:#3a7bff;--gn:#26a69a;--rd:#ef5350;--mu:#8aa0c7}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}html,body{height:100%}body{background:var(--u);color:#eef5ff;font:500 13px/1.35 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;overflow-x:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}.wrap{max-width:720px;margin:0 auto;padding:12px}h1{font-size:16px;font-weight:700;margin:0 0 10px;text-align:center;color:#cfe0ff}.card{background:#0f1c3a;border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px}.row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}.row>*{flex:1}label{display:block;font-size:11px;color:var(--mu);margin-bottom:4px}input,select,button{width:100%;background:#0d1730;color:#eef5ff;border:1px solid var(--bd);border-radius:8px;padding:9px 10px;font:inherit;outline:none}input:focus,select:focus{border-color:var(--ac)}button{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700;cursor:pointer}button.sec{background:#152344;border-color:var(--bd);color:#cfe0ff}button.danger{background:var(--rd);border-color:var(--rd)}button:disabled{opacity:.5;cursor:not-allowed}.pill{display:inline-block;padding:3px 8px;border:1px solid var(--bd);border-radius:999px;font-size:11px;color:var(--mu);margin:2px 4px 2px 0}.pill.on{background:var(--ac);border-color:var(--ac);color:#fff}.tfs{display:flex;gap:6px;flex-wrap:wrap}.tfs .pill{cursor:pointer;user-select:none}.log{background:#0a1428;border:1px solid var(--bd);border-radius:8px;padding:8px;max-height:220px;overflow:auto;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all}.log .ok{color:var(--gn)}.log .er{color:var(--rd)}.log .mu{color:var(--mu)}.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:#152344;border:1px solid var(--bd);border-radius:6px;font-size:11px}.dot{width:8px;height:8px;border-radius:50%;background:var(--mu)}.dot.on{background:var(--gn);box-shadow:0 0 6px var(--gn)}.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.mini{font-size:11px;color:var(--mu)}.gate{position:fixed;inset:0;background:var(--u);display:flex;align-items:center;justify-content:center;z-index:9}.gate .card{width:calc(100% - 24px);max-width:340px}.hide{display:none!important}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.progress{height:6px;background:#0a1428;border:1px solid var(--bd);border-radius:999px;overflow:hidden;margin-top:6px}.progress>i{display:block;height:100%;background:var(--ac);width:0;transition:width .2s}</style>
 
-        /* === حاوية العرض التوضيحي === */
-        .demo-card {
-            background: #111e36;
-            border-radius: 20px;
-            padding: 30px 24px;
-            max-width: 500px;
-            width: 100%;
-            border: 1px solid #2a3856;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
-            color: #eef5ff;
-            text-align: center;
-        }
-        .demo-card h2 {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #b7ccf0;
-        }
-        .demo-card p {
-            font-size: 14px;
-            color: #8ea0c1;
-            margin-bottom: 20px;
-        }
-        .badge-demo {
-            background: #1f2d4a;
-            border-radius: 40px;
-            padding: 8px 16px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid #3b4b6b;
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 13px;
-            color: #d6e2ff;
-            margin-bottom: 16px;
-        }
-        .badge-demo:hover {
-            background: #2a3a5a;
-            border-color: #5b7bb0;
-        }
-        .badge-demo span {
-            font-size: 18px;
-        }
-        .footnote {
-            font-size: 12px;
-            color: #5f7299;
-            margin-top: 16px;
-            border-top: 1px solid #1e2d48;
-            padding-top: 16px;
-        }
+<div class=gate id=gate>
+<div class=card>
+<h1>🔒 لوحة التحكم — FXER</h1>
+<label>كلمة السر</label>
+<input id=pw type=password autocomplete=off placeholder="••••••">
+<div style="height:8px"></div>
+<button id=pwb>دخول كأدمن</button>
+<div class=mini id=pwe style="margin-top:8px;color:var(--rd);min-height:14px"></div>
+</div>
+</div>
 
-        /* === جميع عناصر الواجهة === */
-        #axG {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 9998;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #141c30;
-            border: 1px solid #2a3856;
-            color: #eef5ff;
-            font: 600 20px/1 system-ui;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0.65;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            transition: 0.2s;
-        }
-        #axG:hover {
-            opacity: 1;
-            background: #1f2d4a;
-            transform: scale(1.05);
-        }
+<div class=wrap id=app style="display:none">
+<div class=hd>
+<h1>🕯️ مولد الشموع</h1>
+<span class=badge><i class=dot id=fbdot></i><span id=fbst>...</span></span>
+</div>
 
-        #axOv {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            backdrop-filter: blur(2px);
-        }
-        #axOv.on {
-            display: flex;
-        }
+<div class=card>
+<label>الزوج</label>
+<select id=pair></select>
+<div style="height:8px"></div>
+<label>الفريم</label>
+<div class=tfs id=tfs></div>
+</div>
 
-        #axP {
-            background: #0f1a34;
-            border: 1px solid #2a3856;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 380px;
-            color: #eef5ff;
-            font: 500 13px/1.4 system-ui;
-            direction: rtl;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-        }
+<div class=card>
+<div class=grid2>
+<div><label>عدد الشموع</label><input id=cnt type=number min=1 max=2000 value=50></div>
+<div><label>الاتجاه (اختياري)</label>
+<select id=bias><option value=0>عشوائي</option><option value=1>صاعد</option><option value=-1>هابط</option><option value=2>عرضي</option></select>
+</div>
+</div>
+<div class=grid2 style="margin-top:8px">
+<div><label>تقلّب %</label><input id=vol type=number step=0.01 min=0.01 max=10 value=0.35></div>
+<div><label>سعر بداية (فارغ = آخر شمعة)</label><input id=st type=number step=any placeholder="auto"></div>
+</div>
+<div style="height:10px"></div>
+<div class=row>
+<button id=gen>⚡ توليد دفعة واحدة</button>
+<button id=stp class=danger style="flex:0 0 90px" disabled>إيقاف</button>
+</div>
+<div class=progress><i id=pg></i></div>
+<div class=mini style="margin-top:6px" id=info>—</div>
+</div>
 
-        .axH {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            border-bottom: 1px solid #223252;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        .axX {
-            cursor: pointer;
-            font-size: 20px;
-            line-height: 1;
-            color: #8ea0c1;
-            padding: 0 6px;
-            transition: 0.15s;
-        }
-        .axX:hover {
-            color: #f0f6ff;
-        }
+<div class=card>
+<div class=hd><b style="font-size:12px">السجل</b><button class=sec id=clr style="width:auto;padding:4px 10px;font-size:11px">مسح</button></div>
+<div class=log id=log></div>
+</div>
 
-        .axB {
-            padding: 14px 16px 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 70vh;
-            overflow: auto;
-        }
+<div class=mini style="text-align:center;opacity:.6;margin-top:6px">Firestore: market/{pair}/tf_{tf}/{t}</div>
+</div>
 
-        .axR {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .axR label {
-            flex: 0 0 60px;
-            color: #8ea0c1;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .axR input,
-        .axR select {
-            flex: 1;
-            background: #0a1329;
-            border: 1px solid #2a3856;
-            color: #eef5ff;
-            border-radius: 8px;
-            padding: 8px 10px;
-            font: 500 13px system-ui;
-            min-width: 0;
-            outline: none;
-            transition: 0.15s;
-        }
-        .axR input:focus,
-        .axR select:focus {
-            border-color: #4a7db0;
-            box-shadow: 0 0 0 2px #1f3a5a;
-        }
-        .axR .g {
-            display: flex;
-            gap: 6px;
-            flex: 1;
-        }
-        .axR .g input {
-            flex: 1;
-        }
+<script type=module>
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,signInAnonymously,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,doc,setDoc,collection,query,orderBy,limit,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-        .axSeg {
-            display: flex;
-            background: #0a1329;
-            border: 1px solid #2a3856;
-            border-radius: 8px;
-            padding: 3px;
-            flex: 1;
-            gap: 2px;
-        }
-        .axSeg button {
-            flex: 1;
-            background: transparent;
-            border: 0;
-            color: #8ea0c1;
-            padding: 6px 4px;
-            border-radius: 6px;
-            cursor: pointer;
-            font: 600 11px system-ui;
-            transition: 0.15s;
-        }
-        .axSeg button.on {
-            background: #3b82f6;
-            color: #fff;
-        }
-        .axSeg button:hover:not(.on) {
-            background: #1a2744;
-        }
+const fbCfg={apiKey:"AIzaSyBvzfJOOjRFZnTgTUrwEZQPr8Ba7zKKlNg",authDomain:"hhhxh-5ebe4.firebaseapp.com",databaseURL:"https://hhhxh-5ebe4-default-rtdb.firebaseio.com",projectId:"hhhxh-5ebe4",storageBucket:"hhhxh-5ebe4.firebasestorage.app",messagingSenderId:"79243000696",appId:"1:79243000696:web:ee0fb2d2ccce791954e68d"};
+const app=initializeApp(fbCfg),auth=getAuth(app),db=getFirestore(app);
 
-        .axBtn {
-            background: #22c55e;
-            border: 0;
-            color: #0a1329;
-            font-weight: 700;
-            padding: 10px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.15s;
-            width: 100%;
-        }
-        .axBtn:hover {
-            filter: brightness(1.2);
-            transform: scale(0.98);
-        }
-        .axBtn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .axBtn.s {
-            background: #3b82f6;
-            color: #fff;
-        }
-        .axBtn.d {
-            background: #ef4444;
-            color: #fff;
-        }
+const TFS=[{k:'30s',ms:30000},{k:'1m',ms:60000},{k:'5m',ms:300000},{k:'1h',ms:3600000}];
+const PK=p=>String(p).replace(/[\/\\\.\#\$\[\]]/g,'_');
+const $=id=>document.getElementById(id);
 
-        .axM {
-            font-size: 12px;
-            min-height: 20px;
-            color: #8ea0c1;
-            text-align: center;
-            padding: 4px 0;
-        }
-        .axM.ok {
-            color: #22c55e;
-        }
-        .axM.er {
-            color: #ef4444;
-        }
+/* أزواج الفوركس */
+const FX='AUD/CAD,AUD/JPY,CAD/JPY,USD/CAD,CAD/CHF,EUR/GBP,EUR/USD,AUD/USD,GBP/USD,CHF/JPY,USD/JPY,AUD/NZD,GBP/JPY,EUR/CAD,EUR/CHF,EUR/JPY,NZD/JPY,USD/NOK,USD/PLN,GBP/NZD,AUD/CHF,EUR/AUD,EUR/NZD,GBP/CAD,GBP/CHF,NZD/USD,USD/CHF'.split(',');
+const ST=['LMT','AMZN','AIG','AAPL','BIDU','KO','GS','IBM','INTC','JPM','META','MSFT','MS','NKE','NVDA','TSLA','DIS','YUM','C','MCD','NFLX','GOOGL'].map(x=>x+'.US');
+const CM=['XAUUSD','XTIUSD','XBRUSD','XAGUSD','HK50','US100','DE40','JP225','US30','US500'];
+const CR=['BTC','ETH','SOL','DOGE','LINK','LTC','XRP'].map(x=>x+'/USD');
+const ALL=[...FX.map(k=>({k,g:'FX'})),...ST.map(k=>({k,g:'Stocks'})),...CM.map(k=>({k,g:'Commodities'})),...CR.map(k=>({k,g:'Crypto'}))];
 
-        #axLogin input {
-            background: #0a1329;
-            border: 1px solid #2a3856;
-            color: #eef5ff;
-            border-radius: 8px;
-            padding: 10px;
-            font: 500 15px system-ui;
-            width: 100%;
-            text-align: center;
-            letter-spacing: 5px;
-        }
-        #axLogin input:focus {
-            border-color: #4a7db0;
-        }
-        .axR .small-hint {
-            font-size: 11px;
-            color: #6f82a5;
-            margin-right: 4px;
-        }
+/* خوارزمية السعر الأساسي (منسوخة بالضبط من مولد الأسعار الأصلي) */
+function h(s){let e=0;for(let n=0;n<s.length;n++)e=31*e+s.charCodeAt(n)|0;return Math.abs(e)}
+function basePrice(t){
+  const e=h('p:'+t);
+  if(/^BTC/.test(t))return +(25000+e%45000+e%100/100).toFixed(2);
+  if(/^ETH/.test(t))return +(1200+e%4000+e%100/100).toFixed(2);
+  if(/^SOL/.test(t))return +(20+e%240+e%100/100).toFixed(2);
+  if(/^DOGE/.test(t))return +(0.05+e%3000/10000).toFixed(4);
+  if(/^LINK/.test(t))return +(5+e%3000/100).toFixed(2);
+  if(/^LTC/.test(t))return +(40+e%20000/100).toFixed(2);
+  if(/^XRP/.test(t))return +(0.3+e%2500/1000).toFixed(4);
+  if(/^XAU/.test(t))return +(1600+e%1200+e%100/100).toFixed(2);
+  if(/^XAG/.test(t))return +(15+e%2000/100).toFixed(2);
+  if(/^XTI|^XBR/.test(t))return +(40+e%7000/100).toFixed(2);
+  if(/^(HK50|US100|DE40|JP225|US30|US500)$/.test(t))return +(3000+e%35000+e%100/100).toFixed(2);
+  if(/\.US$/.test(t))return +(20+e%500+e%100/100).toFixed(2);
+  if(/JPY/.test(t))return +(70+e%9000/100).toFixed(3);
+  if(/NOK|PLN/.test(t))return +(3+e%9000/1000).toFixed(4);
+  return +(0.6+e%170000/100000).toFixed(5);
+}
+function digits(t){
+  if(/DOGE|XRP/.test(t))return 4;
+  if(/^BTC|^ETH|^SOL|^LINK|^LTC/.test(t))return 2;
+  if(/^XAU|^XAG|^XTI|^XBR/.test(t))return 2;
+  if(/^(HK50|US100|DE40|JP225|US30|US500)$/.test(t))return 2;
+  if(/\.US$/.test(t))return 2;
+  if(/JPY/.test(t))return 3;
+  if(/NOK|PLN/.test(t))return 4;
+  return 5;
+}
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const rd=(x,d)=>+x.toFixed(d);
 
-        /* سكرول مخصص */
-        .axB::-webkit-scrollbar {
-            width: 4px;
-        }
-        .axB::-webkit-scrollbar-track {
-            background: #0a1329;
-        }
-        .axB::-webkit-scrollbar-thumb {
-            background: #2a3856;
-            border-radius: 8px;
-        }
-    </style>
-</head>
-<body>
+function makeCandle(prev,t,pair,bias,volPct){
+  const d=digits(pair);
+  const o=prev;
+  const drift=bias===1?0.15:bias===-1?-0.15:bias===2?0:0;
+  const body=(rnd(-1,1)+drift)*volPct/100*o;
+  const c=Math.max(o+body,0.0000001);
+  const rng=Math.abs(body)+Math.abs(rnd(0.1,1.2)*volPct/100*o);
+  const hi=Math.max(o,c)+rnd(0,rng*0.6);
+  const lo=Math.min(o,c)-rnd(0,rng*0.6);
+  return{t,o:rd(o,d),h:rd(hi,d),l:rd(Math.max(lo,0.0000001),d),c:rd(c,d)};
+}
 
-    <!-- بطاقة توضيحية (ليست جزءاً من الأداة، فقط للعرض) -->
-    <div class="demo-card">
-        <h2>⚙️ لوحة مولد الشموع</h2>
-        <p>اضغط على الزر ⚙️ في الزاوية السفلى اليسرى لفتح لوحة الأدمن</p>
-        <div class="badge-demo" id="fbRoleBadge">
-            <span>🛡️</span> اضغط 3 مرات سريعاً (اختبار)
-        </div>
-        <div class="footnote">
-            <span>🔑 كلمة السر: <strong style="color:#b7ccf0;">123456</strong></span>
-        </div>
-    </div>
+async function lastCandle(pair,tfk){
+  try{
+    const col=collection(db,'market',PK(pair),'tf_'+tfk);
+    const q=query(col,orderBy('t','desc'),limit(1));
+    const snap=await getDocs(q);
+    let out=null;snap.forEach(d=>out=d.data());return out;
+  }catch(e){return null}
+}
 
-    <!-- ===== عناصر الأداة ===== -->
-    <div id="axG">⚙</div>
+const gate=$('gate'),appEl=$('app');
+$('pwb').onclick=()=>{
+  if($('pw').value==='123456'){gate.classList.add('hide');appEl.style.display='block';init()}
+  else{$('pwe').textContent='كلمة السر غير صحيحة'}
+};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('pwb').click()});
 
-    <div id="axOv">
-        <div id="axP">
-            <div class="axH">
-                <span id="axT">دخول الأدمن</span>
-                <span class="axX" id="axCls">✕</span>
-            </div>
-            <div class="axB" id="axBd"></div>
-        </div>
-    </div>
+function log(m,cls){const el=$('log');const s=document.createElement('div');if(cls)s.className=cls;const t=new Date().toLocaleTimeString('en-GB');s.textContent='['+t+'] '+m;el.appendChild(s);el.scrollTop=el.scrollHeight}
+$('clr').onclick=()=>$('log').innerHTML='';
 
-    <script>
-        (function() {
-            // ---------- الثوابت الأساسية ----------
-            const PASS = '123456';
-            const LS = '__fxAdmin';
+const sel=$('pair');
+const groups={};ALL.forEach(a=>{(groups[a.g]=groups[a.g]||[]).push(a.k)});
+Object.entries(groups).forEach(([g,arr])=>{
+  const og=document.createElement('optgroup');og.label=g;
+  arr.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;og.appendChild(o)});
+  sel.appendChild(og);
+});
+sel.value='XAUUSD';
 
-            // ---------- أدوات التخزين ----------
-            function isA() {
-                try { return sessionStorage.getItem(LS) === '1'; } catch { return false; }
-            }
+let curTf='1m';
+const tfsEl=$('tfs');
+TFS.forEach(tf=>{
+  const p=document.createElement('span');p.className='pill'+(tf.k===curTf?' on':'');p.textContent=tf.k;
+  p.onclick=()=>{curTf=tf.k;[...tfsEl.children].forEach(x=>x.classList.remove('on'));p.classList.add('on');refreshInfo()};
+  tfsEl.appendChild(p);
+});
 
-            function setA(v) {
-                try { sessionStorage.setItem(LS, v ? '1' : '0'); } catch {}
-            }
+async function refreshInfo(){
+  const p=sel.value;const last=await lastCandle(p,curTf);
+  const b=basePrice(p);
+  $('info').innerHTML=last?`آخر شمعة: t=${new Date(last.t).toLocaleString('en-GB')} · c=${last.c}`:`لا يوجد شموع سابقة · سعر أساس: ${b}`;
+}
+sel.onchange=refreshInfo;
 
-            // ---------- اختصارات DOM ----------
-            const $ = id => document.getElementById(id);
-            const gate = $('axG');
-            const ov = $('axOv');
-            const bd = $('axBd');
-            const T = $('axT');
-            const cls = $('axCls');
+onAuthStateChanged(auth,u=>{
+  const d=$('fbdot'),s=$('fbst');
+  if(u){d.classList.add('on');s.textContent='متصل';log('Firebase ready · uid='+u.uid.slice(0,8),'ok')}
+  else{d.classList.remove('on');s.textContent='...';signInAnonymously(auth).catch(e=>{s.textContent='فشل';log('auth: '+e.message,'er')})}
+});
 
-            // ---------- إضافة الأنماط (مضمنة) ----------
-            // (تم تضمينها في <style> أعلاه، لكن نحتفظ بها للتوافق)
-            // لا نقوم بإضافة style مرتين.
+function init(){refreshInfo()}
 
-            // ---------- إغلاق النافذة ----------
-            cls.onclick = () => ov.classList.remove('on');
+let stopFlag=false;
+$('stp').onclick=()=>{stopFlag=true;log('طلب إيقاف...','mu')};
 
-            // ---------- تعريفات الفريم (TFS) ----------
-            const TFS = [
-                { k: '30s', ms: 30000 },
-                { k: '1m', ms: 60000 },
-                { k: '5m', ms: 300000 },
-                { k: '1h', ms: 3600000 }
-            ];
-            // تعريض للاستخدام الخارجي (إن وجد)
-            window.__adminTFS = TFS;
+$('gen').onclick=async()=>{
+  const pair=sel.value,tf=TFS.find(x=>x.k===curTf),n=Math.min(2000,Math.max(1,+$('cnt').value||50));
+  const bias=+$('bias').value,vol=Math.max(0.01,Math.min(10,+$('vol').value||0.35));
+  const stIn=$('st').value.trim();
+  const gen=$('gen'),stp=$('stp'),pg=$('pg');
+  gen.disabled=true;stp.disabled=false;stopFlag=false;pg.style.width='0%';
+  log(`🚀 توليد ${n} شمعة · ${pair} · ${tf.k} · bias=${bias} · vol=${vol}%`,'mu');
 
-            // ---------- دوال مساعدة للزوج والسعر ----------
-            function curPair() {
-                try { return window.__fxerFeed.key(); } catch { return ''; }
-            }
+  try{
+    let prev,startT;
+    if(stIn!==''){prev=+stIn}
+    else{
+      const last=await lastCandle(pair,tf.k);
+      if(last){prev=last.c;startT=last.t+tf.ms;log(`بدء من آخر شمعة c=${prev} t=${new Date(last.t).toISOString()}`,'mu')}
+      else{prev=basePrice(pair);log(`بدء من سعر أساس ${prev}`,'mu')}
+    }
+    if(!startT){startT=Math.floor(Date.now()/tf.ms)*tf.ms - (n-1)*tf.ms}
 
-            function pairKey(p) {
-                return String(p || '').replace(/[\/\\\.#\$\[\]]/g, '_');
-            }
-
-            function lastClose(tfk) {
-                try {
-                    const pk = pairKey(curPair());
-                    const arr = (window.__fbCandles && window.__fbCandles[pk] && window.__fbCandles[pk][tfk]) || [];
-                    if (arr.length) return arr[arr.length - 1].c;
-                } catch {}
-                try { return window.__fxerFeed.price(curPair()); } catch { return 1; }
-            }
-
-            // ---------- عدد منازل السعر ----------
-            function priceDp(v) {
-                v = Math.abs(v || 1);
-                if (v >= 100) return 3;
-                if (v >= 10) return 4;
-                if (v >= 1) return 5;
-                return 6;
-            }
-
-            // ---------- عرض تسجيل الدخول ----------
-            function loginView() {
-                T.textContent = 'دخول الأدمن';
-                bd.innerHTML = `
-                    <div id="axLogin">
-                        <div class="axR" style="justify-content:center;">
-                            <label style="flex:none;">كلمة السر</label>
-                        </div>
-                        <input id="axPw" type="password" inputmode="numeric" placeholder="●●●●●●" autocomplete="off">
-                        <div class="axM" id="axMsg"></div>
-                        <button class="axBtn" id="axIn">دخول</button>
-                    </div>
-                `;
-                const pw = $('axPw'),
-                    msg = $('axMsg');
-                pw.focus();
-
-                const go = () => {
-                    if (pw.value === PASS) {
-                        setA(true);
-                        msg.className = 'axM ok';
-                        msg.textContent = '✓ تم منح الصلاحيات';
-                        setTimeout(panelView, 400);
-                    } else {
-                        msg.className = 'axM er';
-                        msg.textContent = 'كلمة سر خاطئة';
-                    }
-                };
-                $('axIn').onclick = go;
-                pw.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
-            }
-
-            // ---------- اللوحة الرئيسية (مولد الشموع) ----------
-            function panelView() {
-                T.textContent = 'مولد الشموع — أدمن';
-                bd.innerHTML = `
-                    <div class="axR"><label>الزوج</label><input id="axPair" value="${curPair()}" readonly></div>
-                    <div class="axR"><label>الفريم</label><select id="axTf"></select></div>
-                    <div class="axR"><label>النوع</label><div class="axSeg" id="axSg"><button data-v="up" class="on">صاعدة</button><button data-v="dn">هابطة</button><button data-v="doji">دوجي</button><button data-v="man">يدوي</button></div></div>
-                    <div class="axR"><label>الافتتاح</label><input id="axO" type="number" step="any"></div>
-                    <div class="axR"><label>الإغلاق</label><input id="axC" type="number" step="any"></div>
-                    <div class="axR"><label>أعلى</label><input id="axH" type="number" step="any"></div>
-                    <div class="axR"><label>أدنى</label><input id="axL" type="number" step="any"></div>
-                    <div class="axR"><label>الحجم</label><input id="axSz" type="number" step="any" value="0.5"><span class="small-hint">%</span></div>
-                    <div class="axR"><label>عدد</label><input id="axN" type="number" min="1" max="100" value="1"></div>
-                    <div class="axR"><label>الوقت</label><div class="axSeg" id="axTm"><button data-v="now" class="on">الحالي</button><button data-v="prev">سابقة</button></div></div>
-                    <div class="axR"><button class="axBtn" id="axGo">توليد الشمعة</button></div>
-                    <div class="axR"><button class="axBtn s" id="axInj">حقن سعر مباشر</button><button class="axBtn d" id="axOut">خروج</button></div>
-                    <div class="axM" id="axMsg"></div>
-                `;
-
-                const tfSel = $('axTf');
-                TFS.forEach(t => {
-                    const o = document.createElement('option');
-                    o.value = t.k;
-                    o.textContent = t.k;
-                    if (t.k === '1m') o.selected = true;
-                    tfSel.appendChild(o);
-                });
-
-                let mode = 'up',
-                    tm = 'now';
-                const sg = $('axSg'),
-                    tmg = $('axTm');
-
-                // دالة تعبئة الحقول حسب النوع
-                function fill() {
-                    const base = lastClose(tfSel.value) || 1;
-                    const szP = parseFloat($('axSz').value) || 0.5;
-                    const d = base * szP / 100;
-                    const O = $('axO'),
-                        C = $('axC'),
-                        H = $('axH'),
-                        L = $('axL');
-
-                    if (mode === 'man') return;
-                    let o, c, h, l;
-                    if (mode === 'up') {
-                        o = base;
-                        c = base + d;
-                        h = c + d * 0.3;
-                        l = o - d * 0.2;
-                    } else if (mode === 'dn') {
-                        o = base;
-                        c = base - d;
-                        h = o + d * 0.2;
-                        l = c - d * 0.3;
-                    } else { // doji
-                        o = base;
-                        c = base + d * 0.02;
-                        h = base + d * 0.5;
-                        l = base - d * 0.5;
-                    }
-                    const p = priceDp(base);
-                    O.value = (+o).toFixed(p);
-                    C.value = (+c).toFixed(p);
-                    H.value = (+h).toFixed(p);
-                    L.value = (+l).toFixed(p);
-                }
-
-                // أحداث أزرار النوع
-                sg.querySelectorAll('button').forEach(b => {
-                    b.onclick = () => {
-                        sg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
-                        b.classList.add('on');
-                        mode = b.dataset.v;
-                        fill();
-                    };
-                });
-
-                // أحداث أزرار الوقت
-                tmg.querySelectorAll('button').forEach(b => {
-                    b.onclick = () => {
-                        tmg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
-                        b.classList.add('on');
-                        tm = b.dataset.v;
-                    };
-                });
-
-                // تغيير الفريم أو الحجم
-                tfSel.onchange = fill;
-                $('axSz').oninput = fill;
-                fill();
-
-                // ----- زر الخروج -----
-                $('axOut').onclick = () => {
-                    setA(false);
-                    ov.classList.remove('on');
-                    loginView();
-                };
-
-                // ----- حقن السعر -----
-                $('axInj').onclick = async () => {
-                    const msg = $('axMsg');
-                    const c = parseFloat($('axC').value);
-                    if (!isFinite(c)) {
-                        msg.className = 'axM er';
-                        msg.textContent = 'أدخل سعر الإغلاق';
-                        return;
-                    }
-                    try {
-                        const pk = curPair(),
-                            f = window.__fxerFeed;
-                        if (f && f._admin) {
-                            f._admin.setForce(c);
-                        } else if (f) {
-                            if (!f._al) {
-                                f._al = [];
-                                const orig = f.onTick.bind(f);
-                                f.onTick = cb => {
-                                    f._al.push(cb);
-                                    orig(cb);
-                                };
-                            }
-                            f._al.forEach(cb => {
-                                try { cb({ t: Date.now(), p: c }, pk); } catch {}
-                            });
-                        }
-                        window.__fxerRemotePrice = c;
-                        msg.className = 'axM ok';
-                        msg.textContent = '✓ تم حقن السعر ' + c;
-                    } catch (e) {
-                        msg.className = 'axM er';
-                        msg.textContent = 'خطأ: ' + e.message;
-                    }
-                };
-
-                // ----- توليد الشمعة -----
-                $('axGo').onclick = async () => {
-                    const msg = $('axMsg');
-                    msg.className = 'axM';
-                    msg.textContent = '...جاري';
-                    try {
-                        const tfk = tfSel.value;
-                        const tf = TFS.find(x => x.k === tfk);
-                        const o = parseFloat($('axO').value),
-                            c = parseFloat($('axC').value),
-                            h = parseFloat($('axH').value),
-                            l = parseFloat($('axL').value);
-                        const n = Math.max(1, Math.min(100, parseInt($('axN').value) || 1));
-
-                        if (![o, c, h, l].every(isFinite)) {
-                            msg.className = 'axM er';
-                            msg.textContent = 'قيم غير صحيحة';
-                            return;
-                        }
-                        const H = Math.max(o, c, h, l),
-                            L = Math.min(o, c, h, l);
-                        const pk = pairKey(curPair());
-                        const now = Date.now();
-                        const curBk = Math.floor(now / tf.ms) * tf.ms;
-
-                        for (let i = 0; i < n; i++) {
-                            let t = (tm === 'now') ? curBk - i * tf.ms : curBk - (i + 1) * tf.ms;
-                            const cd = { t, o: +o, h: +H, l: +L, c: +c };
-                            // كتابة عبر الوظيفة العامة (إن وجدت)
-                            if (window.__adminWriteCandle) {
-                                await window.__adminWriteCandle(pk, tfk, cd);
-                            }
-                            // تحديث الـ cache الداخلي
-                            try {
-                                window.__fbCandles = window.__fbCandles || {};
-                                window.__fbCandles[pk] = window.__fbCandles[pk] || {};
-                                const arr = window.__fbCandles[pk][tfk] = window.__fbCandles[pk][tfk] || [];
-                                const ix = arr.findIndex(x => x.t === t);
-                                if (ix >= 0) arr[ix] = cd;
-                                else arr.push(cd);
-                                arr.sort((a, b) => a.t - b.t);
-                            } catch {}
-                            // محاولة تحديث FBLayer
-                            try {
-                                const dm = (window.FBLayer || {}).dataMgr;
-                                if (dm && dm.engines && dm.engines[tfk]) {
-                                    const e = dm.engines[tfk];
-                                    const ix = e.closed.findIndex(x => x.t === t);
-                                    if (ix >= 0) e.closed[ix] = cd;
-                                    else e.closed.push(cd);
-                                    e.closed.sort((a, b) => a.t - b.t);
-                                }
-                            } catch {}
-                        }
-                        // تحديث السعر الفوري
-                        try {
-                            const f = window.__fxerFeed;
-                            if (f && f._al) {
-                                f._al.forEach(cb => {
-                                    try { cb({ t: Date.now(), p: +c }, pk); } catch {}
-                                });
-                            }
-                            window.__fxerRemotePrice = +c;
-                        } catch {}
-                        // إعادة تحميل الرسم البياني
-                        try { window.__reloadChart && window.__reloadChart(); } catch {}
-                        msg.className = 'axM ok';
-                        msg.textContent = '✓ تم توليد ' + n + ' شمعة';
-                        $('axO').value = '';
-                        fill();
-                    } catch (e) {
-                        msg.className = 'axM er';
-                        msg.textContent = 'خطأ: ' + (e.message || e);
-                    }
-                };
-            }
-
-            // ---------- تشغيل البوابة (الزر العائم) ----------
-            gate.onclick = () => {
-                ov.classList.add('on');
-                if (isA()) panelView();
-                else loginView();
-            };
-
-            // ---------- تفعيل النقر السريع على شارة الدور (للدخول السريع) ----------
-            try {
-                const badge = document.getElementById('fbRoleBadge');
-                if (badge) {
-                    let clickCount = 0,
-                        timer;
-                    badge.style.pointerEvents = 'auto';
-                    badge.addEventListener('click', () => {
-                        clickCount++;
-                        clearTimeout(timer);
-                        timer = setTimeout(() => clickCount = 0, 600);
-                        if (clickCount >= 3) {
-                            clickCount = 0;
-                            ov.classList.add('on');
-                            if (isA()) panelView();
-                            else loginView();
-                        }
-                    });
-                }
-            } catch {}
-
-            // ---------- تعريض دالة الكتابة (للاستخدام الخارجي) ----------
-            window.__adminWriteCandle = async function(pk, tfk, cd) {
-                // محاكاة كتابة (في حال وجود Firestore يتم التعامل معها)
-                try {
-                    // هنا يمكن ربطها بـ Firestore إذا كانت المكتبة موجودة
-                    // لكننا نتركها كواجهة فقط
-                    return Promise.resolve();
-                } catch (e) { throw e; }
-            };
-
-            // ---------- تهيئة مستمعات الـ feed إن وجدت ----------
-            try {
-                const f = window.__fxerFeed;
-                if (f && !f._al) {
-                    f._al = [];
-                    const orig = f.onTick.bind(f);
-                    f.onTick = cb => {
-                        f._al.push(cb);
-                        orig(cb);
-                    };
-                }
-            } catch {}
-
-            // ---------- في حال كان هناك كائنات افتراضية للشموع ----------
-            window.__fbCandles = window.__fbCandles || {};
-            window.__fxerRemotePrice = window.__fxerRemotePrice || 1;
-
-        })();
-    </script>
-</body>
+    const key=PK(pair);
+    let ok=0,er=0;const B=400;
+    for(let i=0;i<n;i+=B){
+      if(stopFlag)break;
+      const batch=writeBatch(db);
+      const end=Math.min(n,i+B);
+      let lastC=null;
+      for(let j=i;j<end;j++){
+        const t=startT+j*tf.ms;
+        const cd=makeCandle(prev,t,pair,bias,vol);
+        prev=cd.c;lastC=cd;
+        batch.set(doc(db,'market',key,'tf_'+tf.k,String(t)),cd);
+      }
+      try{
+        await batch.commit();
+        if(lastC)await setDoc(doc(db,'market',key,'live','tf_'+tf.k),lastC);
+        ok+=(end-i);
+        pg.style.width=(ok*100/n)+'%';
+        log(`✔ دفعة ${i+1}..${end} تمت`,'ok');
+      }catch(e){er+=(end-i);log(`✖ دفعة ${i+1}..${end}: ${e.message}`,'er')}
+    }
+    log(`🎯 انتهى — نجاح: ${ok} · فشل: ${er}${stopFlag?' (توقف بطلب)':''}`,'ok');
+    refreshInfo();
+  }catch(e){log('خطأ عام: '+e.message,'er')}
+  finally{gen.disabled=false;stp.disabled=true}
+};
+</script>
 </html>
