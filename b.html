@@ -62,627 +62,269 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0b0e11;color:#eaece
 </style>
 </head>
 <body>
-
-<!-- ============ AUTH SCREENS ============ -->
 <div id="authScreen" class="auth-wrap">
-  <div id="loginCard" class="auth-card">
-    <h1>Pro Trading</h1>
-    <p class="sub">تسجيل الدخول إلى حسابك</p>
-    <input id="loginEmail" type="email" placeholder="البريد الإلكتروني" autocomplete="email"/>
-    <input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="current-password"/>
-    <button class="primary" id="btnLogin">دخول</button>
-    <div id="loginMsg" class="auth-msg"></div>
-    <div class="switch">ليس لديك حساب؟ <a id="toRegister">إنشاء حساب</a></div>
-  </div>
-  <div id="registerCard" class="auth-card hidden">
-    <h1>إنشاء حساب</h1>
-    <p class="sub">انضم إلى منصتنا الاحترافية</p>
-    <input id="regName" type="text" placeholder="الاسم"/>
-    <input id="regEmail" type="email" placeholder="البريد الإلكتروني"/>
-    <input id="regPass" type="password" placeholder="كلمة المرور (6+ أحرف)"/>
-    <button class="primary" id="btnRegister">تسجيل</button>
-    <div id="regMsg" class="auth-msg"></div>
-    <div class="switch">لديك حساب؟ <a id="toLogin">تسجيل الدخول</a></div>
-  </div>
+<div id="loginCard" class="auth-card">
+<h1>Pro Trading</h1><p class="sub">تسجيل الدخول إلى حسابك</p>
+<input id="loginEmail" type="email" placeholder="البريد الإلكتروني" autocomplete="email"/>
+<input id="loginPass" type="password" placeholder="كلمة المرور" autocomplete="current-password"/>
+<button class="primary" id="btnLogin">دخول</button>
+<div id="loginMsg" class="auth-msg"></div>
+<div class="switch">ليس لديك حساب؟ <a id="toRegister">إنشاء حساب</a></div>
 </div>
-
-<!-- ============ MAIN APP ============ -->
+<div id="registerCard" class="auth-card hidden">
+<h1>إنشاء حساب</h1><p class="sub">انضم إلى منصتنا الاحترافية</p>
+<input id="regName" type="text" placeholder="الاسم"/>
+<input id="regEmail" type="email" placeholder="البريد الإلكتروني"/>
+<input id="regPass" type="password" placeholder="كلمة المرور (6+ أحرف)"/>
+<button class="primary" id="btnRegister">تسجيل</button>
+<div id="regMsg" class="auth-msg"></div>
+<div class="switch">لديك حساب؟ <a id="toLogin">تسجيل الدخول</a></div>
+</div>
+</div>
 <div id="app" class="hidden">
-  <div class="topbar">
-    <div class="logo">◆ Pro Trading</div>
-    <div class="pair-selector">
-      <button class="pair-btn" id="pairBtn"><span id="curPair">BTC/USDT</span> ▾</button>
-      <div class="pair-menu hidden" id="pairMenu">
-        <input id="pairSearch" placeholder="بحث..."/>
-        <div id="pairList"></div>
-        <div class="add-pair" id="addPairBtn">+ إضافة زوج جديد</div>
-      </div>
-    </div>
-    <div class="price-info">
-      <div class="p" id="curPrice">0.00</div>
-      <div class="c" id="curChange">—</div>
-    </div>
-    <div class="spacer"></div>
-    <div class="role-badge" id="roleBadge">مشاهد</div>
-    <div class="user-box"><span class="n" id="userName">—</span><button class="lg" id="btnLogout">خروج</button></div>
-  </div>
-  <div class="chart-area">
-    <canvas id="chartCanvas"></canvas>
-    <div class="tool-bar">
-      <button id="zoomIn" title="تكبير">+</button>
-      <button id="zoomOut" title="تصغير">−</button>
-      <button id="resetView" title="إعادة">⟲</button>
-    </div>
-    <div class="status"><span class="dot"></span><span id="statusText">متصل</span></div>
-    <div class="crosshair-info" id="crossInfo">
-      O: <span id="ohlcO">—</span> H: <span id="ohlcH">—</span><br>
-      L: <span id="ohlcL">—</span> C: <span id="ohlcC">—</span><br>
-      <span id="ohlcT" style="color:#848e9c">—</span>
-    </div>
-  </div>
+<div class="topbar">
+<div class="logo">◆ Pro Trading</div>
+<div class="pair-selector">
+<button class="pair-btn" id="pairBtn"><span id="curPair">BTC/USDT</span> ▾</button>
+<div class="pair-menu hidden" id="pairMenu">
+<input id="pairSearch" placeholder="بحث..."/>
+<div id="pairList"></div>
+<div class="add-pair" id="addPairBtn">+ إضافة زوج جديد</div>
 </div>
-
-<!-- ============ FIREBASE + APP MODULES ============ -->
+</div>
+<div class="price-info"><div class="p" id="curPrice">0.00</div><div class="c" id="curChange">—</div></div>
+<div class="spacer"></div>
+<div class="role-badge" id="roleBadge">مشاهد</div>
+<div class="user-box"><span class="n" id="userName">—</span><button class="lg" id="btnLogout">خروج</button></div>
+</div>
+<div class="chart-area">
+<canvas id="chartCanvas"></canvas>
+<div class="tool-bar">
+<button id="zoomIn" title="تكبير">+</button>
+<button id="zoomOut" title="تصغير">−</button>
+<button id="resetView" title="إعادة">⟲</button>
+</div>
+<div class="status"><span class="dot"></span><span id="statusText">متصل</span></div>
+<div class="crosshair-info" id="crossInfo">
+O: <span id="ohlcO">—</span> H: <span id="ohlcH">—</span><br>
+L: <span id="ohlcL">—</span> C: <span id="ohlcC">—</span><br>
+<span id="ohlcT" style="color:#848e9c">—</span>
+</div>
+</div>
+</div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, set, get, onValue, push, update, onDisconnect, serverTimestamp, runTransaction, query, limitToLast, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getFirestore,doc,setDoc,getDoc,updateDoc,onSnapshot,collection,query,orderBy,limit,runTransaction,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ============ FIREBASE SERVICE ============ */
 const firebaseConfig={apiKey:"AIzaSyBvzfJOOjRFZnTgTUrwEZQPr8Ba7zKKlNg",authDomain:"hhhxh-5ebe4.firebaseapp.com",databaseURL:"https://hhhxh-5ebe4-default-rtdb.firebaseio.com",projectId:"hhhxh-5ebe4",storageBucket:"hhhxh-5ebe4.firebasestorage.app",messagingSenderId:"79243000696",appId:"1:79243000696:web:ee0fb2d2ccce791954e68d"};
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getDatabase(app);
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 
-/* ============ UTILITIES ============ */
-const U={
-  $:id=>document.getElementById(id),
-  fmt:(v,d=2)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),
-  clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),
-  now:()=>Date.now(),
-  timeStr:t=>{const d=new Date(t);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0')},
-  dateStr:t=>{const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')},
-  niceStep:r=>{const p=Math.pow(10,Math.floor(Math.log10(r)));const n=r/p;let s;if(n<1.5)s=1;else if(n<3)s=2;else if(n<7)s=5;else s=10;return s*p}
-};
+const U={$:id=>document.getElementById(id),fmt:(v,d=2)=>Number(v).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),now:()=>Date.now(),timeStr:t=>{const d=new Date(t);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')+':'+d.getSeconds().toString().padStart(2,'0')},dateStr:t=>{const d=new Date(t);return(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')},niceStep:r=>{const p=Math.pow(10,Math.floor(Math.log10(r)));const n=r/p;let s;if(n<1.5)s=1;else if(n<3)s=2;else if(n<7)s=5;else s=10;return s*p}};
 
-/* ============ SETTINGS ============ */
-const SETTINGS={
-  CANDLE_INTERVAL:5000,      // 5 ثوانٍ لكل شمعة (لايف)
-  MAX_CANDLES:2000,
-  DEFAULT_VIEW:80,
-  MIN_VIEW:10,
-  MAX_VIEW:500,
-  COLORS:{bg:'#0b0e11',grid:'#1e2329',gridStrong:'#2b3139',text:'#848e9c',up:'#0ecb81',down:'#f6465d',wick:'#848e9c',crosshair:'#f0b90b',axisBg:'#161a1e'},
-  PADDING:{top:20,right:70,bottom:30,left:10},
-  DEFAULT_PAIRS:['BTC/USDT','ETH/USDT','BNB/USDT','SOL/USDT','XRP/USDT']
-};
+const SETTINGS={CANDLE_INTERVAL:5000,MAX_CANDLES:2000,DEFAULT_VIEW:80,MIN_VIEW:10,MAX_VIEW:500,COLORS:{bg:'#0b0e11',grid:'#1e2329',gridStrong:'#2b3139',text:'#848e9c',up:'#0ecb81',down:'#f6465d',wick:'#848e9c',crosshair:'#f0b90b',axisBg:'#161a1e'},PADDING:{top:20,right:70,bottom:30,left:10},DEFAULT_PAIRS:['BTC/USDT','ETH/USDT','BNB/USDT','SOL/USDT','XRP/USDT']};
 
-/* ============ PRICE GENERATOR (fallback sim للشمعة النشطة عند غياب مدير) ============ */
-const PriceGen={
-  base:{'BTC/USDT':67000,'ETH/USDT':3500,'BNB/USDT':600,'SOL/USDT':150,'XRP/USDT':0.55},
-  last:{},
-  volatility:{'BTC/USDT':0.0008,'ETH/USDT':0.0012,'BNB/USDT':0.0010,'SOL/USDT':0.0018,'XRP/USDT':0.0020},
-  init(p){if(!this.last[p])this.last[p]=this.base[p]||100},
-  next(p){this.init(p);const v=this.volatility[p]||0.001;const r=(Math.random()-0.5)*2*v;this.last[p]=Math.max(0.0001,this.last[p]*(1+r));return this.last[p]},
-  seed(p,pr){this.last[p]=pr}
-};
+const PriceGen={base:{'BTC/USDT':67000,'ETH/USDT':3500,'BNB/USDT':600,'SOL/USDT':150,'XRP/USDT':0.55},last:{},volatility:{'BTC/USDT':0.0008,'ETH/USDT':0.0012,'BNB/USDT':0.0010,'SOL/USDT':0.0018,'XRP/USDT':0.0020},init(p){if(!this.last[p])this.last[p]=this.base[p]||100},next(p){this.init(p);const v=this.volatility[p]||0.001;const r=(Math.random()-0.5)*2*v;this.last[p]=Math.max(0.0001,this.last[p]*(1+r));return this.last[p]},seed(p,pr){this.last[p]=pr}};
 
-/* ============ CANDLE ENGINE ============ */
 class CandleEngine{
-  constructor(){this.candles=[];this.pair=null;this.interval=SETTINGS.CANDLE_INTERVAL}
-  setPair(p){this.pair=p;this.candles=[]}
-  setCandles(arr){this.candles=arr.slice(-SETTINGS.MAX_CANDLES).sort((a,b)=>a.t-b.t)}
-  bucketTime(t){return Math.floor(t/this.interval)*this.interval}
-  updateLive(price,t=U.now()){
-    const bt=this.bucketTime(t);
-    const last=this.candles[this.candles.length-1];
-    if(!last||last.t<bt){
-      const o=last?last.c:price;
-      const c={t:bt,o,h:Math.max(o,price),l:Math.min(o,price),c:price};
-      this.candles.push(c);
-      if(this.candles.length>SETTINGS.MAX_CANDLES)this.candles.shift();
-      return {isNew:true,candle:c,closed:last};
-    }else{
-      last.c=price;last.h=Math.max(last.h,price);last.l=Math.min(last.l,price);
-      return {isNew:false,candle:last};
-    }
-  }
-  applyRemote(c){
-    const i=this.candles.findIndex(x=>x.t===c.t);
-    if(i>=0)this.candles[i]=c;
-    else{this.candles.push(c);this.candles.sort((a,b)=>a.t-b.t);if(this.candles.length>SETTINGS.MAX_CANDLES)this.candles.shift()}
-  }
-  getVisible(from,to){return this.candles.filter(c=>c.t>=from&&c.t<=to)}
+constructor(){this.candles=[];this.pair=null;this.interval=SETTINGS.CANDLE_INTERVAL}
+setPair(p){this.pair=p;this.candles=[]}
+setCandles(arr){this.candles=arr.slice(-SETTINGS.MAX_CANDLES).sort((a,b)=>a.t-b.t)}
+bucketTime(t){return Math.floor(t/this.interval)*this.interval}
+updateLive(price,t=U.now()){
+const bt=this.bucketTime(t),last=this.candles[this.candles.length-1];
+if(!last||last.t<bt){const o=last?last.c:price;const c={t:bt,o,h:Math.max(o,price),l:Math.min(o,price),c:price};this.candles.push(c);if(this.candles.length>SETTINGS.MAX_CANDLES)this.candles.shift();return{isNew:true,candle:c,closed:last}}
+else{last.c=price;last.h=Math.max(last.h,price);last.l=Math.min(last.l,price);return{isNew:false,candle:last}}
+}
+applyRemote(c){const i=this.candles.findIndex(x=>x.t===c.t);if(i>=0)this.candles[i]=c;else{this.candles.push(c);this.candles.sort((a,b)=>a.t-b.t);if(this.candles.length>SETTINGS.MAX_CANDLES)this.candles.shift()}}
 }
 
-/* ============ CAMERA / COORDINATE SYSTEM ============ */
 class Camera{
-  constructor(){this.viewCount=SETTINGS.DEFAULT_VIEW;this.offset=0;this.priceCenter=null;this.priceRange=null;this.autoPrice=true}
-  zoom(f,anchor=0.5){
-    const nv=U.clamp(this.viewCount*f,SETTINGS.MIN_VIEW,SETTINGS.MAX_VIEW);
-    const delta=nv-this.viewCount;
-    this.offset-=delta*(1-anchor);
-    this.viewCount=nv;
-  }
-  panX(dxCandles){this.offset+=dxCandles}
-  panY(dyRatio){if(this.priceRange){this.autoPrice=false;this.priceCenter+=this.priceRange*dyRatio}}
-  reset(){this.viewCount=SETTINGS.DEFAULT_VIEW;this.offset=0;this.autoPrice=true}
-  fit(candles){
-    if(!candles.length)return;
-    const total=candles.length;
-    const end=total-1+this.offset;
-    const start=end-this.viewCount+1;
-    const from=Math.max(0,Math.floor(start));
-    const to=Math.min(total-1,Math.ceil(end));
-    const vis=candles.slice(from,to+1);
-    if(!vis.length)return;
-    if(this.autoPrice){
-      let hi=-Infinity,lo=Infinity;
-      for(const c of vis){if(c.h>hi)hi=c.h;if(c.l<lo)lo=c.l}
-      const pad=(hi-lo)*0.1||hi*0.001;
-      this.priceCenter=(hi+lo)/2;
-      this.priceRange=(hi-lo)+pad*2;
-    }
-    return {from,to,vis,start,end};
-  }
+constructor(){this.viewCount=SETTINGS.DEFAULT_VIEW;this.offset=0;this.priceCenter=null;this.priceRange=null;this.autoPrice=true}
+zoom(f,anchor=0.5){const nv=U.clamp(this.viewCount*f,SETTINGS.MIN_VIEW,SETTINGS.MAX_VIEW);const delta=nv-this.viewCount;this.offset-=delta*(1-anchor);this.viewCount=nv}
+panX(dxCandles){this.offset+=dxCandles}
+panY(dyRatio){if(this.priceRange){this.autoPrice=false;this.priceCenter+=this.priceRange*dyRatio}}
+reset(){this.viewCount=SETTINGS.DEFAULT_VIEW;this.offset=0;this.autoPrice=true}
+fit(candles){if(!candles.length)return;const total=candles.length,end=total-1+this.offset,start=end-this.viewCount+1,from=Math.max(0,Math.floor(start)),to=Math.min(total-1,Math.ceil(end)),vis=candles.slice(from,to+1);if(!vis.length)return;if(this.autoPrice){let hi=-Infinity,lo=Infinity;for(const c of vis){if(c.h>hi)hi=c.h;if(c.l<lo)lo=c.l}const pad=(hi-lo)*0.1||hi*0.001;this.priceCenter=(hi+lo)/2;this.priceRange=(hi-lo)+pad*2}return{from,to,vis,start,end}}
 }
 
 class Coord{
-  constructor(){this.w=0;this.h=0;this.plotW=0;this.plotH=0}
-  update(w,h){this.w=w;this.h=h;this.plotW=w-SETTINGS.PADDING.left-SETTINGS.PADDING.right;this.plotH=h-SETTINGS.PADDING.top-SETTINGS.PADDING.bottom}
-  xFromIndex(i,start,viewCount){const rel=(i-start)/viewCount;return SETTINGS.PADDING.left+rel*this.plotW}
-  yFromPrice(p,pc,pr){const rel=(p-(pc-pr/2))/pr;return SETTINGS.PADDING.top+this.plotH-rel*this.plotH}
-  priceFromY(y,pc,pr){const rel=(SETTINGS.PADDING.top+this.plotH-y)/this.plotH;return (pc-pr/2)+rel*pr}
-  indexFromX(x,start,viewCount){const rel=(x-SETTINGS.PADDING.left)/this.plotW;return start+rel*viewCount}
-  candleWidth(viewCount){return (this.plotW/viewCount)*0.75}
+constructor(){this.w=0;this.h=0;this.plotW=0;this.plotH=0}
+update(w,h){this.w=w;this.h=h;this.plotW=w-SETTINGS.PADDING.left-SETTINGS.PADDING.right;this.plotH=h-SETTINGS.PADDING.top-SETTINGS.PADDING.bottom}
+xFromIndex(i,start,vc){return SETTINGS.PADDING.left+((i-start)/vc)*this.plotW}
+yFromPrice(p,pc,pr){return SETTINGS.PADDING.top+this.plotH-((p-(pc-pr/2))/pr)*this.plotH}
+priceFromY(y,pc,pr){return(pc-pr/2)+((SETTINGS.PADDING.top+this.plotH-y)/this.plotH)*pr}
+indexFromX(x,start,vc){return start+((x-SETTINGS.PADDING.left)/this.plotW)*vc}
+candleWidth(vc){return(this.plotW/vc)*0.75}
 }
 
-/* ============ GRID RENDERER ============ */
 class GridRenderer{
-  draw(ctx,co,cam,fitData){
-    if(!fitData)return;
-    const {vis}=fitData;
-    ctx.save();
-    // horizontal (price) grid
-    const priceStep=U.niceStep(cam.priceRange/6);
-    const priceStart=Math.ceil((cam.priceCenter-cam.priceRange/2)/priceStep)*priceStep;
-    ctx.strokeStyle=SETTINGS.COLORS.grid;ctx.lineWidth=1;ctx.beginPath();
-    for(let p=priceStart;p<cam.priceCenter+cam.priceRange/2;p+=priceStep){
-      const y=Math.round(co.yFromPrice(p,cam.priceCenter,cam.priceRange))+0.5;
-      ctx.moveTo(SETTINGS.PADDING.left,y);ctx.lineTo(co.w-SETTINGS.PADDING.right,y);
-    }
-    ctx.stroke();
-    // vertical (time) grid — spacing based on viewCount
-    const step=cam.viewCount<30?5:cam.viewCount<80?10:cam.viewCount<200?20:50;
-    ctx.beginPath();
-    const total=vis.length?fitData.to+1:0;
-    for(let i=Math.ceil(fitData.start/step)*step;i<=fitData.end;i+=step){
-      const x=Math.round(co.xFromIndex(i,fitData.start,cam.viewCount))+0.5;
-      ctx.moveTo(x,SETTINGS.PADDING.top);ctx.lineTo(x,SETTINGS.PADDING.top+co.plotH);
-    }
-    ctx.stroke();
-    ctx.restore();
-  }
+draw(ctx,co,cam,fit){if(!fit)return;ctx.save();const ps=U.niceStep(cam.priceRange/6),pst=Math.ceil((cam.priceCenter-cam.priceRange/2)/ps)*ps;ctx.strokeStyle=SETTINGS.COLORS.grid;ctx.lineWidth=1;ctx.beginPath();for(let p=pst;p<cam.priceCenter+cam.priceRange/2;p+=ps){const y=Math.round(co.yFromPrice(p,cam.priceCenter,cam.priceRange))+0.5;ctx.moveTo(SETTINGS.PADDING.left,y);ctx.lineTo(co.w-SETTINGS.PADDING.right,y)}ctx.stroke();const step=cam.viewCount<30?5:cam.viewCount<80?10:cam.viewCount<200?20:50;ctx.beginPath();for(let i=Math.ceil(fit.start/step)*step;i<=fit.end;i+=step){const x=Math.round(co.xFromIndex(i,fit.start,cam.viewCount))+0.5;ctx.moveTo(x,SETTINGS.PADDING.top);ctx.lineTo(x,SETTINGS.PADDING.top+co.plotH)}ctx.stroke();ctx.restore()}
 }
 
-/* ============ CANDLE RENDERER ============ */
 class CandleRenderer{
-  draw(ctx,co,cam,candles,fitData){
-    if(!fitData)return;
-    const {from,to}=fitData;
-    const cw=Math.max(1,co.candleWidth(cam.viewCount));
-    const half=cw/2;
-    for(let i=from;i<=to;i++){
-      const c=candles[i];if(!c)continue;
-      const x=co.xFromIndex(i,fitData.start,cam.viewCount);
-      const yO=co.yFromPrice(c.o,cam.priceCenter,cam.priceRange);
-      const yC=co.yFromPrice(c.c,cam.priceCenter,cam.priceRange);
-      const yH=co.yFromPrice(c.h,cam.priceCenter,cam.priceRange);
-      const yL=co.yFromPrice(c.l,cam.priceCenter,cam.priceRange);
-      const up=c.c>=c.o;
-      const col=up?SETTINGS.COLORS.up:SETTINGS.COLORS.down;
-      ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(Math.round(x)+0.5,yH);ctx.lineTo(Math.round(x)+0.5,yL);ctx.stroke();
-      const bt=Math.min(yO,yC),bb=Math.max(yO,yC);
-      const bh=Math.max(1,bb-bt);
-      ctx.fillRect(Math.round(x-half),Math.round(bt),Math.max(1,Math.round(cw)),Math.round(bh));
-    }
-  }
+draw(ctx,co,cam,candles,fit){if(!fit)return;const{from,to}=fit,cw=Math.max(1,co.candleWidth(cam.viewCount)),half=cw/2;for(let i=from;i<=to;i++){const c=candles[i];if(!c)continue;const x=co.xFromIndex(i,fit.start,cam.viewCount),yO=co.yFromPrice(c.o,cam.priceCenter,cam.priceRange),yC=co.yFromPrice(c.c,cam.priceCenter,cam.priceRange),yH=co.yFromPrice(c.h,cam.priceCenter,cam.priceRange),yL=co.yFromPrice(c.l,cam.priceCenter,cam.priceRange),up=c.c>=c.o,col=up?SETTINGS.COLORS.up:SETTINGS.COLORS.down;ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(Math.round(x)+0.5,yH);ctx.lineTo(Math.round(x)+0.5,yL);ctx.stroke();const bt=Math.min(yO,yC),bb=Math.max(yO,yC),bh=Math.max(1,bb-bt);ctx.fillRect(Math.round(x-half),Math.round(bt),Math.max(1,Math.round(cw)),Math.round(bh))}}
 }
 
-/* ============ PRICE SCALE (Right axis) ============ */
 class PriceScale{
-  draw(ctx,co,cam,lastPrice){
-    ctx.save();
-    ctx.fillStyle=SETTINGS.COLORS.axisBg;
-    ctx.fillRect(co.w-SETTINGS.PADDING.right,0,SETTINGS.PADDING.right,co.h);
-    ctx.fillStyle=SETTINGS.COLORS.text;ctx.font='11px Segoe UI';ctx.textAlign='left';ctx.textBaseline='middle';
-    const step=U.niceStep(cam.priceRange/6);
-    const start=Math.ceil((cam.priceCenter-cam.priceRange/2)/step)*step;
-    for(let p=start;p<cam.priceCenter+cam.priceRange/2;p+=step){
-      const y=co.yFromPrice(p,cam.priceCenter,cam.priceRange);
-      const dec=p<1?4:p<100?2:2;
-      ctx.fillText(U.fmt(p,dec),co.w-SETTINGS.PADDING.right+6,y);
-    }
-    if(lastPrice!=null){
-      const y=co.yFromPrice(lastPrice,cam.priceCenter,cam.priceRange);
-      ctx.fillStyle=SETTINGS.COLORS.crosshair;
-      ctx.fillRect(co.w-SETTINGS.PADDING.right,y-9,SETTINGS.PADDING.right,18);
-      ctx.fillStyle='#000';ctx.font='bold 11px Segoe UI';
-      const dec=lastPrice<1?4:2;
-      ctx.fillText(U.fmt(lastPrice,dec),co.w-SETTINGS.PADDING.right+6,y);
-    }
-    ctx.restore();
-  }
+draw(ctx,co,cam,lp){ctx.save();ctx.fillStyle=SETTINGS.COLORS.axisBg;ctx.fillRect(co.w-SETTINGS.PADDING.right,0,SETTINGS.PADDING.right,co.h);ctx.fillStyle=SETTINGS.COLORS.text;ctx.font='11px Segoe UI';ctx.textAlign='left';ctx.textBaseline='middle';const st=U.niceStep(cam.priceRange/6),ss=Math.ceil((cam.priceCenter-cam.priceRange/2)/st)*st;for(let p=ss;p<cam.priceCenter+cam.priceRange/2;p+=st){const y=co.yFromPrice(p,cam.priceCenter,cam.priceRange);const dec=p<1?4:2;ctx.fillText(U.fmt(p,dec),co.w-SETTINGS.PADDING.right+6,y)}if(lp!=null){const y=co.yFromPrice(lp,cam.priceCenter,cam.priceRange);ctx.fillStyle=SETTINGS.COLORS.crosshair;ctx.fillRect(co.w-SETTINGS.PADDING.right,y-9,SETTINGS.PADDING.right,18);ctx.fillStyle='#000';ctx.font='bold 11px Segoe UI';const dec=lp<1?4:2;ctx.fillText(U.fmt(lp,dec),co.w-SETTINGS.PADDING.right+6,y)}ctx.restore()}
 }
 
-/* ============ TIME SCALE (Bottom axis) ============ */
 class TimeScale{
-  draw(ctx,co,cam,candles,fitData){
-    if(!fitData)return;
-    ctx.save();
-    ctx.fillStyle=SETTINGS.COLORS.axisBg;
-    ctx.fillRect(0,co.h-SETTINGS.PADDING.bottom,co.w,SETTINGS.PADDING.bottom);
-    ctx.fillStyle=SETTINGS.COLORS.text;ctx.font='11px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';
-    const step=cam.viewCount<30?5:cam.viewCount<80?10:cam.viewCount<200?20:50;
-    for(let i=Math.ceil(fitData.start/step)*step;i<=fitData.end;i+=step){
-      const c=candles[i];if(!c)continue;
-      const x=co.xFromIndex(i,fitData.start,cam.viewCount);
-      if(x<SETTINGS.PADDING.left||x>co.w-SETTINGS.PADDING.right)continue;
-      ctx.fillText(U.timeStr(c.t),x,co.h-SETTINGS.PADDING.bottom/2);
-    }
-    ctx.restore();
-  }
+draw(ctx,co,cam,candles,fit){if(!fit)return;ctx.save();ctx.fillStyle=SETTINGS.COLORS.axisBg;ctx.fillRect(0,co.h-SETTINGS.PADDING.bottom,co.w,SETTINGS.PADDING.bottom);ctx.fillStyle=SETTINGS.COLORS.text;ctx.font='11px Segoe UI';ctx.textAlign='center';ctx.textBaseline='middle';const step=cam.viewCount<30?5:cam.viewCount<80?10:cam.viewCount<200?20:50;for(let i=Math.ceil(fit.start/step)*step;i<=fit.end;i+=step){const c=candles[i];if(!c)continue;const x=co.xFromIndex(i,fit.start,cam.viewCount);if(x<SETTINGS.PADDING.left||x>co.w-SETTINGS.PADDING.right)continue;ctx.fillText(U.timeStr(c.t),x,co.h-SETTINGS.PADDING.bottom/2)}ctx.restore()}
 }
 
-/* ============ CROSSHAIR ============ */
 class Crosshair{
-  constructor(){this.x=null;this.y=null;this.active=false}
-  set(x,y){this.x=x;this.y=y;this.active=true}
-  clear(){this.active=false}
-  draw(ctx,co,cam,candles,fitData){
-    if(!this.active||!fitData)return;
-    ctx.save();
-    ctx.strokeStyle=SETTINGS.COLORS.crosshair;ctx.lineWidth=1;ctx.setLineDash([4,4]);
-    ctx.beginPath();
-    ctx.moveTo(this.x,SETTINGS.PADDING.top);ctx.lineTo(this.x,SETTINGS.PADDING.top+co.plotH);
-    ctx.moveTo(SETTINGS.PADDING.left,this.y);ctx.lineTo(co.w-SETTINGS.PADDING.right,this.y);
-    ctx.stroke();ctx.setLineDash([]);
-    // labels
-    const price=co.priceFromY(this.y,cam.priceCenter,cam.priceRange);
-    const dec=price<1?4:2;
-    ctx.fillStyle=SETTINGS.COLORS.crosshair;
-    ctx.fillRect(co.w-SETTINGS.PADDING.right,this.y-9,SETTINGS.PADDING.right,18);
-    ctx.fillStyle='#000';ctx.font='bold 11px Segoe UI';ctx.textAlign='left';ctx.textBaseline='middle';
-    ctx.fillText(U.fmt(price,dec),co.w-SETTINGS.PADDING.right+6,this.y);
-    // time label
-    const idx=Math.round(co.indexFromX(this.x,fitData.start,cam.viewCount));
-    const c=candles[idx];
-    if(c){
-      ctx.fillStyle=SETTINGS.COLORS.crosshair;
-      const tw=90;ctx.fillRect(this.x-tw/2,co.h-SETTINGS.PADDING.bottom,tw,SETTINGS.PADDING.bottom);
-      ctx.fillStyle='#000';ctx.textAlign='center';
-      ctx.fillText(U.dateStr(c.t),this.x,co.h-SETTINGS.PADDING.bottom/2);
-    }
-    ctx.restore();
-    return {idx,candle:c,price};
-  }
+constructor(){this.x=null;this.y=null;this.active=false}
+set(x,y){this.x=x;this.y=y;this.active=true}
+clear(){this.active=false}
+draw(ctx,co,cam,candles,fit){if(!this.active||!fit)return;ctx.save();ctx.strokeStyle=SETTINGS.COLORS.crosshair;ctx.lineWidth=1;ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(this.x,SETTINGS.PADDING.top);ctx.lineTo(this.x,SETTINGS.PADDING.top+co.plotH);ctx.moveTo(SETTINGS.PADDING.left,this.y);ctx.lineTo(co.w-SETTINGS.PADDING.right,this.y);ctx.stroke();ctx.setLineDash([]);const price=co.priceFromY(this.y,cam.priceCenter,cam.priceRange),dec=price<1?4:2;ctx.fillStyle=SETTINGS.COLORS.crosshair;ctx.fillRect(co.w-SETTINGS.PADDING.right,this.y-9,SETTINGS.PADDING.right,18);ctx.fillStyle='#000';ctx.font='bold 11px Segoe UI';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(U.fmt(price,dec),co.w-SETTINGS.PADDING.right+6,this.y);const idx=Math.round(co.indexFromX(this.x,fit.start,cam.viewCount)),c=candles[idx];if(c){ctx.fillStyle=SETTINGS.COLORS.crosshair;const tw=90;ctx.fillRect(this.x-tw/2,co.h-SETTINGS.PADDING.bottom,tw,SETTINGS.PADDING.bottom);ctx.fillStyle='#000';ctx.textAlign='center';ctx.fillText(U.dateStr(c.t),this.x,co.h-SETTINGS.PADDING.bottom/2)}ctx.restore();return{idx,candle:c,price}}
 }
 
-/* ============ INPUT MANAGER (Zoom+Drag+Touch) ============ */
 class InputManager{
-  constructor(canvas,cam,co,onChange,onHover,onLeave){
-    this.canvas=canvas;this.cam=cam;this.co=co;this.onChange=onChange;this.onHover=onHover;this.onLeave=onLeave;
-    this.drag=false;this.lastX=0;this.lastY=0;this.pinchDist=null;
-    canvas.addEventListener('wheel',e=>this.onWheel(e),{passive:false});
-    canvas.addEventListener('mousedown',e=>this.down(e.clientX,e.clientY));
-    window.addEventListener('mousemove',e=>this.move(e.clientX,e.clientY,e));
-    window.addEventListener('mouseup',()=>this.up());
-    canvas.addEventListener('mouseleave',()=>{if(!this.drag)this.onLeave()});
-    canvas.addEventListener('touchstart',e=>this.tStart(e),{passive:false});
-    canvas.addEventListener('touchmove',e=>this.tMove(e),{passive:false});
-    canvas.addEventListener('touchend',e=>this.tEnd(e));
-  }
-  onWheel(e){e.preventDefault();const r=this.canvas.getBoundingClientRect();const ax=(e.clientX-r.left-SETTINGS.PADDING.left)/this.co.plotW;const f=e.deltaY>0?1.1:0.9;this.cam.zoom(f,U.clamp(ax,0,1));this.onChange()}
-  down(x,y){this.drag=true;this.lastX=x;this.lastY=y;this.canvas.style.cursor='grabbing'}
-  move(x,y,ev){
-    const r=this.canvas.getBoundingClientRect();
-    if(this.drag){
-      const dx=x-this.lastX,dy=y-this.lastY;
-      const candleW=this.co.plotW/this.cam.viewCount;
-      this.cam.panX(-dx/candleW);
-      this.cam.panY(-dy/this.co.plotH);
-      this.lastX=x;this.lastY=y;
-      this.onChange();
-    }else if(ev){
-      const cx=x-r.left,cy=y-r.top;
-      if(cx>SETTINGS.PADDING.left&&cx<this.co.w-SETTINGS.PADDING.right&&cy>SETTINGS.PADDING.top&&cy<this.co.h-SETTINGS.PADDING.bottom){
-        this.onHover(cx,cy);
-      }else this.onLeave();
-    }
-  }
-  up(){this.drag=false;this.canvas.style.cursor='crosshair'}
-  tStart(e){e.preventDefault();if(e.touches.length===1){this.down(e.touches[0].clientX,e.touches[0].clientY)}else if(e.touches.length===2){this.drag=false;this.pinchDist=this.tDist(e)}}
-  tMove(e){e.preventDefault();if(e.touches.length===1&&this.drag){this.move(e.touches[0].clientX,e.touches[0].clientY)}else if(e.touches.length===2){const d=this.tDist(e);if(this.pinchDist){const f=this.pinchDist/d;this.cam.zoom(f,0.5);this.onChange()}this.pinchDist=d}}
-  tEnd(e){if(e.touches.length===0){this.up();this.pinchDist=null}}
-  tDist(e){const dx=e.touches[0].clientX-e.touches[1].clientX;const dy=e.touches[0].clientY-e.touches[1].clientY;return Math.hypot(dx,dy)}
+constructor(canvas,cam,co,onChange,onHover,onLeave){this.canvas=canvas;this.cam=cam;this.co=co;this.onChange=onChange;this.onHover=onHover;this.onLeave=onLeave;this.drag=false;this.lastX=0;this.lastY=0;this.pinchDist=null;canvas.addEventListener('wheel',e=>this.onWheel(e),{passive:false});canvas.addEventListener('mousedown',e=>this.down(e.clientX,e.clientY));window.addEventListener('mousemove',e=>this.move(e.clientX,e.clientY,e));window.addEventListener('mouseup',()=>this.up());canvas.addEventListener('mouseleave',()=>{if(!this.drag)this.onLeave()});canvas.addEventListener('touchstart',e=>this.tStart(e),{passive:false});canvas.addEventListener('touchmove',e=>this.tMove(e),{passive:false});canvas.addEventListener('touchend',e=>this.tEnd(e))}
+onWheel(e){e.preventDefault();const r=this.canvas.getBoundingClientRect(),ax=(e.clientX-r.left-SETTINGS.PADDING.left)/this.co.plotW,f=e.deltaY>0?1.1:0.9;this.cam.zoom(f,U.clamp(ax,0,1));this.onChange()}
+down(x,y){this.drag=true;this.lastX=x;this.lastY=y;this.canvas.style.cursor='grabbing'}
+move(x,y,ev){const r=this.canvas.getBoundingClientRect();if(this.drag){const dx=x-this.lastX,dy=y-this.lastY,cw=this.co.plotW/this.cam.viewCount;this.cam.panX(-dx/cw);this.cam.panY(-dy/this.co.plotH);this.lastX=x;this.lastY=y;this.onChange()}else if(ev){const cx=x-r.left,cy=y-r.top;if(cx>SETTINGS.PADDING.left&&cx<this.co.w-SETTINGS.PADDING.right&&cy>SETTINGS.PADDING.top&&cy<this.co.h-SETTINGS.PADDING.bottom)this.onHover(cx,cy);else this.onLeave()}}
+up(){this.drag=false;this.canvas.style.cursor='crosshair'}
+tStart(e){e.preventDefault();if(e.touches.length===1)this.down(e.touches[0].clientX,e.touches[0].clientY);else if(e.touches.length===2){this.drag=false;this.pinchDist=this.tDist(e)}}
+tMove(e){e.preventDefault();if(e.touches.length===1&&this.drag)this.move(e.touches[0].clientX,e.touches[0].clientY);else if(e.touches.length===2){const d=this.tDist(e);if(this.pinchDist){const f=this.pinchDist/d;this.cam.zoom(f,0.5);this.onChange()}this.pinchDist=d}}
+tEnd(e){if(e.touches.length===0){this.up();this.pinchDist=null}}
+tDist(e){const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;return Math.hypot(dx,dy)}
 }
 
-/* ============ RENDER ENGINE (main loop) ============ */
 class RenderEngine{
-  constructor(canvas,engine,cam){
-    this.canvas=canvas;this.ctx=canvas.getContext('2d');this.engine=engine;this.cam=cam;
-    this.co=new Coord();this.grid=new GridRenderer();this.cRend=new CandleRenderer();
-    this.pScale=new PriceScale();this.tScale=new TimeScale();this.cross=new Crosshair();
-    this.needsRedraw=true;this.dpr=window.devicePixelRatio||1;
-    this.resize();window.addEventListener('resize',()=>this.resize());
-    this.loop();
-  }
-  resize(){const r=this.canvas.getBoundingClientRect();this.canvas.width=r.width*this.dpr;this.canvas.height=r.height*this.dpr;this.canvas.style.width=r.width+'px';this.canvas.style.height=r.height+'px';this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);this.co.update(r.width,r.height);this.invalidate()}
-  invalidate(){this.needsRedraw=true}
-  setCrosshair(x,y){this.cross.set(x,y);this.invalidate();this.emitHover()}
-  clearCrosshair(){this.cross.clear();this.invalidate();if(this.onHover)this.onHover(null)}
-  emitHover(){if(!this.lastFit||!this.onHover)return;const idx=Math.round(this.co.indexFromX(this.cross.x,this.lastFit.start,this.cam.viewCount));const c=this.engine.candles[idx];this.onHover(c)}
-  loop(){if(this.needsRedraw){this.render();this.needsRedraw=false}requestAnimationFrame(()=>this.loop())}
-  render(){
-    const ctx=this.ctx;
-    ctx.fillStyle=SETTINGS.COLORS.bg;ctx.fillRect(0,0,this.co.w,this.co.h);
-    const fit=this.cam.fit(this.engine.candles);
-    this.lastFit=fit;
-    if(fit){
-      this.grid.draw(ctx,this.co,this.cam,fit);
-      this.cRend.draw(ctx,this.co,this.cam,this.engine.candles,fit);
-    }
-    const last=this.engine.candles[this.engine.candles.length-1];
-    this.pScale.draw(ctx,this.co,this.cam,last?last.c:null);
-    this.tScale.draw(ctx,this.co,this.cam,this.engine.candles,fit);
-    this.cross.draw(ctx,this.co,this.cam,this.engine.candles,fit);
-  }
+constructor(canvas,engine,cam){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.engine=engine;this.cam=cam;this.co=new Coord();this.grid=new GridRenderer();this.cRend=new CandleRenderer();this.pScale=new PriceScale();this.tScale=new TimeScale();this.cross=new Crosshair();this.needsRedraw=true;this.dpr=window.devicePixelRatio||1;this.resize();window.addEventListener('resize',()=>this.resize());this.loop()}
+resize(){const r=this.canvas.getBoundingClientRect();this.canvas.width=r.width*this.dpr;this.canvas.height=r.height*this.dpr;this.canvas.style.width=r.width+'px';this.canvas.style.height=r.height+'px';this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);this.co.update(r.width,r.height);this.invalidate()}
+invalidate(){this.needsRedraw=true}
+setCrosshair(x,y){this.cross.set(x,y);this.invalidate();this.emitHover()}
+clearCrosshair(){this.cross.clear();this.invalidate();if(this.onHover)this.onHover(null)}
+emitHover(){if(!this.lastFit||!this.onHover)return;const idx=Math.round(this.co.indexFromX(this.cross.x,this.lastFit.start,this.cam.viewCount)),c=this.engine.candles[idx];this.onHover(c)}
+loop(){if(this.needsRedraw){this.render();this.needsRedraw=false}requestAnimationFrame(()=>this.loop())}
+render(){const ctx=this.ctx;ctx.fillStyle=SETTINGS.COLORS.bg;ctx.fillRect(0,0,this.co.w,this.co.h);const fit=this.cam.fit(this.engine.candles);this.lastFit=fit;if(fit){this.grid.draw(ctx,this.co,this.cam,fit);this.cRend.draw(ctx,this.co,this.cam,this.engine.candles,fit)}const last=this.engine.candles[this.engine.candles.length-1];this.pScale.draw(ctx,this.co,this.cam,last?last.c:null);this.tScale.draw(ctx,this.co,this.cam,this.engine.candles,fit);this.cross.draw(ctx,this.co,this.cam,this.engine.candles,fit)}
 }
 
-/* ============ PAIR MANAGER ============ */
 class PairManager{
-  constructor(){this.pairs=[...SETTINGS.DEFAULT_PAIRS];this.current='BTC/USDT';this.listeners=[]}
-  async load(uid){
-    try{
-      const snap=await get(ref(db,`users/${uid}/pairs`));
-      if(snap.exists()){const d=snap.val();this.pairs=d.list||this.pairs;this.current=d.current||this.pairs[0]}
-      else{await this.save(uid)}
-    }catch(e){console.warn('pairs load',e)}
-  }
-  async save(uid){try{await set(ref(db,`users/${uid}/pairs`),{list:this.pairs,current:this.current})}catch(e){}}
-  add(p){p=p.toUpperCase().trim();if(!p.includes('/'))p+='/USDT';if(!this.pairs.includes(p))this.pairs.push(p);return p}
-  remove(p){if(this.pairs.length<=1)return;this.pairs=this.pairs.filter(x=>x!==p);if(this.current===p)this.current=this.pairs[0]}
-  setCurrent(p){this.current=p;this.listeners.forEach(f=>f(p))}
-  onChange(f){this.listeners.push(f)}
+constructor(){this.pairs=[...SETTINGS.DEFAULT_PAIRS];this.current='BTC/USDT';this.listeners=[]}
+async load(uid){try{const s=await getDoc(doc(db,'users',uid));if(s.exists()&&s.data().pairs){const d=s.data().pairs;this.pairs=d.list||this.pairs;this.current=d.current||this.pairs[0]}else await this.save(uid)}catch(e){console.warn('pairs load',e)}}
+async save(uid){try{await setDoc(doc(db,'users',uid),{pairs:{list:this.pairs,current:this.current}},{merge:true})}catch(e){}}
+add(p){p=p.toUpperCase().trim();if(!p.includes('/'))p+='/USDT';if(!this.pairs.includes(p))this.pairs.push(p);return p}
+remove(p){if(this.pairs.length<=1)return;this.pairs=this.pairs.filter(x=>x!==p);if(this.current===p)this.current=this.pairs[0]}
+setCurrent(p){this.current=p;this.listeners.forEach(f=>f(p))}
+onChange(f){this.listeners.push(f)}
 }
 
-/* ============ DATA MANAGER — Firebase live/history + Chart Manager election ============ */
 class DataManager{
-  constructor(engine,ui){this.engine=engine;this.ui=ui;this.pair=null;this.uid=null;this.userName='';this.isManager=false;this.candleUnsub=null;this.mgrUnsub=null;this.tickTimer=null;this.pairKey=p=>p.replace(/\//g,'_')}
-  setUser(uid,name){this.uid=uid;this.userName=name}
-  async switchPair(pair){
-    this.stop();
-    this.pair=pair;
-    this.engine.setPair(pair);
-    const key=this.pairKey(pair);
-    // 1) load history
-    const hSnap=await get(query(ref(db,`market/${key}/candles`),limitToLast(SETTINGS.MAX_CANDLES)));
-    const arr=[];
-    if(hSnap.exists()){hSnap.forEach(ch=>{const v=ch.val();arr.push({t:v.t,o:v.o,h:v.h,l:v.l,c:v.c})})}
-    this.engine.setCandles(arr);
-    if(arr.length){PriceGen.seed(pair,arr[arr.length-1].c)}
-    // 2) manager election
-    await this.tryBecomeManager(key);
-    // 3) subscribe to closed candles (for viewers + persistence)
-    this.candleUnsub=onValue(query(ref(db,`market/${key}/candles`),limitToLast(50)),snap=>{
-      if(!snap.exists())return;
-      snap.forEach(ch=>{const v=ch.val();this.engine.applyRemote({t:v.t,o:v.o,h:v.h,l:v.l,c:v.c})});
-      this.ui.onData();
-    });
-    // 4) subscribe to live candle
-    this.liveUnsub=onValue(ref(db,`market/${key}/live`),snap=>{
-      if(!snap.exists())return;
-      const v=snap.val();
-      if(!this.isManager){
-        // viewer applies live
-        const c={t:v.t,o:v.o,h:v.h,l:v.l,c:v.c};
-        const last=this.engine.candles[this.engine.candles.length-1];
-        if(!last||last.t<c.t)this.engine.candles.push(c);
-        else this.engine.candles[this.engine.candles.length-1]=c;
-        PriceGen.seed(this.pair,c.c);
-        this.ui.onData();
-      }
-    });
-    // 5) manager watch
-    this.mgrUnsub=onValue(ref(db,`market/${key}/manager`),snap=>{
-      const v=snap.val();
-      const wasManager=this.isManager;
-      this.isManager=v&&v.uid===this.uid;
-      if(this.isManager&&!wasManager)this.startTicking(key);
-      if(!this.isManager&&wasManager)this.stopTicking();
-      this.ui.onRole(this.isManager,v);
-    });
-  }
-  async tryBecomeManager(key){
-    const r=ref(db,`market/${key}/manager`);
-    await runTransaction(r,cur=>{
-      if(!cur||!cur.uid||!cur.alive){return {uid:this.uid,name:this.userName,alive:true,ts:U.now()}}
-      return; // abort
-    });
-    // set onDisconnect to release
-    const snap=await get(r);
-    if(snap.exists()&&snap.val().uid===this.uid){
-      onDisconnect(r).set({uid:null,name:null,alive:false,ts:U.now()});
-    }
-  }
-  startTicking(key){
-    if(this.tickTimer)clearInterval(this.tickTimer);
-    this.tickTimer=setInterval(async()=>{
-      if(!this.pair)return;
-      const price=PriceGen.next(this.pair);
-      const r=this.engine.updateLive(price);
-      const live=this.engine.candles[this.engine.candles.length-1];
-      // push live
-      try{await set(ref(db,`market/${key}/live`),live)}catch(e){}
-      // if new candle created, persist previous closed candle
-      if(r.isNew&&r.closed){
-        try{await set(ref(db,`market/${key}/candles/${r.closed.t}`),r.closed)}catch(e){}
-      }
-      this.ui.onData();
-    },250); // update 4x/sec for smoothness
-    // periodic manager heartbeat
-    this.hbTimer=setInterval(()=>{update(ref(db,`market/${key}/manager`),{ts:U.now(),alive:true}).catch(()=>{})},4000);
-  }
-  stopTicking(){if(this.tickTimer){clearInterval(this.tickTimer);this.tickTimer=null}if(this.hbTimer){clearInterval(this.hbTimer);this.hbTimer=null}}
-  stop(){
-    this.stopTicking();
-    if(this.candleUnsub){this.candleUnsub();this.candleUnsub=null}
-    if(this.liveUnsub){this.liveUnsub();this.liveUnsub=null}
-    if(this.mgrUnsub){this.mgrUnsub();this.mgrUnsub=null}
-    this.isManager=false;
-  }
+constructor(engine,ui){this.engine=engine;this.ui=ui;this.pair=null;this.uid=null;this.userName='';this.isManager=false;this.candleUnsub=null;this.liveUnsub=null;this.mgrUnsub=null;this.tickTimer=null;this.hbTimer=null;this.pairKey=p=>p.replace(/\//g,'_')}
+setUser(uid,name){this.uid=uid;this.userName=name}
+async switchPair(pair){
+this.stop();this.pair=pair;this.engine.setPair(pair);const key=this.pairKey(pair);
+try{
+const cq=query(collection(db,'market',key,'candles'),orderBy('t','desc'),limit(SETTINGS.MAX_CANDLES));
+const hSnap=await new Promise((res,rej)=>{const u=onSnapshot(cq,s=>{u();res(s)},rej)});
+const arr=[];hSnap.forEach(d=>{const v=d.data();arr.push({t:v.t,o:v.o,h:v.h,l:v.l,c:v.c})});arr.reverse();
+this.engine.setCandles(arr);if(arr.length)PriceGen.seed(pair,arr[arr.length-1].c);
+}catch(e){console.warn('history',e)}
+await this.tryBecomeManager(key);
+const cq2=query(collection(db,'market',key,'candles'),orderBy('t','desc'),limit(50));
+this.candleUnsub=onSnapshot(cq2,snap=>{snap.docChanges().forEach(ch=>{const v=ch.doc.data();this.engine.applyRemote({t:v.t,o:v.o,h:v.h,l:v.l,c:v.c})});this.ui.onData()});
+this.liveUnsub=onSnapshot(doc(db,'market',key,'meta','live'),snap=>{if(!snap.exists())return;const v=snap.data();if(!this.isManager){const c={t:v.t,o:v.o,h:v.h,l:v.l,c:v.c},last=this.engine.candles[this.engine.candles.length-1];if(!last||last.t<c.t)this.engine.candles.push(c);else this.engine.candles[this.engine.candles.length-1]=c;PriceGen.seed(this.pair,c.c);this.ui.onData()}});
+this.mgrUnsub=onSnapshot(doc(db,'market',key,'meta','manager'),snap=>{const v=snap.exists()?snap.data():null,was=this.isManager;this.isManager=!!(v&&v.uid===this.uid);if(this.isManager&&!was)this.startTicking(key);if(!this.isManager&&was)this.stopTicking();this.ui.onRole(this.isManager,v)});
+}
+async tryBecomeManager(key){
+const r=doc(db,'market',key,'meta','manager');
+try{
+await runTransaction(db,async tx=>{
+const s=await tx.get(r);const now=U.now();
+if(!s.exists()){tx.set(r,{uid:this.uid,name:this.userName,alive:true,ts:now});return}
+const v=s.data();
+if(!v.uid||!v.alive||(now-(v.ts||0)>15000)){tx.set(r,{uid:this.uid,name:this.userName,alive:true,ts:now})}
+});
+}catch(e){console.warn('mgr tx',e)}
+}
+startTicking(key){
+if(this.tickTimer)clearInterval(this.tickTimer);
+this.tickTimer=setInterval(async()=>{
+if(!this.pair)return;
+const price=PriceGen.next(this.pair),r=this.engine.updateLive(price),live=this.engine.candles[this.engine.candles.length-1];
+try{await setDoc(doc(db,'market',key,'meta','live'),live)}catch(e){}
+if(r.isNew&&r.closed){try{await setDoc(doc(db,'market',key,'candles',String(r.closed.t)),r.closed)}catch(e){}}
+this.ui.onData();
+},250);
+this.hbTimer=setInterval(()=>{updateDoc(doc(db,'market',key,'meta','manager'),{ts:U.now(),alive:true}).catch(()=>{})},4000);
+}
+stopTicking(){if(this.tickTimer){clearInterval(this.tickTimer);this.tickTimer=null}if(this.hbTimer){clearInterval(this.hbTimer);this.hbTimer=null}}
+async releaseManager(){if(!this.isManager||!this.pair)return;const key=this.pairKey(this.pair);try{await setDoc(doc(db,'market',key,'meta','manager'),{uid:null,name:null,alive:false,ts:U.now()})}catch(e){}}
+stop(){this.stopTicking();if(this.isManager)this.releaseManager();if(this.candleUnsub){this.candleUnsub();this.candleUnsub=null}if(this.liveUnsub){this.liveUnsub();this.liveUnsub=null}if(this.mgrUnsub){this.mgrUnsub();this.mgrUnsub=null}this.isManager=false}
 }
 
-/* ============ UI CONTROLLER ============ */
 const UI={
-  engine:null,cam:null,render:null,input:null,pairMgr:null,dataMgr:null,
-  init(user){
-    this.engine=new CandleEngine();
-    this.cam=new Camera();
-    this.pairMgr=new PairManager();
-    const canvas=U.$('chartCanvas');
-    this.render=new RenderEngine(canvas,this.engine,this.cam);
-    this.render.onHover=c=>this.updateOHLC(c);
-    this.dataMgr=new DataManager(this.engine,this);
-    this.dataMgr.setUser(user.uid,user.displayName||user.email);
-    this.input=new InputManager(canvas,this.cam,this.render.co,
-      ()=>this.render.invalidate(),
-      (x,y)=>this.render.setCrosshair(x,y),
-      ()=>this.render.clearCrosshair()
-    );
-    this.bindUI();
-    this.pairMgr.load(user.uid).then(()=>{this.renderPairList();this.switchPair(this.pairMgr.current)});
-  },
-  bindUI(){
-    U.$('userName').textContent=auth.currentUser?.displayName||auth.currentUser?.email||'';
-    U.$('btnLogout').onclick=()=>signOut(auth);
-    U.$('zoomIn').onclick=()=>{this.cam.zoom(0.8,0.5);this.render.invalidate()};
-    U.$('zoomOut').onclick=()=>{this.cam.zoom(1.25,0.5);this.render.invalidate()};
-    U.$('resetView').onclick=()=>{this.cam.reset();this.render.invalidate()};
-    U.$('pairBtn').onclick=()=>U.$('pairMenu').classList.toggle('hidden');
-    document.addEventListener('click',e=>{if(!e.target.closest('.pair-selector'))U.$('pairMenu').classList.add('hidden')});
-    U.$('pairSearch').oninput=e=>this.renderPairList(e.target.value);
-    U.$('addPairBtn').onclick=async()=>{
-      const v=prompt('اسم الزوج (مثل: DOGE/USDT):');
-      if(!v)return;
-      const p=this.pairMgr.add(v);
-      await this.pairMgr.save(auth.currentUser.uid);
-      this.renderPairList();
-      this.switchPair(p);
-    };
-  },
-  renderPairList(filter=''){
-    const list=U.$('pairList');list.innerHTML='';
-    this.pairMgr.pairs.filter(p=>p.toLowerCase().includes(filter.toLowerCase())).forEach(p=>{
-      const el=document.createElement('div');
-      el.className='pair-item'+(p===this.pairMgr.current?' active':'');
-      el.innerHTML=`<span>${p}</span>${this.pairMgr.pairs.length>1?'<span class="rm" title="حذف">×</span>':''}`;
-      el.onclick=e=>{
-        if(e.target.classList.contains('rm')){
-          e.stopPropagation();
-          this.pairMgr.remove(p);
-          this.pairMgr.save(auth.currentUser.uid);
-          this.renderPairList(filter);
-          if(this.pairMgr.current!==this.dataMgr.pair)this.switchPair(this.pairMgr.current);
-          return;
-        }
-        this.switchPair(p);
-        U.$('pairMenu').classList.add('hidden');
-      };
-      list.appendChild(el);
-    });
-  },
-  async switchPair(p){
-    this.pairMgr.setCurrent(p);
-    await this.pairMgr.save(auth.currentUser.uid);
-    U.$('curPair').textContent=p;
-    U.$('statusText').textContent='تحميل '+p+'...';
-    this.cam.reset();
-    await this.dataMgr.switchPair(p);
-    U.$('statusText').textContent='متصل — '+p;
-    this.renderPairList();
-    this.onData();
-  },
-  onData(){
-    this.render.invalidate();
-    const last=this.engine.candles[this.engine.candles.length-1];
-    if(last){
-      const prev=this.engine.candles[this.engine.candles.length-2];
-      const up=!prev||last.c>=prev.c;
-      const el=U.$('curPrice');
-      const dec=last.c<1?4:2;
-      el.textContent=U.fmt(last.c,dec);
-      el.className='p'+(up?'':' down');
-      if(prev){
-        const ch=((last.c-prev.c)/prev.c*100);
-        U.$('curChange').textContent=(ch>=0?'+':'')+ch.toFixed(2)+'%';
-      }
-    }
-  },
-  onRole(isManager,mgr){
-    const b=U.$('roleBadge');
-    if(isManager){b.textContent='مدير الشارت';b.classList.remove('viewer')}
-    else{b.textContent=mgr&&mgr.name?'مشاهد ('+mgr.name+')':'مشاهد';b.classList.add('viewer')}
-  },
-  updateOHLC(c){
-    if(!c){U.$('ohlcO').textContent=U.$('ohlcH').textContent=U.$('ohlcL').textContent=U.$('ohlcC').textContent='—';U.$('ohlcT').textContent='—';return}
-    const d=c.c<1?4:2;
-    U.$('ohlcO').textContent=U.fmt(c.o,d);
-    U.$('ohlcH').textContent=U.fmt(c.h,d);
-    U.$('ohlcL').textContent=U.fmt(c.l,d);
-    U.$('ohlcC').textContent=U.fmt(c.c,d);
-    U.$('ohlcT').textContent=U.dateStr(c.t);
-  }
+engine:null,cam:null,render:null,input:null,pairMgr:null,dataMgr:null,
+init(user){
+this.engine=new CandleEngine();this.cam=new Camera();this.pairMgr=new PairManager();
+const canvas=U.$('chartCanvas');
+this.render=new RenderEngine(canvas,this.engine,this.cam);
+this.render.onHover=c=>this.updateOHLC(c);
+this.dataMgr=new DataManager(this.engine,this);
+this.dataMgr.setUser(user.uid,user.displayName||user.email);
+this.input=new InputManager(canvas,this.cam,this.render.co,()=>this.render.invalidate(),(x,y)=>this.render.setCrosshair(x,y),()=>this.render.clearCrosshair());
+this.bindUI();
+this.pairMgr.load(user.uid).then(()=>{this.renderPairList();this.switchPair(this.pairMgr.current)});
+window.addEventListener('beforeunload',()=>{if(this.dataMgr)this.dataMgr.releaseManager()});
+},
+bindUI(){
+U.$('userName').textContent=auth.currentUser?.displayName||auth.currentUser?.email||'';
+U.$('btnLogout').onclick=async()=>{if(this.dataMgr)await this.dataMgr.releaseManager();signOut(auth)};
+U.$('zoomIn').onclick=()=>{this.cam.zoom(0.8,0.5);this.render.invalidate()};
+U.$('zoomOut').onclick=()=>{this.cam.zoom(1.25,0.5);this.render.invalidate()};
+U.$('resetView').onclick=()=>{this.cam.reset();this.render.invalidate()};
+U.$('pairBtn').onclick=()=>U.$('pairMenu').classList.toggle('hidden');
+document.addEventListener('click',e=>{if(!e.target.closest('.pair-selector'))U.$('pairMenu').classList.add('hidden')});
+U.$('pairSearch').oninput=e=>this.renderPairList(e.target.value);
+U.$('addPairBtn').onclick=async()=>{const v=prompt('اسم الزوج (مثل: DOGE/USDT):');if(!v)return;const p=this.pairMgr.add(v);await this.pairMgr.save(auth.currentUser.uid);this.renderPairList();this.switchPair(p)};
+},
+renderPairList(filter=''){
+const list=U.$('pairList');list.innerHTML='';
+this.pairMgr.pairs.filter(p=>p.toLowerCase().includes(filter.toLowerCase())).forEach(p=>{
+const el=document.createElement('div');
+el.className='pair-item'+(p===this.pairMgr.current?' active':'');
+el.innerHTML=`<span>${p}</span>${this.pairMgr.pairs.length>1?'<span class="rm" title="حذف">×</span>':''}`;
+el.onclick=e=>{if(e.target.classList.contains('rm')){e.stopPropagation();this.pairMgr.remove(p);this.pairMgr.save(auth.currentUser.uid);this.renderPairList(filter);if(this.pairMgr.current!==this.dataMgr.pair)this.switchPair(this.pairMgr.current);return}this.switchPair(p);U.$('pairMenu').classList.add('hidden')};
+list.appendChild(el);
+});
+},
+async switchPair(p){
+this.pairMgr.setCurrent(p);
+await this.pairMgr.save(auth.currentUser.uid);
+U.$('curPair').textContent=p;
+U.$('statusText').textContent='تحميل '+p+'...';
+this.cam.reset();
+await this.dataMgr.switchPair(p);
+U.$('statusText').textContent='متصل — '+p;
+this.renderPairList();this.onData();
+},
+onData(){
+this.render.invalidate();
+const last=this.engine.candles[this.engine.candles.length-1];
+if(last){const prev=this.engine.candles[this.engine.candles.length-2],up=!prev||last.c>=prev.c,el=U.$('curPrice'),dec=last.c<1?4:2;el.textContent=U.fmt(last.c,dec);el.className='p'+(up?'':' down');if(prev){const ch=((last.c-prev.c)/prev.c*100);U.$('curChange').textContent=(ch>=0?'+':'')+ch.toFixed(2)+'%'}}
+},
+onRole(isManager,mgr){const b=U.$('roleBadge');if(isManager){b.textContent='مدير الشارت';b.classList.remove('viewer')}else{b.textContent=mgr&&mgr.name?'مشاهد ('+mgr.name+')':'مشاهد';b.classList.add('viewer')}},
+updateOHLC(c){if(!c){U.$('ohlcO').textContent=U.$('ohlcH').textContent=U.$('ohlcL').textContent=U.$('ohlcC').textContent='—';U.$('ohlcT').textContent='—';return}const d=c.c<1?4:2;U.$('ohlcO').textContent=U.fmt(c.o,d);U.$('ohlcH').textContent=U.fmt(c.h,d);U.$('ohlcL').textContent=U.fmt(c.l,d);U.$('ohlcC').textContent=U.fmt(c.c,d);U.$('ohlcT').textContent=U.dateStr(c.t)}
 };
 
-/* ============ AUTHENTICATION CONTROLLER ============ */
 const Auth={
-  init(){
-    U.$('toRegister').onclick=()=>{U.$('loginCard').classList.add('hidden');U.$('registerCard').classList.remove('hidden')};
-    U.$('toLogin').onclick=()=>{U.$('registerCard').classList.add('hidden');U.$('loginCard').classList.remove('hidden')};
-    U.$('btnLogin').onclick=()=>this.login();
-    U.$('btnRegister').onclick=()=>this.register();
-    [['loginEmail','loginPass','btnLogin'],['regName','regPass','btnRegister']].forEach(([a,b,c])=>{
-      const bEl=U.$(b);if(bEl)bEl.addEventListener('keydown',e=>{if(e.key==='Enter')U.$(c).click()});
-    });
-    onAuthStateChanged(auth,u=>{
-      if(u){U.$('authScreen').classList.add('hidden');U.$('app').classList.remove('hidden');UI.init(u)}
-      else{U.$('app').classList.add('hidden');U.$('authScreen').classList.remove('hidden');if(UI.dataMgr)UI.dataMgr.stop()}
-    });
-  },
-  async login(){
-    const e=U.$('loginEmail').value.trim(),p=U.$('loginPass').value;
-    const m=U.$('loginMsg');m.className='auth-msg';m.textContent='';
-    if(!e||!p){m.textContent='أدخل البريد وكلمة المرور';return}
-    try{await signInWithEmailAndPassword(auth,e,p)}
-    catch(err){m.textContent=this.err(err.code)}
-  },
-  async register(){
-    const n=U.$('regName').value.trim(),e=U.$('regEmail').value.trim(),p=U.$('regPass').value;
-    const m=U.$('regMsg');m.className='auth-msg';m.textContent='';
-    if(!n||!e||!p){m.textContent='املأ جميع الحقول';return}
-    if(p.length<6){m.textContent='كلمة المرور 6 أحرف على الأقل';return}
-    try{
-      const cred=await createUserWithEmailAndPassword(auth,e,p);
-      await updateProfile(cred.user,{displayName:n});
-      await set(ref(db,`users/${cred.user.uid}/profile`),{name:n,email:e,createdAt:U.now()});
-      m.className='auth-msg ok';m.textContent='تم إنشاء الحساب';
-    }catch(err){m.textContent=this.err(err.code)}
-  },
-  err(c){return {'auth/invalid-email':'بريد غير صالح','auth/user-not-found':'المستخدم غير موجود','auth/wrong-password':'كلمة مرور خاطئة','auth/invalid-credential':'بيانات غير صحيحة','auth/email-already-in-use':'البريد مستخدم بالفعل','auth/weak-password':'كلمة مرور ضعيفة','auth/network-request-failed':'خطأ في الشبكة'}[c]||'خطأ: '+c}
+init(){
+U.$('toRegister').onclick=()=>{U.$('loginCard').classList.add('hidden');U.$('registerCard').classList.remove('hidden')};
+U.$('toLogin').onclick=()=>{U.$('registerCard').classList.add('hidden');U.$('loginCard').classList.remove('hidden')};
+U.$('btnLogin').onclick=()=>this.login();
+U.$('btnRegister').onclick=()=>this.register();
+[['loginEmail','loginPass','btnLogin'],['regName','regPass','btnRegister']].forEach(([a,b,c])=>{const bEl=U.$(b);if(bEl)bEl.addEventListener('keydown',e=>{if(e.key==='Enter')U.$(c).click()})});
+onAuthStateChanged(auth,u=>{if(u){U.$('authScreen').classList.add('hidden');U.$('app').classList.remove('hidden');UI.init(u)}else{U.$('app').classList.add('hidden');U.$('authScreen').classList.remove('hidden');if(UI.dataMgr)UI.dataMgr.stop()}});
+},
+async login(){const e=U.$('loginEmail').value.trim(),p=U.$('loginPass').value,m=U.$('loginMsg');m.className='auth-msg';m.textContent='';if(!e||!p){m.textContent='أدخل البريد وكلمة المرور';return}try{await signInWithEmailAndPassword(auth,e,p)}catch(err){m.textContent=this.err(err.code)}},
+async register(){const n=U.$('regName').value.trim(),e=U.$('regEmail').value.trim(),p=U.$('regPass').value,m=U.$('regMsg');m.className='auth-msg';m.textContent='';if(!n||!e||!p){m.textContent='املأ جميع الحقول';return}if(p.length<6){m.textContent='كلمة المرور 6 أحرف على الأقل';return}try{const cred=await createUserWithEmailAndPassword(auth,e,p);await updateProfile(cred.user,{displayName:n});await setDoc(doc(db,'users',cred.user.uid),{profile:{name:n,email:e,createdAt:U.now()}},{merge:true});m.className='auth-msg ok';m.textContent='تم إنشاء الحساب'}catch(err){m.textContent=this.err(err.code)}},
+err(c){return{'auth/invalid-email':'بريد غير صالح','auth/user-not-found':'المستخدم غير موجود','auth/wrong-password':'كلمة مرور خاطئة','auth/invalid-credential':'بيانات غير صحيحة','auth/email-already-in-use':'البريد مستخدم بالفعل','auth/weak-password':'كلمة مرور ضعيفة','auth/network-request-failed':'خطأ في الشبكة'}[c]||'خطأ: '+c}
 };
-
 Auth.init();
 </script>
 </body>
