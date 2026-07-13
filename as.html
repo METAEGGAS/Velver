@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة المتصدرين</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --bg: #0d1015;
+    --panel: #12151c;
+    --line: rgba(255,255,255,0.07);
+    --text: #f3f5fa;
+    --text-dim: #8b93a7;
+    --green: #2fe08a;
+    --gold: #e6ba5c;
+    --silver: #c3c9d4;
+    --bronze: #d68a54;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    color: var(--text);
+  }
+
+  body { padding: 20px 12px 48px; }
+
+  .wrap { max-width: 560px; margin: 0 auto; }
+
+  .contest-id {
+    padding: 0 2px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.2px;
+  }
+  .contest-id b { color: var(--text); font-weight: 600; }
+
+  .summary {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 12px;
+  }
+  .cell-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .cell-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .cell-value.balance { color: var(--green); text-shadow: 0 0 14px rgba(47,224,138,0.35); }
+  .cell-value.id-val { font-size: 15px; color: var(--text); display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+  .cell.right { text-align: left; }
+  .flag-icon { width: 18px; height: 13px; object-fit: cover; border-radius: 2px; display: inline-block; box-shadow: 0 0 0 1px rgba(255,255,255,0.08); }
+
+  .summary-foot {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .summary-foot b { color: var(--text); font-weight: 600; }
+
+  .info-link {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: #6ea8e8;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: none;
+    width: 100%;
+    transition: border-color .15s ease, background .15s ease;
+    font-family: inherit;
+  }
+  .info-link:hover { border-color: rgba(110,168,232,0.35); background: rgba(110,168,232,0.04); }
+  .info-link svg { width: 14px; height: 14px; opacity: 0.85; }
+
+  .table {
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .thead {
+    display: grid;
+    grid-template-columns: 44px 1fr 120px;
+    padding: 9px 14px;
+    font-size: 11px;
+    color: var(--text-dim);
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--line);
+  }
+  .thead span:last-child { text-align: left; }
+  .thead span:first-child { text-align: center; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 44px 1fr 120px;
+    align-items: center;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child { border-bottom: none; }
+  .row:nth-child(even) { background: rgba(255,255,255,0.012); }
+
+  .rk {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-align: center;
+  }
+  .rk.n1 { color: var(--gold); }
+  .rk.n2 { color: var(--silver); }
+  .rk.n3 { color: var(--bronze); }
+
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+  }
+  .avatar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: #232838;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .avatar .fi {
+    width: 100%; height: 100%;
+    background-size: cover;
+    background-position: center;
+    border-radius: 0;
+  }
+  .name {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    color: var(--green);
+    text-shadow: 0 0 10px rgba(47,224,138,0.25);
+    direction: ltr;
+  }
+
+  footer.note {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 16px;
+  }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-sheet {
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #171a24;
+    border-radius: 22px 22px 0 0;
+    padding: 22px 20px 32px;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .modal-title-block {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .modal-title-text { text-align: right; }
+  .modal-eyebrow {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+  .modal-title {
+    font-size: 21px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #232838;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 12px;
+    flex-shrink: 0;
+  }
+  .icon-box .bar {
+    width: 7px;
+    border-radius: 3px;
+  }
+  .icon-box .bar:nth-child(1){ height: 14px; background: linear-gradient(180deg,#ffd76a,#f2a93c); }
+  .icon-box .bar:nth-child(2){ height: 22px; background: linear-gradient(180deg,#ffb84d,#e8791f); }
+  .icon-box .bar:nth-child(3){ height: 30px; background: linear-gradient(180deg,#ff9d4d,#d9631a); }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 4px;
+    line-height: 0;
+  }
+  .close-btn svg { width: 22px; height: 22px; }
+
+  .dashed-box {
+    border: 1.5px dashed rgba(255,255,255,0.18);
+    border-radius: 16px;
+    padding: 18px 16px;
+  }
+  .dashed-box p {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e5e8f0;
+  }
+  .bullets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .bullets li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e5e8f0;
+  }
+  .bullets li .txt { flex: 1; text-align: right; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #4f9bf0;
+    flex-shrink: 0;
+  }
+
+  .rank-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin: 24px 0 14px;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    border-radius: 6px;
+    background: #2a2f3d;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--green);
+    border-radius: 6px;
+  }
+
+  .rank-bottom-row {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14.5px;
+    color: #e5e8f0;
+  }
+  .rank-bottom-row .left-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rank-bottom-row .left-info b { font-weight: 700; color: #fff; }
+  .rank-bottom-row .right-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #fff;
+    direction: ltr;
+  }
+  .rank-bottom-row .right-info img {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="contest-id">
+    التداول <b>#90576590</b>
+  </div>
+
+  <div class="summary">
+    <div class="summary-grid">
+      <div class="cell">
+        <div class="cell-label">الرصيد الحالي</div>
+        <div class="cell-value balance">$0.00</div>
+      </div>
+      <div class="cell right">
+        <div class="cell-label">رقم الحساب</div>
+        <div class="cell-value id-val">#90576590</div>
+      </div>
+    </div>
+    <div class="summary-foot">
+      <span>مركزك في التصنيف</span>
+      <b>—</b>
+    </div>
+  </div>
+
+  <button class="info-link" id="infoLink">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+    كيف يعمل هذا التصنيف؟
+  </button>
+
+  <div class="table">
+    <div class="thead">
+      <span>#</span>
+      <span>المتداول</span>
+      <span>الربح</span>
+    </div>
+
+    <div class="row">
+      <div class="rk n1">1</div>
+      <div class="who"><div class="avatar"><span class="fi fi-in"></span></div><div class="name">Sangeeta</div></div>
+      <div class="amt">+$30,000.00</div>
+    </div>
+
+    <div class="row">
+      <div class="rk n2">2</div>
+      <div class="who"><div class="avatar"><span class="fi fi-ae"></span></div><div class="name">Milan Jain</div></div>
+      <div class="amt">+$30,000.00</div>
+    </div>
+
+    <div class="row">
+      <div class="rk n3">3</div>
+      <div class="who"><div class="avatar"><span class="fi fi-in"></span></div><div class="name">!! PRIME MESSI</div></div>
+      <div class="amt">+$30,000.00</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">4</div>
+      <div class="who"><div class="avatar"><span class="fi fi-in"></span></div><div class="name">#85239715</div></div>
+      <div class="amt">+$30,000.00</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">5</div>
+      <div class="who"><div class="avatar"><span class="fi fi-pe"></span></div><div class="name">JUAN TRADER</div></div>
+      <div class="amt">$26,586.30</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">6</div>
+      <div class="who"><div class="avatar"><span class="fi fi-ae"></span></div><div class="name">KS</div></div>
+      <div class="amt">$23,250.00</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">7</div>
+      <div class="who"><div class="avatar"><span class="fi fi-in"></span></div><div class="name">SP TRADING</div></div>
+      <div class="amt">$22,930.00</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">8</div>
+      <div class="who"><div class="avatar"><span class="fi fi-bd"></span></div><div class="name">Fb:Borhan Ahmed 444</div></div>
+      <div class="amt">$22,027.95</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">9</div>
+      <div class="who"><div class="avatar"><span class="fi fi-bd"></span></div><div class="name">Alveefx VIP Didar</div></div>
+      <div class="amt">$19,065.93</div>
+    </div>
+
+    <div class="row">
+      <div class="rk">10</div>
+      <div class="who"><div class="avatar"><span class="fi fi-pk"></span></div><div class="name">Hurairah Trades</div></div>
+      <div class="amt">$18,413.80</div>
+    </div>
+
+  </div>
+
+  <footer class="note">يتم تحديث التصنيف كل 24 ساعة</footer>
+</div>
+
+<!-- ===== Modal ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title-block">
+        <div class="icon-box">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <div class="modal-title-text">
+          <div class="modal-eyebrow">الأعلى</div>
+          <div class="modal-title">كيف يعمل؟</div>
+        </div>
+      </div>
+      <button class="close-btn" id="closeModal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="dashed-box">
+      <p>كل المتداولين على منصتنا للتداول يشاركون في هذا التصنيف. أهم متصدري التصنيف:</p>
+      <ul class="bullets">
+        <li><span class="txt">يتم حسابه يومياً، من الساعة 00:00 UTC إلى 23:59 UTC</span><span class="dot"></span></li>
+        <li><span class="txt">الانضمام متاح فقط لمن يتداول بوضع التداول الحقيقي</span><span class="dot"></span></li>
+        <li><span class="txt">يعتمد مركزك على مقدار الأموال التي جنيتها</span><span class="dot"></span></li>
+      </ul>
+    </div>
+
+    <div class="rank-section-title">تصنيفك في لوحة الصدارة</div>
+    <div class="progress-track"><div class="progress-fill"></div></div>
+
+    <div class="rank-bottom-row">
+      <div class="left-info">$0.00 <span>&bull;</span> مركزك: <b>-</b></div>
+      <div class="right-info">
+        <span>90576590</span>
+        <span class="fi fi-tr" style="width:20px;height:20px;border-radius:50%;background-size:cover;background-position:center;display:inline-block;"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('modalOverlay');
+  document.getElementById('infoLink').addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('closeModal').addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+</script>
+</body>
+</html>
