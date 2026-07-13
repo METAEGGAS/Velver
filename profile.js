@@ -119,12 +119,64 @@
     //  - إخفاء شاشة التحميل #gLoad نهائياً بحيث لا تظهر أي علامة تحميل عند
     //    فتح الصفحة (طلب صريح من المستخدم).
     //  - زر الرجوع العلوي (.fx-back-btn) داخل .fx-root.
+    // ==========================================================
+    //  overrides صارمة لضمان عرض صحيح داخل حاوية الحاقن (FXER).
+    //  السبب: التطبيق الأم (FXER) يملك قواعد CSS عامة (على .tx / .t1 / .t2 /
+    //  .vc / .vcr / .btn ... إلخ) قد تتسرَّب إلى داخل .fx-root وتُخرِّب
+    //  التخطيط الأصلي (خاصةً في صفحة "التحقق من الحساب" #vf). لذلك نُعيد
+    //  فرض قواعد التصميم الأصلي كاملةً وبـ !important بحيث تُهزَم أيَّ
+    //  قاعدة متسرِّبة من CSS الأم.
+    //
+    //  كذلك: نُحوِّل .ov من position:fixed إلى position:absolute حتى يبقى
+    //  overlay قسم التحقق (وأخواته) محصوراً داخل .fx-root ولا يغطي شريط
+    //  التنقل السفلي للتطبيق FXER أو غيره من عناصر الواجهة الأم.
+    // ==========================================================
     var overrides =
+      // --- بنية الجذر ---
       '.fx-root{position:relative;width:100%;height:100%;min-height:100%;overflow:hidden;display:block}' +
       '.fx-root .p{height:100%;min-height:0;max-width:none;margin:0}' +
       '.fx-root .pk{position:absolute;inset:0}' +
       '.fx-root .sc{-webkit-overflow-scrolling:touch;overflow-y:auto;overscroll-behavior:contain}' +
       '.fx-root #gLoad{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}' +
+
+      // --- Overlays (.ov): يجب أن تكون absolute داخل .fx-root، لا fixed ---
+      '.fx-root .ov{position:absolute!important;inset:0!important;background:#0a1328!important;z-index:99!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch}' +
+      '.fx-root .ov.on{display:block!important}' +
+      '.fx-root .vp{max-width:640px!important;margin:auto!important;min-height:100%!important;padding:18px 18px 26px!important;position:relative!important;display:flex!important;flex-direction:column!important;background:linear-gradient(180deg,#0c1427,#0b1631 28%,#0a1328)!important;box-sizing:border-box!important}' +
+
+      // --- Header داخل صفحة التحقق (.vt / .vtl / .vd) ---
+      '.fx-root .vt{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:22px!important;gap:10px}' +
+      '.fx-root .vtl{display:flex!important;align-items:center!important;gap:10px!important;font-size:16.2px!important;font-weight:600!important;color:#c9d3ea!important}' +
+      '.fx-root .vtl .bk{width:22px!important;height:22px!important;color:#cfd6e6!important;cursor:pointer!important;flex-shrink:0}' +
+      '.fx-root .vd{width:26px!important;height:26px!important;object-fit:contain!important;cursor:pointer!important;flex-shrink:0}' +
+      '.fx-root .vi{color:#c8d0e0!important;font-size:13.5px!important;line-height:1.75!important;margin-bottom:18px!important;padding:0 2px!important;text-align:right}' +
+
+      // --- بطاقات مراحل التحقق (.vc / .vcr / .tx / .t1 / .t2 / .ar / .ok-b) ---
+      // إعادة فرض تخطيط أفقي بين المحتوى اليمين (.vcr) والسهم (.ar) على اليسار،
+      // ثم تخطيط أفقي داخل .vcr بين الأيقونة والنص، وتخطيط عمودي بين t1 و t2.
+      '.fx-root .vc{background:#122142!important;border-radius:14px!important;padding:16px 18px!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;margin-bottom:12px!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)!important;cursor:pointer!important;width:100%!important;box-sizing:border-box!important;gap:12px}' +
+      '.fx-root .vc.dis{opacity:.55!important;cursor:default!important}' +
+      '.fx-root .vcr{display:flex!important;flex-direction:row!important;align-items:center!important;gap:14px!important;flex:1 1 auto!important;min-width:0!important}' +
+      '.fx-root .vcr img{width:30px!important;height:30px!important;object-fit:contain!important;flex-shrink:0!important;display:block!important}' +
+      '.fx-root .vcr .tx{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:3px!important;min-width:0!important;flex:1 1 auto!important;text-align:right!important}' +
+      '.fx-root .vcr .tx .t1{display:block!important;font-size:14.4px!important;font-weight:600!important;color:#fff!important;line-height:1.35!important;margin:0!important;padding:0!important;text-align:right!important;width:100%}' +
+      '.fx-root .vcr .tx .t2{display:block!important;font-size:11.7px!important;color:#9aa8c4!important;margin:3px 0 0 0!important;padding:0!important;line-height:1.35!important;font-weight:400!important;text-align:right!important;width:100%}' +
+      '.fx-root .vcr .tx .t2.ok{color:#22c78a!important}' +
+      '.fx-root .vc .ar{width:14px!important;height:14px!important;color:#cfd6e6!important;flex-shrink:0!important;display:block!important}' +
+      // ملاحظة: لا نُفرض display على .ok-b لأن style="display:none" المُدمج يضبطها
+      // ويُظهرها JS فقط عندما تكتمل المرحلة.
+      '.fx-root .vc .ok-b{width:26px;height:26px;border-radius:50%;place-items:center;flex-shrink:0}' +
+      '.fx-root .vc .ok-b img{width:26px;height:26px;display:block}' +
+
+      // --- زر "استمرار" الرئيسي داخل صفحة التحقق ---
+      '.fx-root .vp .btn{display:block!important;width:100%!important;margin:22px 0 0 0!important;background:#ff7a00!important;color:#fff!important;border:0!important;border-radius:14px!important;padding:16px!important;font:800 14.85px "Noto Sans Arabic",sans-serif!important;cursor:pointer!important;box-shadow:0 8px 22px rgba(255,122,0,.28)!important;text-align:center!important}' +
+      '.fx-root .vp .btn.dis{opacity:.55!important;box-shadow:none!important;cursor:not-allowed!important}' +
+
+      // --- نصوص عامة تُعاد بشكلها البلوكي لتجنُّب flex-leak من الأم ---
+      '.fx-root .vp>*{box-sizing:border-box}' +
+      '.fx-root .vp .btn+.btn{margin-top:10px!important}' +
+
+      // --- زر الرجوع العام لبطاقة الحاقن ---
       '.fx-back-btn{position:absolute;top:14px;left:14px;width:36px;height:36px;border-radius:10px;background:rgba(26,39,69,.85);display:grid;place-items:center;cursor:pointer;z-index:9999;border:1px solid rgba(255,255,255,.06);-webkit-tap-highlight-color:transparent;transition:background .15s ease,transform .12s ease}' +
       '.fx-back-btn:hover{background:rgba(38,55,92,.95)}' +
       '.fx-back-btn:active{transform:scale(.94)}' +
