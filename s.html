@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء حساب</title>
+
+<style>
+body{
+    margin:0;
+    background:#111827;
+    font-family:Arial,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    width:340px;
+    background:#1f2937;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+}
+
+h2{
+    color:#fff;
+    margin-bottom:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border:none;
+    border-radius:8px;
+    outline:none;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#msg{
+    margin-top:15px;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>إنشاء حساب</h2>
+
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+
+    <input type="password" id="password" placeholder="كلمة المرور">
+
+    <button id="signupBtn">
+        إنشاء الحساب
+    </button>
+
+    <div id="msg"></div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+import {
+    getAuth,
+    createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCByaF2b12YEgcLzv6d_nEsWcLCrC01DUo",
+    authDomain: "tjzjjzjzjzjj.firebaseapp.com",
+    projectId: "tjzjjzjzjzjj",
+    storageBucket: "tjzjjzjzjzjj.firebasestorage.app",
+    messagingSenderId: "848285325167",
+    appId: "1:848285325167:web:eebea72ff2f1f908b17a9a",
+    measurementId: "G-CC3XCXMT89"
+};
+
+const app = initializeApp(firebaseConfig);
+getAnalytics(app);
+
+const auth = getAuth(app);
+
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const msg = document.getElementById("msg");
+
+document.getElementById("signupBtn").onclick = async () => {
+
+    msg.innerHTML = "جاري إنشاء الحساب...";
+
+    try{
+
+        const userCredential =
+            await createUserWithEmailAndPassword(
+                auth,
+                email.value,
+                password.value
+            );
+
+        msg.style.color="#22c55e";
+        msg.innerHTML="✅ تم إنشاء الحساب بنجاح";
+
+        console.log(userCredential.user);
+
+    }catch(e){
+
+        msg.style.color="#ef4444";
+        msg.innerHTML=e.code;
+
+        console.error(e);
+
+    }
+
+};
+
+</script>
+
+</body>
+</html>
