@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Pro Chart</title><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;background:#0d1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;color:#d1d4dc}#wrap{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column}#bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#131722;border-bottom:1px solid #1e222d;flex-wrap:wrap;gap:8px}#sym{font-weight:600;font-size:15px;color:#f0f3fa}#info{display:flex;gap:14px;font-size:12px;flex-wrap:wrap}.pill{display:flex;flex-direction:column;gap:2px}.pill span:first-child{color:#787b86;font-size:10px;text-transform:uppercase}.pill span:last-child{font-weight:600}.up{color:#26a69a}.dn{color:#ef5350}#chart{flex:1;width:100%;position:relative}</style></head><body><div id="wrap"><div id="bar"><div id="sym">BTC/USDT · 1m</div><div id="info"><div class="pill"><span>O</span><span id="o">-</span></div><div class="pill"><span>H</span><span id="h">-</span></div><div class="pill"><span>L</span><span id="l">-</span></div><div class="pill"><span>C</span><span id="c">-</span></div><div class="pill"><span>Change</span><span id="ch">-</span></div></div></div><div id="chart"></div></div><script src="https://unpkg.com/lightweight-charts@5.0.7/dist/lightweight-charts.standalone.production.js"></script><script>
+(()=>{const {createChart,CandlestickSeries,CrosshairMode}=LightweightCharts;
+const el=document.getElementById('chart');
+const chart=createChart(el,{layout:{background:{type:'solid',color:'#0d1117'},textColor:'#d1d4dc',fontSize:12,attributionLogo:false},grid:{vertLines:{color:'#1e222d'},horzLines:{color:'#1e222d'}},crosshair:{mode:CrosshairMode.Normal,vertLine:{color:'#787b86',width:1,style:3,labelBackgroundColor:'#2962ff'},horzLine:{color:'#787b86',width:1,style:3,labelBackgroundColor:'#2962ff'}},rightPriceScale:{borderColor:'#1e222d',scaleMargins:{top:0.1,bottom:0.1}},timeScale:{borderColor:'#1e222d',timeVisible:true,secondsVisible:false,rightOffset:12,barSpacing:8,minBarSpacing:0.5},handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:true},handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},autoSize:true,kineticScroll:{touch:true,mouse:false}});
+const series=chart.addSeries(CandlestickSeries,{upColor:'#26a69a',downColor:'#ef5350',borderUpColor:'#26a69a',borderDownColor:'#ef5350',wickUpColor:'#26a69a',wickDownColor:'#ef5350',priceFormat:{type:'price',precision:2,minMove:0.01}});
+
+// ==== Data Feed Abstraction (استبدل هذا لاحقاً بـ Firebase/WebSocket) ====
+const Feed={
+  interval:60,// ثانية لكل شمعة
+  price:65000,
+  trend:0,
+  vol:0.0008,
+  bars:[],
+  now(){return Math.floor(Date.now()/1000)},
+  bucket(t){return t-(t%this.interval)},
+  // توليد شمعة تاريخية واقعية
+  genHistorical(count){
+    let t=this.bucket(this.now())-count*this.interval;
+    let p=this.price;
+    for(let i=0;i<count;i++){
+      const o=p;
+      // ترند متغير
+      if(Math.random()<0.03)this.trend=(Math.random()-0.5)*0.001;
+      const drift=this.trend;
+      const steps=20;
+      let h=o,l=o,c=o;
+      for(let s=0;s<steps;s++){
+        const r=(Math.random()-0.5)*this.vol*2;
+        c=c*(1+r+drift/steps);
+        if(c>h)h=c;if(c<l)l=c;
+      }
+      // ذيول
+      h*=1+Math.random()*this.vol*0.5;
+      l*=1-Math.random()*this.vol*0.5;
+      this.bars.push({time:t,open:o,high:h,low:l,close:c});
+      p=c;
+      t+=this.interval;
+    }
+    this.price=p;
+    return this.bars;
+  },
+  // شمعة حية - تحديث كل ثانية
+  tick(){
+    const t=this.now();
+    const b=this.bucket(t);
+    let last=this.bars[this.bars.length-1];
+    // شمعة جديدة عند بدء دقيقة جديدة
+    if(!last||b>last.time){
+      const openPrice=last?last.close:this.price;// افتتاح = إغلاق السابقة (لا فجوات)
+      last={time:b,open:openPrice,high:openPrice,low:openPrice,close:openPrice};
+      this.bars.push(last);
+      // تغيير الترند أحياناً
+      if(Math.random()<0.15)this.trend=(Math.random()-0.5)*0.0008;
+    }
+    // حركة سعر واقعية داخل الشمعة
+    const r=(Math.random()-0.5)*this.vol*1.2+this.trend*0.3;
+    const newPrice=last.close*(1+r);
+    last.close=newPrice;
+    if(newPrice>last.high)last.high=newPrice;
+    if(newPrice<last.low)last.low=newPrice;
+    this.price=newPrice;
+    return last;
+  },
+  // نقاط التوسع المستقبلية:
+  // subscribeRealtime(cb){ /* Firebase.onValue أو ws.onmessage → cb(bar) */ }
+  // loadHistorical(from,to){ /* fetch من API حقيقي */ }
+};
+
+// ==== Rendering ====
+const $o=document.getElementById('o'),$h=document.getElementById('h'),$l=document.getElementById('l'),$c=document.getElementById('c'),$ch=document.getElementById('ch');
+const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function updateInfo(b,prev){
+  $o.textContent=fmt(b.open);$h.textContent=fmt(b.high);$l.textContent=fmt(b.low);$c.textContent=fmt(b.close);
+  const base=prev?prev.close:b.open;
+  const diff=b.close-base;const pct=(diff/base*100);
+  const cls=diff>=0?'up':'dn';const sign=diff>=0?'+':'';
+  $c.className=cls;$ch.className=cls;
+  $ch.textContent=`${sign}${fmt(diff)} (${sign}${pct.toFixed(2)}%)`;
+}
+
+// تحميل البيانات التاريخية
+const hist=Feed.genHistorical(500);
+series.setData(hist);
+chart.timeScale().scrollToRealTime();
+updateInfo(hist[hist.length-1],hist[hist.length-2]);
+
+// التحديث الحي كل ثانية
+setInterval(()=>{
+  const bar=Feed.tick();
+  series.update(bar);// update يعالج الشمعة الحية والجديدة تلقائياً
+  const prev=Feed.bars[Feed.bars.length-2];
+  updateInfo(bar,prev);
+},1000);
+
+// منع zoom الصفحة على الموبايل مع الحفاظ على zoom الشارت
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('dblclick',e=>e.preventDefault());
+})();
+</script></body></html>
