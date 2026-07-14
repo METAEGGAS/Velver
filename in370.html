@@ -1,0 +1,2527 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1730" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>FXER - Trading Chart</title>
+
+<!-- ============================================================
+     TradingView Lightweight Charts (Official CDN) - KEPT FROM ORIGINAL
+     ============================================================ -->
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+
+<!-- ============================================================
+     Firebase SDK v12 (App + Auth + Firestore)
+     - Auth : للتحقق من جلسة المستخدم
+     - Firestore : لمزامنة currentIndex العالمي بين جميع الأجهزة
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQIKQ5swu_XnVtqET0B9EelRKFjr0LXHI",
+    authDomain: "ksksjsh-724f2.firebaseapp.com",
+    projectId: "ksksjsh-724f2",
+    storageBucket: "ksksjsh-724f2.firebasestorage.app",
+    messagingSenderId: "1046924412561",
+    appId: "1:1046924412561:web:1a40834236da75d0d6e130",
+    measurementId: "G-5D3YJQDH8B"
+  };
+
+  const app       = initializeApp(firebaseConfig);
+  try { getAnalytics(app); } catch(e) { /* analytics قد لا يعمل في بيئات معينة */ }
+  const auth      = getAuth(app);
+  const firestore = getFirestore(app);
+
+  // نُصدِّر ما يحتاجه بقية الكود إلى الـ window حتى يستطيع النص العادي (non-module) استخدامه.
+  window.FIREBASE = {
+    app,
+    auth,
+    firestore,
+    onAuthStateChanged,
+    doc,
+    getDoc,
+    setDoc,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp,
+    ready: true
+  };
+
+  // إشعار بقية الكود بأن Firebase جاهز (لأن module قد يُحمَّل بعد DOMContentLoaded).
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<style>
+  /* ============================================================
+     DESIGN COPIED VERBATIM FROM REFERENCE FILE
+     (erg_modV3ified_firestore_leaderboard.html)
+     - Colors, sizing, spacing, radii, borders, layout
+     - NO business logic, no data, only visual design
+     ============================================================ */
+  :root{
+    --u:#0d1730;
+    --bd:#223252;
+  }
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    margin:0;
+    padding:0;
+  }
+  body,html{
+    height:100%;
+    overflow:hidden;
+  }
+  body{
+    background:var(--u);
+    color:#eef5ff;
+    user-select:none;
+    font:500 11px/1.15 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+  }
+
+  /* -------- APP CONTAINER -------- */
+  .app{
+    background:var(--u);
+    width:100vw;
+    height:100dvh;
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-top:env(safe-area-inset-top);
+    flex-direction:column;
+    display:flex;
+    position:relative;
+  }
+
+  /* -------- TOP BAR (balance + bonus) -------- */
+  .top{
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:5px 5px 3px;
+    display:flex;
+  }
+  .tc{
+    background:var(--u);
+    border:1px solid var(--bd);
+    direction:ltr;
+    border-radius:8px;
+    max-width:255px;
+    padding:3px 8px;
+  }
+  .t1{
+    align-items:center;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .lg{
+    align-items:center;
+    display:flex;
+    gap:6px;
+  }
+  .d{
+    color:#fff;
+    background:#f1ad24;
+    border-radius:4px;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font:800 12px/1 system-ui;
+    display:grid;
+  }
+  .nm{
+    color:#fff;
+    white-space:nowrap;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:500;
+    display:flex;
+  }
+  .nm b{
+    color:#f1ad24;
+    font-size:13px;
+    font-weight:600;
+    line-height:1;
+  }
+  .t2{
+    align-items:center;
+    display:flex;
+    color:#ffcf54;
+    margin-top:2px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:.2px;
+  }
+  .usd{
+    color:#ffcf54;
+    border:1px solid #8d6b1f;
+    border-radius:4px;
+    margin-left:6px;
+    padding:1px 5px;
+    font-size:8px;
+    line-height:1;
+  }
+  .dd{
+    color:#f1ad24;
+    margin-top:-4px;
+    font-size:16px;
+    font-weight:600;
+    line-height:1;
+  }
+  .fxBonus{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:#6429D8;
+    border-radius:8px;
+    padding:4px 8px;
+    color:#fff;
+    font-size:9px;
+    font-weight:600;
+    line-height:1.15;
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(100,41,216,.35);
+    white-space:normal;
+    text-align:center;
+    max-width:110px;
+  }
+  .fxBonus img{
+    width:18px;
+    height:18px;
+    flex:none;
+    filter:brightness(0) invert(1);
+  }
+  .dep{
+    color:#f1ad24;
+    text-align:center;
+    cursor:pointer;
+    font-size:9px;
+    line-height:1.05;
+  }
+  .dep img{
+    filter:brightness(0) saturate(1) invert(72%) sepia(58%) saturate(720%) hue-rotate(360deg) brightness(97%) contrast(94%);
+    width:32px;
+    height:32px;
+    margin:0 auto 3px;
+    display:block;
+  }
+
+  /* -------- ASSET / PAIR ROW -------- */
+  .asset{
+    align-items:center;
+    display:grid;
+    z-index:20;
+    direction:ltr;
+    flex:none;
+    grid-template-rows:32px;
+    grid-template-columns:32px 132px;
+    place-content:start;
+    column-gap:3px;
+    padding:3px 5px 4px;
+    position:relative;
+  }
+  .sq{
+    color:#cad6eb;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    flex:none;
+    grid-area:1/1;
+    place-items:center;
+    width:32px;
+    height:32px;
+    font-size:22px;
+    display:grid;
+  }
+  .pair{
+    background:var(--u);
+    border:1px solid var(--bd);
+    z-index:21;
+    pointer-events:auto;
+    touch-action:manipulation;
+    border-radius:7px;
+    flex:none;
+    grid-area:1/2;
+    align-items:center;
+    gap:6px;
+    width:132px;
+    height:32px;
+    padding:0 8px;
+    display:flex;
+    position:relative;
+    cursor:pointer;
+  }
+  .fg{
+    flex:none;
+    width:30px;
+    height:17px;
+    position:relative;
+  }
+  .fg em{
+    background:#fff;
+    border-radius:50%;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font-size:11px;
+    font-style:normal;
+    display:grid;
+    position:absolute;
+    top:0;
+  }
+  .fg .c{ left:0; }
+  .fg .j{ left:12px; }
+  .pair small{
+    color:#ffffff94;
+    margin-bottom:1px;
+    font-size:7px;
+    display:block;
+  }
+  .pair b{
+    color:#fff;
+    font-size:12px;
+  }
+
+  /* -------- CHART CONTAINER -------- */
+  .chart{
+    /* يمتد الشارت بعرض الشاشة كاملاً، وينتهي قبل شريط الأدوات السفلي (شريط الأسعار السفلي يمتد للآخر عادي). */
+    background:transparent;
+    touch-action:none;
+    flex:1 1 0;
+    min-height:0;
+    width:100vw;
+    max-width:100vw;
+    margin-top:0;
+    margin-inline:0;
+    position:relative;
+    overflow:hidden;
+  }
+  /* طبقة الشارت نفسها تملأ المساحة كاملة من اليمين إلى اليسار. */
+  #chart{
+    width:100%;
+    height:100%;
+    display:block;
+    position:absolute;
+    inset:0;
+    background:transparent;
+  }
+
+  /* -------- FLOATING PRICE LABELS OVERLAY --------
+     شريط أسعار عائم: أرقام فقط بدون خلفية، بدون حواف، بدون ظل، بدون بادينج.
+     يقع فوق الشارت في الجانب الأيمن، مع مرور الشموع والجريد أسفله بحرية. */
+  .price-overlay{
+    position:absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    width:56px;
+    pointer-events:none;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    margin:0;
+    z-index:5;
+    overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  }
+  .price-overlay .pl{
+    position:absolute;
+    right:4px;
+    transform:translateY(-50%);
+    color:#f1ad24;
+    font-size:9px;
+    line-height:1;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    margin:0;
+    white-space:nowrap;
+    direction:ltr;
+    text-align:right;
+  }
+  .price-overlay .pl.live{
+    color:#ffffff;
+    font-weight:600;
+    font-size:10px;
+  }
+  /* علامة الزوم (Zoom debug) مخفية كلياً بناءً على طلب المستخدم */
+  .zoomDebug{ display:none !important; }
+  .ptm{
+    z-index:6;
+    pointer-events:none;
+    direction:ltr;
+    background:0 0;
+    border:0;
+    justify-content:flex-start;
+    align-items:center;
+    gap:6px;
+    width:auto;
+    height:34px;
+    padding:0;
+    display:flex;
+    position:absolute;
+    top:41px;
+    left:8px;
+    right:auto;
+  }
+  .pi{
+    color:#fff;
+    background:#2196f3;
+    border-radius:50%;
+    flex:none;
+    place-items:center;
+    width:18px;
+    height:18px;
+    font:800 12px/1 system-ui;
+    display:grid;
+  }
+  .ptx{
+    flex-direction:column;
+    line-height:1;
+    display:flex;
+  }
+  .ptx b, .ptx small{
+    color:#8a99a8;
+    font-weight:700;
+  }
+  .ptx b{ font-size:11px; }
+  .ptx small{ margin-top:3px; font-size:10px; }
+  .pg{
+    background:#10b981;
+    border-radius:50%;
+    flex:none;
+    width:10px;
+    height:10px;
+    box-shadow:0 0 0 2px #0d173099;
+  }
+
+  /* -------- ZOOM DEBUG READOUT (temporary calibration helper) -------- */
+  .zoomDebug{
+    z-index:7;
+    pointer-events:none;
+    direction:ltr;
+    background:0 0;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    color:#9aa9ba;
+    font-size:9px;
+    font-weight:700;
+    white-space:nowrap;
+    position:absolute;
+    top:41px;
+    right:8px;
+  }
+
+  /* -------- BOTTOM CHART TOOLBAR (.bar) -------- */
+  .bar{
+    background:var(--u);
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:center;
+    gap:4px;
+    height:30px;
+    padding:0 7px;
+    display:flex;
+  }
+  .inf,.pm,.tfb,.tool{
+    color:#c7d5ef;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    flex:none;
+    place-items:center;
+    height:22px;
+    display:grid;
+  }
+  .inf,.pm,.tool{
+    cursor:pointer;
+    width:22px;
+    font-size:12px;
+  }
+  .pm img{
+    object-fit:contain;
+    filter:brightness(0) saturate(1) invert(86%) sepia(12%) saturate(448%) hue-rotate(184deg) brightness(93%) contrast(93%);
+    width:14px;
+    height:14px;
+  }
+  .tfs{
+    flex:1;
+    grid-template-columns:repeat(4,1fr);
+    gap:4px;
+    display:grid;
+  }
+  .tfb{
+    cursor:pointer;
+    font-size:11px;
+  }
+  .tfb.on{
+    color:#56a0ff;
+    border-color:#2b568c;
+    font-weight:800;
+  }
+
+  /* -------- CTRL (time + amount rows) -------- */
+  .ctrl{
+    flex:none;
+    padding:3px 3px 0;
+  }
+  .rw{
+    direction:ltr;
+    gap:3px;
+    display:flex;
+    height:34px;
+  }
+  .rw2{
+    direction:ltr;
+    gap:3px;
+    display:flex;
+    height:33px;
+    margin-top:3px;
+  }
+  .bx,.bx3{
+    background:var(--u);
+    border:1px solid #1e2a43;
+  }
+  .bx{
+    color:#fff;
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    display:flex;
+  }
+  .bx3{
+    color:#dbe7ff;
+    justify-content:center;
+    align-items:center;
+    width:36px;
+    font-size:17px;
+    display:flex;
+  }
+  .bx .bx3{
+    border-top:0;
+    border-bottom:0;
+    height:100%;
+  }
+  .mid,.val{
+    text-align:center;
+    flex:1;
+    font-size:12px;
+  }
+
+  /* -------- ACTIONS ROW (buy / sell buttons) -------- */
+  .acts{
+    flex:none;
+    gap:3px;
+    padding:3px;
+    display:flex;
+  }
+  .btn{
+    color:#fff;
+    text-align:left;
+    border:0;
+    flex:1;
+    height:54px;
+    padding:7px 10px;
+    position:relative;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn b{
+    letter-spacing:.5px;
+    font-size:15px;
+  }
+  .btn .rt{
+    font-size:12px;
+    font-weight:800;
+    position:absolute;
+    top:7px;
+    right:10px;
+  }
+  .btn i{
+    opacity:.9;
+    margin-top:3px;
+    font-size:9px;
+    font-style:normal;
+    display:block;
+  }
+  .btn small{
+    font-size:12px;
+    position:absolute;
+    bottom:7px;
+    right:10px;
+  }
+  .up{
+    background:linear-gradient(#21c965,#109a4a);
+    border-radius:0 0 0 7px;
+  }
+  .dn{
+    background:linear-gradient(#ff4f4f,#d81f1f);
+    border-radius:0 0 7px;
+  }
+
+  /* -------- BOTTOM NAV -------- */
+  .nav{
+    background:var(--u);
+    direction:ltr;
+    border-top:1px solid #111b31;
+    flex:none;
+    height:50px;
+    display:flex;
+  }
+  .ni{
+    color:#7d8fae;
+    cursor:pointer;
+    flex-direction:column;
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    gap:3px;
+    display:flex;
+    position:relative;
+  }
+  .ni img{
+    object-fit:contain;
+    opacity:.7;
+    width:19px;
+    height:19px;
+  }
+  .ni span{ font-size:9px; }
+  .ni.a{ color:#3e8cff; }
+  .ni.a img{ opacity:1; }
+  .ni.a:before{
+    content:"";
+    background:#2f84ff;
+    height:3px;
+    position:absolute;
+    top:0;
+    left:12%;
+    right:12%;
+  }
+
+  /* ============================================================
+     UPLOAD / LOADING OVERLAY - KEPT FROM ORIGINAL PROJECT
+     (only re-skinned to match reference palette)
+     ============================================================ */
+  .overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(13,23,48,0.95);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    flex-direction:column;
+    gap:20px;
+  }
+  .overlay.hidden{ display:none; }
+  .upload-box{
+    background:var(--u);
+    border:2px dashed var(--bd);
+    border-radius:12px;
+    padding:30px 40px;
+    text-align:center;
+    max-width:460px;
+    transition:all .2s;
+  }
+  .upload-box:hover, .upload-box.drag{
+    border-color:#3e8cff;
+    background:#111a35;
+  }
+  .upload-box h2{
+    font-size:16px;
+    margin-bottom:8px;
+    color:#eef5ff;
+  }
+  .upload-box p{
+    font-size:12px;
+    color:#8a99b8;
+    margin-bottom:16px;
+    line-height:1.6;
+  }
+  .file-input-btn{
+    background:#2796e8;
+    color:#fff;
+    padding:9px 22px;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+    font-family:inherit;
+  }
+  .file-input-btn:hover{ background:#1e88e5; }
+  .url-input{
+    width:100%;
+    padding:8px 12px;
+    margin-top:10px;
+    background:#0d1730;
+    border:1px solid var(--bd);
+    color:#eef5ff;
+    border-radius:6px;
+    font-size:12px;
+    font-family:inherit;
+  }
+  .divider{
+    color:#5a6883;
+    font-size:11px;
+    margin:12px 0;
+  }
+  .loading-spinner{
+    border:3px solid var(--bd);
+    border-top-color:#3e8cff;
+    border-radius:50%;
+    width:36px;
+    height:36px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loading-text{ color:#c7d5ef; font-size:12px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-track{ background:var(--u); }
+  ::-webkit-scrollbar-thumb{ background:var(--bd); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#2a3a5a; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ TOP BAR (balance + bonus + deposit) ============ -->
+  <div class="top">
+    <div class="tc">
+      <div class="t1">
+        <div class="lg">
+          <span class="d">D</span>
+          <span class="nm"><span>الخيار</span><b>demo</b></span>
+        </div>
+        <span class="dd">▾</span>
+      </div>
+      <div class="t2">
+        <span id="topBalance">$ 29,960.00</span>
+        <span class="usd">USD</span>
+      </div>
+    </div>
+    <div class="fxBonus">
+      <img src="https://cdn-icons-png.flaticon.com/128/6941/6941697.png" alt="" />
+      <span>احصل على مكافأة 50% علي ايداعك</span>
+    </div>
+    <div class="dep">
+      <img alt="" src="https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_deposit_2x.png" />
+      شحن الرصيد
+    </div>
+  </div>
+
+  <!-- ============ ASSET / PAIR ============ -->
+  <div class="asset">
+    <div class="sq">📊</div>
+    <div class="pair" id="pairBtn">
+      <div class="fg">
+        <em class="c">🇪🇺</em>
+        <em class="j">🇺🇸</em>
+      </div>
+      <div>
+        <small>UP & DOWN</small>
+        <b id="symbolLabel">—</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CHART ============ -->
+  <div class="chart" id="CH">
+    <div id="chart"></div>
+    <!-- Floating transparent price labels layer -->
+    <div class="price-overlay" id="priceOverlay"></div>
+
+    <!-- Time / status floating label (matches reference .ptm) -->
+    <div class="ptm">
+      <span class="pi">i</span>
+      <div class="ptx">
+        <b id="ptmH">—</b>
+        <small id="statusText">في انتظار البيانات</small>
+      </div>
+      <span class="pg"></span>
+    </div>
+
+    <!-- Zoom debug readout: shows live bar spacing + min/max reached, for calibrating zoom limits later -->
+    <div class="zoomDebug" id="zoomDebug">Zoom: —</div>
+
+    <!-- Loading Overlay (auto-load only, no upload UI) -->
+    <div class="overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">جاري تحميل البيانات...</div>
+    </div>
+  </div>
+
+  <!-- ============ BAR (tools + timeframes) ============ -->
+  <div class="bar">
+    <div class="tool" id="btnReload" title="تحميل CSV">↻</div>
+    <div class="tool" id="btnFit" title="ملائمة">⛶</div>
+    <div class="tfs" id="tfButtons">
+      <div class="tfb on" data-tf="1m">1m</div>
+      <div class="tfb" data-tf="5m">5m</div>
+      <div class="tfb" data-tf="15m">15m</div>
+      <div class="tfb" data-tf="1h">1H</div>
+    </div>
+    <div class="inf" id="btnLive" title="Live">●</div>
+  </div>
+
+  <!-- ============ CTRL (time / amount rows) ============ -->
+  <div class="ctrl">
+    <div class="rw">
+      <div class="bx3" id="tmM">-</div>
+      <div class="bx cp" id="tOpen">
+        <div class="mid" id="tVal">00:01:00</div>
+      </div>
+      <div class="bx3" id="tmP">+</div>
+    </div>
+    <div class="rw2">
+      <div class="bx cp" id="aOpen">
+        <div class="bx3" id="amM">-</div>
+        <div class="val" id="aVal">$ 23</div>
+        <div class="bx3" id="amP">+</div>
+      </div>
+      <div class="bx">
+        <div class="bx3">-</div>
+        <div class="val" id="livePrice">0.00000</div>
+        <div class="bx3">+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ACTS (BUY / SELL buttons) ============ -->
+  <div class="acts">
+    <button class="btn up" id="btnBuy">
+      <b>UP</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p1">$ 21.39</small>
+    </button>
+    <button class="btn dn" id="btnSell">
+      <b>DOWN</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p2">$ 21.39</small>
+    </button>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="nav">
+    <div class="ni a">
+      <img src="https://i.ibb.co/Rpz3mRPf/69.png" alt="" />
+      <span>الرسم البياني</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/PsZW7C4x/68.png" alt="" />
+      <span>ترتيب</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/m5hRKGpS/67.png" alt="" />
+      <span id="statsText">السجل</span>
+    </div>
+    <div class="ni">
+      <span style="font-size:16px">👤</span>
+      <span>الملف</span>
+    </div>
+  </div>
+
+  <!-- Hidden helper: close-all positions button (kept from original for functionality) -->
+  <button id="btnCloseAll" style="display:none"></button>
+  <div id="positionsList" style="display:none"></div>
+</div>
+
+<script>
+/* ===============================================================
+ *  Professional Trading Chart System
+ *  Powered by TradingView Lightweight Charts v4
+ *  ---------------------------------------------------------------
+ *  ORIGINAL LOGIC PRESERVED — ONLY DESIGN RESKINNED
+ *  CSV loading pipeline is UNCHANGED.
+ * =============================================================== */
+
+
+/* ===============================================================
+ *  1. TICK_PARSER  (NEW — replaces the old M1 CSV_PARSER)
+ *  --------------------------------------------------------------
+ *  يقرأ ملف Tick Data ويستخرج قائمة الـTicks الخام.
+ *  كل Tick = { time (epoch ثانية), price (رقم عائم) }.
+ *
+ *  التنسيقات المدعومة (يتم اكتشاف الفاصل و الأعمدة تلقائياً):
+ *   - timestamp, bid, ask [, volume]
+ *   - timestamp, price [, volume]
+ *   - datetime, bid, ask, volume        (HistData tick)
+ *   - YYYYMMDD HHMMSSmmm, bid, ask, vol (HistData tick 4 columns)
+ *
+ *  التاريخ يمكن أن يكون:
+ *   - epoch بالثواني أو الملّي ثانية
+ *   - YYYY.MM.DD,HH:MM:SS[.SSS]
+ *   - YYYYMMDD HHMMSS[fff]
+ *   - YYYY-MM-DD HH:MM:SS[.SSS]
+ *
+ *  ملاحظة: تُبقي هذه الوحدة قواعد التوقيت الأصلية للمشروع
+ *  (+5h offset في parseHistDataDate) للحفاظ على نفس عرض الوقت
+ *  على الشارت.
+ * =============================================================== */
+const TICK_PARSER = (() => {
+
+  /* التاريخ الحقلي التقليدي لملفات HistData: يُعيد epoch بالثواني
+     مع نفس الـoffset (+5h) المستخدم في الإصدار السابق للحفاظ على
+     تطابق التصميم والوقت المعروض. */
+  const parseHistDataDate = (raw) => {
+    raw = String(raw).trim();
+    let y, mo, d, h = 0, mi = 0, s = 0, ms = 0;
+
+    if (raw.includes('.') && raw.includes(',')) {
+      // 2024.01.02,10:15:30.123
+      const [dp, tp] = raw.split(',');
+      const [yy, mm, dd] = dp.split('.');
+      y = +yy; mo = +mm - 1; d = +dd;
+      if (tp) {
+        const [hh, min, secRaw] = tp.split(':');
+        h = +hh; mi = +min;
+        if (secRaw != null) {
+          if (secRaw.includes('.')) {
+            const [ss, mss] = secRaw.split('.');
+            s = +ss; ms = +((mss || '0').padEnd(3, '0').slice(0, 3));
+          } else {
+            s = +secRaw;
+          }
+        }
+      }
+    } else if (raw.includes('-') && raw.includes(':')) {
+      // 2024-01-02 10:15:30.123  أو  2024-01-02T10:15:30
+      const norm = raw.replace('T', ' ');
+      const [dp, tp] = norm.split(/\s+/);
+      const [yy, mm, dd] = dp.split('-');
+      y = +yy; mo = +mm - 1; d = +dd;
+      if (tp) {
+        const [hh, min, secRaw] = tp.split(':');
+        h = +hh; mi = +min;
+        if (secRaw != null) {
+          if (secRaw.includes('.')) {
+            const [ss, mss] = secRaw.split('.');
+            s = +ss; ms = +((mss || '0').padEnd(3, '0').slice(0, 3));
+          } else {
+            s = +secRaw;
+          }
+        }
+      }
+    } else {
+      // 20240102 101530  أو  20240102 101530123
+      const parts = raw.split(/\s+/);
+      const date = parts[0];
+      const time = parts[1] || '000000';
+      y  = +date.substr(0, 4);
+      mo = +date.substr(4, 2) - 1;
+      d  = +date.substr(6, 2);
+      h  = +time.substr(0, 2);
+      mi = +time.substr(2, 2);
+      s  = +time.substr(4, 2) || 0;
+      if (time.length > 6) ms = +time.substr(6, 3) || 0;
+    }
+    // نُبقي على نفس الـoffset (+5h) الموجود في الإصدار السابق للحفاظ
+    // على نفس التوقيت المعروض على الشارت.
+    return Math.floor(Date.UTC(y, mo, d, h, mi, s, ms) / 1000) + (5 * 3600);
+  };
+
+  /* اكتشاف الفاصل تلقائياً */
+  const detectDelimiter = (line) => {
+    if (line.includes(';')) return ';';
+    if (line.includes(',')) return ',';
+    if (line.includes('\t')) return '\t';
+    return ';';
+  };
+
+  /* حاول تحويل حقل التاريخ إلى epoch (ثانية). يدعم: أرقام epoch (s/ms)،
+     أو صيغ التاريخ النصية المذكورة في parseHistDataDate. */
+  const parseTimeCell = (raw, secondCell) => {
+    if (raw == null) return NaN;
+    const s = String(raw).trim();
+    if (!s) return NaN;
+
+    // إذا كان رقماً بحتاً → epoch ثانية أو ملّي ثانية
+    if (/^\d+(?:\.\d+)?$/.test(s)) {
+      const n = +s;
+      if (!isFinite(n)) return NaN;
+      // >1e12 → ms، وإلا ثانية
+      return n > 1e12 ? Math.floor(n / 1000) : Math.floor(n);
+    }
+
+    // صيغ HistData (تاريخ + وقت في عمودين منفصلين مفصولين بفاصلة)
+    if (s.includes('.') && secondCell && /^\d{1,2}:/.test(String(secondCell))) {
+      return parseHistDataDate(s + ',' + String(secondCell).trim());
+    }
+
+    // صيغ متعددة الأشكال
+    try { return parseHistDataDate(s); } catch (e) { return NaN; }
+  };
+
+  /* التحليل الرئيسي — يُرجع قائمة Ticks مرتبة زمنياً */
+  const parse = (rawText) => {
+    if (!rawText || typeof rawText !== 'string')
+      throw new Error('Empty tick content');
+
+    const lines = rawText.split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (lines.length === 0) throw new Error('No data rows in tick file');
+
+    // تجاهل سطر رأس (header) إن كان نصياً غير رقمي
+    let startIdx = 0;
+    const firstLine = lines[0];
+    if (/[a-zA-Z]{2,}/.test(firstLine) && !/^\d{4}[-\.\/]/.test(firstLine)) {
+      startIdx = 1;
+    }
+
+    const delim = detectDelimiter(lines[startIdx] || firstLine);
+
+    const ticks = [];
+    for (let i = startIdx; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const cols = line.split(delim).map(s => s.trim());
+      if (cols.length < 2) continue;
+
+      let time = NaN, price = NaN;
+
+      try {
+        // Case A: تاريخ + وقت في عمودين منفصلين + bid + ask (HistData tick 4 cols)
+        //         مثال: 2024.01.02,10:15:30.123, 1.10123, 1.10125, 0
+        if (cols.length >= 4 && cols[0].includes('.') && /:/.test(cols[1])) {
+          time = parseTimeCell(cols[0], cols[1]);
+          const bid = +cols[2];
+          const ask = +cols[3];
+          if (isFinite(bid) && isFinite(ask) && bid > 0 && ask > 0) {
+            price = (bid + ask) / 2;
+          } else if (isFinite(bid) && bid > 0) {
+            price = bid;
+          }
+        }
+        // Case B: timestamp, bid, ask [, volume]
+        else if (cols.length >= 3) {
+          time = parseTimeCell(cols[0]);
+          const a = +cols[1];
+          const b = +cols[2];
+          if (isFinite(a) && isFinite(b) && a > 0 && b > 0) {
+            price = (a + b) / 2;   // bid/ask → mid
+          } else if (isFinite(a) && a > 0) {
+            price = a;             // timestamp, price [, volume]
+          }
+        }
+        // Case C: timestamp, price
+        else if (cols.length === 2) {
+          time = parseTimeCell(cols[0]);
+          price = +cols[1];
+        }
+
+        if (!isFinite(time) || !isFinite(price) || price <= 0) continue;
+        ticks.push({ time: time, price: price });
+      } catch (err) { continue; }
+    }
+
+    if (ticks.length === 0)
+      throw new Error('No valid ticks parsed. Check file format.');
+
+    ticks.sort((a, b) => a.time - b.time);
+    return ticks;
+  };
+
+  return { parse };
+})();
+
+
+/* ===============================================================
+ *  1.5  TICK_AGGREGATOR  (NEW)
+ *  --------------------------------------------------------------
+ *  يحوّل قائمة Ticks الخام إلى بنية بيانات مجمَّعة حسب الدقيقة
+ *  لتوفير وصول سريع إلى Ticks كل دقيقة (يُبنى مرة واحدة فقط).
+ *
+ *  يبني:
+ *    - buckets[]     : كل عنصر  = { minuteEpoch, ticks:[{time,price},...] }
+ *                      لكل دقيقة *فقط* تحتوي على Ticks (بلا فجوات في المصفوفة)
+ *                      لكنه *يمثّل* الدقائق كما تُقدَّم فعلياً.
+ *                      الدقائق الفارغة لا تُدرج كعنصر منفصل — بدلاً من ذلك
+ *                      يُملأ الفراغ عبر propagation عند البناء (see below).
+ *
+ *  الاختيار التصميمي: نبني قائمة "دقائق فعلية" مرتبطة بـ currentIndex.
+ *  currentIndex يشير إلى بنود buckets. الدقائق التي لا تحتوي على Ticks:
+ *  لا نُدرجها كعنصر مستقل (وإلا سنكسر التسلسل بشمعة بلا حركة). هذا يحافظ
+ *  على معنى: "currentIndex = 20 → 20 شمعة مكتملة" لأن كل شمعة تُبنى من
+ *  Ticks حقيقية.
+ *
+ *  في حال أراد المستخدم مستقبلاً إدراج شموع "فارغة" للدقائق الميتة،
+ *  يمكن ضبط INCLUDE_EMPTY_MINUTES = true؛ عندها ستُضاف شمعة فارغة
+ *  (open=high=low=close=آخر إغلاق) بلا Ticks ولا حركة داخل الدقيقة.
+ * =============================================================== */
+const TICK_AGGREGATOR = (() => {
+  /* true  = تُدرج الدقائق التي لا تحتوي على Ticks كشموع فارغة
+              (تبقى ثابتة عند آخر سعر إغلاق).
+     false = تُتجاهَل الدقائق الفارغة تماماً (currentIndex يمثّل
+              فقط الدقائق التي حصل فيها نشاط سوق). */
+  const INCLUDE_EMPTY_MINUTES = false;
+
+  /* aggregate: من قائمة Ticks الخام → قائمة buckets الدقائق. */
+  const aggregate = (ticks) => {
+    if (!Array.isArray(ticks) || ticks.length === 0) return [];
+
+    // نتوقّع أن الـTicks مرتبة أصلاً — لكن نضمن ذلك.
+    const sorted = ticks.slice().sort((a, b) => a.time - b.time);
+
+    if (!INCLUDE_EMPTY_MINUTES) {
+      const map = new Map();
+      for (const t of sorted) {
+        const minEpoch = Math.floor(t.time / 60) * 60;
+        let arr = map.get(minEpoch);
+        if (!arr) { arr = []; map.set(minEpoch, arr); }
+        arr.push(t);
+      }
+      const buckets = Array.from(map.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([minuteEpoch, arr]) => ({ minuteEpoch, ticks: arr }));
+      return buckets;
+    }
+
+    // فرع اختياري: إدراج الدقائق الفارغة بين أول وآخر دقيقة.
+    const firstMin = Math.floor(sorted[0].time / 60) * 60;
+    const lastMin  = Math.floor(sorted[sorted.length - 1].time / 60) * 60;
+    const map = new Map();
+    for (const t of sorted) {
+      const minEpoch = Math.floor(t.time / 60) * 60;
+      let arr = map.get(minEpoch);
+      if (!arr) { arr = []; map.set(minEpoch, arr); }
+      arr.push(t);
+    }
+    const buckets = [];
+    for (let m = firstMin; m <= lastMin; m += 60) {
+      const arr = map.get(m) || [];
+      buckets.push({ minuteEpoch: m, ticks: arr });
+    }
+    return buckets;
+  };
+
+  /* بناء شمعة OHLC كاملة من مجموعة Ticks (مغلقة). إن كانت الدقيقة
+     فارغة → نُعيد شمعة "محافظة" مبنية على prevClose (لن يحدث هذا
+     في الوضع الافتراضي INCLUDE_EMPTY_MINUTES=false). */
+  const buildClosedCandle = (bucket, prevClose) => {
+    const t = bucket.minuteEpoch;
+    if (!bucket.ticks || bucket.ticks.length === 0) {
+      const px = (typeof prevClose === 'number' && isFinite(prevClose)) ? prevClose : 0;
+      return { time: t, open: px, high: px, low: px, close: px, volume: 0 };
+    }
+    let open = bucket.ticks[0].price;
+    let high = open, low = open, close = open;
+    for (const tk of bucket.ticks) {
+      if (tk.price > high) high = tk.price;
+      if (tk.price < low)  low  = tk.price;
+      close = tk.price;
+    }
+    return { time: t, open, high, low, close, volume: bucket.ticks.length };
+  };
+
+  /* بناء "شمعة جزئية" (نشطة) من أول k من Ticks في bucket. k=0 → شمعة
+     ابتدائية عند open. */
+  const buildPartialCandle = (bucket, upToTickIdx /* inclusive; -1 = قبل أي tick */) => {
+    const t = bucket.minuteEpoch;
+    if (!bucket.ticks || bucket.ticks.length === 0) {
+      return { time: t, open: 0, high: 0, low: 0, close: 0, volume: 0 };
+    }
+    const open = bucket.ticks[0].price;
+    let high = open, low = open, close = open;
+    const limit = Math.max(0, Math.min(upToTickIdx, bucket.ticks.length - 1));
+    for (let i = 0; i <= limit; i++) {
+      const p = bucket.ticks[i].price;
+      if (p > high) high = p;
+      if (p < low)  low  = p;
+      close = p;
+    }
+    return { time: t, open, high, low, close, volume: limit + 1 };
+  };
+
+  /* من buckets[] → مصفوفة شموع M1 مغلقة لجميع الدقائق (تُستخدم كمصدر
+     لـ CANDLE_ENGINE لتجميع الأُطر الزمنية الأخرى). */
+  const bucketsToM1 = (buckets) => {
+    const out = [];
+    let prevClose = 0;
+    for (const b of buckets) {
+      const c = buildClosedCandle(b, prevClose);
+      out.push(c);
+      prevClose = c.close;
+    }
+    return out;
+  };
+
+  return {
+    aggregate,
+    buildClosedCandle,
+    buildPartialCandle,
+    bucketsToM1,
+    INCLUDE_EMPTY_MINUTES
+  };
+})();
+
+
+/* ===============================================================
+ *  2. DATA_LOADER  (REPLACED — now loads Tick Data instead of M1)
+ *  --------------------------------------------------------------
+ *  - loadFromUrl : يقرأ ملف Tick Data من الشبكة مرة واحدة.
+ *  - loadFromFiles : يقرأ ملفات محلية (زر ↻ / اختيار يدوي).
+ *  - بعد التحميل: يبني بنية buckets الدقائق للوصول السريع.
+ *  - getBuckets  : buckets الدقائق (كل عنصر يحتوي على Ticks الحقيقية).
+ *  - getM1       : شموع M1 المغلقة لكل الدقائق (متوافق مع بقية المشروع).
+ * =============================================================== */
+const DATA_LOADER = (() => {
+  let _tickCache = [];     // Ticks الخام
+  let _buckets   = [];     // buckets الدقائق
+  let _m1Cache   = [];     // شموع M1 المغلقة لكل الدقائق (مبنية من buckets)
+  let _symbol    = 'UNKNOWN';
+
+  const detectSymbolFromName = (name) => {
+    const m = name.match(/DAT_[A-Z]+_([A-Z]{6,7})_/i);
+    if (m) return m[1].toUpperCase();
+    const m2 = name.match(/([A-Z]{6,7})/);
+    return m2 ? m2[1].toUpperCase() : 'CUSTOM';
+  };
+
+  const _buildFromTicks = (ticks) => {
+    _tickCache = ticks;
+    _buckets   = TICK_AGGREGATOR.aggregate(ticks);
+    _m1Cache   = TICK_AGGREGATOR.bucketsToM1(_buckets);
+  };
+
+  const loadFromFiles = async (fileList) => {
+    const all = [];
+    for (const f of fileList) {
+      _symbol = detectSymbolFromName(f.name);
+      const text = await f.text();
+      const parsed = TICK_PARSER.parse(text);
+      all.push(...parsed);
+    }
+    all.sort((a, b) => a.time - b.time);
+    _buildFromTicks(all);
+    return {
+      ticks:   _tickCache,
+      buckets: _buckets,
+      candles: _m1Cache,
+      symbol:  _symbol
+    };
+  };
+
+  const loadFromUrl = async (url) => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} loading ${url}`);
+    const text = await res.text();
+    _symbol = detectSymbolFromName(url.split('/').pop() || 'CUSTOM');
+    const parsed = TICK_PARSER.parse(text);
+    _buildFromTicks(parsed);
+    return {
+      ticks:   _tickCache,
+      buckets: _buckets,
+      candles: _m1Cache,
+      symbol:  _symbol
+    };
+  };
+
+  const getTicks   = () => _tickCache;
+  const getBuckets = () => _buckets;
+  const getM1      = () => _m1Cache;
+  const getSymbol  = () => _symbol;
+
+  return { loadFromFiles, loadFromUrl, getTicks, getBuckets, getM1, getSymbol };
+})();
+
+
+/* ===============================================================
+ *  3. CANDLE_ENGINE  (UNCHANGED)
+ * =============================================================== */
+const CANDLE_ENGINE = (() => {
+  const TF_SECONDS = {
+    '1m': 60, '5m': 5*60, '15m': 15*60, '30m': 30*60,
+    '1h': 60*60, '4h': 4*60*60, '1D': 24*60*60,
+  };
+  const alignTime = (t, sec) => Math.floor(t / sec) * sec;
+  const aggregate = (m1, tf) => {
+    const sec = TF_SECONDS[tf];
+    if (!sec) throw new Error(`Unknown TF: ${tf}`);
+    if (tf === '1m') return m1.slice();
+    const out = [];
+    let bucket = null;
+    for (const c of m1) {
+      const alignedT = alignTime(c.time, sec);
+      if (!bucket || bucket.time !== alignedT) {
+        if (bucket) out.push(bucket);
+        bucket = { time: alignedT, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 };
+      } else {
+        bucket.high   = Math.max(bucket.high, c.high);
+        bucket.low    = Math.min(bucket.low,  c.low);
+        bucket.close  = c.close;
+        bucket.volume += (c.volume || 0);
+      }
+    }
+    if (bucket) out.push(bucket);
+    return out;
+  };
+  const getTFSeconds = (tf) => TF_SECONDS[tf];
+  const listTFs = () => Object.keys(TF_SECONDS);
+  return { aggregate, getTFSeconds, listTFs, alignTime };
+})();
+
+
+/* ===============================================================
+ *  4. TICK_PLAYER  (REPLACES FAKE_PRICE_GENERATOR)
+ *  --------------------------------------------------------------
+ *  يعيد تشغيل Ticks الحقيقية للدقيقة النشطة بنفس ترتيبها الزمني
+ *  الحقيقي، بحيث تتكوّن الشمعة بنفس الشكل والحركة التي حدثت في
+ *  السوق فعلياً.
+ *
+ *  - يقتصر على bucket واحد فقط (الدقيقة النشطة = currentIndex).
+ *  - يوزّع Ticks على الدقيقة الجدارية (wall-clock minute) الحالية:
+ *      * الدقيقة تُغلق عند بداية الدقيقة الجدارية التالية (anchor+1).
+ *      * حركة الـTicks تُعرض بترتيبها الزمني الحقيقي:
+ *          - إذا كانت الـticks الأصلية تحمل timestamps داخل الدقيقة،
+ *            تُعرض بنفس المسافات الزمنية النسبية (elapsedFractional).
+ *          - إذا كانت جميعها بنفس الطابع الزمني، يُوزّع كل tick
+ *            بالتساوي على مدى الدقيقة.
+ *  - عند استهلاك جميع Ticks + بلوغ حدّ الدقيقة → onClose(closedCandle).
+ *  - APP هو من يقرر ما إذا كان سيقدّم currentIndex عبر Firestore.
+ *
+ *  ملاحظة توافق: نُبقي على الاسم القديم FAKE_PRICE_GEN كـalias حتى
+ *  لا نمسّ أي جزء آخر من الكود يستخدمه. لا حركة اصطناعية إطلاقاً.
+ * =============================================================== */
+const TICK_PLAYER = (() => {
+  let _timer = null;
+  let _running = false;
+  let _onTick = null;
+  let _onClose = null;
+
+  let _bucket = null;             // { minuteEpoch, ticks:[{time,price}] }
+  let _bucketT = 0;               // = _bucket.minuteEpoch (وقت الشمعة على الشارت)
+  let _tickIdx = -1;              // آخر tick تم تطبيقه (-1 = لم يُطبَّق أي tick بعد)
+  let _price = 0;
+  let _open  = 0;
+  let _high  = 0;
+  let _low   = 0;
+
+  let _startWallMs = 0;           // ms الجداري عند بداية الدقيقة النشطة
+  let _closeAtMs   = 0;           // ms الجداري عند حدّ الغلق
+  let _closedFired = false;
+
+  // أوقات نسبية للـTicks داخل الدقيقة (0..1). تُحسب مرة واحدة عند start().
+  let _tickFracs = [];
+
+  /* حساب مواضع الـTicks النسبية داخل الدقيقة.
+     -----------------------------------------------------------------
+     تحسين بصري (لا يمسّ البيانات الحقيقية):
+     نضمن أن يكون بين كل tick والذي يليه مسافة زمنية كافية لعرض
+     حركة انتقالية سلسة. لذلك نحوّل التوزيع دائماً إلى توزيع منتظم
+     على مدى الدقيقة، بحيث كل جزء زمني بين tick و tick التالي
+     يستغرق (60s / n) — وهو ما يمنح الـinterpolation نافذة كافية
+     لإظهار خطوات صغيرة سلسة بدل قفزات.
+     ملاحظة أمان: هذا يؤثّر فقط على *توقيت* عرض الـticks الحقيقية،
+     ولا يغيّر قيم OHLC أو ترتيب الـticks أو أي بيانات حقيقية.
+     الشمعة تُغلق دائماً عند حد الدقيقة الجدارية وبنفس آخر tick حقيقي. */
+  const _computeFractions = (bucket) => {
+    const arr = bucket.ticks || [];
+    if (arr.length === 0) return [];
+    const n = arr.length;
+    if (n === 1) return [0];
+    // توزيع منتظم من 0 إلى (n-1)/n بحيث يحصل آخر tick على نافذة
+    // انتقالية أيضاً قبل قفل الدقيقة.
+    return arr.map((_, i) => i / n);
+  };
+
+  /* بناء الشمعة الحالية بناءً على _tickIdx (شاملاً).
+     يقبل overrideClose اختياري لعرض سعر إغلاق مُنعَّم (interpolated) بصرياً
+     فقط، دون المسّ بقيم OHLC الحقيقية المخزَّنة. القيود المضمونة:
+       - overrideClose يُستخدم فقط لخانة close المعروضة.
+       - high/low تبقى كما بُنيت من Ticks الحقيقية → لا يتجاوز الرسم
+         النطاق الحقيقي إطلاقاً.
+       - عند وصول Tick حقيقي جديد أو عند نهاية الدقيقة، نُرجع close إلى
+         سعر Tick الحقيقي (مطابقة 100% للبيانات النهائية). */
+  const _buildCurrent = (overrideClose) => {
+    if (!_bucket) return { time: _bucketT, open: _open, high: _high, low: _low, close: _price, volume: 0 };
+    const c = TICK_AGGREGATOR.buildPartialCandle(_bucket, _tickIdx);
+    if (typeof overrideClose === 'number' && isFinite(overrideClose)) {
+      // نُقيِّد overrideClose داخل [low, high] الحقيقيتين للشمعة الجزئية
+      // كضمان إضافي بألا يتجاوز أي شيء نطاق البيانات الحقيقية.
+      let cc = overrideClose;
+      if (cc > c.high) cc = c.high;
+      if (cc < c.low)  cc = c.low;
+      c.close = cc;
+    }
+    return c;
+  };
+
+  /* دالة تنعيم (smoothstep) لجعل الانتقال بين tick والذي يليه أكثر طبيعية
+     (تسارع/تباطؤ خفيف) بدلاً من خط مستقيم صارم. لا تؤثر على أي قيمة
+     نهائية — تُستخدم فقط لتحديد close البصري بين ticks. */
+  const _ease = (t) => {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return t * t * (3 - 2 * t);
+  };
+
+  /* المؤقّت الرئيسي — يتقدّم tick واحد فقط في كل مرة يحين وقتها،
+     ويعرض حركة انتقالية سلسة (interpolation) بين كل tick والذي يليه
+     داخل النطاق الحقيقي للشمعة، دون تغيير أي قيمة نهائية.
+     -----------------------------------------------------------------
+     الفرق عن السلوك السابق:
+       - السابق كان يستهلك جميع الـticks المستحقّة دفعة واحدة داخل نفس
+         الإطار (while loop)، مما يجعل الشمعة تقفز بين ticks متتالية
+         دون إظهار حركة انتقالية بينها.
+       - الآن نستهلك tick واحداً فقط لكل إطار عندما يحين وقته، ثم نُنعِّم
+         السعر تدريجياً حتى fraction الـtick التالي. النتيجة: بدل قفزة
+         مباشرة من 1.164360 → 1.164340، نمرّ بصريّاً بقيم وسيطة
+         (1.164355, 1.164350, ...) تعتمد على الوقت المنقضي فقط، دون أن
+         نضيف أي نقطة بيانات جديدة إلى الـticks الحقيقية.
+     ضمانات:
+       - جميع قيم OHLC النهائية للشمعة تُبنى حصراً من ticks حقيقية.
+       - القيمة الوسيطة تُعرض في close فقط، ومُقيَّدة في _buildCurrent
+         داخل [low, high] الحقيقيتين → لا قمم/قيعان مصطنعة.
+       - عند إغلاق الشمعة يُستهلَك أي tick متبقٍّ ويعود close إلى آخر
+         tick حقيقي بالضبط (لا override). */
+  const _timerFn = () => {
+    if (!_running || !_bucket) return;
+
+    const nowMs = Date.now();
+    const elapsedMs = Math.max(0, nowMs - _startWallMs);
+    const totalMs   = Math.max(1, _closeAtMs - _startWallMs);   // = 60000 عادةً
+    const frac      = Math.min(1, elapsedMs / totalMs);
+
+    const ticks = _bucket.ticks || [];
+
+    /* اعتماد tick واحد فقط لكل إطار عندما يحين وقته.
+       ملاحظة: إذا تأخّر الموقّت (تبويب خامل مثلاً) وتراكمت عدة ticks
+       مستحقّة، سنعتمدها في إطارات متتالية متلاحقة (كل 25ms) — وهذا
+       يعطي تأثيراً بصرياً سريعاً لكن غير قافز، ثم يواصل بعدها الحركة
+       الانتقالية الطبيعية. */
+    if (_tickIdx + 1 < ticks.length && _tickFracs[_tickIdx + 1] <= frac) {
+      _tickIdx++;
+      const p = ticks[_tickIdx].price;
+      _price = p;
+      if (_tickIdx === 0) {
+        _open = p; _high = p; _low = p;
+      } else {
+        if (p > _high) _high = p;
+        if (p < _low)  _low  = p;
+      }
+    }
+
+    /* ==== حركة انتقالية سلسة بين آخر tick تم تطبيقه والـtick التالي ====
+       - قبل أول tick: نعرض سعر أول tick (لا حركة زائفة).
+       - بعد آخر tick: نلتزم بسعر آخر tick حقيقي (لا تخمين).
+       - غير ذلك: نُنعِّم close من pCur إلى pNext حسب موضع الوقت النسبي.
+       القيمة الناتجة تُمرَّر إلى _buildCurrent الذي يُقيِّدها داخل
+       [low, high] الحقيقيتين المبنيّتين من ticks فعلية. */
+    let interpClose;
+    if (_tickIdx < 0) {
+      interpClose = (ticks.length > 0) ? ticks[0].price : _price;
+    } else if (_tickIdx + 1 >= ticks.length) {
+      interpClose = _price;
+    } else {
+      const pCur   = _price;                    // سعر آخر tick حقيقي مُطبَّق
+      const pNext  = ticks[_tickIdx + 1].price; // سعر tick التالي (حقيقي)
+      const fCur   = _tickFracs[_tickIdx];
+      const fNext  = _tickFracs[_tickIdx + 1];
+      const seg    = fNext - fCur;
+      let   local  = (seg > 0) ? (frac - fCur) / seg : 1;
+      if (local < 0) local = 0;
+      if (local > 1) local = 1;
+      const k = _ease(local);
+      interpClose = pCur + (pNext - pCur) * k;
+    }
+
+    // أطلق onTick في كل إطار لعرض القيمة الوسيطة السلسة على الشارت.
+    if (_onTick) {
+      const cur = _buildCurrent(interpClose);
+      _onTick(cur);
+    }
+
+    // بلوغ حدّ الدقيقة → إغلاق. نضمن أولاً استهلاك جميع الـTicks المتبقية.
+    if (!_closedFired && nowMs >= _closeAtMs) {
+      // استهلك أي tick متبقٍّ (لضمان بناء شمعة كاملة حتى لو تأخّر المؤقت).
+      while (_tickIdx + 1 < ticks.length) {
+        _tickIdx++;
+        const p = ticks[_tickIdx].price;
+        _price = p;
+        if (_tickIdx === 0) { _open = p; _high = p; _low = p; }
+        else {
+          if (p > _high) _high = p;
+          if (p < _low)  _low  = p;
+        }
+      }
+      _closedFired = true;
+      // عند الإغلاق: لا override — الإغلاق = سعر آخر tick حقيقي تماماً.
+      const closed = _buildCurrent();
+      // شمعة "تالية" افتراضية للـ chart (تبدأ من نفس سعر الإغلاق).
+      // سيُعيد APP بناء الشارت بعد نجاح advance() ليعرض الشمعة الحقيقية من bucket التالية.
+      const nextT = _bucketT + 60;
+      const newCandle = { time: nextT, open: _price, high: _price, low: _price, close: _price, volume: 0 };
+      if (_onClose) _onClose(closed, newCandle);
+    }
+  };
+
+  /* start:
+       bucket             : bucket الدقيقة النشطة { minuteEpoch, ticks[] }
+       lastCandle         : (اختياري) شمعة OHLC ابتدائية للتمهيد قبل بدء الـTicks —
+                            تُستخدم فقط إذا لم يوجد أي tick في bucket.
+       tf                 : متروك للتوافق مع الاستدعاء القديم — غير مستخدم في التوقيت.
+       anchorEpochMinute  : الدقيقة (منذ epoch/60000) التي بدأت فيها هذه الشمعة.
+                            إذا لم تُمرَّر → نأخذ الدقيقة الحالية.
+       onTick / onClose   : callbacks.
+  */
+  const start = ({ bucket, lastCandle, tf, anchorEpochMinute, onTick, onClose }) => {
+    stop();
+
+    _onTick = onTick; _onClose = onClose;
+    _bucket = bucket || null;
+    _bucketT = (_bucket && _bucket.minuteEpoch)
+      ? _bucket.minuteEpoch
+      : (lastCandle ? lastCandle.time : Math.floor(Date.now() / 60) * 60);
+
+    _tickIdx = -1;
+    _tickFracs = _bucket ? _computeFractions(_bucket) : [];
+
+    // قيم OHLC الابتدائية:
+    if (_bucket && _bucket.ticks && _bucket.ticks.length > 0) {
+      _open  = _bucket.ticks[0].price;
+      _price = _open;
+      _high  = _open;
+      _low   = _open;
+    } else if (lastCandle) {
+      _open  = lastCandle.open;
+      _price = lastCandle.close;
+      _high  = lastCandle.high;
+      _low   = lastCandle.low;
+    } else {
+      _open = _price = _high = _low = 0;
+    }
+
+    const nowMs = Date.now();
+    let anchor = (typeof anchorEpochMinute === 'number' && isFinite(anchorEpochMinute))
+      ? anchorEpochMinute
+      : Math.floor(nowMs / 60000);
+    /* FIX (Tick Timing Bug): دفاع إضافي — لا يُسمح للشمعة بالبدء بـanchor منقضٍ فعلاً
+       (أي متأخر عن الدقيقة الجدارية الحالية). لو وصل anchor متأخراً لأي
+       سبب (انقطاع اتصال/توقف التبويب…)، فإن closeAtMs سيكون في الماضي وسيجعل
+       الموقّت يستهلك كل التيكس فوراً ويقفل الشمعة خلال تايمر الـ40ms الأول
+       (هو سبب شموع الـ~5 ثوانٍ بدلاً من 60 ثانية). نُعيد ضبط anchor إلى الدقيقة
+       الجدارية الحالية لضمان نافذة 60 ثانية كاملة دائماً، مهما كانت القيمة
+       القادمة من anchorEpochMinute (قد تأتي من Firestore قديمة/متأخرة). */
+    const currentWallMinute = Math.floor(nowMs / 60000);
+    if (anchor < currentWallMinute) {
+      console.warn('[TICK_PLAYER] anchorEpochMinute (' + anchor + ') متأخر عن الدقيقة الجدارية الحالية (' +
+                   currentWallMinute + ') — تم ضبطه لضمان شمعة 60 ثانية كاملة.');
+      anchor = currentWallMinute;
+    }
+    _startWallMs = anchor * 60000;
+    _closeAtMs   = (anchor + 1) * 60000;
+    _closedFired = false;
+    _running     = true;
+
+    // إطلاق فوري لتحديث الحالة على الشارت قبل أول tick.
+    if (_onTick) _onTick(_buildCurrent());
+
+    // معدل تحديث بصري أعلى (25ms ≈ 40 إطار/ثانية) لحركة أكثر سلاسة
+    // بين الـticks الحقيقية، دون أي تأثير على البيانات نفسها.
+    _timer = setInterval(_timerFn, 25);
+  };
+
+  const stop = () => {
+    if (_timer) clearInterval(_timer);
+    _timer = null;
+    _running = false;
+  };
+  const isRunning = () => _running;
+  const getPrice  = () => _price;
+  return { start, stop, isRunning, getPrice };
+})();
+
+/* ---------------------------------------------------------------
+ * توافق خلفي: بقية الكود يستخدم الاسم FAKE_PRICE_GEN. نُعيّن alias
+ * إلى المشغّل الجديد حتى لا يتغيّر أي جزء آخر من المشروع.
+ * --------------------------------------------------------------- */
+const FAKE_PRICE_GEN = TICK_PLAYER;
+
+
+/* ===============================================================
+ *  5. CHART_MANAGER
+ *  --------------------------------------------------------------
+ *  Chart styling adapted to reference palette (#0d1730 / #223252),
+ *  but candle sizing, barSpacing, price scale layout, and chart
+ *  container dimensions match the reference visual density.
+ * =============================================================== */
+const CHART_MANAGER = (() => {
+  let _chart, _series, _container;
+
+  const create = (container) => {
+    _container = container;
+    _chart = LightweightCharts.createChart(container, {
+      width:  container.clientWidth,
+      height: container.clientHeight,
+      layout: {
+        /* خلفية شفافة 100% للشارت ومقياس الأسعار معاً — بلا أي لون خلفية أو صندوق أو ظل خلف الأرقام. */
+        background: { type: 'solid', color: 'rgba(0,0,0,0)' },
+        textColor:  '#9aa9ba',
+        fontSize:   9,
+        fontFamily: 'system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif',
+      },
+      grid: {
+        vertLines: { color: '#1a2540' },
+        horzLines: { color: '#1a2540' },
+      },
+      crosshair: {
+        mode: LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: '#3e8cff', width: 1, style: 3, labelBackgroundColor: '#223252' },
+        horzLine: { color: '#3e8cff', width: 1, style: 3, labelBackgroundColor: '#223252' },
+      },
+      rightPriceScale: {
+        /* شريط الأسعار المدمج مخفي تماماً — يمتد الشارت والجريد بعرض الشاشة كاملاً.
+           التسميات تُرسم عبر طبقة HTML شفافة (#priceOverlay). */
+        visible: false,
+        borderVisible: false,
+        borderColor: 'rgba(0,0,0,0)',
+        scaleMargins: { top: 0.05, bottom: 0.05 },
+        entireTextOnly: false,
+      },
+      timeScale: {
+        borderVisible: false,
+        borderColor: 'rgba(0,0,0,0)',
+        timeVisible: true,
+        secondsVisible: false,
+        /* الإزاحة تُحسب ديناميكياً لتثبيت الشمعة النشطة في منتصف الشاشة */
+        rightOffset: 10,
+        barSpacing: 6.37,
+        minBarSpacing: 4.74,
+        shiftVisibleRangeOnNewBar: false,
+      },
+      handleScroll: {
+        mouseWheel: true, pressedMouseMove: true,
+        horzTouchDrag: true, vertTouchDrag: true,
+      },
+      handleScale: {
+        mouseWheel: true, pinch: true, axisPressedMouseMove: true,
+      },
+    });
+
+    /* حدود الزوم: أدنى 4.74px وأقصى 21.86px — تُفرض بشكل دائم. */
+    const _MIN_BS = 4.74;
+    const _MAX_BS = 21.86;
+    const _DEFAULT_BS = 6.37;
+    let _clampGuard = false;
+    const _clampBarSpacing = () => {
+      if (_clampGuard) return;
+      const opts = _chart.options && _chart.options();
+      const ts = _chart.timeScale();
+      // نقرأ barSpacing الحالي من خيارات timeScale
+      let cur = null;
+      try { cur = _chart.timeScale().options().barSpacing; } catch(e){ cur = null; }
+      if (typeof cur !== 'number' || !isFinite(cur)) return;
+      let target = cur;
+      if (cur < _MIN_BS) target = _MIN_BS;
+      else if (cur > _MAX_BS) target = _MAX_BS;
+      if (target !== cur) {
+        _clampGuard = true;
+        _chart.applyOptions({ timeScale: { barSpacing: target } });
+        setTimeout(() => { _clampGuard = false; }, 0);
+      }
+    };
+
+    _series = _chart.addCandlestickSeries({
+      upColor:         '#21c965',
+      downColor:       '#ff4f4f',
+      borderUpColor:   '#109a4a',
+      borderDownColor: '#d81f1f',
+      wickUpColor:     '#21c965',
+      wickDownColor:   '#ff4f4f',
+      priceFormat: { type: 'price', precision: 5, minMove: 0.00001 },
+    });
+
+    const ro = new ResizeObserver(() => {
+      _chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+      _centerLastCandle();
+      _renderPriceOverlay();
+    });
+    ro.observe(container);
+
+    /* ---- Floating price-labels overlay:
+       يرسم تسميات الأسعار كأرقام HTML شفافة فوق الشارت في الجانب الأيمن.
+       لا خلفية، لا ظل، لا حدود — أرقام فقط والشموع/الجريد يمرون تحتها. */
+    _overlayEl = document.getElementById('priceOverlay');
+    _chart.subscribeCrosshairMove(() => { /* keep overlay stable on hover */ });
+    _chart.timeScale().subscribeVisibleTimeRangeChange(() => _renderPriceOverlay());
+
+    /* تطبيق حدود الزوم ديناميكياً على أي تغيير في نطاق الرؤية (pinch / wheel / drag) */
+    _chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
+      _clampBarSpacing();
+    });
+  };
+
+  /* يُثبّت الشمعة النشطة (الأخيرة) في منتصف عرض الشارت تماماً
+     عبر حساب rightOffset = (نصف العرض بالبكسل) / barSpacing.
+     القيمة مقيسة بوحدة "عدد الأعمد" وليس بالبكسل. */
+  const _centerLastCandle = () => {
+    if (!_chart || !_container) return;
+    const w = _container.clientWidth;
+    if (!w) return;
+    let bs = 6.37;
+    try { bs = _chart.timeScale().options().barSpacing || bs; } catch(e){}
+    if (!isFinite(bs) || bs <= 0) bs = 6.37;
+    const bars = (w / 2) / bs;
+    _chart.applyOptions({ timeScale: { rightOffset: bars } });
+  };
+
+  const setData = (candles) => { _series.setData(candles); _centerLastCandle(); _renderPriceOverlay(); };
+  const update  = (candle)  => { _series.update(candle); _renderPriceOverlay(); };
+  const fitContent = () => { _chart.timeScale().fitContent(); _centerLastCandle(); _renderPriceOverlay(); };
+  const scrollToRealTime = () => { _chart.timeScale().scrollToRealTime(); _centerLastCandle(); };
+  const getChart  = () => _chart;
+  const getSeries = () => _series;
+  const setPricePrecision = (precision, minMove) => {
+    _pricePrecision = precision;
+    _series.applyOptions({ priceFormat: { type: 'price', precision, minMove } });
+    _renderPriceOverlay();
+  };
+  const setLivePrice = (price, up) => {
+    _liveValue = price;
+    _liveUp = !!up;
+    _renderPriceOverlay();
+  };
+
+  /* ---- Overlay renderer state ---- */
+  let _overlayEl = null;
+  let _pricePrecision = 5;
+  let _liveValue = null;
+  let _liveUp = true;
+
+  /* يحسب مجموعة أسعار مرئية حالياً ثم يوزعها رأسياً كـ <span> شفافة. */
+  const _renderPriceOverlay = () => {
+    if (!_overlayEl || !_series || !_chart) return;
+    const h = _container ? _container.clientHeight : 0;
+    if (!h) return;
+
+    // نقرأ نطاق الأسعار المرئي من خلال coordinate↔price لأقصى/أدنى وحدتي تيكست.
+    const priceTop    = _series.coordinateToPrice(2);
+    const priceBottom = _series.coordinateToPrice(h - 2);
+    if (priceTop == null || priceBottom == null) return;
+    const pMax = Math.max(priceTop, priceBottom);
+    const pMin = Math.min(priceTop, priceBottom);
+    const range = pMax - pMin;
+    if (!isFinite(range) || range <= 0) return;
+
+    // عدد التسميات حسب الارتفاع (واحدة كل ~60px).
+    const desired = Math.max(4, Math.min(12, Math.round(h / 60)));
+    // نختار step مقروءاً (1/2/5 × 10^n) قريب من range/desired.
+    const raw = range / desired;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    let step;
+    if (norm < 1.5) step = 1 * mag;
+    else if (norm < 3.5) step = 2 * mag;
+    else if (norm < 7.5) step = 5 * mag;
+    else step = 10 * mag;
+
+    const first = Math.ceil(pMin / step) * step;
+    const frag = document.createDocumentFragment();
+    const prec = _pricePrecision;
+    for (let p = first; p <= pMax; p += step) {
+      const y = _series.priceToCoordinate(p);
+      if (y == null || y < 0 || y > h) continue;
+      const el = document.createElement('span');
+      el.className = 'pl';
+      el.style.top = y + 'px';
+      el.textContent = Number(p).toFixed(prec);
+      frag.appendChild(el);
+    }
+
+    // السعر اللحظي (live) — أبيض وأقوى، يُرسم فوق الباقي.
+    if (_liveValue != null) {
+      const y = _series.priceToCoordinate(_liveValue);
+      if (y != null && y >= 0 && y <= h) {
+        const el = document.createElement('span');
+        el.className = 'pl live';
+        el.style.top = y + 'px';
+        el.style.color = _liveUp ? '#21c965' : '#ff4f4f';
+        el.textContent = Number(_liveValue).toFixed(prec);
+        frag.appendChild(el);
+      }
+    }
+
+    _overlayEl.textContent = '';
+    _overlayEl.appendChild(frag);
+  };
+
+  return { create, setData, update, fitContent, scrollToRealTime, getChart, getSeries, setPricePrecision, setLivePrice, centerLastCandle: _centerLastCandle };
+})();
+
+
+/* ===============================================================
+ *  6. TRADE_MANAGER  (UNCHANGED)
+ * =============================================================== */
+const TRADE_MANAGER = (() => {
+  let _positions = [], _idSeq = 1, _listEl = null;
+  const attach = (listEl) => { _listEl = listEl; };
+  const open = (side, price) => {
+    if (!price || price <= 0) return;
+    const priceLine = CHART_MANAGER.getSeries().createPriceLine({
+      price,
+      color: side === 'BUY' ? '#21c965' : '#ff4f4f',
+      lineWidth: 2, lineStyle: 2, axisLabelVisible: true,
+      title: `${side} #${_idSeq}`,
+    });
+    _positions.push({ id: _idSeq++, side, entry: price, priceLine, openedAt: Date.now() });
+    render();
+  };
+  const close = (id) => {
+    const idx = _positions.findIndex(p => p.id === id);
+    if (idx < 0) return;
+    try { CHART_MANAGER.getSeries().removePriceLine(_positions[idx].priceLine); } catch(e){}
+    _positions.splice(idx, 1);
+    render();
+  };
+  const closeAll = () => {
+    for (const p of _positions) {
+      try { CHART_MANAGER.getSeries().removePriceLine(p.priceLine); } catch(e){}
+    }
+    _positions = [];
+    render();
+  };
+  const updateLivePnL = (currentPrice) => {
+    if (!_listEl || _positions.length === 0) return;
+    for (const p of _positions) {
+      const diff = p.side === 'BUY' ? (currentPrice - p.entry) : (p.entry - currentPrice);
+      const el = _listEl.querySelector(`[data-pid="${p.id}"] .pnl`);
+      if (el) {
+        const pips = (diff * 10000).toFixed(1);
+        el.textContent = (diff >= 0 ? '+' : '') + pips + ' pips';
+      }
+    }
+  };
+  const render = () => {
+    if (!_listEl) return;
+    _listEl.innerHTML = '';
+    for (const p of _positions) {
+      const row = document.createElement('div');
+      row.dataset.pid = p.id;
+      row.innerHTML = `<span>${p.side}</span><span>@${p.entry.toFixed(5)}</span><span class="pnl">+0.0 pips</span>`;
+      _listEl.appendChild(row);
+    }
+  };
+  return { attach, open, close, closeAll, updateLivePnL };
+})();
+
+
+/* ===============================================================
+ *  6.5  GLOBAL_INDEX_MANAGER  (NEW)
+ *  --------------------------------------------------------------
+ *  إدارة تسلسل الشموع العالمي عبر Firestore.
+ *  ---------------------------------------------------------------
+ *  المفهوم:
+ *    - ملف EUR.USD.csv يُقرأ مرة واحدة فقط عند التشغيل.
+ *    - Firestore يحتوي على مستند واحد فقط:  chartState/global
+ *          { currentIndex: <number>, updatedAt: <timestamp> }
+ *    - كل الأجهزة تقرأ نفس currentIndex وترى نفس السوق نفس اللحظة.
+ *    - عند إغلاق الشمعة الحالية والانتقال للتالية → transaction تزيد
+ *      currentIndex بمقدار 1 (منع تعارض التحديث بين الأجهزة).
+ *    - onSnapshot يستمع لأي تغيير خارجي على المستند فيُطبَّق فوراً.
+ *    - سلوك آخر الملف قابل للتعديل عبر WRAP_AT_END:
+ *          true  → يعود من البداية (0)
+ *          false → يتوقف عند آخر شمعة
+ *    - أي قيمة غير صالحة (خارج النطاق / NaN / سالبة) تُعاد ضبطها تلقائياً
+ *      إلى قيمة صحيحة مع تحذير في Console.
+ * =============================================================== */
+const GLOBAL_INDEX_MANAGER = (() => {
+  const DOC_PATH_COLLECTION = 'chartState';
+  const DOC_PATH_ID         = 'global';
+
+  /* السلوك عند الوصول لآخر شمعة:
+     true  = إعادة من البداية (loop)
+     false = التوقف عند آخر شمعة */
+  const WRAP_AT_END = true;
+
+  let _totalCandles     = 0;
+  let _currentIndex     = 0;
+  let _anchorEpochMinute= 0;      /* الدقيقة التي بدأت فيها الشمعة currentIndex (مزامنة جميع الأجهزة) */
+  let _docRef           = null;
+  let _unsubscribe      = null;
+  let _initialized      = false;
+  let _onIndexChange    = null;   // callback عند وصول تحديث خارجي
+  let _updating         = false;  // حماية من re-entrancy
+
+  const _fb = () => window.FIREBASE;
+
+  /* تصحيح قيمة index لتقع دائماً داخل [0, total-1] */
+  const _sanitize = (idx, total) => {
+    if (total <= 0) return 0;
+    if (typeof idx !== 'number' || !isFinite(idx) || idx < 0) {
+      console.warn('[GLOBAL_INDEX] قيمة currentIndex غير صالحة (' + idx +
+                   ') — إعادة الضبط إلى 0.');
+      return 0;
+    }
+    idx = Math.floor(idx);
+    if (idx >= total) {
+      if (WRAP_AT_END) {
+        console.warn('[GLOBAL_INDEX] currentIndex (' + idx + ') تجاوز عدد الشموع (' +
+                     total + ') — إعادة الضبط إلى 0 (WRAP).');
+        return 0;
+      } else {
+        console.warn('[GLOBAL_INDEX] currentIndex (' + idx + ') تجاوز عدد الشموع (' +
+                     total + ') — التثبيت على آخر شمعة.');
+        return total - 1;
+      }
+    }
+    return idx;
+  };
+
+  /* تهيئة المدير: يقرأ (أو ينشئ) مستند chartState/global
+     ويُرجع currentIndex العالمي. */
+  const init = async (totalCandles) => {
+    if (!_fb() || !_fb().ready)
+      throw new Error('Firebase لم يُهيَّأ بعد.');
+    if (!totalCandles || totalCandles <= 0)
+      throw new Error('عدد الشموع غير صالح.');
+
+    _totalCandles = totalCandles;
+    _docRef = _fb().doc(_fb().firestore, DOC_PATH_COLLECTION, DOC_PATH_ID);
+
+    // قراءة أولية
+    const snap = await _fb().getDoc(_docRef);
+    const nowMinute = Math.floor(Date.now() / 60000);
+    if (!snap.exists()) {
+      // إنشاء المستند لأول مرة على الإطلاق
+      _currentIndex = 0;
+      _anchorEpochMinute = nowMinute;
+      await _fb().setDoc(_docRef, {
+        currentIndex: 0,
+        anchorEpochMinute: _anchorEpochMinute,
+        totalCandles: _totalCandles,
+        updatedAt: _fb().serverTimestamp()
+      });
+      console.info('[GLOBAL_INDEX] تم إنشاء مستند التسلسل العالمي (index=0, anchor=' + _anchorEpochMinute + ').');
+    } else {
+      const data = snap.data() || {};
+      _currentIndex = _sanitize(data.currentIndex, _totalCandles);
+      /* قراءة anchor المخزَّن. إن لم يوجد (مستند قديم من إصدار سابق) → استخدم الدقيقة الحالية واكتبها.
+         وإن كان غير صالح جداً (قديم جداً → تُتَرك anchor+k > now) تلقائية التصحيح تحدث في advance. */
+      const rawAnchor = data.anchorEpochMinute;
+      let _anchorNeedsRewrite = false;
+      if (typeof rawAnchor === 'number' && isFinite(rawAnchor) && rawAnchor > 0) {
+        _anchorEpochMinute = Math.floor(rawAnchor);
+      } else {
+        _anchorEpochMinute = nowMinute;
+        _anchorNeedsRewrite = true;
+      }
+      /* FIX (Tick Timing Bug): إن كان الـanchor المخزَّن في الماضي (أقدم من الدقيقة
+         الجدارية الحالية) — أي أن الشمعة كان يجب أن تُغلق فعلياً منذ وقت طويل
+         (مثلاً لا أحد كان يشاهد الصفحة) — فإن TICK_PLAYER سيبدأ ويرى فوراً
+         Date.now() >= closeAtMs فيستهلك كل الـTicks دفعة واحدة ويُغلق الشمعة
+         خلال أجزاء من الثانية (المتصفح يفتح الشمعة في نفس اللحظة التي
+         "يجب أن تُغلق" فيها). نُعيد مزامنته إلى الدقيقة الجدارية الحالية
+         حتى تحصل كل شمعة نشطة دائماً على نافذة 60 ثانية كاملة وحقيقية. */
+      if (_anchorEpochMinute < nowMinute) {
+        console.warn('[GLOBAL_INDEX] anchorEpochMinute المخزَّن (' + _anchorEpochMinute +
+                     ') أقدم من الدقيقة الحالية (' + nowMinute + ') — إعادة المزامنة لضمان شمعة 60 ثانية كاملة.');
+        _anchorEpochMinute = nowMinute;
+        _anchorNeedsRewrite = true;
+      }
+      // إذا كانت القيمة غير صالحة أو تمّت إعادة مزامنتها، اكتب القيمة المصححة مرة واحدة.
+      if (_currentIndex !== data.currentIndex || typeof rawAnchor !== 'number' || _anchorNeedsRewrite) {
+        try {
+          await _fb().setDoc(_docRef, {
+            currentIndex: _currentIndex,
+            anchorEpochMinute: _anchorEpochMinute,
+            totalCandles: _totalCandles,
+            updatedAt: _fb().serverTimestamp()
+          }, { merge: true });
+        } catch(e) {
+          console.warn('[GLOBAL_INDEX] فشل كتابة القيمة المصححة:', e);
+        }
+      }
+      console.info('[GLOBAL_INDEX] currentIndex العالمي = ' + _currentIndex +
+                   ' / ' + _totalCandles + ' (anchorMinute=' + _anchorEpochMinute + ')');
+    }
+
+    // الاستماع لأي تحديث خارجي (جهاز آخر يزيد الفهرس)
+    _unsubscribe = _fb().onSnapshot(_docRef, (docSnap) => {
+      if (!docSnap.exists()) return;
+      const data = docSnap.data() || {};
+      const remote = _sanitize(data.currentIndex, _totalCandles);
+      const rawAnchor = data.anchorEpochMinute;
+      const remoteAnchor = (typeof rawAnchor === 'number' && isFinite(rawAnchor) && rawAnchor > 0)
+        ? Math.floor(rawAnchor)
+        : _anchorEpochMinute;
+      const changedIdx    = remote       !== _currentIndex;
+      const changedAnchor = remoteAnchor !== _anchorEpochMinute;
+      if (!changedIdx && !changedAnchor) return;
+      const prev = _currentIndex;
+      _currentIndex = remote;
+      _anchorEpochMinute = remoteAnchor;
+      if (_updating) return;   // لا تطلق معالج التغيير من صدى كتابتنا المحلية
+      if (changedIdx) {
+        console.info('[GLOBAL_INDEX] تحديث خارجي: ' + prev + ' → ' + remote + ' (anchor=' + remoteAnchor + ')');
+        if (typeof _onIndexChange === 'function') {
+          try { _onIndexChange(_currentIndex, prev); } catch(e) { console.error(e); }
+        }
+      }
+    }, (err) => {
+      console.error('[GLOBAL_INDEX] خطأ في onSnapshot:', err);
+    });
+
+    _initialized = true;
+    return _currentIndex;
+  };
+
+  /* advance() — idempotent وآمن ضد التعارض.
+     ---------------------------------------------------------------
+     يطلب التقديم من anchor إلى anchor+1 (وزيادة currentIndex معه).
+     داخل الـ Transaction:
+       - إذا كان anchor في Firestore يساوي expectedAnchor فقط، نقدّم.
+       - إذا سبقنا جهاز آخر (anchor في Firestore ≠ expectedAnchor)
+         → لا نفعل شيئاً، ونُرجع القيم الراهنة (وستصل أيضاً عبر onSnapshot).
+     المعامل expectedAnchor يسمح للمُطلّق (setInterval) بأن يطلب زيادة محددة
+     (من الدقيقة X إلى X+1) دون خطر القفزتين لو تأخّر المؤقت. */
+  const advance = async (expectedAnchor) => {
+    if (!_initialized || !_docRef)
+      throw new Error('GLOBAL_INDEX_MANAGER لم يُهيَّأ.');
+    if (typeof expectedAnchor !== 'number' || !isFinite(expectedAnchor)) {
+      // توافق خلفي: أي استدعاء قديم بدون وسيطة → افترض anchor المحلي.
+      expectedAnchor = _anchorEpochMinute;
+    }
+    _updating = true;
+    try {
+      const result = await _fb().runTransaction(_fb().firestore, async (tx) => {
+        const s = await tx.get(_docRef);
+        let cur = 0;
+        let curAnchor = expectedAnchor;
+        if (s.exists()) {
+          const d = s.data() || {};
+          cur = _sanitize(d.currentIndex, _totalCandles);
+          const rawA = d.anchorEpochMinute;
+          if (typeof rawA === 'number' && isFinite(rawA) && rawA > 0) {
+            curAnchor = Math.floor(rawA);
+          }
+        }
+        // سبقنا جهاز آخر (أو anchor المخزّن لا يطابق ما نتوقّع) → لا تقدم.
+        if (curAnchor !== expectedAnchor) {
+          return { advanced: false, currentIndex: cur, anchorEpochMinute: curAnchor };
+        }
+        let next = cur + 1;
+        if (next >= _totalCandles) {
+          if (WRAP_AT_END) {
+            next = 0;
+          } else {
+            next = _totalCandles - 1;    // ثبات عند آخر شمعة
+          }
+        }
+        const nextAnchor = curAnchor + 1;
+        tx.set(_docRef, {
+          currentIndex: next,
+          anchorEpochMinute: nextAnchor,
+          totalCandles: _totalCandles,
+          updatedAt: _fb().serverTimestamp()
+        }, { merge: true });
+        return { advanced: true, currentIndex: next, anchorEpochMinute: nextAnchor };
+      });
+      _currentIndex      = result.currentIndex;
+      _anchorEpochMinute = result.anchorEpochMinute;
+      return result;
+    } catch (err) {
+      console.error('[GLOBAL_INDEX] فشل advance() transaction:', err);
+      throw err;
+    } finally {
+      // نُبقي _updating=true لبرهة قصيرة حتى يمر صدى onSnapshot الخاص بنا.
+      setTimeout(() => { _updating = false; }, 250);
+    }
+  };
+
+  const getIndex     = () => _currentIndex;
+  const getTotal     = () => _totalCandles;
+  const getAnchor    = () => _anchorEpochMinute;
+  const onChange     = (cb) => { _onIndexChange = cb; };
+  const dispose      = () => { if (_unsubscribe) { _unsubscribe(); _unsubscribe = null; } };
+
+  return { init, advance, getIndex, getTotal, getAnchor, onChange, dispose, WRAP_AT_END };
+})();
+
+
+/* ===============================================================
+ *  7. APP
+ *  --------------------------------------------------------------
+ *  الوظائف الأخرى بلا أي تغيير — التعديل فقط في:
+ *    - init() : تحقق من جلسة المستخدم (Auth) قبل التشغيل، وإلا
+ *               إعادة توجيه إلى login.html.
+ *    - autoLoadCsv() : يقرأ CSV مرة واحدة فقط.
+ *    - rebuild() : يبدأ من currentIndex العالمي (Firestore).
+ *    - onClose (Live) : يستدعي GLOBAL_INDEX_MANAGER.advance()
+ *                       لمزامنة تقدّم الشمعة بين جميع الأجهزة.
+ * =============================================================== */
+const APP = (() => {
+  const state = {
+    currentTF: '1m',
+    aggregated: [],
+    liveEnabled: true,
+    symbol: '',
+    /* نسخة الشموع الأصلية 1m كاملة (تُبنى من buckets الـTicks — تُقرأ مرة واحدة فقط) */
+    m1Full: [],
+    /* buckets الدقائق (كل عنصر يحتوي على Ticks الحقيقية) */
+    tickBuckets: [],
+    /* الفهرس العالمي داخل m1Full/tickBuckets — مصدره Firestore */
+    globalIndex: 0,
+    /* هل تم تحميل ملف الـTicks بالفعل؟ (لضمان قراءته مرة واحدة فقط) */
+    csvLoaded: false
+  };
+  const els = {};
+
+  const cacheEls = () => {
+    els.loadingOver  = document.getElementById('loadingOverlay');
+    els.loadingText  = document.getElementById('loadingText');
+    els.symbolLabel  = document.getElementById('symbolLabel');
+    els.livePrice    = document.getElementById('livePrice');
+    els.tfButtons    = document.getElementById('tfButtons');
+    els.btnReload    = document.getElementById('btnReload');
+    els.btnFit       = document.getElementById('btnFit');
+    els.btnLive      = document.getElementById('btnLive');
+    els.btnBuy       = document.getElementById('btnBuy');
+    els.btnSell      = document.getElementById('btnSell');
+    els.btnCloseAll  = document.getElementById('btnCloseAll');
+    els.positions    = document.getElementById('positionsList');
+    els.statusText   = document.getElementById('statusText');
+    els.statsText    = document.getElementById('statsText');
+    els.ptmH         = document.getElementById('ptmH');
+  };
+
+  const showLoading = (msg) => {
+    els.loadingOver.classList.remove('hidden');
+    els.loadingText.textContent = msg || 'جاري التحميل...';
+  };
+  const hideLoading = () => els.loadingOver.classList.add('hidden');
+
+  /* ===============================================================
+   *  AUTO-LOADER: يحمّل EUR.USD.csv تلقائياً من نفس الدومين
+   *  --------------------------------------------------------------
+   *  - لا يعتمد على أي تدخل من المستخدم.
+   *  - يستخدم fetch() مع cache-busting بسيط (query-string بالطابع الزمني)
+   *    حتى يقرأ Vercel/GitHub Pages أحدث نسخة من الملف عند كل فتح.
+   *  - في حالة الفشل يعرض رسالة واضحة في Console + على الشاشة.
+   * =============================================================== */
+  const AUTO_CSV_FILENAME = 'EUR.USD.csv';
+
+  /* ===============================================================
+   *  autoLoadCsv:
+   *  - يقرأ ملف Tick Data (باسم EUR.USD.csv) مرة واحدة فقط
+   *    (state.csvLoaded يمنع التكرار).
+   *  - يبني buckets الدقائق داخل DATA_LOADER (تجميع Ticks → OHLC داخلياً).
+   *  - يهيئ GLOBAL_INDEX_MANAGER بعد نجاح القراءة.
+   *  - يبدأ الشارت من الشمعة التي يشير إليها currentIndex العالمي.
+   *  - زر ↻ (btnReload) يستطيع فرض إعادة التحميل الكامل عند الحاجة.
+   * =============================================================== */
+  const autoLoadCsv = async ({ force = false } = {}) => {
+    // منع القراءة المتكررة — ملف الـTicks يُحمَّل مرة واحدة فقط ما لم نُجبَر على إعادة التحميل.
+    if (state.csvLoaded && !force) {
+      console.info('[AUTO-TICK] الملف محمَّل مسبقاً — لا حاجة لإعادة القراءة.');
+      rebuild();
+      return;
+    }
+
+    const url = AUTO_CSV_FILENAME + '?v=' + Date.now();
+    try {
+      showLoading('جاري تحميل ' + AUTO_CSV_FILENAME + ' ...');
+      // نستخدم DATA_LOADER.loadFromUrl (يقرأ Tick Data ويجمّعها إلى دقائق داخلياً)
+      const { candles: c2, buckets, ticks, symbol } = await DATA_LOADER.loadFromUrl(url);
+      if (!buckets || !buckets.length || !c2 || !c2.length) {
+        throw new Error('لم يتم استخراج أي دقائق/شموع من ' + AUTO_CSV_FILENAME);
+      }
+
+      state.symbol      = symbol || 'EURUSD';
+      state.m1Full      = c2.slice();          // شموع M1 المغلقة (مبنية من Ticks)
+      state.tickBuckets = buckets;             // buckets الدقائق (للوصول السريع)
+      state.csvLoaded   = true;
+      els.symbolLabel.textContent = state.symbol;
+
+      console.info('[AUTO-TICK] تم تحميل ' + AUTO_CSV_FILENAME +
+                   ' بنجاح — عدد الـTicks: ' + (ticks ? ticks.length : 0) +
+                   ' — عدد الدقائق: ' + state.m1Full.length);
+
+      // تهيئة الفهرس العالمي من Firestore (مرة واحدة).
+      showLoading('جاري مزامنة الشمعة الحالية...');
+      try {
+        state.globalIndex = await GLOBAL_INDEX_MANAGER.init(state.m1Full.length);
+      } catch (fErr) {
+        console.error('[GLOBAL_INDEX] فشل الاتصال بـ Firestore:', fErr);
+        // في حال فشل Firestore نُشغّل النظام بالاعتماد على m1Full كاملاً كسلوك احتياطي.
+        state.globalIndex = 0;
+      }
+
+      // اربط الاستماع للتحديثات الخارجية: أي جهاز آخر يزيد currentIndex
+      // ينعكس تلقائياً على هذا الجهاز.
+      GLOBAL_INDEX_MANAGER.onChange((newIdx, prevIdx) => {
+        state.globalIndex = newIdx;
+        // إعادة بناء الشارت لعرض نفس الحالة على جميع الأجهزة.
+        rebuild();
+      });
+
+      rebuild();
+      hideLoading();
+    } catch (err) {
+      console.error('[AUTO-TICK ERROR] فشل تحميل ' + AUTO_CSV_FILENAME + ':', err);
+      setStatus('فشل تحميل ' + AUTO_CSV_FILENAME + ' — راجع Console');
+      els.loadingText.textContent =
+        '❌ فشل تحميل ' + AUTO_CSV_FILENAME + '\n' + err.message;
+    }
+  };
+
+  const setStatus = (msg) => { els.statusText.textContent = msg; };
+  const setStats  = () => {
+    els.statsText.textContent =
+      `Candles: ${state.aggregated.length} | ${state.currentTF}`;
+  };
+
+  const updatePriceLabel = (price, up) => {
+    els.livePrice.textContent = price.toFixed(5);
+    els.livePrice.style.color = up ? '#21c965' : '#ff4f4f';
+    // تحديث طبقة الأسعار العائمة فوق الشارت
+    if (CHART_MANAGER.setLivePrice) CHART_MANAGER.setLivePrice(price, up);
+  };
+
+  /* ===============================================================
+   *  rebuild:
+   *  --------------------------------------------------------------
+   *  يبني الشارت بحيث تكون الشمعة النشطة (اللحظية) هي بالضبط
+   *  الشمعة التي يشير إليها state.globalIndex داخل m1Full.
+   *  --------------------------------------------------------------
+   *  المنطق المطابق للمواصفات:
+   *   - idx == 0  → لا توجد شموع سابقة؛ تُعرض فقط الشمعة رقم 0 كشمعة نشطة.
+   *   - idx == 20 → تُعرض الشمعات 0..19 كشموع تاريخية مغلقة،
+   *                  والشمعة 20 هي الشمعة النشطة التي تتحرّك.
+   *  - CSV لا يُعاد تحميله هنا نهائياً — نعتمد فقط على state.m1Full.
+   *  تأخذ شريحة [0 .. idx] ثم تُجمّعها للـ TF المطلوب (للعرض فقط؛
+   *  التقدّم في currentIndex مرتبط دائماً بشموع 1m).
+   * =============================================================== */
+  const rebuild = () => {
+    const m1Full = state.m1Full;
+    if (!m1Full || !m1Full.length) return;
+
+    const total = m1Full.length;
+    // ضمان صلاحية الفهرس (طبقة حماية إضافية بجانب GLOBAL_INDEX_MANAGER)
+    let idx = state.globalIndex;
+    if (typeof idx !== 'number' || !isFinite(idx) || idx < 0) {
+      console.warn('[REBUILD] globalIndex غير صالح (' + idx + ') — الضبط إلى 0.');
+      idx = 0;
+    }
+    if (idx >= total) {
+      console.warn('[REBUILD] globalIndex (' + idx + ') ≥ total (' + total +
+                   ') — الضبط إلى ' + (total - 1) + '.');
+      idx = total - 1;
+    }
+    state.globalIndex = idx;
+
+    /* شريحة من البداية حتى الشمعة الحالية شاملة (آخر عنصر = الشمعة النشطة).
+       عند idx=0: m1Slice = [candle0] → شمعة واحدة فقط (هي النشطة)، ولا شموع سابقة. */
+    const m1Slice = m1Full.slice(0, idx + 1);
+
+    const samplePrice = m1Slice[m1Slice.length - 1].close;
+    let precision = 5, minMove = 0.00001;
+    if (samplePrice > 100)   { precision = 3; minMove = 0.001; }
+    if (samplePrice > 1000)  { precision = 2; minMove = 0.01; }
+    CHART_MANAGER.setPricePrecision(precision, minMove);
+
+    state.aggregated = CANDLE_ENGINE.aggregate(m1Slice, state.currentTF);
+    CHART_MANAGER.setData(state.aggregated);
+    FAKE_PRICE_GEN.stop();
+    if (state.liveEnabled && state.aggregated.length) startLive();
+    CHART_MANAGER.fitContent();
+    setStats();
+    setStatus(`${state.symbol} • ${state.aggregated.length} • idx ${idx}/${total-1}`);
+  };
+
+  /* startLive:
+     --------------------------------------------------------------
+     - يعتمد الآن على TICK_PLAYER الذي يعيد تشغيل Ticks الحقيقية
+       من bucket الدقيقة النشطة (state.tickBuckets[state.globalIndex]).
+     - يُمرِّر anchorEpochMinute المحفوظ في Firestore إلى المشغّل
+       حتى تُغلق الشمعة عند الحدّ الفعلي للدقيقة (متزامناً مع بقية الأجهزة).
+     - عند الإغلاق: نطلب advance(expectedAnchor). إن نجح الـ transaction
+       → onIndexChange سيعيد بناء الشارت (rebuild) لعرض الشمعة التالية
+       الحقيقية من bucket التالي. إن فشل (جهاز آخر سبقنا) → onSnapshot
+       يجلب القيمة الصحيحة تلقائياً ويُعاد بناء الشارت أيضاً. */
+  const startLive = () => {
+    const last = state.aggregated[state.aggregated.length - 1];
+    if (!last) return;
+
+    /* bucket الدقيقة النشطة الحقيقية = state.tickBuckets[state.globalIndex].
+       ملاحظة: aggregated قد يكون مُجمَّعاً (5m/15m/…) لكن TICK_PLAYER
+       يعيد تشغيل ticks الدقيقة الأخيرة فقط، ونحن نُدرج تأثيرها في الشمعة
+       المجمَّعة الأخيرة ديناميكياً في onTick أدناه. */
+    const activeBucket = state.tickBuckets && state.tickBuckets[state.globalIndex]
+      ? state.tickBuckets[state.globalIndex]
+      : null;
+
+    const expectedAnchor = (GLOBAL_INDEX_MANAGER.getAnchor && GLOBAL_INDEX_MANAGER.getAnchor())
+      ? GLOBAL_INDEX_MANAGER.getAnchor()
+      : Math.floor(Date.now() / 60000);
+
+    /* لدمج شمعة الدقيقة النشطة داخل الشمعة المُجمَّعة الأخيرة (5m/15m/…) بشكل صحيح،
+       نحتفظ بـ snapshot للشمعة المجمَّعة الأخيرة *قبل* بداية الدقيقة النشطة —
+       أي بدون الشمعة M1 النشطة الحالية. عند كل tick نُحدّث high/low/close
+       فقط باستخدام قيم الشمعة M1 النشطة الجزئية.
+
+       الحالة الخاصة: إذا كان TF = '1m' فإن الشمعة المجمَّعة الأخيرة هي
+       بذاتها شمعة M1 النشطة، وسيُستبدلها candle.
+    */
+    let baseAggregated = null;   // snapshot للشمعة المجمَّعة قبل دمج M1 النشطة
+    if (state.currentTF !== '1m' && state.aggregated.length > 0) {
+      // ابنِ الشريحة M1 حتى قبل الدقيقة النشطة (idx-1) ثم جمِّعها ثم خذ الأخيرة.
+      const idx = state.globalIndex;
+      if (idx > 0) {
+        const sliceBefore = state.m1Full.slice(0, idx);   // exclude idx
+        const aggBefore   = CANDLE_ENGINE.aggregate(sliceBefore, state.currentTF);
+        if (aggBefore.length) {
+          const lastAggT = state.aggregated[state.aggregated.length - 1].time;
+          const match = aggBefore[aggBefore.length - 1];
+          if (match && match.time === lastAggT) {
+            baseAggregated = { ...match };
+          }
+        }
+      }
+    }
+
+    FAKE_PRICE_GEN.start({
+      bucket: activeBucket,
+      lastCandle: last,
+      tf: state.currentTF,
+      anchorEpochMinute: expectedAnchor,
+      onTick: (m1Candle) => {
+        /* m1Candle = الشمعة M1 النشطة المبنيّة من Ticks حتى الآن. */
+        let displayCandle;
+        if (state.currentTF === '1m') {
+          displayCandle = m1Candle;
+        } else if (baseAggregated) {
+          // ادمج m1Candle داخل الشمعة المجمَّعة الأخيرة
+          displayCandle = {
+            time:   baseAggregated.time,
+            open:   baseAggregated.open,
+            high:   Math.max(baseAggregated.high, m1Candle.high),
+            low:    Math.min(baseAggregated.low,  m1Candle.low),
+            close:  m1Candle.close,
+            volume: (baseAggregated.volume || 0) + (m1Candle.volume || 0)
+          };
+        } else {
+          // لا شموع سابقة داخل نفس الـbucket المجمَّع → الشمعة النشطة = m1 النشطة
+          displayCandle = {
+            time:   state.aggregated[state.aggregated.length - 1].time,
+            open:   m1Candle.open,
+            high:   m1Candle.high,
+            low:    m1Candle.low,
+            close:  m1Candle.close,
+            volume: m1Candle.volume || 0
+          };
+        }
+
+        state.aggregated[state.aggregated.length - 1] = displayCandle;
+        CHART_MANAGER.update(displayCandle);
+        const prevClose = state.aggregated.length > 1
+          ? state.aggregated[state.aggregated.length - 2].close
+          : displayCandle.open;
+        updatePriceLabel(displayCandle.close, displayCandle.close >= prevClose);
+        // Update floating time label
+        if (els.ptmH) {
+          const d = new Date(displayCandle.time * 1000);
+          els.ptmH.textContent = d.toISOString().substr(11,8);
+        }
+        TRADE_MANAGER.updateLivePnL(displayCandle.close);
+      },
+      onClose: (closedM1, next) => {
+        /* أغلقنا الشمعة محلياً — دمج شمعة M1 المغلقة داخل الشمعة المُجمَّعة الأخيرة
+           بنفس منطق onTick (لا يتغيّر السلوك المرئي). ثم أوقف المشغّل وانتظر Firestore. */
+        let finalCandle;
+        if (state.currentTF === '1m') {
+          finalCandle = closedM1;
+        } else if (baseAggregated) {
+          finalCandle = {
+            time:   baseAggregated.time,
+            open:   baseAggregated.open,
+            high:   Math.max(baseAggregated.high, closedM1.high),
+            low:    Math.min(baseAggregated.low,  closedM1.low),
+            close:  closedM1.close,
+            volume: (baseAggregated.volume || 0) + (closedM1.volume || 0)
+          };
+        } else {
+          finalCandle = {
+            time:   state.aggregated[state.aggregated.length - 1].time,
+            open:   closedM1.open,
+            high:   closedM1.high,
+            low:    closedM1.low,
+            close:  closedM1.close,
+            volume: closedM1.volume || 0
+          };
+        }
+        state.aggregated[state.aggregated.length - 1] = finalCandle;
+        CHART_MANAGER.update(finalCandle);
+        FAKE_PRICE_GEN.stop();
+        setStats();
+
+        /* ===============================================================
+         *  التسلسل العالمي: انتهت الدقيقة → قدِّم currentIndex في
+         *  Firestore عبر Transaction مع تمرير expectedAnchor.
+         *  - إن نجحنا: onIndexChange سيقود rebuild() تلقائياً.
+         *  - إن سبقنا جهاز آخر: onSnapshot الخارجي سيجلب القيمة الجديدة.
+         * =============================================================== */
+        GLOBAL_INDEX_MANAGER.advance(expectedAnchor)
+          .then((result) => {
+            if (result && result.advanced) {
+              console.info('[LIVE] Advanced globalIndex → ' + result.currentIndex +
+                           ' (anchor=' + result.anchorEpochMinute + ')');
+              /* نجحت الـ Transaction محلياً: حدّث state مباشرة وأعد البناء. */
+              state.globalIndex = result.currentIndex;
+              rebuild();
+            } else {
+              console.info('[LIVE] جهاز آخر سبقنا — سنتلقى التحديث عبر onSnapshot.');
+              /* Transaction قرأت أن anchor تغيّر مسبقاً, غالباً وصلتنا القيمة
+                 الجديدة داخل result. أعد البناء لمطابقة الفهرس. */
+              if (result && typeof result.currentIndex === 'number') {
+                state.globalIndex = result.currentIndex;
+                rebuild();
+              }
+            }
+            /* شبكة أمان: إذا لم يبدأ المولّد لأي سبب, أعد البناء بعد فترة قصيرة. */
+            setTimeout(() => {
+              if (!FAKE_PRICE_GEN.isRunning()) rebuild();
+            }, 800);
+          })
+          .catch((err) => {
+            console.error('[LIVE] فشل تقديم currentIndex:', err);
+            setTimeout(() => {
+              if (!FAKE_PRICE_GEN.isRunning()) rebuild();
+            }, 1500);
+          });
+      },
+    });
+  };
+
+  const onTFClick = (e) => {
+    const btn = e.target.closest('.tfb');
+    if (!btn) return;
+    const tf = btn.dataset.tf;
+    if (!tf || tf === state.currentTF) return;
+    document.querySelectorAll('.tfb').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    state.currentTF = tf;
+    rebuild();
+  };
+
+  /* ===============================================================
+   *  bootUI:
+   *  إعداد واجهة المستخدم كما في الأصل — بلا أي تغيير في السلوك.
+   *  استُخرجت من init() لتُستدعى فقط بعد التحقق من جلسة المستخدم.
+   * =============================================================== */
+  const bootUI = () => {
+    cacheEls();
+    CHART_MANAGER.create(document.getElementById('chart'));
+    TRADE_MANAGER.attach(els.positions);
+
+    els.tfButtons.addEventListener('click', onTFClick);
+
+    // زر ↻ يعيد قراءة CSV بالكامل عند الطلب اليدوي (force reload).
+    els.btnReload.addEventListener('click', () => autoLoadCsv({ force: true }));
+    els.btnFit.addEventListener('click', () => CHART_MANAGER.fitContent());
+    els.btnLive.addEventListener('click', () => {
+      state.liveEnabled = !state.liveEnabled;
+      els.btnLive.style.color = state.liveEnabled ? '#21c965' : '#c7d5ef';
+      if (state.liveEnabled) startLive();
+      else FAKE_PRICE_GEN.stop();
+      setStats();
+    });
+
+    els.btnBuy.addEventListener('click', () => {
+      const px = FAKE_PRICE_GEN.getPrice() ||
+                 (state.aggregated.length ? state.aggregated.at(-1).close : 0);
+      if (px) TRADE_MANAGER.open('BUY', px);
+    });
+    els.btnSell.addEventListener('click', () => {
+      const px = FAKE_PRICE_GEN.getPrice() ||
+                 (state.aggregated.length ? state.aggregated.at(-1).close : 0);
+      if (px) TRADE_MANAGER.open('SELL', px);
+    });
+    els.btnCloseAll.addEventListener('click', () => TRADE_MANAGER.closeAll());
+
+    setStatus('في انتظار البيانات');
+
+    // تحميل تلقائي فوري لملف EUR.USD.csv — يحدث مرة واحدة فقط طوال الجلسة.
+    autoLoadCsv();
+  };
+
+  /* ===============================================================
+   *  init:
+   *  --------------------------------------------------------------
+   *  1) ينتظر جهوزية Firebase (module قد يُحمَّل بعد DOMContentLoaded).
+   *  2) يتحقق من جلسة المستخدم عبر onAuthStateChanged.
+   *     - إن لم يكن هناك مستخدم مسجل → إعادة توجيه إلى login.html.
+   *     - إن كان هناك مستخدم → bootUI() يشغّل النظام.
+   *  3) يتم كل ذلك في الخلفية — لا واجهة تسجيل داخل هذه الصفحة.
+   * =============================================================== */
+  const init = () => {
+    const startWhenReady = () => {
+      const FB = window.FIREBASE;
+      if (!FB || !FB.ready) {
+        // إذا لم يجهز Firebase بعد، انتظر الحدث.
+        window.addEventListener('firebase-ready', startWhenReady, { once: true });
+        return;
+      }
+
+      // حراسة الجلسة — نتحقق مرة واحدة بعد ثبات حالة المصادقة.
+      let authResolved = false;
+      FB.onAuthStateChanged(FB.auth, (user) => {
+        if (authResolved) return;   // نتعامل مع أول تقرير حالة فقط
+        authResolved = true;
+
+        if (!user) {
+          console.warn('[AUTH] لا توجد جلسة مستخدم — إعادة توجيه إلى login.html');
+          // منع أي وميض للـ UI قبل التوجيه.
+          try { document.body.style.visibility = 'hidden'; } catch(e){}
+          window.location.replace('login.html');
+          return;
+        }
+
+        console.info('[AUTH] مستخدم مسجَّل: ' + (user.email || user.uid));
+        bootUI();
+      }, (err) => {
+        console.error('[AUTH] خطأ في مراقبة حالة الجلسة:', err);
+        window.location.replace('login.html');
+      });
+    };
+
+    startWhenReady();
+  };
+
+  return { init };
+})();
+
+window.addEventListener('DOMContentLoaded', APP.init);
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
