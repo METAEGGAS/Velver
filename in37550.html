@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1730" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>FXER - Trading Chart</title>
+
+<!-- ============================================================
+     TradingView Lightweight Charts (Official CDN) - KEPT FROM ORIGINAL
+     ============================================================ -->
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+
+<!-- ============================================================
+     Firebase SDK v12 (App + Auth + Firestore)
+     - Auth      : للتحقق من جلسة المستخدم
+     - Firestore : لمزامنة currentIndex العالمي + تخزين كامل شموع الزوج
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQIKQ5swu_XnVtqET0B9EelRKFjr0LXHI",
+    authDomain: "ksksjsh-724f2.firebaseapp.com",
+    projectId: "ksksjsh-724f2",
+    storageBucket: "ksksjsh-724f2.firebasestorage.app",
+    messagingSenderId: "1046924412561",
+    appId: "1:1046924412561:web:1a40834236da75d0d6e130",
+    measurementId: "G-5D3YJQDH8B"
+  };
+
+  const app       = initializeApp(firebaseConfig);
+  try { getAnalytics(app); } catch(e) { /* analytics قد لا يعمل في بيئات معينة */ }
+  const auth      = getAuth(app);
+  const firestore = getFirestore(app);
+
+  // نُصدِّر ما يحتاجه بقية الكود إلى الـ window حتى يستطيع النص العادي (non-module) استخدامه.
+  window.FIREBASE = {
+    app,
+    auth,
+    firestore,
+    onAuthStateChanged,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp,
+    ready: true
+  };
+
+  // إشعار بقية الكود بأن Firebase جاهز (لأن module قد يُحمَّل بعد DOMContentLoaded).
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<style>
+  /* ============================================================
+     DESIGN COPIED VERBATIM FROM REFERENCE FILE
+     (erg_modV3ified_firestore_leaderboard.html)
+     ============================================================ */
+  :root{
+    --u:#0d1730;
+    --bd:#223252;
+  }
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    margin:0;
+    padding:0;
+  }
+  body,html{
+    height:100%;
+    overflow:hidden;
+  }
+  body{
+    background:var(--u);
+    color:#eef5ff;
+    user-select:none;
+    font:500 11px/1.15 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+  }
+
+  /* -------- APP CONTAINER -------- */
+  .app{
+    background:var(--u);
+    width:100vw;
+    height:100dvh;
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-top:env(safe-area-inset-top);
+    flex-direction:column;
+    display:flex;
+    position:relative;
+  }
+
+  /* -------- TOP BAR (balance + bonus) -------- */
+  .top{
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:5px 5px 3px;
+    display:flex;
+  }
+  .tc{
+    background:var(--u);
+    border:1px solid var(--bd);
+    direction:ltr;
+    border-radius:8px;
+    max-width:255px;
+    padding:3px 8px;
+  }
+  .t1{
+    align-items:center;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .lg{
+    align-items:center;
+    display:flex;
+    gap:6px;
+  }
+  .d{
+    color:#fff;
+    background:#f1ad24;
+    border-radius:4px;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font:800 12px/1 system-ui;
+    display:grid;
+  }
+  .nm{
+    color:#fff;
+    white-space:nowrap;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:500;
+    display:flex;
+  }
+  .nm b{
+    color:#f1ad24;
+    font-size:13px;
+    font-weight:600;
+    line-height:1;
+  }
+  .t2{
+    align-items:center;
+    display:flex;
+    color:#ffcf54;
+    margin-top:2px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:.2px;
+  }
+  .usd{
+    color:#ffcf54;
+    border:1px solid #8d6b1f;
+    border-radius:4px;
+    margin-left:6px;
+    padding:1px 5px;
+    font-size:8px;
+    line-height:1;
+  }
+  .dd{
+    color:#f1ad24;
+    margin-top:-4px;
+    font-size:16px;
+    font-weight:600;
+    line-height:1;
+  }
+  .fxBonus{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:#6429D8;
+    border-radius:8px;
+    padding:4px 8px;
+    color:#fff;
+    font-size:9px;
+    font-weight:600;
+    line-height:1.15;
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(100,41,216,.35);
+    white-space:normal;
+    text-align:center;
+    max-width:110px;
+  }
+  .fxBonus img{
+    width:18px;
+    height:18px;
+    flex:none;
+    filter:brightness(0) invert(1);
+  }
+  .dep{
+    color:#f1ad24;
+    text-align:center;
+    cursor:pointer;
+    font-size:9px;
+    line-height:1.05;
+  }
+  .dep img{
+    filter:brightness(0) saturate(1) invert(72%) sepia(58%) saturate(720%) hue-rotate(360deg) brightness(97%) contrast(94%);
+    width:32px;
+    height:32px;
+    margin:0 auto 3px;
+    display:block;
+  }
+
+  /* -------- ASSET / PAIR ROW -------- */
+  .asset{
+    align-items:center;
+    display:grid;
+    z-index:20;
+    direction:ltr;
+    flex:none;
+    grid-template-rows:32px;
+    grid-template-columns:32px 132px;
+    place-content:start;
+    column-gap:3px;
+    padding:3px 5px 4px;
+    position:relative;
+  }
+  .sq{
+    color:#cad6eb;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    flex:none;
+    grid-area:1/1;
+    place-items:center;
+    width:32px;
+    height:32px;
+    font-size:16px;
+    display:grid;
+  }
+  .pill{
+    color:#cad6eb;
+    background:var(--u);
+    cursor:pointer;
+    grid-area:1/2;
+    align-items:center;
+    gap:6px;
+    padding:0 6px;
+    display:flex;
+    border:1px solid var(--bd);
+    border-radius:7px;
+    height:32px;
+  }
+  .pill .fl{
+    width:16px;height:16px;flex:none;object-fit:cover;
+    border-radius:3px;background:#1a2540;
+  }
+  .pill .pn{
+    color:#eef5ff;
+    font-size:12px;font-weight:600;
+    letter-spacing:.2px;
+    flex:1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .pill .pct{
+    color:#21c965;
+    font-size:11px;font-weight:700;
+    white-space:nowrap;
+  }
+
+  /* -------- CHART -------- */
+  .chart{
+    background:var(--u);
+    flex:1 1 auto;
+    min-height:0;
+    position:relative;
+  }
+  #chart{
+    position:absolute;inset:0;
+  }
+  .price-overlay{
+    position:absolute;top:0;right:0;bottom:0;
+    width:auto;pointer-events:none;
+    z-index:5;
+  }
+  .price-overlay .pl{
+    position:absolute;right:4px;
+    transform:translateY(-50%);
+    color:#8698b2;
+    font:600 10px/1 system-ui,-apple-system,Segoe UI,Tahoma;
+    letter-spacing:.2px;
+    text-shadow:0 1px 2px rgba(0,0,0,.5);
+    white-space:nowrap;
+    pointer-events:none;
+  }
+  .price-overlay .pl.live{
+    color:#21c965;
+    font-weight:700;
+    font-size:11px;
+  }
+
+  /* Floating time/status label */
+  .ptm{
+    position:absolute;
+    top:8px;left:8px;
+    background:rgba(13,23,48,.75);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    padding:4px 8px;
+    display:flex;align-items:center;gap:6px;
+    z-index:15;
+    backdrop-filter:blur(4px);
+  }
+  .ptm .pi{
+    display:inline-grid;place-items:center;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:#3e8cff;color:#fff;
+    font:800 9px/1 system-ui;
+  }
+  .ptm .ptx{
+    display:flex;flex-direction:column;line-height:1.1;
+  }
+  .ptm .ptx b{
+    color:#eef5ff;font-size:11px;font-weight:700;
+  }
+  .ptm .ptx small{
+    color:#8698b2;font-size:9px;
+  }
+  .ptm .pg{
+    display:inline-block;
+    width:6px;height:6px;border-radius:50%;
+    background:#21c965;
+    box-shadow:0 0 6px #21c965;
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;transform:scale(1);}
+    50%{opacity:.4;transform:scale(1.3);}
+  }
+
+  .zoomDebug{
+    position:absolute;bottom:8px;left:8px;
+    color:#4a5876;font:600 9px/1 monospace;
+    z-index:14;pointer-events:none;
+    opacity:.4;
+  }
+
+  /* -------- LOADING OVERLAY -------- */
+  .overlay{
+    position:absolute;inset:0;
+    background:rgba(13,23,48,.92);
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:12px;z-index:100;
+  }
+  .overlay.hidden{display:none;}
+  .loading-spinner{
+    width:32px;height:32px;
+    border:3px solid #223252;
+    border-top-color:#3e8cff;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{
+    color:#cad6eb;font-size:12px;
+    text-align:center;white-space:pre-line;
+  }
+
+  /* -------- TOOL BAR -------- */
+  .bar{
+    flex:none;
+    display:flex;align-items:center;gap:6px;
+    padding:5px 8px;
+    background:var(--u);
+    border-top:1px solid var(--bd);
+    border-bottom:1px solid var(--bd);
+    direction:ltr;
+  }
+  .tool{
+    color:#cad6eb;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:6px;
+    width:28px;height:26px;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:600;
+    cursor:pointer;
+    flex:none;
+  }
+  .tool:active{background:#1a2540;}
+  .tfs{
+    display:flex;gap:4px;flex:1;justify-content:center;
+  }
+  .tfb{
+    color:#8698b2;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:6px;
+    padding:4px 9px;
+    font:700 10px/1 system-ui;
+    cursor:pointer;
+    letter-spacing:.4px;
+  }
+  .tfb.on{
+    color:#eef5ff;background:#1a2540;border-color:#3e8cff;
+  }
+  .inf{
+    color:#21c965;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:6px;
+    width:28px;height:26px;
+    display:grid;place-items:center;
+    font-size:14px;font-weight:600;
+    cursor:pointer;
+    flex:none;
+  }
+
+  /* -------- CTRL (time / amount) -------- */
+  .ctrl{
+    flex:none;
+    padding:6px 8px;
+    display:flex;flex-direction:column;gap:5px;
+    background:var(--u);
+    direction:ltr;
+  }
+  .rw,.rw2{
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  }
+  .rw{grid-template-columns:26px 1fr 26px;}
+  .bx{
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    height:32px;
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .bx3{
+    color:#cad6eb;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:6px;
+    width:26px;height:26px;
+    display:grid;place-items:center;
+    font-size:15px;font-weight:700;
+    cursor:pointer;
+  }
+  .cp{cursor:pointer;}
+  .mid,.val{
+    color:#eef5ff;
+    font:700 12px/1 system-ui;
+    letter-spacing:.5px;
+  }
+  .rw2 .bx{
+    display:grid;grid-template-columns:26px 1fr 26px;gap:0;
+    padding:0 3px;
+  }
+  .rw2 .bx .bx3{
+    width:24px;height:24px;font-size:14px;border:none;
+  }
+
+  /* -------- ACTS (BUY / SELL) -------- */
+  .acts{
+    flex:none;
+    display:grid;grid-template-columns:1fr 1fr;gap:6px;
+    padding:6px 8px;
+    direction:ltr;
+  }
+  .btn{
+    border:none;color:#fff;
+    border-radius:10px;
+    padding:8px 6px;
+    font:600 10px/1.15 system-ui;
+    cursor:pointer;
+    display:flex;flex-direction:column;
+    align-items:center;gap:3px;
+    letter-spacing:.3px;
+  }
+  .btn b{font-size:15px;font-weight:800;letter-spacing:.8px;}
+  .btn .rt{
+    font-size:10px;font-weight:700;
+    background:rgba(255,255,255,.18);
+    padding:1px 5px;border-radius:3px;
+  }
+  .btn i{font-style:normal;font-size:8.5px;opacity:.85;}
+  .btn small{font-size:11px;font-weight:700;}
+  .btn.up{background:#21c965;box-shadow:0 3px 10px rgba(33,201,101,.35);}
+  .btn.dn{background:#ff4f4f;box-shadow:0 3px 10px rgba(255,79,79,.35);}
+
+  /* -------- BOTTOM NAV -------- */
+  .nav{
+    flex:none;
+    display:grid;grid-template-columns:repeat(4,1fr);
+    background:var(--u);
+    border-top:1px solid var(--bd);
+    padding:5px 0 3px;
+  }
+  .ni{
+    display:flex;flex-direction:column;
+    align-items:center;gap:2px;
+    color:#8698b2;font-size:9px;
+    cursor:pointer;
+  }
+  .ni img{width:20px;height:20px;object-fit:contain;opacity:.7;}
+  .ni.a{color:#3e8cff;}
+  .ni.a img{opacity:1;filter:brightness(0) saturate(1) invert(58%) sepia(93%) saturate(1240%) hue-rotate(190deg) brightness(101%) contrast(101%);}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <!-- ============ TOP (balance + bonus + deposit) ============ -->
+  <div class="top">
+    <div class="tc">
+      <div class="t1">
+        <div class="lg">
+          <div class="d">F</div>
+          <div class="nm">مرحباً، <b>Trader</b></div>
+        </div>
+      </div>
+      <div class="t2">
+        <span>$ 10,000.00</span>
+        <span class="usd">USD</span>
+        <span class="dd">▾</span>
+      </div>
+    </div>
+    <div class="fxBonus">
+      <img src="https://i.ibb.co/WsWyz8n/gift.png" alt="" />
+      <span>احصل على مكافأة<br/>الإيداع 100%</span>
+    </div>
+    <div class="dep">
+      <img src="https://i.ibb.co/K0m1YkH/wallet.png" alt="" />
+      <span>إيداع</span>
+    </div>
+  </div>
+
+  <!-- ============ ASSET / PAIR ============ -->
+  <div class="asset">
+    <div class="sq">≡</div>
+    <div class="pill">
+      <img class="fl" src="https://flagcdn.com/w40/eu.png" alt="" />
+      <span class="pn" id="symbolLabel">EUR/USD</span>
+      <span class="pct">+0.00%</span>
+    </div>
+  </div>
+
+  <!-- ============ CHART ============ -->
+  <div class="chart" id="CH">
+    <div id="chart"></div>
+    <!-- Floating transparent price labels layer -->
+    <div class="price-overlay" id="priceOverlay"></div>
+
+    <!-- Time / status floating label (matches reference .ptm) -->
+    <div class="ptm">
+      <span class="pi">i</span>
+      <div class="ptx">
+        <b id="ptmH">—</b>
+        <small id="statusText">في انتظار البيانات</small>
+      </div>
+      <span class="pg"></span>
+    </div>
+
+    <!-- Zoom debug readout -->
+    <div class="zoomDebug" id="zoomDebug">Zoom: —</div>
+
+    <!-- Loading Overlay (auto-load only, no upload UI) -->
+    <div class="overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">جاري تحميل البيانات...</div>
+    </div>
+  </div>
+
+  <!-- ============ BAR (tools + timeframes) ============ -->
+  <div class="bar">
+    <div class="tool" id="btnReload" title="إعادة تحميل">↻</div>
+    <div class="tool" id="btnFit" title="ملائمة">⛶</div>
+    <div class="tfs" id="tfButtons">
+      <div class="tfb on" data-tf="1m">1m</div>
+      <div class="tfb" data-tf="5m">5m</div>
+      <div class="tfb" data-tf="15m">15m</div>
+      <div class="tfb" data-tf="1h">1H</div>
+    </div>
+    <div class="inf" id="btnLive" title="Live">●</div>
+  </div>
+
+  <!-- ============ CTRL (time / amount rows) ============ -->
+  <div class="ctrl">
+    <div class="rw">
+      <div class="bx3" id="tmM">-</div>
+      <div class="bx cp" id="tOpen">
+        <div class="mid" id="tVal">00:01:00</div>
+      </div>
+      <div class="bx3" id="tmP">+</div>
+    </div>
+    <div class="rw2">
+      <div class="bx cp" id="aOpen">
+        <div class="bx3" id="amM">-</div>
+        <div class="val" id="aVal">$ 23</div>
+        <div class="bx3" id="amP">+</div>
+      </div>
+      <div class="bx">
+        <div class="bx3">-</div>
+        <div class="val" id="livePrice">0.00000</div>
+        <div class="bx3">+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ACTS (BUY / SELL buttons) ============ -->
+  <div class="acts">
+    <button class="btn up" id="btnBuy">
+      <b>UP</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p1">$ 21.39</small>
+    </button>
+    <button class="btn dn" id="btnSell">
+      <b>DOWN</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p2">$ 21.39</small>
+    </button>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="nav">
+    <div class="ni a">
+      <img src="https://i.ibb.co/Rpz3mRPf/69.png" alt="" />
+      <span>الرسم البياني</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/PsZW7C4x/68.png" alt="" />
+      <span>ترتيب</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/m5hRKGpS/67.png" alt="" />
+      <span id="statsText">السجل</span>
+    </div>
+    <div class="ni">
+      <span style="font-size:16px">👤</span>
+      <span>الملف</span>
+    </div>
+  </div>
+
+  <!-- Hidden helper: close-all positions button (kept from original for functionality) -->
+  <button id="btnCloseAll" style="display:none"></button>
+  <div id="positionsList" style="display:none"></div>
+</div>
+
+<script>
+/* ===============================================================
+ *  Professional Trading Chart System — Fully Self-Contained
+ *  Powered by TradingView Lightweight Charts v4
+ *  ---------------------------------------------------------------
+ *  ✅ لا يعتمد على أي ملف CSV خارجي إطلاقاً.
+ *  ✅ مولّد أسعار احترافي واقعي جداً (GBM + micro-noise + spikes) داخل الملف.
+ *  ✅ كل شمعة تُغلق → تُحفظ فوراً في Firestore (patch الزوج).
+ *  ✅ عند الريفريش / فتح الشارت: تُقرأ كل الشموع المخزّنة بقراءة واحدة فقط.
+ *  ✅ الشموع المخزَّنة تُعرض كما هي 100% في كل مرة — بدون إعادة توليد.
+ *  ✅ الحفاظ الكامل على منطق Firebase Auth + GLOBAL_INDEX_MANAGER + TradingView.
+ * =============================================================== */
+
+
+/* ===============================================================
+ *  1. PRICE_GENERATOR  (NEW — replaces CSV/Tick file loading)
+ *  --------------------------------------------------------------
+ *  مولّد أسعار احترافي و واقعي جداً — يولّد Ticks داخل الدقيقة الواحدة
+ *  بأسلوب سوق حقيقي (زوج EUR/USD):
+ *
+ *    - Geometric Brownian Motion  (نموذج حركة السعر الأساسي)
+ *    - Mean-reversion drift        (رجعية للمتوسط لمنع الانحراف اللانهائي)
+ *    - Volatility clustering       (فترات هدوء وفترات نشاط)
+ *    - Micro-noise                 (اهتزاز بسيط داخل الـtick يحاكي bid/ask)
+ *    - Occasional spikes           (قفزات صغيرة نادرة تحاكي أخبار السوق)
+ *    - Deterministic PRNG          (بذرة قابلة للتحكم لضمان ثبات الشموع السابقة
+ *                                     في حال إعادة التوليد داخل نفس الجلسة)
+ *
+ *  الاستخدام:
+ *    - generateMinuteTicks(minuteEpoch, startPrice, opts)
+ *        → يُرجع مصفوفة { time, price } لدقيقة كاملة (~30-90 tick واقعي).
+ *    - generateHistoryBuckets(startEpochMin, count, startPrice)
+ *        → يُرجع مصفوفة buckets مغلقة لدقائق سابقة كـ warm-start.
+ *
+ *  ملاحظة مهمّة: المولّد لا يُستخدم أبداً لإعادة توليد شمعة سبق حفظها في
+ *  Firestore. الشموع المُغلقة المخزّنة تُعرض كما هي مباشرة (طلب المستخدم).
+ * =============================================================== */
+const PRICE_GENERATOR = (() => {
+
+  /* -------------------- PRNG قابل للبذر (Mulberry32) -------------------- */
+  const _mulberry32 = (seed) => {
+    let a = seed >>> 0;
+    return () => {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  };
+
+  /* توزيع طبيعي عبر Box-Muller باستخدام rng محدد. */
+  const _gauss = (rng) => {
+    let u = 0, v = 0;
+    while (u === 0) u = rng();
+    while (v === 0) v = rng();
+    return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+  };
+
+  /* -------------------- إعدادات افتراضية (EUR/USD) -------------------- */
+  const DEFAULTS = {
+    // pip = 0.0001 ؛ الحركة النموذجية للدقيقة ~0.5 pip - 2 pip (mid-vol)
+    baseSigmaPerSec: 0.000012,   // انحراف معياري للسعر لكل ثانية (~0.12 pip)
+    driftPerSec:    -0.0000002,  // انسياب صغير جداً
+    meanReversion:  0.00004,     // قوة الرجعية إلى المتوسط (لكل ثانية)
+    meanPrice:      1.08500,     // المتوسط الذي يتم الرجوع إليه (مركز EURUSD تقريبي)
+    ticksPerMinute: 55,          // متوسط عدد الـticks داخل دقيقة (يتذبذب ±25)
+    microNoise:     0.000004,    // اهتزاز صغير جداً بين tick والذي يليه
+    spikeProb:      0.008,       // احتمال حدوث spike في كل tick (~1 لكل 125 tick)
+    spikeSigmaMul:  4.5,         // مضاعف الانحراف عند spike
+    volClusterAmp:  0.55,        // سعة تجمّع التقلب (0..1)
+    volClusterFreq: 1 / (60 * 12) // دورة كاملة ~12 دقيقة
+  };
+
+  /* -------------------- توليد ticks لدقيقة واحدة -------------------- */
+  /* minuteEpoch : epoch بالثواني (يجب أن يكون على حدّ دقيقة كامل)
+     startPrice  : سعر الافتتاح (open) للدقيقة
+     opts        : { seed, ...override } */
+  const generateMinuteTicks = (minuteEpoch, startPrice, opts = {}) => {
+    const cfg = Object.assign({}, DEFAULTS, opts);
+    const seed = (opts.seed != null) ? (opts.seed >>> 0) : ((minuteEpoch * 2654435761) >>> 0);
+    const rng = _mulberry32(seed);
+
+    // نُحدّد عدد ticks (يتفاوت طبيعياً)
+    const jitter = Math.floor((rng() - 0.5) * 50);
+    const n = Math.max(20, Math.min(120, cfg.ticksPerMinute + jitter));
+
+    const ticks = [];
+    let price = startPrice;
+
+    // vol clustering — دورة sin بطيئة تجعل بعض الدقائق أهدأ وبعضها أنشط
+    const clusterPhase = (minuteEpoch * 60) * cfg.volClusterFreq * 2 * Math.PI;
+
+    for (let i = 0; i < n; i++) {
+      // موقع الـtick داخل الدقيقة (0..1) — لن يصل إلى 1 (يحفظ آخر جزء للإغلاق)
+      const frac = (i + 0.5) / n;
+      const dtSec = 60 / n; // ثواني تقريبية بين tick والذي يليه
+
+      // معامل التقلب الحالي (0.4..1.6 مع cluster)
+      const volCluster = 1 + cfg.volClusterAmp * Math.sin(clusterPhase + i * 0.13);
+      let sigma = cfg.baseSigmaPerSec * Math.sqrt(dtSec) * Math.max(0.35, volCluster);
+
+      // احتمال spike صغير
+      if (rng() < cfg.spikeProb) sigma *= cfg.spikeSigmaMul;
+
+      // خطوة GBM لوغاريتمية + drift + mean-reversion
+      const drift = cfg.driftPerSec * dtSec;
+      const mrPull = cfg.meanReversion * (cfg.meanPrice - price) * dtSec;
+      const shock = _gauss(rng) * sigma;
+
+      // نطبّق على السعر بشكل ضربي (مناسب لأسعار العملات)
+      const step = drift + mrPull + shock;
+      price = price * (1 + step);
+
+      // ضمانات: لا سعر سالب أو صفر
+      if (!isFinite(price) || price <= 0) price = startPrice;
+
+      // اهتزاز مايكرو (bid/ask flicker)
+      const micro = (rng() - 0.5) * 2 * cfg.microNoise;
+      const shown = price + micro;
+
+      // إحداثيات زمنية داخل الدقيقة (نُعطي طوابع زمنية متزايدة)
+      const tSec = minuteEpoch + Math.floor(frac * 60);
+      ticks.push({ time: tSec, price: Number(shown.toFixed(6)) });
+    }
+
+    // نضمن أن أول tick يبدأ *بالضبط* من startPrice ليطابق close الشمعة السابقة.
+    if (ticks.length > 0) ticks[0].price = Number(startPrice.toFixed(6));
+
+    return ticks;
+  };
+
+  /* -------------------- بناء شمعة OHLC مغلقة من ticks -------------------- */
+  const buildCandleFromTicks = (minuteEpoch, ticks) => {
+    if (!ticks || ticks.length === 0) {
+      return { time: minuteEpoch, open: 0, high: 0, low: 0, close: 0, volume: 0 };
+    }
+    let open = ticks[0].price;
+    let high = open, low = open, close = open;
+    for (const t of ticks) {
+      if (t.price > high) high = t.price;
+      if (t.price < low)  low  = t.price;
+      close = t.price;
+    }
+    return {
+      time: minuteEpoch,
+      open:  Number(open.toFixed(6)),
+      high:  Number(high.toFixed(6)),
+      low:   Number(low.toFixed(6)),
+      close: Number(close.toFixed(6)),
+      volume: ticks.length
+    };
+  };
+
+  /* -------------------- توليد سلسلة شموع تاريخية (warm-start) -------------------- */
+  /* عند أول تشغيل ولا توجد شموع محفوظة في Firestore، نبني تاريخاً افتراضياً
+     من `count` دقيقة سابقة انتهاءً بالدقيقة (startEpochMin-1). */
+  const generateHistoryBuckets = (startEpochMin, count, startPrice) => {
+    const buckets = [];
+    const candles = [];
+    let price = startPrice;
+    // نبدأ من (startEpochMin - count) وصولاً إلى (startEpochMin - 1) شاملاً
+    const firstMin = startEpochMin - count;
+    for (let m = firstMin; m < startEpochMin; m++) {
+      const minuteEpoch = m * 60;
+      const ticks = generateMinuteTicks(minuteEpoch, price, { seed: (m * 2654435761) >>> 0 });
+      const candle = buildCandleFromTicks(minuteEpoch, ticks);
+      buckets.push({ minuteEpoch, ticks });
+      candles.push(candle);
+      price = candle.close;
+    }
+    return { buckets, candles, finalPrice: price };
+  };
+
+  return {
+    generateMinuteTicks,
+    buildCandleFromTicks,
+    generateHistoryBuckets,
+    DEFAULTS
+  };
+})();
+
+
+/* ===============================================================
+ *  1.5  TICK_AGGREGATOR  (kept — used by TICK_PLAYER)
+ *  --------------------------------------------------------------
+ *  يُبنى داخل الذاكرة فقط الآن (بدون CSV). يستخدم:
+ *    - buildClosedCandle(bucket, prevClose)
+ *    - buildPartialCandle(bucket, upToIdx)
+ *    - bucketsToM1(buckets)
+ * =============================================================== */
+const TICK_AGGREGATOR = (() => {
+
+  const buildClosedCandle = (bucket, prevClose) => {
+    const t = bucket.minuteEpoch;
+    if (!bucket.ticks || bucket.ticks.length === 0) {
+      const px = (typeof prevClose === 'number' && isFinite(prevClose)) ? prevClose : 0;
+      return { time: t, open: px, high: px, low: px, close: px, volume: 0 };
+    }
+    let open = bucket.ticks[0].price;
+    let high = open, low = open, close = open;
+    for (const tk of bucket.ticks) {
+      if (tk.price > high) high = tk.price;
+      if (tk.price < low)  low  = tk.price;
+      close = tk.price;
+    }
+    return { time: t, open, high, low, close, volume: bucket.ticks.length };
+  };
+
+  const buildPartialCandle = (bucket, upToTickIdx /* inclusive; -1 = قبل أي tick */) => {
+    const t = bucket.minuteEpoch;
+    if (!bucket.ticks || bucket.ticks.length === 0) {
+      return { time: t, open: 0, high: 0, low: 0, close: 0, volume: 0 };
+    }
+    const open = bucket.ticks[0].price;
+    let high = open, low = open, close = open;
+    const limit = Math.max(0, Math.min(upToTickIdx, bucket.ticks.length - 1));
+    for (let i = 0; i <= limit; i++) {
+      const p = bucket.ticks[i].price;
+      if (p > high) high = p;
+      if (p < low)  low  = p;
+      close = p;
+    }
+    return { time: t, open, high, low, close, volume: limit + 1 };
+  };
+
+  const bucketsToM1 = (buckets) => {
+    const out = [];
+    let prevClose = 0;
+    for (const b of buckets) {
+      const c = buildClosedCandle(b, prevClose);
+      out.push(c);
+      prevClose = c.close;
+    }
+    return out;
+  };
+
+  return { buildClosedCandle, buildPartialCandle, bucketsToM1 };
+})();
+
+
+/* ===============================================================
+ *  2. CANDLE_STORE  (NEW — replaces DATA_LOADER)
+ *  --------------------------------------------------------------
+ *  يدير مصفوفة الشموع المغلقة والـbuckets في الذاكرة، ويوفّر:
+ *    - loadFromFirestore(symbol)  : قراءة كل الشموع بقراءة واحدة فقط.
+ *    - saveCandleToFirestore(symbol, candle, ticks)  : يحفظ شمعة مغلقة.
+ *    - warmStart(startPrice, count)                  : يبني تاريخاً ابتدائياً
+ *      عند أول تشغيل (لا وجود لشموع سابقة في Firestore).
+ *    - appendClosedCandle(candle, ticks)             : يُدرج شمعة مغلقة محلياً.
+ *    - getBuckets() / getM1() / getSymbol()
+ *
+ *  البنية في Firestore:
+ *    مجموعة: pairs
+ *    مستند : <SYMBOL>  (مثال: EURUSD)
+ *      حقل patch  : Array<Candle>  ← جميع الشموع مسلسلة
+ *                    كل عنصر = { t, o, h, l, c, v, ticks:[[relSec, price], ...] }
+ *      حقل symbol : "EURUSD"
+ *      حقل updatedAt : timestamp
+ * =============================================================== */
+const CANDLE_STORE = (() => {
+  const COLLECTION = 'pairs';
+
+  let _symbol   = 'EURUSD';
+  let _buckets  = [];   // buckets الدقائق (كل عنصر يحتوي على Ticks)
+  let _m1Cache  = [];   // شموع M1 المغلقة
+
+  const _fb = () => window.FIREBASE;
+
+  /* حزم شمعة + ticks إلى بنية مضغوطة قابلة للتخزين. */
+  const _packCandle = (candle, ticks) => {
+    const minEp = candle.time;
+    // نُخزّن ticks بشكل مضغوط: [relativeSeconds, price]
+    // النطاق 0..59
+    const packedTicks = (ticks || []).map(tk => {
+      const rel = Math.max(0, Math.min(59, tk.time - minEp));
+      return [rel, Number(tk.price.toFixed(6))];
+    });
+    return {
+      t: candle.time,
+      o: Number(candle.open.toFixed(6)),
+      h: Number(candle.high.toFixed(6)),
+      l: Number(candle.low.toFixed(6)),
+      c: Number(candle.close.toFixed(6)),
+      v: candle.volume || (packedTicks.length),
+      ticks: packedTicks
+    };
+  };
+
+  const _unpackCandle = (obj) => {
+    const candle = {
+      time:  obj.t,
+      open:  obj.o,
+      high:  obj.h,
+      low:   obj.l,
+      close: obj.c,
+      volume: obj.v || 0
+    };
+    const ticks = (obj.ticks || []).map(pair => ({
+      time:  obj.t + (pair[0] || 0),
+      price: pair[1]
+    }));
+    // إذا كانت الشمعة بدون ticks (فقدت لأي سبب)، نبني tick واحد عند open و close على الأقل
+    if (ticks.length === 0) {
+      ticks.push({ time: obj.t, price: obj.o });
+      ticks.push({ time: obj.t + 30, price: obj.c });
+    }
+    return { candle, ticks };
+  };
+
+  /* -------------------- قراءة كامل الـpatch بقراءة واحدة -------------------- */
+  const loadFromFirestore = async (symbol) => {
+    _symbol = symbol || 'EURUSD';
+    if (!_fb() || !_fb().ready) throw new Error('Firebase غير جاهز.');
+
+    const ref = _fb().doc(_fb().firestore, COLLECTION, _symbol);
+    const snap = await _fb().getDoc(ref);
+
+    if (!snap.exists()) {
+      _buckets = [];
+      _m1Cache = [];
+      return { buckets: _buckets, candles: _m1Cache, symbol: _symbol, exists: false };
+    }
+    const data = snap.data() || {};
+    const patch = Array.isArray(data.patch) ? data.patch : [];
+
+    _buckets = [];
+    _m1Cache = [];
+    for (const rec of patch) {
+      const { candle, ticks } = _unpackCandle(rec);
+      _buckets.push({ minuteEpoch: candle.time, ticks });
+      _m1Cache.push(candle);
+    }
+
+    // ضمان الترتيب الزمني
+    _buckets.sort((a, b) => a.minuteEpoch - b.minuteEpoch);
+    _m1Cache.sort((a, b) => a.time - b.time);
+
+    console.info('[CANDLE_STORE] تم تحميل ' + _m1Cache.length + ' شمعة من Firestore (' + _symbol + ') بقراءة واحدة.');
+    return { buckets: _buckets, candles: _m1Cache, symbol: _symbol, exists: true };
+  };
+
+  /* -------------------- إنشاء تاريخ ابتدائي (warm-start) -------------------- */
+  /* يبني `count` شمعة ابتدائية في الذاكرة فقط ثم يكتبها دفعة واحدة إلى Firestore
+     (كتابة واحدة) حتى تصبح ثابتة لكل الأجهزة القادمة. */
+  const warmStartAndPersist = async (count = 60, startPrice = 1.08500) => {
+    const nowMin = Math.floor(Date.now() / 60000);
+    const { buckets, candles } = PRICE_GENERATOR.generateHistoryBuckets(nowMin, count, startPrice);
+    _buckets = buckets;
+    _m1Cache = candles;
+
+    // نبني patch مضغوط ونحفظه دفعة واحدة
+    const patch = [];
+    for (let i = 0; i < buckets.length; i++) {
+      patch.push(_packCandle(candles[i], buckets[i].ticks));
+    }
+
+    if (_fb() && _fb().ready) {
+      try {
+        const ref = _fb().doc(_fb().firestore, COLLECTION, _symbol);
+        await _fb().setDoc(ref, {
+          symbol: _symbol,
+          patch: patch,
+          updatedAt: _fb().serverTimestamp()
+        });
+        console.info('[CANDLE_STORE] تم حفظ ' + patch.length + ' شمعة ابتدائية في Firestore (' + _symbol + ').');
+      } catch (e) {
+        console.error('[CANDLE_STORE] فشل حفظ warm-start:', e);
+      }
+    }
+
+    return { buckets: _buckets, candles: _m1Cache, symbol: _symbol };
+  };
+
+  /* -------------------- إضافة شمعة مغلقة (محلياً + Firestore) -------------------- */
+  const appendClosedCandle = async (candle, ticks) => {
+    // إدراج محلي
+    _buckets.push({ minuteEpoch: candle.time, ticks: (ticks || []).slice() });
+    _m1Cache.push(candle);
+
+    // كتابة في Firestore عبر transaction لضمان عدم التصادم
+    if (_fb() && _fb().ready) {
+      const ref = _fb().doc(_fb().firestore, COLLECTION, _symbol);
+      const packed = _packCandle(candle, ticks);
+      try {
+        await _fb().runTransaction(_fb().firestore, async (tx) => {
+          const s = await tx.get(ref);
+          let patch = [];
+          if (s.exists()) {
+            const d = s.data() || {};
+            patch = Array.isArray(d.patch) ? d.patch.slice() : [];
+          }
+          // منع التكرار (لو جهاز آخر كتبها بالفعل بنفس الطابع الزمني)
+          const exists = patch.some(x => x && x.t === packed.t);
+          if (!exists) patch.push(packed);
+          patch.sort((a, b) => (a.t || 0) - (b.t || 0));
+          tx.set(ref, {
+            symbol: _symbol,
+            patch: patch,
+            updatedAt: _fb().serverTimestamp()
+          }, { merge: true });
+        });
+        console.info('[CANDLE_STORE] شمعة محفوظة في Firestore (t=' + candle.time + ').');
+      } catch (e) {
+        console.error('[CANDLE_STORE] فشل حفظ الشمعة:', e);
+      }
+    }
+  };
+
+  const getBuckets = () => _buckets;
+  const getM1     = () => _m1Cache;
+  const getSymbol = () => _symbol;
+  const setSymbol = (s) => { _symbol = s || 'EURUSD'; };
+
+  return {
+    loadFromFirestore,
+    warmStartAndPersist,
+    appendClosedCandle,
+    getBuckets,
+    getM1,
+    getSymbol,
+    setSymbol
+  };
+})();
+
+
+/* ===============================================================
+ *  3. CANDLE_ENGINE  (UNCHANGED)
+ * =============================================================== */
+const CANDLE_ENGINE = (() => {
+  const TF_SECONDS = {
+    '1m': 60, '5m': 5*60, '15m': 15*60, '30m': 30*60,
+    '1h': 60*60, '4h': 4*60*60, '1D': 24*60*60,
+  };
+  const alignTime = (t, sec) => Math.floor(t / sec) * sec;
+  const aggregate = (m1, tf) => {
+    const sec = TF_SECONDS[tf];
+    if (!sec) throw new Error(`Unknown TF: ${tf}`);
+    if (tf === '1m') return m1.slice();
+    const out = [];
+    let bucket = null;
+    for (const c of m1) {
+      const alignedT = alignTime(c.time, sec);
+      if (!bucket || bucket.time !== alignedT) {
+        if (bucket) out.push(bucket);
+        bucket = { time: alignedT, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 };
+      } else {
+        bucket.high   = Math.max(bucket.high, c.high);
+        bucket.low    = Math.min(bucket.low,  c.low);
+        bucket.close  = c.close;
+        bucket.volume += (c.volume || 0);
+      }
+    }
+    if (bucket) out.push(bucket);
+    return out;
+  };
+  const getTFSeconds = (tf) => TF_SECONDS[tf];
+  const listTFs = () => Object.keys(TF_SECONDS);
+  return { aggregate, getTFSeconds, listTFs, alignTime };
+})();
+
+
+/* ===============================================================
+ *  4. TICK_PLAYER  (يعيد تشغيل ticks الدقيقة النشطة بحركة سلسة)
+ *  --------------------------------------------------------------
+ *  - يستقبل bucket الدقيقة النشطة { minuteEpoch, ticks[] }.
+ *  - يعرض حركة سلسة (interpolation + easing) بين كل tick والذي يليه.
+ *  - عند بلوغ حدّ الدقيقة الجدارية → onClose(closedCandle).
+ *  - إذا انتهت الـticks المولّدة قبل بلوغ حدّ الدقيقة (كسر التيك):
+ *      * الشمعة تكمل بشكل عادي بحيث يبقى close ثابت عند آخر tick.
+ *      * لن يفشل التشغيل — تكمل الدقيقة إلى النهاية ثم تُغلق.
+ *  - كل الحسابات النهائية للـOHLC تُبنى من ticks حقيقية فقط (لا override دائم).
+ * =============================================================== */
+const TICK_PLAYER = (() => {
+  let _timer = null;
+  let _running = false;
+  let _onTick = null;
+  let _onClose = null;
+
+  let _bucket = null;
+  let _bucketT = 0;
+  let _tickIdx = -1;
+  let _price = 0;
+  let _open  = 0;
+  let _high  = 0;
+  let _low   = 0;
+
+  let _startWallMs = 0;
+  let _closeAtMs   = 0;
+  let _closedFired = false;
+
+  let _tickFracs = [];
+
+  const _computeFractions = (bucket) => {
+    const arr = bucket.ticks || [];
+    if (arr.length === 0) return [];
+    const n = arr.length;
+    if (n === 1) return [0];
+    return arr.map((_, i) => i / n);
+  };
+
+  const _buildCurrent = (overrideClose) => {
+    if (!_bucket) return { time: _bucketT, open: _open, high: _high, low: _low, close: _price, volume: 0 };
+    const c = TICK_AGGREGATOR.buildPartialCandle(_bucket, _tickIdx);
+    if (typeof overrideClose === 'number' && isFinite(overrideClose)) {
+      let cc = overrideClose;
+      if (cc > c.high) cc = c.high;
+      if (cc < c.low)  cc = c.low;
+      c.close = cc;
+    }
+    return c;
+  };
+
+  const _ease = (t) => {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return t * t * (3 - 2 * t);
+  };
+
+  const _timerFn = () => {
+    if (!_running || !_bucket) return;
+
+    const nowMs = Date.now();
+    const elapsedMs = Math.max(0, nowMs - _startWallMs);
+    const totalMs   = Math.max(1, _closeAtMs - _startWallMs);
+    const frac      = Math.min(1, elapsedMs / totalMs);
+
+    const ticks = _bucket.ticks || [];
+
+    if (_tickIdx + 1 < ticks.length && _tickFracs[_tickIdx + 1] <= frac) {
+      _tickIdx++;
+      const p = ticks[_tickIdx].price;
+      _price = p;
+      if (_tickIdx === 0) {
+        _open = p; _high = p; _low = p;
+      } else {
+        if (p > _high) _high = p;
+        if (p < _low)  _low  = p;
+      }
+    }
+
+    let interpClose;
+    if (_tickIdx < 0) {
+      interpClose = (ticks.length > 0) ? ticks[0].price : _price;
+    } else if (_tickIdx + 1 >= ticks.length) {
+      // كسرنا حاجز الـticks — نبقى ثابتين عند آخر tick بشكل طبيعي
+      interpClose = _price;
+    } else {
+      const pCur   = _price;
+      const pNext  = ticks[_tickIdx + 1].price;
+      const fCur   = _tickFracs[_tickIdx];
+      const fNext  = _tickFracs[_tickIdx + 1];
+      const seg    = fNext - fCur;
+      let   local  = (seg > 0) ? (frac - fCur) / seg : 1;
+      if (local < 0) local = 0;
+      if (local > 1) local = 1;
+      const k = _ease(local);
+      interpClose = pCur + (pNext - pCur) * k;
+    }
+
+    if (_onTick) {
+      const cur = _buildCurrent(interpClose);
+      _onTick(cur);
+    }
+
+    if (!_closedFired && nowMs >= _closeAtMs) {
+      while (_tickIdx + 1 < ticks.length) {
+        _tickIdx++;
+        const p = ticks[_tickIdx].price;
+        _price = p;
+        if (_tickIdx === 0) { _open = p; _high = p; _low = p; }
+        else {
+          if (p > _high) _high = p;
+          if (p < _low)  _low  = p;
+        }
+      }
+      _closedFired = true;
+      const closed = _buildCurrent();
+      const nextT = _bucketT + 60;
+      const newCandle = { time: nextT, open: _price, high: _price, low: _price, close: _price, volume: 0 };
+      if (_onClose) _onClose(closed, newCandle);
+    }
+  };
+
+  const start = ({ bucket, lastCandle, tf, anchorEpochMinute, onTick, onClose }) => {
+    stop();
+
+    _onTick = onTick; _onClose = onClose;
+    _bucket = bucket || null;
+    _bucketT = (_bucket && _bucket.minuteEpoch)
+      ? _bucket.minuteEpoch
+      : (lastCandle ? lastCandle.time : Math.floor(Date.now() / 60) * 60);
+
+    _tickIdx = -1;
+    _tickFracs = _bucket ? _computeFractions(_bucket) : [];
+
+    if (_bucket && _bucket.ticks && _bucket.ticks.length > 0) {
+      _open  = _bucket.ticks[0].price;
+      _price = _open;
+      _high  = _open;
+      _low   = _open;
+    } else if (lastCandle) {
+      _open  = lastCandle.close;
+      _price = lastCandle.close;
+      _high  = lastCandle.close;
+      _low   = lastCandle.close;
+    } else {
+      _open = _price = _high = _low = 0;
+    }
+
+    const nowMs = Date.now();
+    let anchor = (typeof anchorEpochMinute === 'number' && isFinite(anchorEpochMinute))
+      ? anchorEpochMinute
+      : Math.floor(nowMs / 60000);
+    const currentWallMinute = Math.floor(nowMs / 60000);
+    if (anchor < currentWallMinute) {
+      console.warn('[TICK_PLAYER] anchorEpochMinute (' + anchor + ') متأخر عن الدقيقة الجدارية الحالية (' +
+                   currentWallMinute + ') — تم ضبطه لضمان شمعة 60 ثانية كاملة.');
+      anchor = currentWallMinute;
+    }
+    _startWallMs = anchor * 60000;
+    _closeAtMs   = (anchor + 1) * 60000;
+    _closedFired = false;
+    _running     = true;
+
+    if (_onTick) _onTick(_buildCurrent());
+
+    _timer = setInterval(_timerFn, 25);
+  };
+
+  const stop = () => {
+    if (_timer) clearInterval(_timer);
+    _timer = null;
+    _running = false;
+  };
+  const isRunning = () => _running;
+  const getPrice  = () => _price;
+  return { start, stop, isRunning, getPrice };
+})();
+
+/* ---------------------------------------------------------------
+ * توافق خلفي: بقية الكود يستخدم الاسم FAKE_PRICE_GEN. نُعيّن alias
+ * إلى المشغّل الجديد حتى لا يتغيّر أي جزء آخر من المشروع.
+ * --------------------------------------------------------------- */
+const FAKE_PRICE_GEN = TICK_PLAYER;
+
+
+/* ===============================================================
+ *  5. CHART_MANAGER  (UNCHANGED)
+ * =============================================================== */
+const CHART_MANAGER = (() => {
+  let _chart, _series, _container;
+
+  const create = (container) => {
+    _container = container;
+    _chart = LightweightCharts.createChart(container, {
+      width:  container.clientWidth,
+      height: container.clientHeight,
+      layout: {
+        background: { type: 'solid', color: 'rgba(0,0,0,0)' },
+        textColor:  '#9aa9ba',
+        fontSize:   9,
+        fontFamily: 'system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif',
+      },
+      grid: {
+        vertLines: { color: '#1a2540' },
+        horzLines: { color: '#1a2540' },
+      },
+      crosshair: {
+        mode: LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: '#3e8cff', width: 1, style: 3, labelBackgroundColor: '#223252' },
+        horzLine: { color: '#3e8cff', width: 1, style: 3, labelBackgroundColor: '#223252' },
+      },
+      rightPriceScale: {
+        visible: false,
+        borderVisible: false,
+        borderColor: 'rgba(0,0,0,0)',
+        scaleMargins: { top: 0.05, bottom: 0.05 },
+        entireTextOnly: false,
+      },
+      timeScale: {
+        borderVisible: false,
+        borderColor: 'rgba(0,0,0,0)',
+        timeVisible: true,
+        secondsVisible: false,
+        rightOffset: 10,
+        barSpacing: 6.37,
+        minBarSpacing: 4.74,
+        shiftVisibleRangeOnNewBar: false,
+      },
+      handleScroll: {
+        mouseWheel: true, pressedMouseMove: true,
+        horzTouchDrag: true, vertTouchDrag: true,
+      },
+      handleScale: {
+        mouseWheel: true, pinch: true, axisPressedMouseMove: true,
+      },
+    });
+
+    const _MIN_BS = 4.74;
+    const _MAX_BS = 21.86;
+    const _DEFAULT_BS = 6.37;
+    let _clampGuard = false;
+    const _clampBarSpacing = () => {
+      if (_clampGuard) return;
+      let cur = null;
+      try { cur = _chart.timeScale().options().barSpacing; } catch(e){ cur = null; }
+      if (typeof cur !== 'number' || !isFinite(cur)) return;
+      let target = cur;
+      if (cur < _MIN_BS) target = _MIN_BS;
+      else if (cur > _MAX_BS) target = _MAX_BS;
+      if (target !== cur) {
+        _clampGuard = true;
+        _chart.applyOptions({ timeScale: { barSpacing: target } });
+        setTimeout(() => { _clampGuard = false; }, 0);
+      }
+    };
+
+    _series = _chart.addCandlestickSeries({
+      upColor:         '#21c965',
+      downColor:       '#ff4f4f',
+      borderUpColor:   '#109a4a',
+      borderDownColor: '#d81f1f',
+      wickUpColor:     '#21c965',
+      wickDownColor:   '#ff4f4f',
+      priceFormat: { type: 'price', precision: 5, minMove: 0.00001 },
+    });
+
+    const ro = new ResizeObserver(() => {
+      _chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+      _centerLastCandle();
+      _renderPriceOverlay();
+    });
+    ro.observe(container);
+
+    _overlayEl = document.getElementById('priceOverlay');
+    _chart.subscribeCrosshairMove(() => { /* keep overlay stable on hover */ });
+    _chart.timeScale().subscribeVisibleTimeRangeChange(() => _renderPriceOverlay());
+
+    _chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
+      _clampBarSpacing();
+    });
+  };
+
+  const _centerLastCandle = () => {
+    if (!_chart || !_container) return;
+    const w = _container.clientWidth;
+    if (!w) return;
+    let bs = 6.37;
+    try { bs = _chart.timeScale().options().barSpacing || bs; } catch(e){}
+    if (!isFinite(bs) || bs <= 0) bs = 6.37;
+    const bars = (w / 2) / bs;
+    _chart.applyOptions({ timeScale: { rightOffset: bars } });
+  };
+
+  const setData = (candles) => { _series.setData(candles); _centerLastCandle(); _renderPriceOverlay(); };
+  const update  = (candle)  => { _series.update(candle); _renderPriceOverlay(); };
+  const fitContent = () => { _chart.timeScale().fitContent(); _centerLastCandle(); _renderPriceOverlay(); };
+  const scrollToRealTime = () => { _chart.timeScale().scrollToRealTime(); _centerLastCandle(); };
+  const getChart  = () => _chart;
+  const getSeries = () => _series;
+  const setPricePrecision = (precision, minMove) => {
+    _pricePrecision = precision;
+    _series.applyOptions({ priceFormat: { type: 'price', precision, minMove } });
+    _renderPriceOverlay();
+  };
+  const setLivePrice = (price, up) => {
+    _liveValue = price;
+    _liveUp = !!up;
+    _renderPriceOverlay();
+  };
+
+  let _overlayEl = null;
+  let _pricePrecision = 5;
+  let _liveValue = null;
+  let _liveUp = true;
+
+  const _renderPriceOverlay = () => {
+    if (!_overlayEl || !_series || !_chart) return;
+    const h = _container ? _container.clientHeight : 0;
+    if (!h) return;
+
+    const priceTop    = _series.coordinateToPrice(2);
+    const priceBottom = _series.coordinateToPrice(h - 2);
+    if (priceTop == null || priceBottom == null) return;
+    const pMax = Math.max(priceTop, priceBottom);
+    const pMin = Math.min(priceTop, priceBottom);
+    const range = pMax - pMin;
+    if (!isFinite(range) || range <= 0) return;
+
+    const desired = Math.max(4, Math.min(12, Math.round(h / 60)));
+    const raw = range / desired;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    let step;
+    if (norm < 1.5) step = 1 * mag;
+    else if (norm < 3.5) step = 2 * mag;
+    else if (norm < 7.5) step = 5 * mag;
+    else step = 10 * mag;
+
+    const first = Math.ceil(pMin / step) * step;
+    const frag = document.createDocumentFragment();
+    const prec = _pricePrecision;
+    for (let p = first; p <= pMax; p += step) {
+      const y = _series.priceToCoordinate(p);
+      if (y == null || y < 0 || y > h) continue;
+      const el = document.createElement('span');
+      el.className = 'pl';
+      el.style.top = y + 'px';
+      el.textContent = Number(p).toFixed(prec);
+      frag.appendChild(el);
+    }
+
+    if (_liveValue != null) {
+      const y = _series.priceToCoordinate(_liveValue);
+      if (y != null && y >= 0 && y <= h) {
+        const el = document.createElement('span');
+        el.className = 'pl live';
+        el.style.top = y + 'px';
+        el.style.color = _liveUp ? '#21c965' : '#ff4f4f';
+        el.textContent = Number(_liveValue).toFixed(prec);
+        frag.appendChild(el);
+      }
+    }
+
+    _overlayEl.textContent = '';
+    _overlayEl.appendChild(frag);
+  };
+
+  return { create, setData, update, fitContent, scrollToRealTime, getChart, getSeries, setPricePrecision, setLivePrice, centerLastCandle: _centerLastCandle };
+})();
+
+
+/* ===============================================================
+ *  6. TRADE_MANAGER  (UNCHANGED)
+ * =============================================================== */
+const TRADE_MANAGER = (() => {
+  let _positions = [], _idSeq = 1, _listEl = null;
+  const attach = (listEl) => { _listEl = listEl; };
+  const open = (side, price) => {
+    if (!price || price <= 0) return;
+    const priceLine = CHART_MANAGER.getSeries().createPriceLine({
+      price,
+      color: side === 'BUY' ? '#21c965' : '#ff4f4f',
+      lineWidth: 2, lineStyle: 2, axisLabelVisible: true,
+      title: `${side} #${_idSeq}`,
+    });
+    _positions.push({ id: _idSeq++, side, entry: price, priceLine, openedAt: Date.now() });
+    render();
+  };
+  const close = (id) => {
+    const idx = _positions.findIndex(p => p.id === id);
+    if (idx < 0) return;
+    try { CHART_MANAGER.getSeries().removePriceLine(_positions[idx].priceLine); } catch(e){}
+    _positions.splice(idx, 1);
+    render();
+  };
+  const closeAll = () => {
+    for (const p of _positions) {
+      try { CHART_MANAGER.getSeries().removePriceLine(p.priceLine); } catch(e){}
+    }
+    _positions = [];
+    render();
+  };
+  const updateLivePnL = (currentPrice) => {
+    if (!_listEl || _positions.length === 0) return;
+    for (const p of _positions) {
+      const diff = p.side === 'BUY' ? (currentPrice - p.entry) : (p.entry - currentPrice);
+      const el = _listEl.querySelector(`[data-pid="${p.id}"] .pnl`);
+      if (el) {
+        const pips = (diff * 10000).toFixed(1);
+        el.textContent = (diff >= 0 ? '+' : '') + pips + ' pips';
+      }
+    }
+  };
+  const render = () => {
+    if (!_listEl) return;
+    _listEl.innerHTML = '';
+    for (const p of _positions) {
+      const row = document.createElement('div');
+      row.dataset.pid = p.id;
+      row.innerHTML = `<span>${p.side}</span><span>@${p.entry.toFixed(5)}</span><span class="pnl">+0.0 pips</span>`;
+      _listEl.appendChild(row);
+    }
+  };
+  return { attach, open, close, closeAll, updateLivePnL };
+})();
+
+
+/* ===============================================================
+ *  6.5  GLOBAL_INDEX_MANAGER  (UNCHANGED CORE — يعمل الآن على الشموع الحيّة)
+ *  --------------------------------------------------------------
+ *  في هذا الإصدار:
+ *    - currentIndex = فهرس الشمعة النشطة (اللحظية) داخل المصفوفة المحلية.
+ *    - عند إغلاق الشمعة، advance() ينتقل إلى دقيقة جدارية جديدة، والشمعة
+ *      المغلقة تُحفظ في patch للزوج (CANDLE_STORE.appendClosedCandle).
+ *    - anchorEpochMinute دائماً = دقيقة السوق الجدارية الحالية.
+ * =============================================================== */
+const GLOBAL_INDEX_MANAGER = (() => {
+  const DOC_PATH_COLLECTION = 'chartState';
+  const DOC_PATH_ID         = 'global';
+
+  let _currentIndex     = 0;
+  let _anchorEpochMinute= 0;
+  let _docRef           = null;
+  let _unsubscribe      = null;
+  let _initialized      = false;
+  let _onIndexChange    = null;
+  let _updating         = false;
+
+  const _fb = () => window.FIREBASE;
+
+  /* ⚠ لم نعُد نُقيِّد currentIndex بعدد شموع محدّد مسبقاً — النظام يعمل زمنياً.
+     نبقي دالة sanitize بسيطة لضمان عدد صحيح غير سالب فقط. */
+  const _sanitize = (idx) => {
+    if (typeof idx !== 'number' || !isFinite(idx) || idx < 0) return 0;
+    return Math.floor(idx);
+  };
+
+  const init = async (initialIndex) => {
+    if (!_fb() || !_fb().ready)
+      throw new Error('Firebase لم يُهيَّأ بعد.');
+
+    _docRef = _fb().doc(_fb().firestore, DOC_PATH_COLLECTION, DOC_PATH_ID);
+
+    const snap = await _fb().getDoc(_docRef);
+    const nowMinute = Math.floor(Date.now() / 60000);
+
+    if (!snap.exists()) {
+      _currentIndex = _sanitize(initialIndex);
+      _anchorEpochMinute = nowMinute;
+      await _fb().setDoc(_docRef, {
+        currentIndex: _currentIndex,
+        anchorEpochMinute: _anchorEpochMinute,
+        updatedAt: _fb().serverTimestamp()
+      });
+      console.info('[GLOBAL_INDEX] تم إنشاء مستند التسلسل العالمي (index=' + _currentIndex + ', anchor=' + _anchorEpochMinute + ').');
+    } else {
+      const data = snap.data() || {};
+      _currentIndex = _sanitize(data.currentIndex);
+      const rawAnchor = data.anchorEpochMinute;
+      let _anchorNeedsRewrite = false;
+      if (typeof rawAnchor === 'number' && isFinite(rawAnchor) && rawAnchor > 0) {
+        _anchorEpochMinute = Math.floor(rawAnchor);
+      } else {
+        _anchorEpochMinute = nowMinute;
+        _anchorNeedsRewrite = true;
+      }
+      if (_anchorEpochMinute < nowMinute) {
+        console.warn('[GLOBAL_INDEX] anchorEpochMinute المخزَّن (' + _anchorEpochMinute +
+                     ') أقدم من الدقيقة الحالية (' + nowMinute + ') — إعادة المزامنة.');
+        _anchorEpochMinute = nowMinute;
+        _anchorNeedsRewrite = true;
+      }
+      if (_anchorNeedsRewrite) {
+        try {
+          await _fb().setDoc(_docRef, {
+            currentIndex: _currentIndex,
+            anchorEpochMinute: _anchorEpochMinute,
+            updatedAt: _fb().serverTimestamp()
+          }, { merge: true });
+        } catch(e) {
+          console.warn('[GLOBAL_INDEX] فشل كتابة القيمة المصححة:', e);
+        }
+      }
+      console.info('[GLOBAL_INDEX] currentIndex العالمي = ' + _currentIndex +
+                   ' (anchorMinute=' + _anchorEpochMinute + ')');
+    }
+
+    _unsubscribe = _fb().onSnapshot(_docRef, (docSnap) => {
+      if (!docSnap.exists()) return;
+      const data = docSnap.data() || {};
+      const remote = _sanitize(data.currentIndex);
+      const rawAnchor = data.anchorEpochMinute;
+      const remoteAnchor = (typeof rawAnchor === 'number' && isFinite(rawAnchor) && rawAnchor > 0)
+        ? Math.floor(rawAnchor)
+        : _anchorEpochMinute;
+      const changedIdx    = remote       !== _currentIndex;
+      const changedAnchor = remoteAnchor !== _anchorEpochMinute;
+      if (!changedIdx && !changedAnchor) return;
+      const prev = _currentIndex;
+      _currentIndex = remote;
+      _anchorEpochMinute = remoteAnchor;
+      if (_updating) return;
+      if (changedIdx) {
+        console.info('[GLOBAL_INDEX] تحديث خارجي: ' + prev + ' → ' + remote + ' (anchor=' + remoteAnchor + ')');
+        if (typeof _onIndexChange === 'function') {
+          try { _onIndexChange(_currentIndex, prev); } catch(e) { console.error(e); }
+        }
+      }
+    }, (err) => {
+      console.error('[GLOBAL_INDEX] خطأ في onSnapshot:', err);
+    });
+
+    _initialized = true;
+    return _currentIndex;
+  };
+
+  const advance = async (expectedAnchor) => {
+    if (!_initialized || !_docRef)
+      throw new Error('GLOBAL_INDEX_MANAGER لم يُهيَّأ.');
+    if (typeof expectedAnchor !== 'number' || !isFinite(expectedAnchor)) {
+      expectedAnchor = _anchorEpochMinute;
+    }
+    _updating = true;
+    try {
+      const result = await _fb().runTransaction(_fb().firestore, async (tx) => {
+        const s = await tx.get(_docRef);
+        let cur = 0;
+        let curAnchor = expectedAnchor;
+        if (s.exists()) {
+          const d = s.data() || {};
+          cur = _sanitize(d.currentIndex);
+          const rawA = d.anchorEpochMinute;
+          if (typeof rawA === 'number' && isFinite(rawA) && rawA > 0) {
+            curAnchor = Math.floor(rawA);
+          }
+        }
+        if (curAnchor !== expectedAnchor) {
+          return { advanced: false, currentIndex: cur, anchorEpochMinute: curAnchor };
+        }
+        const next = cur + 1;
+        const nextAnchor = curAnchor + 1;
+        tx.set(_docRef, {
+          currentIndex: next,
+          anchorEpochMinute: nextAnchor,
+          updatedAt: _fb().serverTimestamp()
+        }, { merge: true });
+        return { advanced: true, currentIndex: next, anchorEpochMinute: nextAnchor };
+      });
+      _currentIndex      = result.currentIndex;
+      _anchorEpochMinute = result.anchorEpochMinute;
+      return result;
+    } catch (err) {
+      console.error('[GLOBAL_INDEX] فشل advance() transaction:', err);
+      throw err;
+    } finally {
+      setTimeout(() => { _updating = false; }, 250);
+    }
+  };
+
+  const getIndex     = () => _currentIndex;
+  const getAnchor    = () => _anchorEpochMinute;
+  const setAnchor    = (m) => { _anchorEpochMinute = m | 0; };
+  const setIndex     = (i) => { _currentIndex = _sanitize(i); };
+  const onChange     = (cb) => { _onIndexChange = cb; };
+  const dispose      = () => { if (_unsubscribe) { _unsubscribe(); _unsubscribe = null; } };
+
+  return { init, advance, getIndex, getAnchor, setAnchor, setIndex, onChange, dispose };
+})();
+
+
+/* ===============================================================
+ *  7. APP
+ *  --------------------------------------------------------------
+ *  1) تحقق من جلسة المستخدم (Auth) قبل التشغيل.
+ *  2) قراءة كامل شموع الزوج من Firestore بقراءة واحدة (patch).
+ *  3) إن لم توجد شموع → توليد warm-start (60 دقيقة) وحفظها دفعة واحدة.
+ *  4) بدء الدقيقة الحيّة الحالية بمولّد ticks داخلي (بدون CSV إطلاقاً).
+ *  5) عند إغلاق كل شمعة → حفظها في patch وتقديم currentIndex عبر Firestore.
+ * =============================================================== */
+const APP = (() => {
+  const state = {
+    currentTF: '1m',
+    aggregated: [],
+    liveEnabled: true,
+    symbol: 'EURUSD',
+    m1Full: [],
+    tickBuckets: [],
+    /* الشمعة النشطة الحالية (الحيّة) — تُبنى من مولّد ticks داخلي */
+    activeMinuteEpoch: 0,
+    activeBucket: null,      // { minuteEpoch, ticks: [...] }
+    activeTicks: [],         // نفس مرجع activeBucket.ticks
+    initialized: false
+  };
+  const els = {};
+
+  const cacheEls = () => {
+    els.loadingOver  = document.getElementById('loadingOverlay');
+    els.loadingText  = document.getElementById('loadingText');
+    els.symbolLabel  = document.getElementById('symbolLabel');
+    els.livePrice    = document.getElementById('livePrice');
+    els.tfButtons    = document.getElementById('tfButtons');
+    els.btnReload    = document.getElementById('btnReload');
+    els.btnFit       = document.getElementById('btnFit');
+    els.btnLive      = document.getElementById('btnLive');
+    els.btnBuy       = document.getElementById('btnBuy');
+    els.btnSell      = document.getElementById('btnSell');
+    els.btnCloseAll  = document.getElementById('btnCloseAll');
+    els.positions    = document.getElementById('positionsList');
+    els.statusText   = document.getElementById('statusText');
+    els.statsText    = document.getElementById('statsText');
+    els.ptmH         = document.getElementById('ptmH');
+  };
+
+  const showLoading = (msg) => {
+    els.loadingOver.classList.remove('hidden');
+    els.loadingText.textContent = msg || 'جاري التحميل...';
+  };
+  const hideLoading = () => els.loadingOver.classList.add('hidden');
+
+  const setStatus = (msg) => { els.statusText.textContent = msg; };
+  const setStats  = () => {
+    els.statsText.textContent =
+      `Candles: ${state.aggregated.length} | ${state.currentTF}`;
+  };
+
+  const updatePriceLabel = (price, up) => {
+    els.livePrice.textContent = price.toFixed(5);
+    els.livePrice.style.color = up ? '#21c965' : '#ff4f4f';
+    if (CHART_MANAGER.setLivePrice) CHART_MANAGER.setLivePrice(price, up);
+  };
+
+  /* ===============================================================
+   *  buildActiveBucket:
+   *  --------------------------------------------------------------
+   *  يبني bucket الدقيقة الحيّة (الشمعة النشطة الحالية) عبر مولّد
+   *  الأسعار الداخلي. الـopen = close الشمعة السابقة (لضمان الاستمرارية).
+   * =============================================================== */
+  const buildActiveBucket = (anchorMinute) => {
+    const minuteEpoch = anchorMinute * 60;
+    const prevClose = (state.m1Full.length > 0)
+      ? state.m1Full[state.m1Full.length - 1].close
+      : PRICE_GENERATOR.DEFAULTS.meanPrice;
+    // نستخدم بذرة مبنية على الدقيقة الجدارية → كل الأجهزة تتفق على نفس الحركة
+    const seed = (anchorMinute * 2654435761) >>> 0;
+    const ticks = PRICE_GENERATOR.generateMinuteTicks(minuteEpoch, prevClose, { seed });
+    state.activeMinuteEpoch = minuteEpoch;
+    state.activeTicks       = ticks;
+    state.activeBucket      = { minuteEpoch, ticks };
+    return state.activeBucket;
+  };
+
+  /* ===============================================================
+   *  bootstrapData:
+   *  --------------------------------------------------------------
+   *  1) يقرأ كامل شموع الزوج من Firestore (قراءة واحدة فقط).
+   *  2) إن لم يوجد أي مستند → warm-start (توليد 60 شمعة سابقة وحفظها دفعة واحدة).
+   *  3) يُهيّئ GLOBAL_INDEX_MANAGER (currentIndex عالمي).
+   *  4) يبني الشمعة النشطة الحيّة عبر المولّد الداخلي.
+   * =============================================================== */
+  const bootstrapData = async ({ force = false } = {}) => {
+    if (state.initialized && !force) {
+      rebuild();
+      return;
+    }
+    try {
+      showLoading('جاري تحميل شموع الزوج ' + state.symbol + '...');
+      CANDLE_STORE.setSymbol(state.symbol);
+
+      // 1) قراءة واحدة لكامل الـpatch من Firestore
+      const { candles, buckets, exists } = await CANDLE_STORE.loadFromFirestore(state.symbol);
+      state.m1Full      = candles.slice();
+      state.tickBuckets = buckets.slice();
+
+      // 2) لا يوجد شيء محفوظ → warm-start
+      if (!exists || state.m1Full.length === 0) {
+        showLoading('لا توجد بيانات مخزّنة — يتم إنشاء تاريخ ابتدائي...');
+        const seedPrice = PRICE_GENERATOR.DEFAULTS.meanPrice;
+        const res = await CANDLE_STORE.warmStartAndPersist(60, seedPrice);
+        state.m1Full      = res.candles.slice();
+        state.tickBuckets = res.buckets.slice();
+      }
+
+      els.symbolLabel.textContent = state.symbol;
+
+      // 3) تهيئة الفهرس العالمي (يمثّل موقع الشمعة النشطة اللحظية داخل m1Full+active)
+      showLoading('جاري مزامنة الشمعة الحالية...');
+      try {
+        // نبدأ من عدد الشموع المحفوظة (أي: الشمعة الحيّة القادمة هي بعد آخر شمعة مغلقة)
+        await GLOBAL_INDEX_MANAGER.init(state.m1Full.length);
+      } catch (fErr) {
+        console.error('[GLOBAL_INDEX] فشل الاتصال بـ Firestore:', fErr);
+      }
+
+      // 4) بناء الشمعة النشطة الحيّة (على الدقيقة الجدارية الحالية أو المخزّنة)
+      const anchor = GLOBAL_INDEX_MANAGER.getAnchor() || Math.floor(Date.now() / 60000);
+      buildActiveBucket(anchor);
+
+      // 5) استماع للتحديثات الخارجية
+      GLOBAL_INDEX_MANAGER.onChange(() => {
+        // جهاز آخر تقدّم — نلحق بالتاريخ الجديد
+        syncFromRemote();
+      });
+
+      state.initialized = true;
+      rebuild();
+      hideLoading();
+    } catch (err) {
+      console.error('[BOOT ERROR]', err);
+      setStatus('فشل تحميل الشموع — راجع Console');
+      els.loadingText.textContent = '❌ فشل تحميل بيانات الزوج\n' + (err.message || err);
+    }
+  };
+
+  /* ===============================================================
+   *  syncFromRemote:
+   *  --------------------------------------------------------------
+   *  عند وصول تحديث خارجي (جهاز آخر تقدّم بدقيقة): نُعيد قراءة الـpatch
+   *  مرة واحدة (لضمان الحصول على شمعة/شموع جديدة قد تكون كُتبت من الجهاز
+   *  الآخر) ثم نُعيد بناء الشارت من جديد.
+   * =============================================================== */
+  const syncFromRemote = async () => {
+    try {
+      const { candles, buckets } = await CANDLE_STORE.loadFromFirestore(state.symbol);
+      state.m1Full      = candles.slice();
+      state.tickBuckets = buckets.slice();
+      const anchor = GLOBAL_INDEX_MANAGER.getAnchor() || Math.floor(Date.now() / 60000);
+      buildActiveBucket(anchor);
+      rebuild();
+    } catch (e) {
+      console.warn('[SYNC] تعذّر جلب التحديث:', e);
+    }
+  };
+
+  /* ===============================================================
+   *  rebuild:
+   *  --------------------------------------------------------------
+   *  يبني الشارت:
+   *    - كل الشموع المخزّنة (state.m1Full) تُعرض كتاريخ مغلق كما هي.
+   *    - الشمعة النشطة الحيّة (state.activeBucket) تُعرض في نهاية السلسلة
+   *      وتتحرّك عبر TICK_PLAYER.
+   * =============================================================== */
+  const rebuild = () => {
+    const m1Full = state.m1Full || [];
+    if (!state.activeBucket) return;
+
+    // الشمعة النشطة الابتدائية = open = close الشمعة السابقة (مضمون في buildActiveBucket)
+    const activeInitial = TICK_AGGREGATOR.buildPartialCandle(state.activeBucket, -1);
+    const combined = m1Full.slice();
+    combined.push(activeInitial);
+
+    const samplePrice = combined[combined.length - 1].close || PRICE_GENERATOR.DEFAULTS.meanPrice;
+    let precision = 5, minMove = 0.00001;
+    if (samplePrice > 100)   { precision = 3; minMove = 0.001; }
+    if (samplePrice > 1000)  { precision = 2; minMove = 0.01; }
+    CHART_MANAGER.setPricePrecision(precision, minMove);
+
+    state.aggregated = CANDLE_ENGINE.aggregate(combined, state.currentTF);
+    CHART_MANAGER.setData(state.aggregated);
+    FAKE_PRICE_GEN.stop();
+    if (state.liveEnabled && state.aggregated.length) startLive();
+    CHART_MANAGER.fitContent();
+    setStats();
+    setStatus(state.symbol + ' • ' + state.aggregated.length + ' candles');
+  };
+
+  /* ===============================================================
+   *  startLive:
+   *  --------------------------------------------------------------
+   *  يشغّل TICK_PLAYER على bucket الدقيقة النشطة الحيّة (state.activeBucket).
+   *  عند الإغلاق:
+   *    1) نُدرج الشمعة المغلقة في state.m1Full + state.tickBuckets محلياً.
+   *    2) نُخزّن الشمعة في Firestore (patch الزوج) — مرة واحدة فقط.
+   *    3) نبني bucket جديد للدقيقة التالية ثم نُعيد البناء.
+   *    4) GLOBAL_INDEX_MANAGER.advance() لتقديم الفهرس عبر الأجهزة.
+   * =============================================================== */
+  const startLive = () => {
+    const last = state.aggregated[state.aggregated.length - 1];
+    if (!last || !state.activeBucket) return;
+
+    const expectedAnchor = (GLOBAL_INDEX_MANAGER.getAnchor && GLOBAL_INDEX_MANAGER.getAnchor())
+      ? GLOBAL_INDEX_MANAGER.getAnchor()
+      : Math.floor(Date.now() / 60000);
+
+    /* لدمج شمعة الدقيقة النشطة داخل الشمعة المُجمَّعة الأخيرة (5m/15m/…) بشكل صحيح،
+       نحتفظ بـ snapshot للشمعة المجمَّعة الأخيرة قبل بدء الدقيقة النشطة. */
+    let baseAggregated = null;
+    if (state.currentTF !== '1m' && state.aggregated.length > 0) {
+      // نبني تجميعاً للشموع المغلقة فقط (بدون الشمعة النشطة) ونأخذ الأخيرة إن طابقت.
+      if (state.m1Full.length > 0) {
+        const aggBefore = CANDLE_ENGINE.aggregate(state.m1Full, state.currentTF);
+        if (aggBefore.length) {
+          const lastAggT = state.aggregated[state.aggregated.length - 1].time;
+          const match = aggBefore[aggBefore.length - 1];
+          if (match && match.time === lastAggT) {
+            baseAggregated = { ...match };
+          }
+        }
+      }
+    }
+
+    FAKE_PRICE_GEN.start({
+      bucket: state.activeBucket,
+      lastCandle: last,
+      tf: state.currentTF,
+      anchorEpochMinute: expectedAnchor,
+      onTick: (m1Candle) => {
+        let displayCandle;
+        if (state.currentTF === '1m') {
+          displayCandle = m1Candle;
+        } else if (baseAggregated) {
+          displayCandle = {
+            time:   baseAggregated.time,
+            open:   baseAggregated.open,
+            high:   Math.max(baseAggregated.high, m1Candle.high),
+            low:    Math.min(baseAggregated.low,  m1Candle.low),
+            close:  m1Candle.close,
+            volume: (baseAggregated.volume || 0) + (m1Candle.volume || 0)
+          };
+        } else {
+          displayCandle = {
+            time:   state.aggregated[state.aggregated.length - 1].time,
+            open:   m1Candle.open,
+            high:   m1Candle.high,
+            low:    m1Candle.low,
+            close:  m1Candle.close,
+            volume: m1Candle.volume || 0
+          };
+        }
+
+        state.aggregated[state.aggregated.length - 1] = displayCandle;
+        CHART_MANAGER.update(displayCandle);
+        const prevClose = state.aggregated.length > 1
+          ? state.aggregated[state.aggregated.length - 2].close
+          : displayCandle.open;
+        updatePriceLabel(displayCandle.close, displayCandle.close >= prevClose);
+        if (els.ptmH) {
+          const d = new Date(displayCandle.time * 1000);
+          els.ptmH.textContent = d.toISOString().substr(11,8);
+        }
+        TRADE_MANAGER.updateLivePnL(displayCandle.close);
+      },
+      onClose: async (closedM1) => {
+        FAKE_PRICE_GEN.stop();
+
+        // 1) إغلاق حقيقي مبني من ticks الدقيقة النشطة
+        const finalM1 = TICK_AGGREGATOR.buildClosedCandle(state.activeBucket, undefined);
+
+        // 2) دمج داخل الشمعة المجمَّعة الأخيرة (إذا TF != 1m)
+        let finalDisplay;
+        if (state.currentTF === '1m') {
+          finalDisplay = finalM1;
+        } else if (baseAggregated) {
+          finalDisplay = {
+            time:   baseAggregated.time,
+            open:   baseAggregated.open,
+            high:   Math.max(baseAggregated.high, finalM1.high),
+            low:    Math.min(baseAggregated.low,  finalM1.low),
+            close:  finalM1.close,
+            volume: (baseAggregated.volume || 0) + (finalM1.volume || 0)
+          };
+        } else {
+          finalDisplay = {
+            time:   state.aggregated[state.aggregated.length - 1].time,
+            open:   finalM1.open,
+            high:   finalM1.high,
+            low:    finalM1.low,
+            close:  finalM1.close,
+            volume: finalM1.volume || 0
+          };
+        }
+        state.aggregated[state.aggregated.length - 1] = finalDisplay;
+        CHART_MANAGER.update(finalDisplay);
+        setStats();
+
+        // 3) إدراج الشمعة المغلقة محلياً + حفظها في Firestore (patch)
+        // منع التكرار: نتأكد أنها ليست موجودة أصلاً في m1Full بنفس الوقت
+        const already = state.m1Full.some(c => c.time === finalM1.time);
+        if (!already) {
+          state.m1Full.push(finalM1);
+          state.tickBuckets.push({
+            minuteEpoch: state.activeBucket.minuteEpoch,
+            ticks: state.activeBucket.ticks.slice()
+          });
+          // حفظ في Firestore (patch) — لا يمنع بقية التنفيذ
+          CANDLE_STORE.appendClosedCandle(finalM1, state.activeBucket.ticks).catch(e => {
+            console.warn('[LIVE] لم يتم حفظ الشمعة في Firestore:', e);
+          });
+        }
+
+        // 4) بناء bucket الدقيقة الحيّة التالية
+        const nextAnchor = expectedAnchor + 1;
+        buildActiveBucket(nextAnchor);
+
+        // 5) تقديم currentIndex في Firestore
+        try {
+          const result = await GLOBAL_INDEX_MANAGER.advance(expectedAnchor);
+          if (result && result.advanced) {
+            console.info('[LIVE] Advanced globalIndex → ' + result.currentIndex +
+                         ' (anchor=' + result.anchorEpochMinute + ')');
+          } else {
+            console.info('[LIVE] جهاز آخر سبقنا — سنتلقى التحديث عبر onSnapshot.');
+          }
+        } catch (err) {
+          console.error('[LIVE] فشل تقديم currentIndex:', err);
+        }
+
+        // 6) إعادة بناء الشارت للانتقال إلى الدقيقة الحيّة الجديدة
+        rebuild();
+
+        // شبكة أمان
+        setTimeout(() => {
+          if (!FAKE_PRICE_GEN.isRunning() && state.liveEnabled) startLive();
+        }, 800);
+      },
+    });
+  };
+
+  const onTFClick = (e) => {
+    const btn = e.target.closest('.tfb');
+    if (!btn) return;
+    const tf = btn.dataset.tf;
+    if (!tf || tf === state.currentTF) return;
+    document.querySelectorAll('.tfb').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    state.currentTF = tf;
+    rebuild();
+  };
+
+  const bootUI = () => {
+    cacheEls();
+    CHART_MANAGER.create(document.getElementById('chart'));
+    TRADE_MANAGER.attach(els.positions);
+
+    els.tfButtons.addEventListener('click', onTFClick);
+
+    // زر ↻ يُعيد قراءة كامل الـpatch من Firestore (قراءة واحدة فقط).
+    els.btnReload.addEventListener('click', () => bootstrapData({ force: true }));
+    els.btnFit.addEventListener('click', () => CHART_MANAGER.fitContent());
+    els.btnLive.addEventListener('click', () => {
+      state.liveEnabled = !state.liveEnabled;
+      els.btnLive.style.color = state.liveEnabled ? '#21c965' : '#c7d5ef';
+      if (state.liveEnabled) startLive();
+      else FAKE_PRICE_GEN.stop();
+      setStats();
+    });
+
+    els.btnBuy.addEventListener('click', () => {
+      const px = FAKE_PRICE_GEN.getPrice() ||
+                 (state.aggregated.length ? state.aggregated.at(-1).close : 0);
+      if (px) TRADE_MANAGER.open('BUY', px);
+    });
+    els.btnSell.addEventListener('click', () => {
+      const px = FAKE_PRICE_GEN.getPrice() ||
+                 (state.aggregated.length ? state.aggregated.at(-1).close : 0);
+      if (px) TRADE_MANAGER.open('SELL', px);
+    });
+    els.btnCloseAll.addEventListener('click', () => TRADE_MANAGER.closeAll());
+
+    setStatus('في انتظار البيانات');
+
+    // بدء النظام: قراءة واحدة من Firestore + توليد داخلي.
+    bootstrapData();
+  };
+
+  const init = () => {
+    const startWhenReady = () => {
+      const FB = window.FIREBASE;
+      if (!FB || !FB.ready) {
+        window.addEventListener('firebase-ready', startWhenReady, { once: true });
+        return;
+      }
+
+      let authResolved = false;
+      FB.onAuthStateChanged(FB.auth, (user) => {
+        if (authResolved) return;
+        authResolved = true;
+
+        if (!user) {
+          console.warn('[AUTH] لا توجد جلسة مستخدم — إعادة توجيه إلى login.html');
+          try { document.body.style.visibility = 'hidden'; } catch(e){}
+          window.location.replace('login.html');
+          return;
+        }
+
+        console.info('[AUTH] مستخدم مسجَّل: ' + (user.email || user.uid));
+        bootUI();
+      }, (err) => {
+        console.error('[AUTH] خطأ في مراقبة حالة الجلسة:', err);
+        window.location.replace('login.html');
+      });
+    };
+
+    startWhenReady();
+  };
+
+  return { init };
+})();
+
+window.addEventListener('DOMContentLoaded', APP.init);
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
