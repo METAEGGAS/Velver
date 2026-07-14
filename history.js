@@ -1,0 +1,19 @@
+/* FXER History module — dynamically mounted like profile.js. */
+(function () {
+  'use strict';
+  if (window.__fxHistoryModuleLoaded) return;
+  window.__fxHistoryModuleLoaded = true;
+
+  function mountHistory() {
+    var mount = document.getElementById('fxHistoryMount');
+    if (!mount || document.getElementById('hpg')) return;
+    var style = document.createElement('style');
+    style.id = 'fxHistoryModuleStyle';
+    style.textContent = '\n#fxHistoryMount{display:contents}\n.hpg{background:#0a0e17;flex-direction:column;flex:1;min-height:0;display:none;overflow:hidden}\n.hpg.s{display:flex}.hpg .hpf{direction:ltr;background:#0a0e17;flex:none;justify-content:space-between;align-items:center;padding:18px 16px 14px;display:flex}.hpg .sel-wrap{display:inline-block;position:relative}.hpg .hpf .sel{color:#fff;cursor:pointer;direction:rtl;background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;justify-content:space-between;align-items:center;gap:8px;width:auto;min-width:110px;height:auto;padding:10px 14px;font-size:14px;display:flex}.hpg .hpf .sel:after{content:"▼";color:#8a92a5;font-size:9px;transition:transform .2s}.hpg .hpf .sel.op:after{transform:rotate(180deg)}.hpg .dd{z-index:50;background:#1a1f2e;border:1px solid #2a3040;border-radius:8px;min-width:140px;display:none;position:absolute;top:calc(100% + 4px);left:0;overflow:hidden}.hpg .dd.dsh{height:auto;display:block}.hpg .dd div{color:#fff;cursor:pointer;direction:rtl;border-bottom:1px solid #2a3040;padding:10px 14px;font-size:14px}.hpg .dd div:last-child{border-bottom:none}.hpg .dd div.a,.hpg .dd div:hover{background:#2a3040}.hpg .hpf-r{color:#fff;direction:rtl;align-items:center;gap:10px;font-size:15px;display:flex}.hpg .hpf-r:before{content:"";background:#3a4152;width:1px;height:18px}.hpg .hpl{direction:ltr;background:#0a0e17;flex:1;overflow-y:auto;padding:0}.hpg .hpl .dh{color:#8a92a5;text-align:left;direction:ltr;background:#141824;padding:8px 16px;font-size:13px}.hpi{direction:ltr;background:#0a0e17;border-bottom:1px solid #1a1f2e;align-items:center;gap:12px;padding:14px 16px;display:flex}.hpi.pending{background:#2b3a6b26}.hpe{text-align:center;color:#7d8fae;padding:20px;font-size:12px}.hpsk{padding:8px 12px}.hpsk .hpsr{border-bottom:1px solid #101a30;grid-template-columns:48px 1fr 78px 78px 22px;align-items:center;gap:8px;padding:10px 0;display:grid}.hpsk i{background:linear-gradient(90deg,#1a2340 0,#2a3760 50%,#1a2340 100%) 0 0/200% 100%;border-radius:4px;height:10px;animation:1.1s linear infinite hpsh;display:block}.hpsk .hpsc1{border-radius:6px;width:34px;height:22px}.hpsk .hpsc2{width:70%}.hpsk .hpsc3,.hpsk .hpsc4{width:60px;height:12px;margin-left:auto}.hpsk .hpsc5{border-radius:3px;width:14px;height:14px;margin-left:auto}@keyframes hpsh{to{background-position:-200% 0}}\n';
+    document.head.appendChild(style);
+    mount.innerHTML = '<div class=hpg id=hpg><div class=hpf><div class=sel-wrap><div onclick=\'var d=document.getElementById("hpDD");this.classList.toggle("op"),d.classList.toggle("dsh")\'class=sel id=hpSel><span id=hpSelV>تجريبي</span></div><div class=dd id=hpDD><div class=a data-v=تجريبي onclick=hpPickMode(this)>تجريبي</div><div data-v=حقيقي onclick=hpPickMode(this)>حقيقي</div><div data-v=الكل onclick=hpPickMode(this)>الكل</div></div></div><div class=hpf-r>آخر 3 أشهر</div></div><div class=hpl id=hpList></div></div>';
+  }
+
+  mountHistory();
+  function hpPickMode(t){try{var e=t.getAttribute(`data-v`)||t.textContent.trim();document.getElementById(`hpSelV`).textContent=e,document.querySelectorAll(`#hpDD div`).forEach(function(t){t.classList.remove(`a`)}),t.classList.add(`a`),document.getElementById(`hpDD`).classList.remove(`dsh`),document.getElementById(`hpSel`).classList.remove(`op`),window.__histMode=e;try{typeof renderLog==`function`&&renderLog()}catch{}}catch{}}
+})();
