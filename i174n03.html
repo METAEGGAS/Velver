@@ -794,12 +794,14 @@
   }
 
   /* -------- ICON BOX inside BUY/SELL buttons -------- */
-  /* مربع فارغ داخل كل زر يعرض أيقونة UP/DOWN، لا يؤثر على أي وظيفة أخرى للزر. */
+  /* مربع فارغ داخل كل زر يعرض أيقونة UP/DOWN — تم توسيطها أفقياً وعمودياً
+     في منتصف فراغ البطاقة (بدل التصاقها بالحافة اليسرى)، بناءً على طلب التعديل.
+     لا تؤثر على أي وظيفة أخرى للزر (pointer-events:none). */
   .btn .icoBox{
     position:absolute;
     top:50%;
-    left:10px;
-    transform:translateY(-50%);
+    left:50%;
+    transform:translate(-50%,-50%);
     width:38px;
     height:38px;
     display:flex;
@@ -815,15 +817,16 @@
     display:block;
     filter:drop-shadow(0 0 6px rgba(0,0,0,0.35));
   }
-  /* دفع النصوص قليلاً بعيداً عن حافة الزر لإتاحة مكان الأيقونة على اليسار (RTL friendly) */
+  /* النصوص تبقى عند حافة الزر الطبيعية الآن بعد تحرير المساحة اليسرى للأيقونة المُوسَّطة */
   .btn b, .btn i{
-    margin-left:46px;
+    margin-left:0;
   }
 
   /* -------- SCREEN-EDGE VERTICAL BARS (green right / red left) --------
-     شريط أخضر عمودي على الحافة اليمنى للشاشة يمتد من الأعلى حتى بطاقة UP.
-     شريط أحمر عمودي على الحافة اليسرى للشاشة يمتد من الأعلى حتى بطاقة DOWN.
-     الشرائط مطلقة داخل .app لذلك تمتد فوق الشارت دون التأثير على أي تفاعل. */
+     تمتد بدقة من الحافة العلوية لشريط الأدوات/الفريمات (.bar) في الأعلى
+     حتى الحافة السفلية لبطاقة أزرار البيع/الشراء (.acts) في الأسفل —
+     لا تتخطى شريط الفريمات للأعلى مطلقاً، حتى بعد تغيّر حجم/حالة الشارت.
+     top/bottom الفعليان يُضبطان ديناميكياً عبر JS (initEdgeBars). */
   .edgeBar{
     position:absolute;
     top:0;
@@ -3364,36 +3367,45 @@ const APP = (() => {
      *  يعاد الحساب عند تغير حجم النافذة.
      * ============================================================ */
     (function initEdgeBars(){
-      const rightBar = document.getElementById('edgeBarRight');
-      const leftBar  = document.getElementById('edgeBarLeft');
-      const btnUp    = document.getElementById('btnBuy');
-      const btnDn    = document.getElementById('btnSell');
-      const appEl    = document.querySelector('.app');
-      if (!rightBar || !leftBar || !btnUp || !btnDn || !appEl) return;
+      const rightBar  = document.getElementById('edgeBarRight');
+      const leftBar   = document.getElementById('edgeBarLeft');
+      const framesBar = document.querySelector('.bar');   /* شريط الأدوات/الفريمات (1m/5m/15m/1H) */
+      const actsBar   = document.querySelector('.acts');  /* بطاقة أزرار BUY/SELL */
+      const chartEl   = document.getElementById('CH');
+      const appEl     = document.querySelector('.app');
+      if (!rightBar || !leftBar || !framesBar || !actsBar || !appEl) return;
 
       const layoutEdgeBars = () => {
         try {
-          const appRect = appEl.getBoundingClientRect();
-          const upRect  = btnUp.getBoundingClientRect();
-          const dnRect  = btnDn.getBoundingClientRect();
-          /* من الأعلى حتى حافة الزر العلوية */
-          const gapUp = Math.max(0, appRect.bottom - upRect.top);
-          const gapDn = Math.max(0, appRect.bottom - dnRect.top);
-          rightBar.style.bottom = gapUp + 'px';
-          leftBar.style.bottom  = gapDn + 'px';
+          const appRect    = appEl.getBoundingClientRect();
+          const framesRect = framesBar.getBoundingClientRect();
+          const actsRect   = actsBar.getBoundingClientRect();
+
+          /* الحافة العلوية: أعلى شريط الفريمات بالضبط — لا تتخطاه الشرائط للأعلى إطلاقاً */
+          const topGap = Math.max(0, framesRect.top - appRect.top);
+          /* الحافة السفلية: أسفل بطاقة BUY/SELL بالضبط */
+          const bottomGap = Math.max(0, appRect.bottom - actsRect.bottom);
+
+          [rightBar, leftBar].forEach((bar) => {
+            bar.style.top    = topGap + 'px';
+            bar.style.bottom = bottomGap + 'px';
+          });
         } catch (e) { /* ignore */ }
       };
 
       layoutEdgeBars();
       window.addEventListener('resize', layoutEdgeBars);
       window.addEventListener('orientationchange', layoutEdgeBars);
-      /* إعادة الحساب بعد تحميل الصور وحالات التخطيط المتأخرة */
+      /* إعادة الحساب بعد تحميل الصور، فتح/تغيّر الشارت، وحالات التخطيط المتأخرة */
       setTimeout(layoutEdgeBars, 80);
       setTimeout(layoutEdgeBars, 300);
+      setTimeout(layoutEdgeBars, 800);
       try {
         const ro = new ResizeObserver(layoutEdgeBars);
-        ro.observe(document.querySelector('.acts'));
         ro.observe(appEl);
+        ro.observe(framesBar);
+        ro.observe(actsBar);
+        if (chartEl) ro.observe(chartEl); /* يغطي أي تغيّر بحجم/حالة الشارت (فتح/تكبير) */
       } catch(e) { /* ResizeObserver not available - fallback silently */ }
     })();
 
