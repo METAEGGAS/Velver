@@ -238,15 +238,30 @@
     direction:ltr;
     flex:none;
     grid-template-rows:32px auto;
-    grid-template-columns:132px 1fr;
+    grid-template-columns:26px 132px 1fr;
     place-content:start;
     column-gap:8px;
     padding:3px 5px 4px;
     position:relative;
   }
+  /* أيقونة جديدة بجانب مربع الزوج، عند الحافة اليسرى للشاشة */
+  .assetIcon{
+    grid-area:1/1;
+    width:22px;
+    height:22px;
+    place-self:center;
+    display:grid;
+    place-items:center;
+  }
+  .assetIcon img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
   /* Live platform time (shown below the pair box) */
   .platformTime{
-    grid-column:1 / 2;
+    grid-column:2 / 3;
     grid-row:2;
     margin-top:4px;
     color:#c7d5ef;
@@ -265,7 +280,7 @@
     border:1px solid var(--bd);
     border-radius:7px;
     flex:none;
-    grid-area:1/1;
+    grid-area:1/2;
     place-items:center;
     width:32px;
     height:32px;
@@ -280,7 +295,7 @@
     touch-action:manipulation;
     border-radius:7px;
     flex:none;
-    grid-area:1/1;
+    grid-area:1/2;
     align-items:center;
     gap:6px;
     width:132px;
@@ -388,8 +403,8 @@
     position:absolute;
     right:4px;
     transform:translateY(-50%);
-    color:#f1ad24;
-    font-size:9px;
+    color:#ffffff;
+    font-size:11px;
     line-height:1;
     background:transparent;
     border:0;
@@ -490,8 +505,8 @@
   /* -------- YELLOW PULSING DOT ON ACTIVE CANDLE HEAD -------- */
   .liveDot{
     position:absolute;
-    width:8px;
-    height:8px;
+    width:6px;
+    height:6px;
     border-radius:50%;
     background:#ffcf24;
     box-shadow:0 0 0 0 rgba(255,207,36,0.85);
@@ -503,7 +518,7 @@
   }
   @keyframes liveDotPulse{
     0%   { box-shadow:0 0 0 0   rgba(255,207,36,0.75); transform:translate(-50%,-50%) scale(1); }
-    70%  { box-shadow:0 0 0 8px rgba(255,207,36,0);    transform:translate(-50%,-50%) scale(1.15); }
+    70%  { box-shadow:0 0 0 6px rgba(255,207,36,0);    transform:translate(-50%,-50%) scale(1.15); }
     100% { box-shadow:0 0 0 0   rgba(255,207,36,0);    transform:translate(-50%,-50%) scale(1); }
   }
   .ptm{
@@ -871,9 +886,9 @@
   .ni img{
     object-fit:contain;
     opacity:.9;
-    /* أكبر قليلاً حسب الطلب (بسيطاً) */
-    width:30px;
-    height:30px;
+    /* تصغير بسيط لتتناسق مع حجم بقية أيقونات الموقع */
+    width:22px;
+    height:22px;
     /* تلوين الأيقونات في الحالة الافتراضية لتطابق لون الموقع (#8a99b8) */
     filter:brightness(0) saturate(100%) invert(69%) sepia(11%) saturate(452%) hue-rotate(182deg) brightness(92%) contrast(87%);
     transition:opacity .15s ease, filter .15s ease, transform .15s ease;
@@ -883,8 +898,8 @@
     color:#8a99b8;
     transition:color .15s ease;
   }
-  /* أيقونة الملف الشخصي (👤) تعتمد font-size أكبر لتطابق حجم الأيقونات الأخرى */
-  .ni > span[style*="font-size"]{ font-size:20px !important; color:#8a99b8; transition:color .15s ease; }
+  /* أيقونة الملف الشخصي (👤) — نفس حجم بقية أيقونات الشريط السفلي بعد التصغير */
+  .ni > span[style*="font-size"]{ font-size:17px !important; color:#8a99b8; transition:color .15s ease; }
   .ni.a > span[style*="font-size"]{ color:#f1ad24 !important; }
 
   /* حالة نشطة: لون أصفر للأيقونة والنص + خيط أصفر أسفل الأيقونة */
@@ -1169,6 +1184,9 @@
 
   <!-- ============ ASSET / PAIR ============ -->
   <div class="asset">
+    <div class="assetIcon">
+      <img src="https://cdn-icons-png.flaticon.com/128/3303/3303893.png" alt="" />
+    </div>
     <div class="pair" id="pairBtn">
       <div class="fg">
         <em class="c">🇪🇺</em>
@@ -1767,7 +1785,7 @@ const CHART_MANAGER = (() => {
         timeVisible: true,
         secondsVisible: false,
         /* شريط الوقت يمتد حتى آخر الشاشة مع تسميات وقت منتظمة (غير عشوائية) */
-        rightOffset: 10,
+        rightOffset: 18,
         barSpacing: 6.37,
         minBarSpacing: 4.74,
         shiftVisibleRangeOnNewBar: false,
