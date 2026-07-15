@@ -1,0 +1,2516 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1730" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>FXER - Trading Chart</title>
+
+<!-- ============================================================
+     TradingView Lightweight Charts (Official CDN) - KEPT FROM ORIGINAL
+     ============================================================ -->
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+
+<!-- ============================================================
+     Firebase SDK v12 (App + Auth + Firestore)
+     - Auth : للتحقق من جلسة المستخدم
+     - Firestore : لمزامنة currentIndex العالمي بين جميع الأجهزة
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    deleteField,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp,
+    Timestamp
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQIKQ5swu_XnVtqET0B9EelRKFjr0LXHI",
+    authDomain: "ksksjsh-724f2.firebaseapp.com",
+    projectId: "ksksjsh-724f2",
+    storageBucket: "ksksjsh-724f2.firebasestorage.app",
+    messagingSenderId: "1046924412561",
+    appId: "1:1046924412561:web:1a40834236da75d0d6e130",
+    measurementId: "G-5D3YJQDH8B"
+  };
+
+  const app       = initializeApp(firebaseConfig);
+  try { getAnalytics(app); } catch(e) { /* analytics قد لا يعمل في بيئات معينة */ }
+  const auth      = getAuth(app);
+  const firestore = getFirestore(app);
+
+  // نُصدِّر ما يحتاجه بقية الكود إلى الـ window حتى يستطيع النص العادي (non-module) استخدامه.
+  window.FIREBASE = {
+    app,
+    auth,
+    firestore,
+    onAuthStateChanged,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    deleteField,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp,
+    Timestamp,
+    ready: true
+  };
+
+  // إشعار بقية الكود بأن Firebase جاهز (لأن module قد يُحمَّل بعد DOMContentLoaded).
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<style>
+  /* ============================================================
+     DESIGN COPIED VERBATIM FROM REFERENCE FILE
+     (erg_modV3ified_firestore_leaderboard.html)
+     - Colors, sizing, spacing, radii, borders, layout
+     - NO business logic, no data, only visual design
+     ============================================================ */
+  :root{
+    --u:#0d1730;
+    --bd:#223252;
+  }
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    margin:0;
+    padding:0;
+  }
+  body,html{
+    height:100%;
+    overflow:hidden;
+  }
+  body{
+    background:var(--u);
+    color:#eef5ff;
+    user-select:none;
+    font:500 11px/1.15 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+  }
+
+  /* -------- APP CONTAINER -------- */
+  .app{
+    background:var(--u);
+    width:100vw;
+    height:100dvh;
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-top:env(safe-area-inset-top);
+    flex-direction:column;
+    display:flex;
+    position:relative;
+  }
+
+  /* -------- TOP BAR (balance + bonus) -------- */
+  .top{
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:5px 5px 3px;
+    display:flex;
+  }
+  .tc{
+    background:var(--u);
+    border:1px solid var(--bd);
+    direction:ltr;
+    border-radius:8px;
+    max-width:255px;
+    padding:3px 8px;
+  }
+  .t1{
+    align-items:center;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .lg{
+    align-items:center;
+    display:flex;
+    gap:6px;
+  }
+  .d{
+    color:#fff;
+    background:#f1ad24;
+    border-radius:4px;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font:800 12px/1 system-ui;
+    display:grid;
+  }
+  .nm{
+    color:#fff;
+    white-space:nowrap;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:500;
+    display:flex;
+  }
+  .nm b{
+    color:#f1ad24;
+    font-size:13px;
+    font-weight:600;
+    line-height:1;
+  }
+  .t2{
+    align-items:center;
+    display:flex;
+    color:#ffcf54;
+    margin-top:2px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:.2px;
+  }
+  .usd{
+    color:#ffcf54;
+    border:1px solid #8d6b1f;
+    border-radius:4px;
+    margin-left:6px;
+    padding:1px 5px;
+    font-size:8px;
+    line-height:1;
+  }
+  .dd{
+    color:#f1ad24;
+    margin-top:-4px;
+    font-size:16px;
+    font-weight:600;
+    line-height:1;
+  }
+  .fxBonus{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    background:#6429D8;
+    border-radius:8px;
+    padding:4px 8px;
+    color:#fff;
+    font-size:9px;
+    font-weight:600;
+    line-height:1.15;
+    cursor:pointer;
+    box-shadow:0 2px 6px rgba(100,41,216,.35);
+    white-space:normal;
+    text-align:center;
+    max-width:110px;
+  }
+  .fxBonus img{
+    width:18px;
+    height:18px;
+    flex:none;
+    filter:brightness(0) invert(1);
+  }
+  .dep{
+    color:#f1ad24;
+    text-align:center;
+    cursor:pointer;
+    font-size:9px;
+    line-height:1.05;
+  }
+  .dep img{
+    filter:brightness(0) saturate(1) invert(72%) sepia(58%) saturate(720%) hue-rotate(360deg) brightness(97%) contrast(94%);
+    width:32px;
+    height:32px;
+    margin:0 auto 3px;
+    display:block;
+  }
+
+  /* -------- ASSET / PAIR ROW -------- */
+  .asset{
+    align-items:center;
+    display:grid;
+    z-index:20;
+    direction:ltr;
+    flex:none;
+    grid-template-rows:32px;
+    grid-template-columns:32px 132px;
+    place-content:start;
+    column-gap:3px;
+    padding:3px 5px 4px;
+    position:relative;
+  }
+  .sq{
+    color:#cad6eb;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    flex:none;
+    grid-area:1/1;
+    place-items:center;
+    width:32px;
+    height:32px;
+    font-size:22px;
+    display:grid;
+  }
+  .pair{
+    background:var(--u);
+    border:1px solid var(--bd);
+    z-index:21;
+    pointer-events:auto;
+    touch-action:manipulation;
+    border-radius:7px;
+    flex:none;
+    grid-area:1/2;
+    align-items:center;
+    gap:6px;
+    width:132px;
+    height:32px;
+    padding:0 8px;
+    display:flex;
+    position:relative;
+    cursor:pointer;
+  }
+  .fg{
+    flex:none;
+    width:30px;
+    height:17px;
+    position:relative;
+  }
+  .fg em{
+    background:#fff;
+    border-radius:50%;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font-size:11px;
+    font-style:normal;
+    display:grid;
+    position:absolute;
+    top:0;
+  }
+  .fg .c{ left:0; }
+  .fg .j{ left:12px; }
+  .pair small{
+    color:#ffffff94;
+    margin-bottom:1px;
+    font-size:7px;
+    display:block;
+  }
+  .pair b{
+    color:#fff;
+    font-size:12px;
+  }
+
+  /* -------- CHART CONTAINER -------- */
+  .chart{
+    /* يمتد الشارت بعرض الشاشة كاملاً، وينتهي قبل شريط الأدوات السفلي (شريط الأسعار السفلي يمتد للآخر عادي). */
+    background:transparent;
+    touch-action:none;
+    flex:1 1 0;
+    min-height:0;
+    width:100vw;
+    max-width:100vw;
+    margin-top:0;
+    margin-inline:0;
+    position:relative;
+    overflow:hidden;
+  }
+  /* طبقة الشارت نفسها تملأ المساحة كاملة من اليمين إلى اليسار. */
+  #chart{
+    width:100%;
+    height:100%;
+    display:block;
+    position:absolute;
+    inset:0;
+    background:transparent;
+  }
+
+  /* -------- FLOATING PRICE LABELS OVERLAY --------
+     شريط أسعار عائم: أرقام فقط بدون خلفية، بدون حواف، بدون ظل، بدون بادينج.
+     يقع فوق الشارت في الجانب الأيمن، مع مرور الشموع والجريد أسفله بحرية. */
+  .price-overlay{
+    position:absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    width:56px;
+    pointer-events:none;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    margin:0;
+    z-index:5;
+    overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  }
+  .price-overlay .pl{
+    position:absolute;
+    right:4px;
+    transform:translateY(-50%);
+    color:#f1ad24;
+    font-size:9px;
+    line-height:1;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    margin:0;
+    white-space:nowrap;
+    direction:ltr;
+    text-align:right;
+  }
+  .price-overlay .pl.live{
+    color:#ffffff;
+    font-weight:600;
+    font-size:10px;
+  }
+  /* علامة الزوم (Zoom debug) مخفية كلياً بناءً على طلب المستخدم */
+  .zoomDebug{ display:none !important; }
+  .ptm{
+    z-index:6;
+    pointer-events:none;
+    direction:ltr;
+    background:0 0;
+    border:0;
+    justify-content:flex-start;
+    align-items:center;
+    gap:6px;
+    width:auto;
+    height:34px;
+    padding:0;
+    display:flex;
+    position:absolute;
+    top:41px;
+    left:8px;
+    right:auto;
+  }
+  .pi{
+    color:#fff;
+    background:#2196f3;
+    border-radius:50%;
+    flex:none;
+    place-items:center;
+    width:18px;
+    height:18px;
+    font:800 12px/1 system-ui;
+    display:grid;
+  }
+  .ptx{
+    flex-direction:column;
+    line-height:1;
+    display:flex;
+  }
+  .ptx b, .ptx small{
+    color:#8a99a8;
+    font-weight:700;
+  }
+  .ptx b{ font-size:11px; }
+  .ptx small{ margin-top:3px; font-size:10px; }
+  .pg{
+    background:#10b981;
+    border-radius:50%;
+    flex:none;
+    width:10px;
+    height:10px;
+    box-shadow:0 0 0 2px #0d173099;
+  }
+
+  /* -------- ROLE BADGE (Manager / Viewer live indicator) --------
+     إشارة تظهر أعلى الشارت تُبيّن ما إذا كان الجهاز مديراً للبث (ينتج الأسعار)
+     أو مشاهداً (يستقبل الأسعار من المدير عبر Firestore). */
+  .roleBadge{
+    z-index:8;
+    pointer-events:none;
+    direction:ltr;
+    position:absolute;
+    top:41px;
+    right:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:3px 8px;
+    border-radius:10px;
+    font-size:9px;
+    font-weight:700;
+    line-height:1;
+    letter-spacing:.3px;
+    background:rgba(13,23,48,.85);
+    border:1px solid var(--bd);
+    color:#c7d5ef;
+    box-shadow:0 2px 6px rgba(0,0,0,.35);
+    transition:background .2s, color .2s, border-color .2s;
+  }
+  .roleBadge .dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#7d8fae;
+    box-shadow:0 0 0 2px rgba(255,255,255,.06);
+  }
+  .roleBadge.manager{
+    background:linear-gradient(90deg,#0d1730,#1a2f5c);
+    border-color:#f1ad24;
+    color:#ffd47a;
+  }
+  .roleBadge.manager .dot{
+    background:#21c965;
+    box-shadow:0 0 0 2px rgba(33,201,101,.25);
+    animation:rbPulse 1.4s ease-in-out infinite;
+  }
+  .roleBadge.viewer{
+    background:rgba(13,23,48,.85);
+    border-color:#2b568c;
+    color:#9ec0ff;
+  }
+  .roleBadge.viewer .dot{
+    background:#3e8cff;
+    box-shadow:0 0 0 2px rgba(62,140,255,.25);
+  }
+  .roleBadge.pending{
+    background:rgba(13,23,48,.85);
+    border-color:var(--bd);
+    color:#c7d5ef;
+  }
+  .roleBadge.pending .dot{
+    background:#ffcf54;
+    box-shadow:0 0 0 2px rgba(255,207,84,.25);
+    animation:rbPulse 1s ease-in-out infinite;
+  }
+  @keyframes rbPulse{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%    { transform:scale(1.35); opacity:.55; }
+  }
+
+  /* -------- ZOOM DEBUG READOUT (temporary calibration helper) -------- */
+  .zoomDebug{
+    z-index:7;
+    pointer-events:none;
+    direction:ltr;
+    background:0 0;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    color:#9aa9ba;
+    font-size:9px;
+    font-weight:700;
+    white-space:nowrap;
+    position:absolute;
+    top:41px;
+    right:8px;
+  }
+
+  /* -------- BOTTOM CHART TOOLBAR (.bar) -------- */
+  .bar{
+    background:var(--u);
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:center;
+    gap:4px;
+    height:30px;
+    padding:0 7px;
+    display:flex;
+  }
+  .inf,.pm,.tfb,.tool{
+    color:#c7d5ef;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    flex:none;
+    place-items:center;
+    height:22px;
+    display:grid;
+  }
+  .inf,.pm,.tool{
+    cursor:pointer;
+    width:22px;
+    font-size:12px;
+  }
+  .pm img{
+    object-fit:contain;
+    filter:brightness(0) saturate(1) invert(86%) sepia(12%) saturate(448%) hue-rotate(184deg) brightness(93%) contrast(93%);
+    width:14px;
+    height:14px;
+  }
+  .tfs{
+    flex:1;
+    grid-template-columns:repeat(4,1fr);
+    gap:4px;
+    display:grid;
+  }
+  .tfb{
+    cursor:pointer;
+    font-size:11px;
+  }
+  .tfb.on{
+    color:#56a0ff;
+    border-color:#2b568c;
+    font-weight:800;
+  }
+
+  /* -------- CTRL (time + amount rows) -------- */
+  .ctrl{
+    flex:none;
+    padding:3px 3px 0;
+  }
+  .rw{
+    direction:ltr;
+    gap:3px;
+    display:flex;
+    height:34px;
+  }
+  .rw2{
+    direction:ltr;
+    gap:3px;
+    display:flex;
+    height:33px;
+    margin-top:3px;
+  }
+  .bx,.bx3{
+    background:var(--u);
+    border:1px solid #1e2a43;
+  }
+  .bx{
+    color:#fff;
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    display:flex;
+  }
+  .bx3{
+    color:#dbe7ff;
+    justify-content:center;
+    align-items:center;
+    width:36px;
+    font-size:17px;
+    display:flex;
+  }
+  .bx .bx3{
+    border-top:0;
+    border-bottom:0;
+    height:100%;
+  }
+  .mid,.val{
+    text-align:center;
+    flex:1;
+    font-size:12px;
+  }
+
+  /* -------- ACTIONS ROW (buy / sell buttons) -------- */
+  .acts{
+    flex:none;
+    gap:3px;
+    padding:3px;
+    display:flex;
+  }
+  .btn{
+    color:#fff;
+    text-align:left;
+    border:0;
+    flex:1;
+    height:54px;
+    padding:7px 10px;
+    position:relative;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn b{
+    letter-spacing:.5px;
+    font-size:15px;
+  }
+  .btn .rt{
+    font-size:12px;
+    font-weight:800;
+    position:absolute;
+    top:7px;
+    right:10px;
+  }
+  .btn i{
+    opacity:.9;
+    margin-top:3px;
+    font-size:9px;
+    font-style:normal;
+    display:block;
+  }
+  .btn small{
+    font-size:12px;
+    position:absolute;
+    bottom:7px;
+    right:10px;
+  }
+  .up{
+    background:linear-gradient(#21c965,#109a4a);
+    border-radius:0 0 0 7px;
+  }
+  .dn{
+    background:linear-gradient(#ff4f4f,#d81f1f);
+    border-radius:0 0 7px;
+  }
+
+  /* -------- BOTTOM NAV -------- */
+  .nav{
+    background:var(--u);
+    direction:ltr;
+    border-top:1px solid #111b31;
+    flex:none;
+    height:50px;
+    display:flex;
+  }
+  .ni{
+    color:#7d8fae;
+    cursor:pointer;
+    flex-direction:column;
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    gap:3px;
+    display:flex;
+    position:relative;
+  }
+  .ni img{
+    object-fit:contain;
+    opacity:.7;
+    width:19px;
+    height:19px;
+  }
+  .ni span{ font-size:9px; }
+  .ni.a{ color:#3e8cff; }
+  .ni.a img{ opacity:1; }
+  .ni.a:before{
+    content:"";
+    background:#2f84ff;
+    height:3px;
+    position:absolute;
+    top:0;
+    left:12%;
+    right:12%;
+  }
+
+  /* ============================================================
+     UPLOAD / LOADING OVERLAY - KEPT FROM ORIGINAL PROJECT
+     (only re-skinned to match reference palette)
+     ============================================================ */
+  .overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(13,23,48,0.95);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    flex-direction:column;
+    gap:20px;
+  }
+  .overlay.hidden{ display:none; }
+  .upload-box{
+    background:var(--u);
+    border:2px dashed var(--bd);
+    border-radius:12px;
+    padding:30px 40px;
+    text-align:center;
+    max-width:460px;
+    transition:all .2s;
+  }
+  .upload-box:hover, .upload-box.drag{
+    border-color:#3e8cff;
+    background:#111a35;
+  }
+  .upload-box h2{
+    font-size:16px;
+    margin-bottom:8px;
+    color:#eef5ff;
+  }
+  .upload-box p{
+    font-size:12px;
+    color:#8a99b8;
+    margin-bottom:16px;
+    line-height:1.6;
+  }
+  .file-input-btn{
+    background:#2796e8;
+    color:#fff;
+    padding:9px 22px;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+    font-family:inherit;
+  }
+  .file-input-btn:hover{ background:#1e88e5; }
+  .url-input{
+    width:100%;
+    padding:8px 12px;
+    margin-top:10px;
+    background:#0d1730;
+    border:1px solid var(--bd);
+    color:#eef5ff;
+    border-radius:6px;
+    font-size:12px;
+    font-family:inherit;
+  }
+  .divider{
+    color:#5a6883;
+    font-size:11px;
+    margin:12px 0;
+  }
+  .loading-spinner{
+    border:3px solid var(--bd);
+    border-top-color:#3e8cff;
+    border-radius:50%;
+    width:36px;
+    height:36px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loading-text{ color:#c7d5ef; font-size:12px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-track{ background:var(--u); }
+  ::-webkit-scrollbar-thumb{ background:var(--bd); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#2a3a5a; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ TOP BAR (balance + bonus + deposit) ============ -->
+  <div class="top">
+    <div class="tc">
+      <div class="t1">
+        <div class="lg">
+          <span class="d">D</span>
+          <span class="nm"><span>الخيار</span><b>demo</b></span>
+        </div>
+        <span class="dd">▾</span>
+      </div>
+      <div class="t2">
+        <span id="topBalance">$ 29,960.00</span>
+        <span class="usd">USD</span>
+      </div>
+    </div>
+    <div class="fxBonus">
+      <img src="https://cdn-icons-png.flaticon.com/128/6941/6941697.png" alt="" />
+      <span>احصل على مكافأة 50% علي ايداعك</span>
+    </div>
+    <div class="dep">
+      <img alt="" src="https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_deposit_2x.png" />
+      شحن الرصيد
+    </div>
+  </div>
+
+  <!-- ============ ASSET / PAIR ============ -->
+  <div class="asset">
+    <div class="sq">📊</div>
+    <div class="pair" id="pairBtn">
+      <div class="fg">
+        <em class="c">🇪🇺</em>
+        <em class="j">🇺🇸</em>
+      </div>
+      <div>
+        <small>UP & DOWN</small>
+        <b id="symbolLabel">—</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ CHART ============ -->
+  <div class="chart" id="CH">
+    <div id="chart"></div>
+    <!-- Floating transparent price labels layer -->
+    <div class="price-overlay" id="priceOverlay"></div>
+
+    <!-- Time / status floating label (matches reference .ptm) -->
+    <div class="ptm">
+      <span class="pi">i</span>
+      <div class="ptx">
+        <b id="ptmH">—</b>
+        <small id="statusText">في انتظار البيانات</small>
+      </div>
+      <span class="pg"></span>
+    </div>
+
+    <!-- Zoom debug readout: shows live bar spacing + min/max reached, for calibrating zoom limits later -->
+    <div class="zoomDebug" id="zoomDebug">Zoom: —</div>
+
+    <!-- Role badge: يُبيّن هل الجهاز الحالي هو مدير الشارت (يبث الأسعار) أم مشاهد. -->
+    <div class="roleBadge pending" id="roleBadge">
+      <span class="dot"></span>
+      <span id="roleBadgeText">جاري التحقق...</span>
+    </div>
+
+    <!-- Loading Overlay (auto-load only, no upload UI) -->
+    <div class="overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">جاري تحميل البيانات...</div>
+    </div>
+  </div>
+
+  <!-- ============ BAR (tools + timeframes) ============ -->
+  <div class="bar">
+    <div class="tool" id="btnReload" title="تحميل CSV">↻</div>
+    <div class="tool" id="btnFit" title="ملائمة">⛶</div>
+    <div class="tfs" id="tfButtons">
+      <div class="tfb on" data-tf="1m">1m</div>
+      <div class="tfb" data-tf="5m">5m</div>
+      <div class="tfb" data-tf="15m">15m</div>
+      <div class="tfb" data-tf="1h">1H</div>
+    </div>
+    <div class="inf" id="btnLive" title="Live">●</div>
+  </div>
+
+  <!-- ============ CTRL (time / amount rows) ============ -->
+  <div class="ctrl">
+    <div class="rw">
+      <div class="bx3" id="tmM">-</div>
+      <div class="bx cp" id="tOpen">
+        <div class="mid" id="tVal">00:01:00</div>
+      </div>
+      <div class="bx3" id="tmP">+</div>
+    </div>
+    <div class="rw2">
+      <div class="bx cp" id="aOpen">
+        <div class="bx3" id="amM">-</div>
+        <div class="val" id="aVal">$ 23</div>
+        <div class="bx3" id="amP">+</div>
+      </div>
+      <div class="bx">
+        <div class="bx3">-</div>
+        <div class="val" id="livePrice">0.00000</div>
+        <div class="bx3">+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ACTS (BUY / SELL buttons) ============ -->
+  <div class="acts">
+    <button class="btn up" id="btnBuy">
+      <b>UP</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p1">$ 21.39</small>
+    </button>
+    <button class="btn dn" id="btnSell">
+      <b>DOWN</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p2">$ 21.39</small>
+    </button>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="nav">
+    <div class="ni a">
+      <img src="https://i.ibb.co/Rpz3mRPf/69.png" alt="" />
+      <span>الرسم البياني</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/PsZW7C4x/68.png" alt="" />
+      <span>ترتيب</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/m5hRKGpS/67.png" alt="" />
+      <span id="statsText">السجل</span>
+    </div>
+    <div class="ni">
+      <span style="font-size:16px">👤</span>
+      <span>الملف</span>
+    </div>
+  </div>
+
+  <!-- Hidden helper: close-all positions button (kept from original for functionality) -->
+  <button id="btnCloseAll" style="display:none"></button>
+  <div id="positionsList" style="display:none"></div>
+</div>
+
+<script>
+/* ===============================================================
+ *  Professional Trading Chart System
+ *  Powered by TradingView Lightweight Charts v4
+ *  ---------------------------------------------------------------
+ *  ORIGINAL LOGIC PRESERVED — ONLY DESIGN RESKINNED
+ *  CSV loading pipeline is UNCHANGED.
+ * =============================================================== */
+
+
+/* ===============================================================
+ *  1. PRICE_GEN  (NEW — replaces TICK_PARSER + TICK_AGGREGATOR + DATA_LOADER)
+ *  --------------------------------------------------------------
+ *  مولّد أسعار وهمي واقعي للشمعة النشطة فقط.
+ *  ---------------------------------------------------------------
+ *  الفكرة:
+ *    - لا يُقرأ أي ملف CSV / Ticks — إطلاقاً.
+ *    - الشمعة النشطة (الجارية) تُتحرَّك عبر مولّد وهمي:
+ *          سعر جديد = سعر سابق + اتجاه صغير + ضوضاء عشوائية + قفزات نادرة صغيرة
+ *      هذا يمنح حركة سعر أكثر واقعية داخل الدقيقة (بدلاً من ضوضاء بحتة).
+ *    - عند إغلاق الشمعة (نهاية الدقيقة الجدارية) تُحفظ OHLC كاملة في Firebase
+ *      عبر CANDLE_STORE (لا مسّ لهذه الوحدة بذلك — انظر CANDLE_STORE).
+ *
+ *  ضمانات:
+ *    - الأسعار المولَّدة تبقى ضمن نطاق منطقي حول open (± انحراف محدود),
+ *      حتى لا نُنتج قفزات غير واقعية.
+ *    - القيم المُخزّنة في Firebase = OHLC حقيقية من هذا المولّد بالضبط.
+ *    - المولّد يعمل داخل حدود دقيقة جدارية واحدة فقط (anchor..anchor+1).
+ * =============================================================== */
+const PRICE_GEN = (() => {
+  let _timer      = null;
+  let _running    = false;
+  let _onTick     = null;
+  let _onClose    = null;
+
+  /* الحالة الحيّة للشمعة النشطة */
+  let _time       = 0;      // زمن الشمعة على الشارت (epoch ثانية)
+  let _open       = 0;
+  let _high       = 0;
+  let _low        = 0;
+  let _close      = 0;      // = آخر سعر مولَّد
+  let _volume     = 0;      // عدد التحديثات داخل الدقيقة
+
+  /* حالة داخلية للحركة الاتجاهية */
+  let _drift      = 0;      // اتجاه لحظي (يتغيّر ببطء)
+  let _startWallMs = 0;
+  let _closeAtMs   = 0;
+  let _closedFired = false;
+
+  /* معاملات المحاكاة — يمكن ضبطها بسهولة إن أراد المستخدم لاحقاً.
+     القيم المختارة تُنتج شمعة EUR/USD تقليدية بمدى 5–20 pip في الدقيقة
+     مع قفزات صغيرة عرضية (اتجاه + ضوضاء + قفزات) — لا حركة اصطناعية مبالغ فيها. */
+  const NOISE_AMPLITUDE  = 0.000025;  // ضوضاء عادية لكل تحديث (~0.25 pip)
+  const DRIFT_INERTIA    = 0.97;      // مدى محافظة الاتجاه على قيمته السابقة (0..1)
+  const DRIFT_KICK       = 0.0000045; // مقدار تعديل الاتجاه العشوائي كل تحديث
+  const DRIFT_DAMP       = 0.9995;    // تخفيف تراكمي للاتجاه (يحدّ من drift طويل الأمد)
+  const JUMP_PROBABILITY = 0.008;     // احتمال حصول قفزة صغيرة كل تحديث (~0.8%)
+  const JUMP_AMPLITUDE   = 0.00015;   // مدى القفزة الصغيرة (~1.5 pip)
+  const MAX_ABS_DEV      = 0.004;     // حد أقصى للانحراف عن open خلال الدقيقة (~40 pip)
+  const TICK_INTERVAL_MS = 120;       // معدل التحديث البصري (≈8/ث — سلس وطبيعي)
+
+  /* دالة عشوائية غاوسية مبسّطة (Marsaglia polar) لضوضاء أكثر طبيعية */
+  const _randn = () => {
+    let u, v, s;
+    do {
+      u = Math.random() * 2 - 1;
+      v = Math.random() * 2 - 1;
+      s = u*u + v*v;
+    } while (s === 0 || s >= 1);
+    return u * Math.sqrt(-2 * Math.log(s) / s);
+  };
+
+  /* توليد سعر التالي بناءً على السعر الحالي واتجاه لحظي.
+     - _drift يحمل الاتجاه (bias) الذي يتطوّر تدريجياً.
+     - نضيف ضوضاء غاوسية طبيعية.
+     - نضيف قفزة صغيرة نادرة (jump) لمحاكاة سلوك السوق. */
+  const _nextPrice = () => {
+    // تحديث الاتجاه: يتذكّر معظم قيمته السابقة + دفعة عشوائية + damping
+    _drift = (_drift * DRIFT_INERTIA + (_randn() * DRIFT_KICK)) * DRIFT_DAMP;
+
+    // ضوضاء عادية
+    const noise = _randn() * NOISE_AMPLITUDE;
+
+    // قفزة نادرة (اتجاه القفزة عشوائي)
+    let jump = 0;
+    if (Math.random() < JUMP_PROBABILITY) {
+      jump = (Math.random() < 0.5 ? -1 : 1) * (Math.random() * JUMP_AMPLITUDE);
+    }
+
+    let next = _close + _drift + noise + jump;
+
+    /* حدّ الانحراف عن open — لضمان عدم ذهاب الشمعة إلى قيم غير واقعية */
+    const dev = next - _open;
+    if (dev >  MAX_ABS_DEV) { next = _open + MAX_ABS_DEV; _drift = -Math.abs(_drift); }
+    if (dev < -MAX_ABS_DEV) { next = _open - MAX_ABS_DEV; _drift =  Math.abs(_drift); }
+    if (next <= 0) next = _close;   // حماية إضافية ضد قيم غير منطقية
+
+    return next;
+  };
+
+  /* بناء الشمعة الحالية (partial candle) للعرض */
+  const _buildCurrent = () => ({
+    time:   _time,
+    open:   _open,
+    high:   _high,
+    low:    _low,
+    close:  _close,
+    volume: _volume
+  });
+
+  /* المؤقّت الرئيسي: يُنتج سعراً جديداً كل TICK_INTERVAL_MS,
+     يحدّث high/low, يُطلق onTick, ويُغلق الشمعة عند بلوغ حدّ الدقيقة. */
+  const _timerFn = () => {
+    if (!_running) return;
+
+    const nowMs = Date.now();
+
+    /* توليد سعر جديد للحركة داخل الدقيقة */
+    if (nowMs < _closeAtMs) {
+      const p = _nextPrice();
+      _close = p;
+      if (p > _high) _high = p;
+      if (p < _low)  _low  = p;
+      _volume++;
+      if (_onTick) _onTick(_buildCurrent());
+    }
+
+    /* بلوغ حدّ الدقيقة → إغلاق */
+    if (!_closedFired && nowMs >= _closeAtMs) {
+      _closedFired = true;
+      const closed = _buildCurrent();
+      /* شمعة "تالية" افتراضية تبدأ من نفس سعر الإغلاق (سيُستبدل openها لاحقاً) */
+      const nextT = _time + 60;
+      const newCandle = {
+        time: nextT, open: closed.close, high: closed.close,
+        low:  closed.close, close: closed.close, volume: 0
+      };
+      if (_onClose) _onClose(closed, newCandle);
+    }
+  };
+
+  /* start:
+       openPrice          : سعر الفتح المطلوب (من آخر close تاريخي أو seed).
+       anchorEpochMinute  : الدقيقة (منذ epoch/60000) التي تبدأ فيها الشمعة.
+       onTick / onClose   : callbacks. */
+  const start = ({ openPrice, anchorEpochMinute, onTick, onClose }) => {
+    stop();
+
+    const nowMs = Date.now();
+    let anchor = (typeof anchorEpochMinute === 'number' && isFinite(anchorEpochMinute))
+      ? anchorEpochMinute
+      : Math.floor(nowMs / 60000);
+
+    /* حماية: لا يُسمح بأنكر متأخر عن الدقيقة الجدارية الحالية.
+       (الوظيفة نفسها كانت موجودة في TICK_PLAYER — نُبقيها لضمان
+       أن كل شمعة نشطة تحصل دائماً على نافذة 60 ثانية كاملة). */
+    const currentWallMinute = Math.floor(nowMs / 60000);
+    if (anchor < currentWallMinute) {
+      console.warn('[PRICE_GEN] anchorEpochMinute (' + anchor + ') متأخر عن الدقيقة الجدارية الحالية (' +
+                   currentWallMinute + ') — إعادة الضبط لضمان شمعة 60 ثانية كاملة.');
+      anchor = currentWallMinute;
+    }
+
+    _startWallMs = anchor * 60000;
+    _closeAtMs   = (anchor + 1) * 60000;
+    _time        = anchor * 60;   // زمن الشمعة على الشارت
+    _closedFired = false;
+    _running     = true;
+
+    /* قيم OHLC الابتدائية = open الممرّر */
+    const seed = (typeof openPrice === 'number' && isFinite(openPrice) && openPrice > 0)
+      ? openPrice
+      : 1.10000;
+    _open = _high = _low = _close = seed;
+    _drift = 0;
+    _volume = 0;
+
+    _onTick  = onTick;
+    _onClose = onClose;
+
+    /* إطلاق فوري لتحديث الحالة على الشارت قبل أول tick مولَّد */
+    if (_onTick) _onTick(_buildCurrent());
+
+    _timer = setInterval(_timerFn, TICK_INTERVAL_MS);
+  };
+
+  const stop = () => {
+    if (_timer) clearInterval(_timer);
+    _timer = null;
+    _running = false;
+  };
+  const isRunning = () => _running;
+  const getPrice  = () => _close;
+  return { start, stop, isRunning, getPrice };
+})();
+
+/* ---------------------------------------------------------------
+ * توافق خلفي: بقية الكود يستخدم الاسم FAKE_PRICE_GEN. نُعيّن alias
+ * إلى المولّد الجديد حتى لا يتغيّر أي جزء آخر من المشروع.
+ * --------------------------------------------------------------- */
+const FAKE_PRICE_GEN = PRICE_GEN;
+
+
+const CANDLE_ENGINE = (() => {
+  const TF_SECONDS = {
+    '1m': 60, '5m': 5*60, '15m': 15*60, '30m': 30*60,
+    '1h': 60*60, '4h': 4*60*60, '1D': 24*60*60,
+  };
+  const alignTime = (t, sec) => Math.floor(t / sec) * sec;
+  const aggregate = (m1, tf) => {
+    const sec = TF_SECONDS[tf];
+    if (!sec) throw new Error(`Unknown TF: ${tf}`);
+    if (tf === '1m') return m1.slice();
+    const out = [];
+    let bucket = null;
+    for (const c of m1) {
+      const alignedT = alignTime(c.time, sec);
+      if (!bucket || bucket.time !== alignedT) {
+        if (bucket) out.push(bucket);
+        bucket = { time: alignedT, open: c.open, high: c.high, low: c.low, close: c.close, volume: c.volume || 0 };
+      } else {
+        bucket.high   = Math.max(bucket.high, c.high);
+        bucket.low    = Math.min(bucket.low,  c.low);
+        bucket.close  = c.close;
+        bucket.volume += (c.volume || 0);
+      }
+    }
+    if (bucket) out.push(bucket);
+    return out;
+  };
+  const getTFSeconds = (tf) => TF_SECONDS[tf];
+  const listTFs = () => Object.keys(TF_SECONDS);
+  return { aggregate, getTFSeconds, listTFs, alignTime };
+})();
+
+
+/* ===============================================================
+ *  5. CHART_MANAGER
+ *  --------------------------------------------------------------
+ *  Chart styling adapted to reference palette (#0d1730 / #223252),
+ *  but candle sizing, barSpacing, price scale layout, and chart
+ *  container dimensions match the reference visual density.
+ * =============================================================== */
+const CHART_MANAGER = (() => {
+  let _chart, _series, _container;
+
+  const create = (container) => {
+    _container = container;
+    _chart = LightweightCharts.createChart(container, {
+      width:  container.clientWidth,
+      height: container.clientHeight,
+      layout: {
+        /* خلفية شفافة 100% للشارت ومقياس الأسعار معاً — بلا أي لون خلفية أو صندوق أو ظل خلف الأرقام. */
+        background: { type: 'solid', color: 'rgba(0,0,0,0)' },
+        textColor:  '#9aa9ba',
+        fontSize:   9,
+        fontFamily: 'system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif',
+      },
+      grid: {
+        vertLines: { color: '#1a2540' },
+        horzLines: { color: '#1a2540' },
+      },
+      crosshair: {
+        mode: LightweightCharts.CrosshairMode.Normal,
+        vertLine: { color: '#3e8cff', width: 1, style: 3, labelBackgroundColor: '#223252' },
+        horzLine: { color: '#3e8cff', width: 1, style: 3, labelBackgroundColor: '#223252' },
+      },
+      rightPriceScale: {
+        /* شريط الأسعار المدمج مخفي تماماً — يمتد الشارت والجريد بعرض الشاشة كاملاً.
+           التسميات تُرسم عبر طبقة HTML شفافة (#priceOverlay). */
+        visible: false,
+        borderVisible: false,
+        borderColor: 'rgba(0,0,0,0)',
+        scaleMargins: { top: 0.05, bottom: 0.05 },
+        entireTextOnly: false,
+      },
+      timeScale: {
+        borderVisible: false,
+        borderColor: 'rgba(0,0,0,0)',
+        timeVisible: true,
+        secondsVisible: false,
+        /* الإزاحة تُحسب ديناميكياً لتثبيت الشمعة النشطة في منتصف الشاشة */
+        rightOffset: 10,
+        barSpacing: 6.37,
+        minBarSpacing: 4.74,
+        shiftVisibleRangeOnNewBar: false,
+      },
+      handleScroll: {
+        mouseWheel: true, pressedMouseMove: true,
+        horzTouchDrag: true, vertTouchDrag: true,
+      },
+      handleScale: {
+        mouseWheel: true, pinch: true, axisPressedMouseMove: true,
+      },
+    });
+
+    /* حدود الزوم: أدنى 4.74px وأقصى 21.86px — تُفرض بشكل دائم. */
+    const _MIN_BS = 4.74;
+    const _MAX_BS = 21.86;
+    const _DEFAULT_BS = 6.37;
+    let _clampGuard = false;
+    const _clampBarSpacing = () => {
+      if (_clampGuard) return;
+      const opts = _chart.options && _chart.options();
+      const ts = _chart.timeScale();
+      // نقرأ barSpacing الحالي من خيارات timeScale
+      let cur = null;
+      try { cur = _chart.timeScale().options().barSpacing; } catch(e){ cur = null; }
+      if (typeof cur !== 'number' || !isFinite(cur)) return;
+      let target = cur;
+      if (cur < _MIN_BS) target = _MIN_BS;
+      else if (cur > _MAX_BS) target = _MAX_BS;
+      if (target !== cur) {
+        _clampGuard = true;
+        _chart.applyOptions({ timeScale: { barSpacing: target } });
+        setTimeout(() => { _clampGuard = false; }, 0);
+      }
+    };
+
+    _series = _chart.addCandlestickSeries({
+      upColor:         '#21c965',
+      downColor:       '#ff4f4f',
+      borderUpColor:   '#109a4a',
+      borderDownColor: '#d81f1f',
+      wickUpColor:     '#21c965',
+      wickDownColor:   '#ff4f4f',
+      priceFormat: { type: 'price', precision: 5, minMove: 0.00001 },
+    });
+
+    const ro = new ResizeObserver(() => {
+      _chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+      _centerLastCandle();
+      _renderPriceOverlay();
+    });
+    ro.observe(container);
+
+    /* ---- Floating price-labels overlay:
+       يرسم تسميات الأسعار كأرقام HTML شفافة فوق الشارت في الجانب الأيمن.
+       لا خلفية، لا ظل، لا حدود — أرقام فقط والشموع/الجريد يمرون تحتها. */
+    _overlayEl = document.getElementById('priceOverlay');
+    _chart.subscribeCrosshairMove(() => { /* keep overlay stable on hover */ });
+    _chart.timeScale().subscribeVisibleTimeRangeChange(() => _renderPriceOverlay());
+
+    /* تطبيق حدود الزوم ديناميكياً على أي تغيير في نطاق الرؤية (pinch / wheel / drag) */
+    _chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
+      _clampBarSpacing();
+    });
+  };
+
+  /* يُثبّت الشمعة النشطة (الأخيرة) في منتصف عرض الشارت تماماً
+     عبر حساب rightOffset = (نصف العرض بالبكسل) / barSpacing.
+     القيمة مقيسة بوحدة "عدد الأعمد" وليس بالبكسل. */
+  const _centerLastCandle = () => {
+    if (!_chart || !_container) return;
+    const w = _container.clientWidth;
+    if (!w) return;
+    let bs = 6.37;
+    try { bs = _chart.timeScale().options().barSpacing || bs; } catch(e){}
+    if (!isFinite(bs) || bs <= 0) bs = 6.37;
+    const bars = (w / 2) / bs;
+    _chart.applyOptions({ timeScale: { rightOffset: bars } });
+  };
+
+  const setData = (candles) => { _series.setData(candles); _centerLastCandle(); _renderPriceOverlay(); };
+  const update  = (candle)  => { _series.update(candle); _renderPriceOverlay(); };
+  const fitContent = () => { _chart.timeScale().fitContent(); _centerLastCandle(); _renderPriceOverlay(); };
+  const scrollToRealTime = () => { _chart.timeScale().scrollToRealTime(); _centerLastCandle(); };
+  const getChart  = () => _chart;
+  const getSeries = () => _series;
+  const setPricePrecision = (precision, minMove) => {
+    _pricePrecision = precision;
+    _series.applyOptions({ priceFormat: { type: 'price', precision, minMove } });
+    _renderPriceOverlay();
+  };
+  const setLivePrice = (price, up) => {
+    _liveValue = price;
+    _liveUp = !!up;
+    _renderPriceOverlay();
+  };
+
+  /* ---- Overlay renderer state ---- */
+  let _overlayEl = null;
+  let _pricePrecision = 5;
+  let _liveValue = null;
+  let _liveUp = true;
+
+  /* يحسب مجموعة أسعار مرئية حالياً ثم يوزعها رأسياً كـ <span> شفافة. */
+  const _renderPriceOverlay = () => {
+    if (!_overlayEl || !_series || !_chart) return;
+    const h = _container ? _container.clientHeight : 0;
+    if (!h) return;
+
+    // نقرأ نطاق الأسعار المرئي من خلال coordinate↔price لأقصى/أدنى وحدتي تيكست.
+    const priceTop    = _series.coordinateToPrice(2);
+    const priceBottom = _series.coordinateToPrice(h - 2);
+    if (priceTop == null || priceBottom == null) return;
+    const pMax = Math.max(priceTop, priceBottom);
+    const pMin = Math.min(priceTop, priceBottom);
+    const range = pMax - pMin;
+    if (!isFinite(range) || range <= 0) return;
+
+    // عدد التسميات حسب الارتفاع (واحدة كل ~60px).
+    const desired = Math.max(4, Math.min(12, Math.round(h / 60)));
+    // نختار step مقروءاً (1/2/5 × 10^n) قريب من range/desired.
+    const raw = range / desired;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    let step;
+    if (norm < 1.5) step = 1 * mag;
+    else if (norm < 3.5) step = 2 * mag;
+    else if (norm < 7.5) step = 5 * mag;
+    else step = 10 * mag;
+
+    const first = Math.ceil(pMin / step) * step;
+    const frag = document.createDocumentFragment();
+    const prec = _pricePrecision;
+    for (let p = first; p <= pMax; p += step) {
+      const y = _series.priceToCoordinate(p);
+      if (y == null || y < 0 || y > h) continue;
+      const el = document.createElement('span');
+      el.className = 'pl';
+      el.style.top = y + 'px';
+      el.textContent = Number(p).toFixed(prec);
+      frag.appendChild(el);
+    }
+
+    // السعر اللحظي (live) — أبيض وأقوى، يُرسم فوق الباقي.
+    if (_liveValue != null) {
+      const y = _series.priceToCoordinate(_liveValue);
+      if (y != null && y >= 0 && y <= h) {
+        const el = document.createElement('span');
+        el.className = 'pl live';
+        el.style.top = y + 'px';
+        el.style.color = _liveUp ? '#21c965' : '#ff4f4f';
+        el.textContent = Number(_liveValue).toFixed(prec);
+        frag.appendChild(el);
+      }
+    }
+
+    _overlayEl.textContent = '';
+    _overlayEl.appendChild(frag);
+  };
+
+  return { create, setData, update, fitContent, scrollToRealTime, getChart, getSeries, setPricePrecision, setLivePrice, centerLastCandle: _centerLastCandle };
+})();
+
+
+/* ===============================================================
+ *  6. TRADE_MANAGER  (UNCHANGED)
+ * =============================================================== */
+const TRADE_MANAGER = (() => {
+  let _positions = [], _idSeq = 1, _listEl = null;
+  const attach = (listEl) => { _listEl = listEl; };
+  const open = (side, price) => {
+    if (!price || price <= 0) return;
+    const priceLine = CHART_MANAGER.getSeries().createPriceLine({
+      price,
+      color: side === 'BUY' ? '#21c965' : '#ff4f4f',
+      lineWidth: 2, lineStyle: 2, axisLabelVisible: true,
+      title: `${side} #${_idSeq}`,
+    });
+    _positions.push({ id: _idSeq++, side, entry: price, priceLine, openedAt: Date.now() });
+    render();
+  };
+  const close = (id) => {
+    const idx = _positions.findIndex(p => p.id === id);
+    if (idx < 0) return;
+    try { CHART_MANAGER.getSeries().removePriceLine(_positions[idx].priceLine); } catch(e){}
+    _positions.splice(idx, 1);
+    render();
+  };
+  const closeAll = () => {
+    for (const p of _positions) {
+      try { CHART_MANAGER.getSeries().removePriceLine(p.priceLine); } catch(e){}
+    }
+    _positions = [];
+    render();
+  };
+  const updateLivePnL = (currentPrice) => {
+    if (!_listEl || _positions.length === 0) return;
+    for (const p of _positions) {
+      const diff = p.side === 'BUY' ? (currentPrice - p.entry) : (p.entry - currentPrice);
+      const el = _listEl.querySelector(`[data-pid="${p.id}"] .pnl`);
+      if (el) {
+        const pips = (diff * 10000).toFixed(1);
+        el.textContent = (diff >= 0 ? '+' : '') + pips + ' pips';
+      }
+    }
+  };
+  const render = () => {
+    if (!_listEl) return;
+    _listEl.innerHTML = '';
+    for (const p of _positions) {
+      const row = document.createElement('div');
+      row.dataset.pid = p.id;
+      row.innerHTML = `<span>${p.side}</span><span>@${p.entry.toFixed(5)}</span><span class="pnl">+0.0 pips</span>`;
+      _listEl.appendChild(row);
+    }
+  };
+  return { attach, open, close, closeAll, updateLivePnL };
+})();
+/* ===============================================================
+ *  6.5  CANDLE_STORE  (NEW — replaces GLOBAL_INDEX_MANAGER)
+ *  --------------------------------------------------------------
+ *  إدارة تاريخ الشموع المشترك عبر Firestore.
+ *  ---------------------------------------------------------------
+ *  المفهوم:
+ *    - مستند واحد فقط في Firestore:  chartState/candles
+ *          {
+ *            candles: [ {time,open,high,low,close,volume}, ... ],
+ *            anchorEpochMinute: <number>,   // الدقيقة التي تبدأ فيها الشمعة النشطة
+ *            updatedAt: <timestamp>
+ *          }
+ *    - كل الأجهزة تقرأ نفس مصفوفة الشموع + نفس anchor.
+ *    - عند إغلاق الشمعة النشطة محلياً → transaction تُضيف الشمعة إلى المصفوفة
+ *      وتُقدّم anchor بمقدار 1 (بمعنى: تبدأ شمعة جديدة عند anchor+1).
+ *    - onSnapshot يستمع لأي تغيير خارجي فيُطبَّق فوراً (جهاز آخر أضاف شمعة).
+ *    - حماية من re-entrancy: العَلَم _updating يمنع إطلاق onChange من صدى
+ *      كتابتنا المحلية.
+ *
+ *  ملاحظة عن الحد الأقصى لحجم مستند Firestore (1MB):
+ *    - كل شمعة ≈ 60 بايت (JSON مضغوط) → ~16000 شمعة تقريباً (>11 يوم بشموع M1).
+ *    - إذا اقترب الحد يمكن مستقبلاً تقسيم إلى مستندات متعددة، لكن حالياً
+ *      نحتفظ بمستند واحد بحسب طلب المستخدم (أبسط).
+ *
+ *  توافق خلفي: نُبقي على واجهة init/advance/getIndex/getTotal/getAnchor/onChange
+ *  التي كان يستخدمها APP بحيث لا تتغيّر بقية الشيفرة إلا في مكان إضافة الشمعة.
+ * =============================================================== */
+const CANDLE_STORE = (() => {
+  const DOC_PATH_COLLECTION = 'chartState';
+  const DOC_PATH_ID         = 'candles';
+
+  /* حد أقصى احترازي لعدد الشموع المخزَّنة (لتفادي بلوغ حد 1MB في Firestore).
+     عند التجاوز نُسقط الأقدم (FIFO) قبل الحفظ. */
+  const MAX_CANDLES = 15000;
+
+  let _candles          = [];    // مصفوفة الشموع التاريخية المغلقة (مصدرها Firestore)
+  let _anchorEpochMinute= 0;     // الدقيقة التي تبدأ فيها الشمعة النشطة الجديدة
+  let _docRef           = null;
+  let _unsubscribe      = null;
+  let _initialized      = false;
+  let _onChange         = null;
+  let _updating         = false; // حماية من صدى كتابتنا المحلية
+
+  const _fb = () => window.FIREBASE;
+
+  /* تعقيم شمعة قادمة من Firestore (تحويل أرقام + التحقق) */
+  const _sanitizeCandle = (c) => {
+    if (!c || typeof c !== 'object') return null;
+    const t = +c.time, o = +c.open, h = +c.high, l = +c.low, cl = +c.close;
+    const v = +c.volume || 0;
+    if (!isFinite(t) || !isFinite(o) || !isFinite(h) || !isFinite(l) || !isFinite(cl)) return null;
+    return { time: t, open: o, high: h, low: l, close: cl, volume: v };
+  };
+
+  const _sanitizeArray = (arr) => {
+    if (!Array.isArray(arr)) return [];
+    const out = [];
+    for (const c of arr) {
+      const s = _sanitizeCandle(c);
+      if (s) out.push(s);
+    }
+    // ترتيب زمني تصاعدي (احتياطاً)
+    out.sort((a, b) => a.time - b.time);
+    return out;
+  };
+
+  /* التهيئة: يقرأ مستند chartState/candles أو ينشئه إن لم يكن موجوداً. */
+  const init = async () => {
+    if (!_fb() || !_fb().ready)
+      throw new Error('Firebase لم يُهيَّأ بعد.');
+
+    _docRef = _fb().doc(_fb().firestore, DOC_PATH_COLLECTION, DOC_PATH_ID);
+
+    const snap = await _fb().getDoc(_docRef);
+    const nowMinute = Math.floor(Date.now() / 60000);
+
+    if (!snap.exists()) {
+      /* إنشاء المستند لأول مرة — لا شموع تاريخية بعد.
+         anchor = الدقيقة الحالية بحيث تبدأ الشمعة النشطة الأولى من الآن. */
+      _candles = [];
+      _anchorEpochMinute = nowMinute;
+      await _fb().setDoc(_docRef, {
+        candles: [],
+        anchorEpochMinute: _anchorEpochMinute,
+        updatedAt: _fb().serverTimestamp()
+      });
+      console.info('[CANDLE_STORE] تم إنشاء مستند الشموع (0 شمعة, anchor=' + _anchorEpochMinute + ').');
+    } else {
+      const data = snap.data() || {};
+      _candles = _sanitizeArray(data.candles);
+
+      const rawAnchor = data.anchorEpochMinute;
+      let needsRewrite = false;
+      if (typeof rawAnchor === 'number' && isFinite(rawAnchor) && rawAnchor > 0) {
+        _anchorEpochMinute = Math.floor(rawAnchor);
+      } else {
+        _anchorEpochMinute = nowMinute;
+        needsRewrite = true;
+      }
+
+      /* حماية: إن كان anchor في الماضي (لم يشاهد أحد الصفحة منذ فترة),
+         فإن الشمعة النشطة يجب أن تفتح "الآن" بدل أن تبدأ في الماضي وتُغلق فوراً.
+         نُعيد ضبط anchor إلى الدقيقة الجدارية الحالية.
+         ملاحظة: هذا يعني أن الشموع "المفقودة" بين anchor القديم والآن لن تُضاف —
+         وهذا سلوك مقصود لأن المولّد وهمي (لا حركة سوق فعلية عند غياب المتصفح). */
+      if (_anchorEpochMinute < nowMinute) {
+        console.warn('[CANDLE_STORE] anchorEpochMinute المخزَّن (' + _anchorEpochMinute +
+                     ') أقدم من الدقيقة الحالية (' + nowMinute + ') — إعادة المزامنة.');
+        _anchorEpochMinute = nowMinute;
+        needsRewrite = true;
+      }
+
+      if (needsRewrite) {
+        try {
+          await _fb().setDoc(_docRef, {
+            anchorEpochMinute: _anchorEpochMinute,
+            updatedAt: _fb().serverTimestamp()
+          }, { merge: true });
+        } catch (e) {
+          console.warn('[CANDLE_STORE] فشل كتابة anchor المصحح:', e);
+        }
+      }
+
+      console.info('[CANDLE_STORE] تم تحميل ' + _candles.length +
+                   ' شمعة تاريخية (anchorMinute=' + _anchorEpochMinute + ').');
+    }
+
+    /* الاستماع لأي تحديث خارجي (جهاز آخر أضاف شمعة أو قدّم anchor). */
+    _unsubscribe = _fb().onSnapshot(_docRef, (docSnap) => {
+      if (!docSnap.exists()) return;
+      const data = docSnap.data() || {};
+      const remoteCandles = _sanitizeArray(data.candles);
+      const rawAnchor = data.anchorEpochMinute;
+      const remoteAnchor = (typeof rawAnchor === 'number' && isFinite(rawAnchor) && rawAnchor > 0)
+        ? Math.floor(rawAnchor)
+        : _anchorEpochMinute;
+
+      const changedCount  = remoteCandles.length !== _candles.length;
+      const changedAnchor = remoteAnchor !== _anchorEpochMinute;
+      // مقارنة سريعة: هل آخر شمعة اختلفت؟
+      let changedTail = false;
+      if (!changedCount && remoteCandles.length > 0) {
+        const a = remoteCandles[remoteCandles.length - 1];
+        const b = _candles[_candles.length - 1];
+        if (!b || a.time !== b.time || a.close !== b.close) changedTail = true;
+      }
+      if (!changedCount && !changedAnchor && !changedTail) return;
+
+      _candles = remoteCandles;
+      _anchorEpochMinute = remoteAnchor;
+
+      if (_updating) return;   // لا تُطلق onChange من صدى كتابتنا المحلية
+      if (typeof _onChange === 'function') {
+        try { _onChange({ candles: _candles.slice(), anchorEpochMinute: _anchorEpochMinute }); }
+        catch (e) { console.error(e); }
+      }
+    }, (err) => {
+      console.error('[CANDLE_STORE] خطأ في onSnapshot:', err);
+    });
+
+    _initialized = true;
+    return { candles: _candles.slice(), anchorEpochMinute: _anchorEpochMinute };
+  };
+
+  /* commitClosedCandle:
+       يُضيف شمعة مغلقة إلى المصفوفة ويُقدّم anchor بمقدار 1.
+       expectedAnchor: الدقيقة التي كانت تُشير إليها الشمعة النشطة (للحماية من التقدّم المزدوج).
+       closedCandle: OHLC كاملة { time, open, high, low, close, volume }.
+       ---------------------------------------------------------------
+       داخل الـ Transaction:
+         - إذا كان anchor في Firestore يساوي expectedAnchor نُضيف الشمعة.
+         - إذا سبقنا جهاز آخر (anchor مختلف) → لا نفعل شيئاً, نُرجع الحالة الراهنة.
+       يعيد { advanced: bool, candles: [...], anchorEpochMinute: n }. */
+  const commitClosedCandle = async (expectedAnchor, closedCandle) => {
+    if (!_initialized || !_docRef)
+      throw new Error('CANDLE_STORE لم يُهيَّأ.');
+    const safe = _sanitizeCandle(closedCandle);
+    if (!safe) throw new Error('closedCandle غير صالحة.');
+    if (typeof expectedAnchor !== 'number' || !isFinite(expectedAnchor)) {
+      expectedAnchor = _anchorEpochMinute;
+    }
+
+    _updating = true;
+    try {
+      const result = await _fb().runTransaction(_fb().firestore, async (tx) => {
+        const s = await tx.get(_docRef);
+        let curCandles = [];
+        let curAnchor  = expectedAnchor;
+        if (s.exists()) {
+          const d = s.data() || {};
+          curCandles = _sanitizeArray(d.candles);
+          const rawA = d.anchorEpochMinute;
+          if (typeof rawA === 'number' && isFinite(rawA) && rawA > 0) {
+            curAnchor = Math.floor(rawA);
+          }
+        }
+        // سبقنا جهاز آخر → لا تُضِف
+        if (curAnchor !== expectedAnchor) {
+          return { advanced: false, candles: curCandles, anchorEpochMinute: curAnchor };
+        }
+        /* منع التكرار: لو كانت الشمعة الأخيرة في المصفوفة تحمل نفس الزمن → لا تُضِف */
+        const last = curCandles[curCandles.length - 1];
+        let nextCandles;
+        if (last && last.time === safe.time) {
+          // مطابقة زمنية → استبدال (احتياط ضد تكرار غير مقصود)
+          nextCandles = curCandles.slice(0, -1).concat([safe]);
+        } else {
+          nextCandles = curCandles.concat([safe]);
+        }
+        // ضغط FIFO عند تجاوز الحد
+        if (nextCandles.length > MAX_CANDLES) {
+          nextCandles = nextCandles.slice(nextCandles.length - MAX_CANDLES);
+        }
+        const nextAnchor = curAnchor + 1;
+        tx.set(_docRef, {
+          candles: nextCandles,
+          anchorEpochMinute: nextAnchor,
+          updatedAt: _fb().serverTimestamp()
+        }, { merge: true });
+        return { advanced: true, candles: nextCandles, anchorEpochMinute: nextAnchor };
+      });
+      _candles = result.candles;
+      _anchorEpochMinute = result.anchorEpochMinute;
+      return result;
+    } catch (err) {
+      console.error('[CANDLE_STORE] فشل commitClosedCandle:', err);
+      throw err;
+    } finally {
+      // نبقي _updating=true لبرهة قصيرة حتى يمرّ صدى onSnapshot الخاص بنا.
+      setTimeout(() => { _updating = false; }, 250);
+    }
+  };
+
+  const getCandles = () => _candles.slice();
+  const getAnchor  = () => _anchorEpochMinute;
+  const getCount   = () => _candles.length;
+  const getLast    = () => (_candles.length ? _candles[_candles.length - 1] : null);
+  const onChange   = (cb) => { _onChange = cb; };
+  const dispose    = () => { if (_unsubscribe) { _unsubscribe(); _unsubscribe = null; } };
+
+  return { init, commitClosedCandle, getCandles, getAnchor, getCount, getLast, onChange, dispose, MAX_CANDLES };
+})();
+
+/* ---------------------------------------------------------------
+ * توافق خلفي: نُبقي على الاسم القديم GLOBAL_INDEX_MANAGER كـalias
+ * حتى لا نمسّ أي استدعاء موجود لواجهاته الأساسية إذا وُجد في ملحقات أخرى.
+ * الواجهة الفعلية للاستخدام الجديد هي CANDLE_STORE.
+ * --------------------------------------------------------------- */
+const GLOBAL_INDEX_MANAGER = {
+  init: async () => {
+    const st = await CANDLE_STORE.init();
+    return st.candles.length;   // للتوافق مع القيمة المُعادة سابقاً (عدد)
+  },
+  getIndex : () => Math.max(0, CANDLE_STORE.getCount() - 1),
+  getTotal : () => CANDLE_STORE.getCount(),
+  getAnchor: () => CANDLE_STORE.getAnchor(),
+  onChange : (cb) => CANDLE_STORE.onChange((st) => cb(st.candles.length - 1, -1)),
+  dispose  : () => CANDLE_STORE.dispose(),
+};
+
+
+/* ===============================================================
+ *  6.75  LIVE_MANAGER  (NEW)
+ *  --------------------------------------------------------------
+ *  نظام "مدير الشارت" — جهاز واحد فقط يبث الأسعار اللحظية
+ *  للشمعة النشطة ، والباقي يقرأون فقط (مشاهدون).
+ *  ---------------------------------------------------------------
+ *  المفهوم:
+ *    - مستند واحد في Firestore: chartState/live
+ *          {
+ *            managerId       : <string>   // uid + sessionId للمدير الحالي
+ *            managerHeartbeat: <Timestamp> // يُحدّّث كل ~2ث من المدير
+ *            anchorEpochMinute: <number>  // دقيقة الشمعة النشطة
+ *            open,high,low,close,volume,time : الشمعة النشطة اللحظية
+ *            up : bool  // لون التحرك الأخير (تصاعدي؟)
+ *          }
+ *
+ *  إدارة الدور (Election):
+ *    - عند الإقلاع: نقرأ المستند.
+ *      • إذا لم يوجد managerId أو الـheartbeat أقدم من STALE_MS (خمس ثوانٍ) → 
+ *        transaction تجعلنا المدير (يفوز أول من يكتب).
+ *      • وإلا → نصبح مشاهدين.
+ *
+ *  دورة حياة المدير:
+ *    - يشغّل PRICE_GEN محليّاً.
+ *    - عند كل tick: يمرر الشمعة لـonLive محليّاً + يُحدّث Firestore (throttled).
+ *    - Heartbeat مستقل كل HEARTBEAT_MS من المدير يرفع managerHeartbeat.
+ *    - عند إغلاق الشمعة: يُرسل إلى CANDLE_STORE.commitClosedCandle.
+ *    - عند beforeunload: محاولة إفراغ managerId لتسريع الانتخابات.
+ *
+ *  دورة حياة المشاهد:
+ *    - PRICE_GEN متوقف تماماً.
+ *    - onSnapshot يستمع لحقل chartState/live → أي تحديث من المدير يُطلق onLive.
+ *    - مراقب دوري: إذا أصبح heartbeat قديماً → محاولة انتخاب ذاتية.
+ * =============================================================== */
+const LIVE_MANAGER = (() => {
+  const DOC_COLLECTION = 'chartState';
+  const DOC_ID         = 'live';
+
+  /* الثوابت الزمنية (مليثاني) */
+  const HEARTBEAT_MS      = 2000;   // المدير يرفع heartbeat كل 2ث
+  const STALE_MS          = 5000;   // اعتبر المدير مُنقطعاً إذا تجاوز الـheartbeat هذه المدة
+  const ELECTION_CHECK_MS = 2500;   // المشاهد يفحص لحالة المدير دوريّاً
+  const PRICE_BROADCAST_MS= 250;    // throttle لتحديث Firestore من tick إلى آخر
+
+  /* معرّف جلسة فريد لهذا التبويب (uid + rnd + ts) — يُميّز أجهزة متعددة لنفس المستخدم. */
+  const _mkSessionId = (uid) => {
+    const rnd = Math.random().toString(36).slice(2, 10);
+    return (uid || 'anon') + ':' + rnd + ':' + Date.now();
+  };
+
+  let _sessionId       = null;
+  let _docRef          = null;
+  let _unsubscribe     = null;
+  let _heartbeatTimer  = null;
+  let _electionTimer   = null;
+  let _isManager       = false;
+  let _lastRemote      = null;   // آخر محتوى وصل من onSnapshot
+  let _lastBroadcastMs = 0;
+  let _pendingBroadcast= null;
+  let _pendingTimer    = null;
+  let _onRoleChange    = null;
+  let _onLive          = null;   // يستقبل الشمعة اللحظية (من المدير أو من الفيربيز للمشاهد)
+  let _initialized     = false;
+
+  const _fb = () => window.FIREBASE;
+
+  /* تحويل Timestamp إلى مليثاني مع الأمان ضد التحديثات المحلية التي لم تُرسل بعد. */
+  const _tsToMs = (t) => {
+    if (!t) return 0;
+    if (typeof t.toMillis === 'function') { try { return t.toMillis(); } catch(e){ return 0; } }
+    if (typeof t.seconds === 'number') return t.seconds * 1000 + Math.floor((t.nanoseconds || 0)/1e6);
+    if (t instanceof Date) return t.getTime();
+    if (typeof t === 'number') return t;
+    return 0;
+  };
+
+  /* هل المدير الموجود في Firestore يعتبر "حيّاً"؟ */
+  const _isRemoteAlive = (data, nowMs) => {
+    if (!data) return false;
+    if (!data.managerId) return false;
+    const hbMs = _tsToMs(data.managerHeartbeat);
+    if (!hbMs) return false;    // لا heartbeat بعد → ليس حيّاً
+    return (nowMs - hbMs) <= STALE_MS;
+  };
+
+  /* محاولة تولّي الإدارة (transaction).
+     تنجح فقط إذا لم يكن هناك مدير حيّ لحظة الـtransaction. */
+  const _tryClaimManager = async (seedFromLast) => {
+    const now = Date.now();
+    try {
+      const took = await _fb().runTransaction(_fb().firestore, async (tx) => {
+        const s = await tx.get(_docRef);
+        const data = s.exists() ? (s.data() || {}) : null;
+        if (_isRemoteAlive(data, Date.now())) {
+          // مدير آخر موجود حاليّاً — لا نفعل شيئاً.
+          return false;
+        }
+        /* نكتب أنفسنا كمدير جديد.
+           إذا وجدت قيم شمعة سابقة (من مدير منقطع) نحتفظ بها لتواصل العرض دون ارتداد. */
+        const payload = {
+          managerId: _sessionId,
+          managerHeartbeat: _fb().serverTimestamp(),
+          updatedAt: _fb().serverTimestamp()
+        };
+        if (data && typeof data.anchorEpochMinute === 'number') payload.anchorEpochMinute = data.anchorEpochMinute;
+        if (data && typeof data.open === 'number') { payload.open = data.open; payload.high = data.high; payload.low = data.low; payload.close = data.close; payload.time = data.time; payload.volume = data.volume || 0; payload.up = !!data.up; }
+        else if (seedFromLast && typeof seedFromLast.open === 'number') {
+          payload.open = seedFromLast.open; payload.high = seedFromLast.high;
+          payload.low  = seedFromLast.low;  payload.close= seedFromLast.close;
+          payload.time = seedFromLast.time; payload.volume = seedFromLast.volume || 0;
+          payload.up   = true;
+          payload.anchorEpochMinute = Math.floor(seedFromLast.time / 60);
+        }
+        tx.set(_docRef, payload, { merge: true });
+        return true;
+      });
+      return took;
+    } catch (err) {
+      console.warn('[LIVE_MANAGER] فشل transaction لـ_tryClaimManager:', err);
+      return false;
+    }
+  };
+
+  /* إرسال شمعة لحظية لـFirestore مع throttle ذكي. */
+  const _broadcast = (candle, up) => {
+    if (!_isManager || !_docRef) return;
+    _pendingBroadcast = { candle, up };
+    const now = Date.now();
+    const dt  = now - _lastBroadcastMs;
+    if (dt >= PRICE_BROADCAST_MS) {
+      _flushBroadcast();
+    } else if (!_pendingTimer) {
+      _pendingTimer = setTimeout(_flushBroadcast, PRICE_BROADCAST_MS - dt);
+    }
+  };
+  const _flushBroadcast = () => {
+    _pendingTimer = null;
+    if (!_isManager || !_pendingBroadcast || !_docRef) { _pendingBroadcast = null; return; }
+    const { candle, up } = _pendingBroadcast;
+    _pendingBroadcast = null;
+    _lastBroadcastMs = Date.now();
+    try {
+      _fb().updateDoc(_docRef, {
+        managerId: _sessionId,
+        managerHeartbeat: _fb().serverTimestamp(),
+        time:   candle.time,
+        open:   candle.open,
+        high:   candle.high,
+        low:    candle.low,
+        close:  candle.close,
+        volume: candle.volume || 0,
+        up:     !!up,
+        anchorEpochMinute: Math.floor(candle.time / 60),
+        updatedAt: _fb().serverTimestamp()
+      }).catch(err => {
+        // updateDoc قد يفشل إذا لم يُنشأ المستند — fallback إلى setDoc merge.
+        try {
+          _fb().setDoc(_docRef, {
+            managerId: _sessionId,
+            managerHeartbeat: _fb().serverTimestamp(),
+            time:   candle.time,
+            open:   candle.open,
+            high:   candle.high,
+            low:    candle.low,
+            close:  candle.close,
+            volume: candle.volume || 0,
+            up:     !!up,
+            anchorEpochMinute: Math.floor(candle.time / 60),
+            updatedAt: _fb().serverTimestamp()
+          }, { merge: true });
+        } catch(e){ console.warn('[LIVE_MANAGER] broadcast fallback failed:', e); }
+      });
+    } catch(e) {
+      console.warn('[LIVE_MANAGER] broadcast exception:', e);
+    }
+  };
+
+  /* Heartbeat منفصل — يضمن أننا نرفع heartbeat حتّى لو لم تصل tick من PRICE_GEN. */
+  const _startHeartbeat = () => {
+    _stopHeartbeat();
+    _heartbeatTimer = setInterval(() => {
+      if (!_isManager || !_docRef) return;
+      try {
+        _fb().updateDoc(_docRef, {
+          managerId: _sessionId,
+          managerHeartbeat: _fb().serverTimestamp()
+        }).catch(() => {
+          try { _fb().setDoc(_docRef, { managerId: _sessionId, managerHeartbeat: _fb().serverTimestamp() }, { merge: true }); } catch(e){}
+        });
+      } catch(e){}
+    }, HEARTBEAT_MS);
+  };
+  const _stopHeartbeat = () => {
+    if (_heartbeatTimer) { clearInterval(_heartbeatTimer); _heartbeatTimer = null; }
+  };
+
+  /* الفحص الدوري: إذا كنّا مشاهدين والمدير مُنقطع — حاول تولّي الإدارة. */
+  const _startElectionWatch = (seedFromLast) => {
+    _stopElectionWatch();
+    _electionTimer = setInterval(async () => {
+      if (_isManager) return;
+      const now = Date.now();
+      if (!_isRemoteAlive(_lastRemote, now)) {
+        const took = await _tryClaimManager(seedFromLast);
+        if (took) {
+          _becomeManager();
+        }
+      }
+    }, ELECTION_CHECK_MS);
+  };
+  const _stopElectionWatch = () => {
+    if (_electionTimer) { clearInterval(_electionTimer); _electionTimer = null; }
+  };
+
+  const _becomeManager = () => {
+    if (_isManager) return;
+    _isManager = true;
+    console.info('[LIVE_MANAGER] → أصبحنا مدير الشارت (sessionId=' + _sessionId + ')');
+    _startHeartbeat();
+    if (typeof _onRoleChange === 'function') { try { _onRoleChange('manager'); } catch(e){} }
+  };
+  const _becomeViewer = () => {
+    if (!_isManager && _initialized) {
+      if (typeof _onRoleChange === 'function') { try { _onRoleChange('viewer'); } catch(e){} }
+      return;
+    }
+    _isManager = false;
+    _stopHeartbeat();
+    console.info('[LIVE_MANAGER] → أصبحنا مشاهدًا.');
+    if (typeof _onRoleChange === 'function') { try { _onRoleChange('viewer'); } catch(e){} }
+  };
+
+  /* init: يفتح مرجع المستند، يشترك في onSnapshot، ويقرّر الدور المبدئي. */
+  const init = async ({ uid, seedFromLast, onRoleChange, onLive }) => {
+    if (!_fb() || !_fb().ready) throw new Error('Firebase لم يُهيّأ بعد.');
+    _sessionId    = _mkSessionId(uid);
+    _onRoleChange = onRoleChange || null;
+    _onLive       = onLive || null;
+    _docRef       = _fb().doc(_fb().firestore, DOC_COLLECTION, DOC_ID);
+
+    /* قراءة الحالة الحالية */
+    let initSnap = null;
+    try { initSnap = await _fb().getDoc(_docRef); } catch(e){ initSnap = null; }
+    const initData = (initSnap && initSnap.exists()) ? (initSnap.data() || {}) : null;
+
+    /* الاشتراك في onSnapshot — أي تحديث يُحدّث _lastRemote ويُطلق onLive للمشاهد. */
+    _unsubscribe = _fb().onSnapshot(_docRef, (docSnap) => {
+      if (!docSnap.exists()) { _lastRemote = null; return; }
+      const data = docSnap.data() || {};
+      _lastRemote = data;
+
+      // إذا كنّا مديرًا ولكن managerId لم يعد يمثّلنا (طردنا أحد) → أصبحنا مشاهدًا.
+      if (_isManager && data.managerId && data.managerId !== _sessionId) {
+        console.warn('[LIVE_MANAGER] جهاز آخر ادّعى الإدارة (' + data.managerId + ') — نتحوّل إلى مشاهدين.');
+        _becomeViewer();
+      }
+
+      // تمرير الشمعة اللحظية للواجهة (للمشاهدين).
+      if (!_isManager && typeof _onLive === 'function' && typeof data.close === 'number' && typeof data.time === 'number') {
+        try {
+          _onLive({
+            time:   data.time,
+            open:   data.open,
+            high:   data.high,
+            low:    data.low,
+            close:  data.close,
+            volume: data.volume || 0
+          }, !!data.up);
+        } catch(e){ console.error(e); }
+      }
+    }, (err) => {
+      console.error('[LIVE_MANAGER] خطأ في onSnapshot:', err);
+    });
+
+    /* قرار الدور المبدئي. */
+    const now = Date.now();
+    if (_isRemoteAlive(initData, now)) {
+      _becomeViewer();
+    } else {
+      const took = await _tryClaimManager(seedFromLast);
+      if (took) _becomeManager(); else _becomeViewer();
+    }
+
+    _initialized = true;
+    _startElectionWatch(seedFromLast);
+
+    /* تنظيف عند إغلاق التبويب: إذا كنّا مديرًا نفرغ managerId حتّى ينتخب الآخرون فورًا. */
+    const releaseIfManager = () => {
+      if (!_isManager || !_docRef) return;
+      try {
+        // محاولة تفريغ managerId + heartbeat.
+        _fb().updateDoc(_docRef, {
+          managerId: _fb().deleteField(),
+          managerHeartbeat: _fb().deleteField()
+        }).catch(()=>{});
+      } catch(e){}
+    };
+    window.addEventListener('beforeunload', releaseIfManager);
+    window.addEventListener('pagehide',     releaseIfManager);
+
+    return { isManager: _isManager };
+  };
+
+  const isManager     = () => _isManager;
+  const getSessionId  = () => _sessionId;
+  const publishTick   = (candle, up) => _broadcast(candle, up);
+  const getLastRemote = () => _lastRemote;
+  const dispose = () => {
+    _stopHeartbeat();
+    _stopElectionWatch();
+    if (_unsubscribe) { _unsubscribe(); _unsubscribe = null; }
+  };
+
+  return { init, isManager, getSessionId, publishTick, getLastRemote, dispose };
+})();
+
+
+/* ===============================================================
+ *  7. APP
+ *  --------------------------------------------------------------
+ *  المنطق العام:
+ *    - عند الإقلاع: تحقّق من جلسة المستخدم (Auth) → إن لم يكن مسجَّلاً,
+ *      إعادة توجيه إلى login.html.
+ *    - قراءة الشموع التاريخية من Firebase (CANDLE_STORE).
+ *    - بدء شمعة نشطة جديدة عبر PRICE_GEN (مولّد وهمي واقعي).
+ *    - عند إغلاق الشمعة النشطة: commitClosedCandle → تُضاف OHLC إلى Firebase
+ *      → onSnapshot يبثّها لجميع الأجهزة → rebuild يعرضها كشمعة تاريخية جديدة.
+ *
+ *  ملاحظات مهمة عن الحفاظ على السلوك الأصلي:
+ *    - CHART_MANAGER, CANDLE_ENGINE, TRADE_MANAGER: بلا أي تعديل.
+ *    - نفس أزرار الواجهة: btnReload, btnFit, btnLive, btnBuy, btnSell, tfButtons.
+ *      btnReload الآن يعيد قراءة الحالة من Firebase (بدل قراءة ملف CSV) —
+ *      هذا هو التصرف الآمن الوحيد بعد إلغاء الـCSV.
+ * =============================================================== */
+const APP = (() => {
+  const state = {
+    currentTF: '1m',
+    aggregated: [],
+    liveEnabled: true,
+    symbol: 'EURUSD',
+    /* الشموع التاريخية M1 المُغلقة (مصدرها Firebase) */
+    m1Full: [],
+    /* هل تمّت التهيئة من Firebase بنجاح؟ */
+    booted: false,
+    /* السعر البذرة عند عدم وجود أي شمعة تاريخية */
+    seedPrice: 1.10000,
+    /* دور الجهاز الحالي: 'manager' | 'viewer' | 'pending' */
+    role: 'pending',
+    /* قيم مساعدة لدمج الشمعة النشطة داخل الـTF الأعلى (5m/15m/1h) */
+    liveBaseAggregated: null,
+    liveAlignedActiveT: 0,
+    liveExpectedAnchor: 0,
+    /* uid للمستخدم الحالي */
+    uid: null,
+    /* أخر سعر تمّ عرضه (لمقارنة لون up/down في وضع المشاهد) */
+    lastDisplayClose: null
+  };
+  const els = {};
+
+  const cacheEls = () => {
+    els.loadingOver  = document.getElementById('loadingOverlay');
+    els.loadingText  = document.getElementById('loadingText');
+    els.symbolLabel  = document.getElementById('symbolLabel');
+    els.livePrice    = document.getElementById('livePrice');
+    els.tfButtons    = document.getElementById('tfButtons');
+    els.btnReload    = document.getElementById('btnReload');
+    els.btnFit       = document.getElementById('btnFit');
+    els.btnLive      = document.getElementById('btnLive');
+    els.btnBuy       = document.getElementById('btnBuy');
+    els.btnSell      = document.getElementById('btnSell');
+    els.btnCloseAll  = document.getElementById('btnCloseAll');
+    els.positions    = document.getElementById('positionsList');
+    els.statusText   = document.getElementById('statusText');
+    els.statsText    = document.getElementById('statsText');
+    els.ptmH         = document.getElementById('ptmH');
+    els.roleBadge    = document.getElementById('roleBadge');
+    els.roleBadgeText= document.getElementById('roleBadgeText');
+  };
+
+  /* تحديث إشارة دور الجهاز: manager | viewer | pending. */
+  const setRoleBadge = (role) => {
+    if (!els.roleBadge) return;
+    els.roleBadge.classList.remove('manager','viewer','pending');
+    if (role === 'manager') {
+      els.roleBadge.classList.add('manager');
+      els.roleBadgeText.textContent = 'مدير الشارت • أنت تبث';
+    } else if (role === 'viewer') {
+      els.roleBadge.classList.add('viewer');
+      els.roleBadgeText.textContent = 'مشاهد • يبث مدير الشارت';
+    } else {
+      els.roleBadge.classList.add('pending');
+      els.roleBadgeText.textContent = 'جاري التحقق من الدور...';
+    }
+  };
+
+  const showLoading = (msg) => {
+    els.loadingOver.classList.remove('hidden');
+    els.loadingText.textContent = msg || 'جاري التحميل...';
+  };
+  const hideLoading = () => els.loadingOver.classList.add('hidden');
+
+  const setStatus = (msg) => { els.statusText.textContent = msg; };
+  const setStats  = () => {
+    els.statsText.textContent =
+      `Candles: ${state.aggregated.length} | ${state.currentTF}`;
+  };
+
+  const updatePriceLabel = (price, up) => {
+    els.livePrice.textContent = price.toFixed(5);
+    els.livePrice.style.color = up ? '#21c965' : '#ff4f4f';
+    if (CHART_MANAGER.setLivePrice) CHART_MANAGER.setLivePrice(price, up);
+  };
+
+  /* ===============================================================
+   *  bootFromFirebase:
+   *  --------------------------------------------------------------
+   *  - يقرأ الشموع التاريخية من Firebase (مرة واحدة عند الإقلاع).
+   *  - يستمع لأي تغيير خارجي (جهاز آخر يُضيف شمعة) عبر onChange.
+   *  - يبدأ الشمعة النشطة عبر PRICE_GEN.
+   *  - الزر ↻ (btnReload) يعيد قراءة الحالة من Firebase (بدون CSV).
+   * =============================================================== */
+  const bootFromFirebase = async ({ force = false } = {}) => {
+    if (state.booted && !force) {
+      console.info('[BOOT] تمّت التهيئة مسبقاً — إعادة البناء فقط.');
+      rebuild();
+      return;
+    }
+
+    try {
+      showLoading('جاري مزامنة الشموع من Firebase ...');
+      const initState = await CANDLE_STORE.init();
+      state.m1Full = initState.candles.slice();
+      state.booted = true;
+      els.symbolLabel.textContent = state.symbol;
+
+      console.info('[BOOT] عدد الشموع التاريخية = ' + state.m1Full.length +
+                   ' (anchor=' + initState.anchorEpochMinute + ')');
+
+      /* اربط الاستماع للتحديثات الخارجية: جهاز آخر يُضيف شمعة → rebuild تلقائياً. */
+      CANDLE_STORE.onChange((st) => {
+        state.m1Full = st.candles.slice();
+        rebuild();
+      });
+
+      /* تهيئة نظام مدير الشارت (يُنفّذ مرّة واحدة فقط). */
+      if (!LIVE_MANAGER.getSessionId()) {
+        const historyLen = state.m1Full.length;
+        const seed = historyLen ? {
+          time:   state.m1Full[historyLen-1].time + 60,
+          open:   state.m1Full[historyLen-1].close,
+          high:   state.m1Full[historyLen-1].close,
+          low:    state.m1Full[historyLen-1].close,
+          close:  state.m1Full[historyLen-1].close,
+          volume: 0
+        } : null;
+        await LIVE_MANAGER.init({
+          uid: state.uid,
+          seedFromLast: seed,
+          onRoleChange: (r) => {
+            const prev = state.role;
+            state.role = r;
+            setRoleBadge(r);
+            /* عند تغيّر الدور أعد تشغيل البث/الاستقبال.
+               (مثلاً: مشاهد → مدير عند انقطاع المدير السابق). */
+            if (prev !== r && state.booted) {
+              FAKE_PRICE_GEN.stop();
+              if (state.liveEnabled) startLive();
+            }
+          },
+          onLive: (candle, up) => {
+            /* يصلنا فقط إذا كنّا مشاهدًا — نطبّق الشمعة مباشرة على الواجهة. */
+            applyLiveDisplay(candle, { fromRemote: true, upHint: up });
+          }
+        });
+        setRoleBadge(state.role);
+      }
+
+      rebuild();
+      hideLoading();
+    } catch (err) {
+      console.error('[BOOT ERROR]', err);
+      setStatus('فشل الاتصال بـ Firebase — راجع Console');
+      els.loadingText.textContent = '❌ فشل الاتصال بـ Firebase\n' + err.message;
+    }
+  };
+
+  /* ===============================================================
+   *  applyLiveDisplay:
+   *  --------------------------------------------------------------
+   *  موقّع موحّد لتحديث الشمعة النشطة على الشارت ، يُستخدمََ:
+   *   – من مولّد الأسعار المحلي (حالة المدير).
+   *   – من onSnapshot لفيربيز (حالة المشاهد).
+   *  يقوم بدمج الشمعة النشطة داخل الـTF الحالي إن تجاوز 1m.
+   * =============================================================== */
+  const applyLiveDisplay = (m1Candle, opts) => {
+    opts = opts || {};
+    if (!state.aggregated || !state.aggregated.length) return;
+    if (!m1Candle || typeof m1Candle.close !== 'number') return;
+
+    let displayCandle;
+    if (state.currentTF === '1m') {
+      displayCandle = m1Candle;
+    } else if (state.liveBaseAggregated) {
+      displayCandle = {
+        time:   state.liveBaseAggregated.time,
+        open:   state.liveBaseAggregated.open,
+        high:   Math.max(state.liveBaseAggregated.high, m1Candle.high),
+        low:    Math.min(state.liveBaseAggregated.low,  m1Candle.low),
+        close:  m1Candle.close,
+        volume: (state.liveBaseAggregated.volume || 0) + (m1Candle.volume || 0)
+      };
+    } else {
+      displayCandle = {
+        time:   state.liveAlignedActiveT || m1Candle.time,
+        open:   m1Candle.open,
+        high:   m1Candle.high,
+        low:    m1Candle.low,
+        close:  m1Candle.close,
+        volume: m1Candle.volume || 0
+      };
+    }
+
+    state.aggregated[state.aggregated.length - 1] = displayCandle;
+    CHART_MANAGER.update(displayCandle);
+
+    /* لون up/down: إمّا من المقارنة مع الشمعة السابقة أو من upHint المُمرر من المدير. */
+    let up;
+    if (typeof opts.upHint === 'boolean' && opts.fromRemote) {
+      up = opts.upHint;
+    } else {
+      const prevClose = state.aggregated.length > 1
+        ? state.aggregated[state.aggregated.length - 2].close
+        : displayCandle.open;
+      up = displayCandle.close >= prevClose;
+    }
+    state.lastDisplayClose = displayCandle.close;
+    updatePriceLabel(displayCandle.close, up);
+
+    if (els.ptmH) {
+      const d = new Date(displayCandle.time * 1000);
+      els.ptmH.textContent = d.toISOString().substr(11,8);
+    }
+    TRADE_MANAGER.updateLivePnL(displayCandle.close);
+    return { displayCandle, up };
+  };
+
+  /* ===============================================================
+   *  rebuild:
+   *  --------------------------------------------------------------
+   *  - يبني الشارت من الشموع التاريخية (state.m1Full) + شمعة نشطة جديدة.
+   *  - عند وجود 0 شمعة تاريخية → تُعرض الشمعة النشطة فقط.
+   *  - عند وجود N شمعة → تُعرض جميعها, والشمعة النشطة تأتي بعدها.
+   *
+   *  السلوك متوافق مع الإصدار السابق:
+   *  - CANDLE_ENGINE.aggregate يُستخدم لتحويل M1 إلى TF المطلوب للعرض فقط.
+   *  - الشمعة النشطة تُضاف كعنصر منفصل في مصفوفة العرض, ويجري تحديثها لحظياً.
+   * =============================================================== */
+  const rebuild = () => {
+    const m1Full = state.m1Full;
+    const historyLen = m1Full.length;
+
+    /* precision حسب حجم السعر */
+    const samplePrice = historyLen
+      ? m1Full[historyLen - 1].close
+      : state.seedPrice;
+    let precision = 5, minMove = 0.00001;
+    if (samplePrice > 100)   { precision = 3; minMove = 0.001; }
+    if (samplePrice > 1000)  { precision = 2; minMove = 0.01; }
+    CHART_MANAGER.setPricePrecision(precision, minMove);
+
+    /* الشموع التاريخية المُجمَّعة إلى TF المطلوب. */
+    const aggHistory = historyLen
+      ? CANDLE_ENGINE.aggregate(m1Full, state.currentTF)
+      : [];
+
+    /* حساب anchor الحالي: الدقيقة التي تبدأ فيها الشمعة النشطة الجديدة. */
+    const anchorMin = CANDLE_STORE.getAnchor();
+    const activeT   = anchorMin * 60;    // زمن الشمعة النشطة على الشارت
+
+    /* سعر الفتح للشمعة النشطة = close آخر شمعة تاريخية أو seed. */
+    const openPrice = historyLen ? m1Full[historyLen - 1].close : state.seedPrice;
+
+    /* بناء الشمعة النشطة الأولية (open=high=low=close قبل بدء المولّد). */
+    const activeCandle = {
+      time: activeT, open: openPrice, high: openPrice,
+      low: openPrice, close: openPrice, volume: 0
+    };
+
+    /* دمج/إلحاق الشمعة النشطة في مصفوفة العرض المُجمَّعة. */
+    let displayArr;
+    if (state.currentTF === '1m') {
+      // M1: الشمعة النشطة هي عنصر مستقل بعد التاريخ.
+      displayArr = aggHistory.concat([activeCandle]);
+    } else {
+      /* TF أعلى: نُدرج الشمعة النشطة داخل الشمعة المُجمَّعة الأخيرة إن كانت
+         تنتمي لنفس bucket, وإلا نضيفها كعنصر مستقل. */
+      const tfSec = CANDLE_ENGINE.getTFSeconds(state.currentTF);
+      const alignedActiveT = Math.floor(activeT / tfSec) * tfSec;
+      const lastAgg = aggHistory[aggHistory.length - 1];
+      if (lastAgg && lastAgg.time === alignedActiveT) {
+        // ضِمن نفس الـbucket → استبدل بالشمعة المدموجة
+        const merged = {
+          time:   lastAgg.time,
+          open:   lastAgg.open,
+          high:   Math.max(lastAgg.high, activeCandle.high),
+          low:    Math.min(lastAgg.low,  activeCandle.low),
+          close:  activeCandle.close,
+          volume: (lastAgg.volume || 0) + (activeCandle.volume || 0)
+        };
+        displayArr = aggHistory.slice(0, -1).concat([merged]);
+      } else {
+        // bucket جديد → أضف شمعة نشطة على شكل bucket خاص بها
+        displayArr = aggHistory.concat([{
+          time:   alignedActiveT,
+          open:   activeCandle.open,
+          high:   activeCandle.high,
+          low:    activeCandle.low,
+          close:  activeCandle.close,
+          volume: activeCandle.volume
+        }]);
+      }
+    }
+
+    state.aggregated = displayArr;
+    CHART_MANAGER.setData(state.aggregated);
+    FAKE_PRICE_GEN.stop();
+    if (state.liveEnabled && state.aggregated.length) startLive();
+    CHART_MANAGER.fitContent();
+    setStats();
+    setStatus(`${state.symbol} • ${historyLen} candles • anchor ${anchorMin}`);
+  };
+
+  /* ===============================================================
+   *  startLive:
+   *  --------------------------------------------------------------
+   *  يشغّل PRICE_GEN لتحريك الشمعة النشطة عبر مولّد وهمي واقعي.
+   *  عند إغلاق الشمعة (نهاية الدقيقة الجدارية):
+   *   → commitClosedCandle يُضيف OHLC إلى Firebase.
+   *   → onChange (خارجي) سيُطلق rebuild فيعرض الشمعة كتاريخية.
+   * =============================================================== */
+  const startLive = () => {
+    const m1Full = state.m1Full;
+    const historyLen = m1Full.length;
+    const openPrice = historyLen ? m1Full[historyLen - 1].close : state.seedPrice;
+    const expectedAnchor = CANDLE_STORE.getAnchor();
+
+    /* -------------------------------------------------------------
+     * الفرع الأول: الجهاز مشاهد — لا يُشغل مولّد الأسعار.
+     * يكتفي بتطبيق آخر شمعة لحظية معروفة (إن وجدت) من Firestore
+     * حتّى يظهر التزامن فوراً دون انتظار أول broadcast. onSnapshot
+     * في LIVE_MANAGER يواصل تحديث الشمعة مع كل تغيير من المدير.
+     * ------------------------------------------------------------- */
+    if (!LIVE_MANAGER.isManager()) {
+      const last = LIVE_MANAGER.getLastRemote();
+      if (last && typeof last.close === 'number' && typeof last.time === 'number') {
+        applyLiveDisplay({
+          time:   last.time,
+          open:   last.open,
+          high:   last.high,
+          low:    last.low,
+          close:  last.close,
+          volume: last.volume || 0
+        }, { fromRemote: true, upHint: !!last.up });
+      }
+      return;
+    }
+
+    /* -------------------------------------------------------------
+     * الفرع الثاني: الجهاز مدير الشارت — يُشغل PRICE_GEN
+     * ويبث كل tick إلى Firestore (throttled) للمشاهدين.
+     * ------------------------------------------------------------- */
+    FAKE_PRICE_GEN.start({
+      openPrice,
+      anchorEpochMinute: expectedAnchor,
+      onTick: (m1Candle) => {
+        /* تطبيق محلي أولاً (استجابة فورية للمدير). */
+        const res = applyLiveDisplay(m1Candle, { fromRemote: false });
+        /* ثم البث إلى بقية الأجهزة (throttled داخل LIVE_MANAGER). */
+        if (res && res.displayCandle) {
+          LIVE_MANAGER.publishTick(m1Candle, !!res.up);
+        }
+      },
+      onClose: (closedM1) => {
+        /* أوقف المولّد فوراً — سنحفظ الشمعة في Firebase ثم ندع onChange يقود rebuild. */
+        FAKE_PRICE_GEN.stop();
+
+        /* Commit الشمعة المُغلقة إلى Firebase (transaction). */
+        CANDLE_STORE.commitClosedCandle(expectedAnchor, closedM1)
+          .then((result) => {
+            if (result && result.advanced) {
+              console.info('[LIVE] Committed closed candle → total=' + result.candles.length +
+                           ' (anchor=' + result.anchorEpochMinute + ')');
+              /* حدّث الحالة محلياً فوراً (بلا انتظار صدى onSnapshot). */
+              state.m1Full = result.candles.slice();
+              rebuild();
+            } else {
+              console.info('[LIVE] جهاز آخر سبقنا — سنتلقى التحديث عبر onSnapshot.');
+              if (result && Array.isArray(result.candles)) {
+                state.m1Full = result.candles.slice();
+                rebuild();
+              }
+            }
+            /* شبكة أمان: إذا لم يبدأ المولّد لأي سبب, أعد البناء بعد فترة قصيرة. */
+            setTimeout(() => {
+              if (!FAKE_PRICE_GEN.isRunning() && LIVE_MANAGER.isManager()) rebuild();
+            }, 800);
+          })
+          .catch((err) => {
+            console.error('[LIVE] فشل commitClosedCandle:', err);
+            setTimeout(() => {
+              if (!FAKE_PRICE_GEN.isRunning() && LIVE_MANAGER.isManager()) rebuild();
+            }, 1500);
+          });
+      }
+    });
+  };
+
+  const onTFClick = (e) => {
+    const btn = e.target.closest('.tfb');
+    if (!btn) return;
+    const tf = btn.dataset.tf;
+    if (!tf || tf === state.currentTF) return;
+    document.querySelectorAll('.tfb').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    state.currentTF = tf;
+    rebuild();
+  };
+
+  /* ===============================================================
+   *  bootUI:
+   *  إعداد واجهة المستخدم كما في الأصل — بلا أي تغيير في السلوك.
+   * =============================================================== */
+  const bootUI = () => {
+    cacheEls();
+    setRoleBadge('pending');
+    CHART_MANAGER.create(document.getElementById('chart'));
+    TRADE_MANAGER.attach(els.positions);
+
+    els.tfButtons.addEventListener('click', onTFClick);
+
+    // زر ↻: يعيد قراءة الحالة من Firebase (بدل قراءة CSV سابقاً).
+    els.btnReload.addEventListener('click', () => bootFromFirebase({ force: true }));
+    els.btnFit.addEventListener('click', () => CHART_MANAGER.fitContent());
+    els.btnLive.addEventListener('click', () => {
+      state.liveEnabled = !state.liveEnabled;
+      els.btnLive.style.color = state.liveEnabled ? '#21c965' : '#c7d5ef';
+      if (state.liveEnabled) startLive();
+      else FAKE_PRICE_GEN.stop();
+      setStats();
+    });
+
+    els.btnBuy.addEventListener('click', () => {
+      const px = FAKE_PRICE_GEN.getPrice() ||
+                 (state.aggregated.length ? state.aggregated.at(-1).close : 0);
+      if (px) TRADE_MANAGER.open('BUY', px);
+    });
+    els.btnSell.addEventListener('click', () => {
+      const px = FAKE_PRICE_GEN.getPrice() ||
+                 (state.aggregated.length ? state.aggregated.at(-1).close : 0);
+      if (px) TRADE_MANAGER.open('SELL', px);
+    });
+    els.btnCloseAll.addEventListener('click', () => TRADE_MANAGER.closeAll());
+
+    setStatus('في انتظار البيانات');
+
+    // إقلاع تلقائي: قراءة الشموع من Firebase وبدء التشغيل.
+    bootFromFirebase();
+  };
+
+  /* ===============================================================
+   *  init:
+   *  --------------------------------------------------------------
+   *  1) ينتظر جهوزية Firebase (module قد يُحمَّل بعد DOMContentLoaded).
+   *  2) يتحقق من جلسة المستخدم عبر onAuthStateChanged.
+   *     - إن لم يكن هناك مستخدم مسجل → إعادة توجيه إلى login.html.
+   *     - إن كان هناك مستخدم → bootUI() يشغّل النظام.
+   * =============================================================== */
+  const init = () => {
+    const startWhenReady = () => {
+      const FB = window.FIREBASE;
+      if (!FB || !FB.ready) {
+        window.addEventListener('firebase-ready', startWhenReady, { once: true });
+        return;
+      }
+
+      let authResolved = false;
+      FB.onAuthStateChanged(FB.auth, (user) => {
+        if (authResolved) return;
+        authResolved = true;
+
+        if (!user) {
+          console.warn('[AUTH] لا توجد جلسة مستخدم — إعادة توجيه إلى login.html');
+          try { document.body.style.visibility = 'hidden'; } catch(e){}
+          window.location.replace('login.html');
+          return;
+        }
+
+        console.info('[AUTH] مستخدم مسجَّل: ' + (user.email || user.uid));
+        state.uid = user.uid || null;
+        bootUI();
+      }, (err) => {
+        console.error('[AUTH] خطأ في مراقبة حالة الجلسة:', err);
+        window.location.replace('login.html');
+      });
+    };
+
+    startWhenReady();
+  };
+
+  return { init, _state: state };
+})();
+
+window.addEventListener('DOMContentLoaded', APP.init);
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v4513226cdae34746b4dedf0b4dfa099e1781791509496" integrity="sha512-ZE9pZaUXND66v380QUtch/5sE9tPFh2zg45pR2PB0CVkCtOREv2AJKkSidISWkysEuQ0EH8faUU5du78bx87UQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
