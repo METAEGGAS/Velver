@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1730" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>FXER - Trading Chart</title>
+
+<!-- ============================================================
+     FXER Canvas Chart Engine — Pure custom HTML Canvas chart engine.
+     Exposes an API-compatible `window.LightweightCharts` object so ALL
+     surrounding code (data flow, Firebase sync, indicators, overlays,
+     drawing tools, markers) keeps working without any change.
+     Rendering is fully custom on HTML Canvas — 100% independent, no
+     external chart libraries.
+     ============================================================ -->
+<script>
+(function(){
+  'use strict';
+  if (window.LightweightCharts && window.LightweightCharts.__FXER_CANVAS_ENGINE__) return;
+
+  /* ---------- constants exposed via LightweightCharts ---------- */
+  var CrosshairMode = { Normal: 0, Magnet: 1, Hidden: 2 };
+  var LineStyle     = { Solid: 0, Dotted: 1, Dashed: 2, LargeDashed: 3, SparseDotted: 4 };
+
+  /* ---------- utility helpers ---------- */
+  function deepMerge(dst, src){
+    if (!src || typeof src !== 'object') return dst;
+    for (var k in src){
+      if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
+      var v = src[k];
+      if (v && typeof v === 'object' && !Array.isArray(v) &&
+          dst[k] && typeof dst[k] === 'object' && !Array.isArray(dst[k])){
+        deepMerge(dst[k], v);
+      } else {
+        dst[k] = v;
+      }
+    }
+    return dst;
+  }
+  function bsearchTime(arr, t){
+    /* returns index of item with time===t, or -1 (arr must be time-sorted asc) */
+    var lo=0, hi=arr.length-1;
+    while (lo<=hi){
+      var mid=(lo+hi)>>1, mt=arr[mid].time;
+      if (mt===t) return mid;
+      if (mt<t) lo=mid+1; else hi=mid-1;
+    }
+    return -1;
+  }
+  function nowRAF(cb){ return requestAnimationFrame(cb); }
+
+  /* ============================================================
+   *  ChartInstance
+   * ============================================================ */
+  function ChartInstance(container, opts){
+    var self = this;
+    this._container = container;
+    this._opts = {
+      width: container.clientWidth || 300,
+      height: container.clientHeight || 200,
+      layout: { background:{type:'solid', color:'rgba(0,0,0,0)'}, textColor:'#9aa9ba', fontSize:9,
+                fontFamily:'system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif' },
+      grid: { vertLines:{color:'#1a2540', visible:true}, horzLines:{color:'#1a2540', visible:true} },
+      crosshair: { mode: CrosshairMode.Normal,
+                   vertLine:{color:'#3e8cff', width:1, style:LineStyle.Dashed, visible:true, labelBackgroundColor:'#223252'},
+                   horzLine:{color:'#3e8cff', width:1, style:LineStyle.Dashed, visible:true, labelBackgroundColor:'#223252'} },
+      rightPriceScale: { visible:false, borderVisible:false, borderColor:'rgba(0,0,0,0)',
+                         scaleMargins:{ top:0.05, bottom:0.05 }, entireTextOnly:false },
+      timeScale: { borderVisible:false, borderColor:'rgba(0,0,0,0)', timeVisible:true, secondsVisible:false,
+                   rightOffset:18, barSpacing:6.37, minBarSpacing:4.74,
+                   shiftVisibleRangeOnNewBar:false, fixLeftEdge:false, fixRightEdge:false,
+                   rightBarStaysOnScroll:true, tickMarkFormatter:null },
+      handleScroll: { mouseWheel:false, pressedMouseMove:false, horzTouchDrag:false, vertTouchDrag:false },
+      handleScale:  { mouseWheel:false, pinch:false, axisPressedMouseMove:false }
+    };
+    if (opts) deepMerge(this._opts, opts);
+
+    this._series = [];        /* list of series in creation order */
+    this._activeSeries = null;/* first candlestick (or first added) — used for price scale */
+
+    this._crosshair = { x:null, y:null, visible:false };
+    this._crosshairCbs = [];
+    this._visLogicalRangeCbs = [];
+    this._visTimeRangeCbs = [];
+
+    /* Build canvas layer */
+    /* Preserve host container styles (position:relative expected in CSS). We add a canvas child. */
+    var host = document.createElement('div');
+    host.setAttribute('data-fxer-canvas-host','1');
+    host.style.cssText = 'position:absolute;inset:0;left:0;top:0;width:100%;height:100%;pointer-events:auto;';
+    /* clear the container (mimics TV behavior of taking over the element) */
+    /* NOTE: we DO NOT clear the container; we append the canvas layers inside. */
+    var canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:absolute;inset:0;left:0;top:0;width:100%;height:100%;display:block;';
+    host.appendChild(canvas);
+    container.appendChild(host);
+    this._host = host;
+    this._canvas = canvas;
+    this._ctx = canvas.getContext('2d');
+    this._dpr = Math.max(1, window.devicePixelRatio || 1);
+
+    this._resize();
+
+    /* Crosshair mouse tracking */
+    var moveHandler = function(ev){
+      var rect = canvas.getBoundingClientRect();
+      var cx = ev.clientX - rect.left;
+      var cy = ev.clientY - rect.top;
+      self._crosshair.x = cx;
+      self._crosshair.y = cy;
+      self._crosshair.visible = true;
+      self._fireCrosshair();
+      self._scheduleRender();
+    };
+    var leaveHandler = function(){
+      self._crosshair.visible = false;
+      self._fireCrosshair();
+      self._scheduleRender();
+    };
+    canvas.addEventListener('mousemove', moveHandler);
+    canvas.addEventListener('mouseleave', leaveHandler);
+    canvas.addEventListener('touchmove', function(ev){
+      if (ev.touches && ev.touches.length===1){
+        var rect = canvas.getBoundingClientRect();
+        self._crosshair.x = ev.touches[0].clientX - rect.left;
+        self._crosshair.y = ev.touches[0].clientY - rect.top;
+        self._crosshair.visible = true;
+        self._fireCrosshair();
+        self._scheduleRender();
+      }
+    }, {passive:true});
+    canvas.addEventListener('touchend', leaveHandler);
+
+    /* First render */
+    this._scheduleRender();
+  }
+
+  /* ---------- resize ---------- */
+  ChartInstance.prototype._resize = function(){
+    var w = this._opts.width  = (this._container.clientWidth  || this._opts.width  || 300);
+    var h = this._opts.height = (this._container.clientHeight || this._opts.height || 200);
+    var dpr = this._dpr = Math.max(1, window.devicePixelRatio || 1);
+    this._canvas.width  = Math.max(1, Math.round(w * dpr));
+    this._canvas.height = Math.max(1, Math.round(h * dpr));
+    this._canvas.style.width  = w + 'px';
+    this._canvas.style.height = h + 'px';
+    this._ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  /* ---------- render loop scheduling ---------- */
+  ChartInstance.prototype._scheduleRender = function(){
+    if (this._renderScheduled) return;
+    var self = this;
+    this._renderScheduled = true;
+    nowRAF(function(){
+      self._renderScheduled = false;
+      try { self._render(); } catch(e){}
+    });
+  };
+
+  /* ---------- fire crosshair ---------- */
+  ChartInstance.prototype._fireCrosshair = function(){
+    var evt = { point: this._crosshair.visible ? { x:this._crosshair.x, y:this._crosshair.y } : null,
+                time: null, seriesData: new Map() };
+    for (var i=0;i<this._crosshairCbs.length;i++){
+      try { this._crosshairCbs[i](evt); } catch(e){}
+    }
+  };
+
+  /* ---------- Series creators ---------- */
+  ChartInstance.prototype.addCandlestickSeries = function(opts){
+    var s = new Series(this, 'candle', opts);
+    this._series.push(s);
+    if (!this._activeSeries) this._activeSeries = s;
+    else if (this._activeSeries._type !== 'candle') this._activeSeries = s;
+    this._scheduleRender();
+    return s;
+  };
+  ChartInstance.prototype.addAreaSeries = function(opts){
+    var s = new Series(this, 'area', opts);
+    this._series.push(s);
+    if (!this._activeSeries) this._activeSeries = s;
+    this._scheduleRender();
+    return s;
+  };
+  ChartInstance.prototype.addLineSeries = function(opts){
+    var s = new Series(this, 'line', opts);
+    this._series.push(s);
+    if (!this._activeSeries) this._activeSeries = s;
+    this._scheduleRender();
+    return s;
+  };
+  ChartInstance.prototype.removeSeries = function(series){
+    var i = this._series.indexOf(series);
+    if (i>=0) this._series.splice(i, 1);
+    if (this._activeSeries === series){
+      this._activeSeries = null;
+      for (var j=0;j<this._series.length;j++){
+        if (this._series[j]._type==='candle'){ this._activeSeries=this._series[j]; break; }
+      }
+      if (!this._activeSeries && this._series.length) this._activeSeries = this._series[0];
+    }
+    this._scheduleRender();
+  };
+
+  /* ---------- Options / info ---------- */
+  ChartInstance.prototype.applyOptions = function(opts){
+    if (!opts) return;
+    var oldW = this._opts.width, oldH = this._opts.height;
+    deepMerge(this._opts, opts);
+    if (this._opts.width !== oldW || this._opts.height !== oldH ||
+        this._container.clientWidth !== oldW || this._container.clientHeight !== oldH){
+      this._resize();
+    }
+    /* propagate range-related callbacks if timeScale.rightOffset was set */
+    if (opts.timeScale){
+      this._fireVisRange();
+    }
+    this._scheduleRender();
+  };
+  ChartInstance.prototype.options = function(){ return this._opts; };
+
+  ChartInstance.prototype.subscribeCrosshairMove = function(cb){
+    if (typeof cb==='function') this._crosshairCbs.push(cb);
+  };
+  ChartInstance.prototype.unsubscribeCrosshairMove = function(cb){
+    var i=this._crosshairCbs.indexOf(cb); if (i>=0) this._crosshairCbs.splice(i,1);
+  };
+
+  /* ---------- timeScale API ---------- */
+  ChartInstance.prototype.timeScale = function(){
+    var self=this;
+    if (this._timeScaleApi) return this._timeScaleApi;
+    this._timeScaleApi = {
+      options: function(){ return self._opts.timeScale; },
+      applyOptions: function(o){ if(o) deepMerge(self._opts.timeScale, o); self._scheduleRender(); },
+      setVisibleLogicalRange: function(r){
+        if (!r || !isFinite(r.from) || !isFinite(r.to) || r.to<=r.from) return;
+        /* map (from,to) to (barSpacing, rightOffset) so consumer's setter roundtrips.
+           logical index N (=data length-1) sits at x = w - (rightOffset)*barSpacing? In our engine:
+           x(i) = w - (lastIdx - i) * bs - (rightOffset)*bs? Not exact. We define:
+             visibleWidth = to - from + 1 (bars)
+             barSpacing   = w / visibleWidth
+             rightOffset  = (lastIdx) - to    // bars past last data on right
+           This yields consistent round-trips with getVisibleLogicalRange below. */
+        var w = self._opts.width;
+        var span = r.to - r.from;
+        if (span<=0) return;
+        var bs = w / span;
+        if (!isFinite(bs) || bs<=0) return;
+        var lastIdx = self._getLastIndex();
+        if (lastIdx<0) lastIdx = 0;
+        var rightOffset = r.to - lastIdx;
+        self._opts.timeScale.barSpacing  = bs;
+        self._opts.timeScale.rightOffset = rightOffset;
+        self._fireVisRange();
+        self._scheduleRender();
+      },
+      getVisibleLogicalRange: function(){
+        var w = self._opts.width;
+        var bs = self._opts.timeScale.barSpacing || 6.37;
+        var ro = self._opts.timeScale.rightOffset || 0;
+        var lastIdx = self._getLastIndex();
+        if (lastIdx < 0) lastIdx = 0;
+        var to   = lastIdx + ro;
+        var from = to - (w / bs);
+        return { from: from, to: to };
+      },
+      subscribeVisibleLogicalRangeChange: function(cb){ if (typeof cb==='function') self._visLogicalRangeCbs.push(cb); },
+      unsubscribeVisibleLogicalRangeChange: function(cb){ var i=self._visLogicalRangeCbs.indexOf(cb); if (i>=0) self._visLogicalRangeCbs.splice(i,1); },
+      subscribeVisibleTimeRangeChange: function(cb){ if (typeof cb==='function') self._visTimeRangeCbs.push(cb); },
+      unsubscribeVisibleTimeRangeChange: function(cb){ var i=self._visTimeRangeCbs.indexOf(cb); if (i>=0) self._visTimeRangeCbs.splice(i,1); },
+      timeToCoordinate: function(t){
+        var arr = self._getReferenceData();
+        if (!arr || !arr.length) return null;
+        /* find nearest index by time (exact if match) */
+        var idx = self._timeToIndex(arr, t);
+        if (idx == null) return null;
+        return self._indexToX(idx);
+      },
+      coordinateToTime: function(x){
+        var idx = self._xToIndex(x);
+        var arr = self._getReferenceData();
+        if (!arr || !arr.length) return null;
+        var i = Math.round(idx);
+        if (i<0) i=0; if (i>=arr.length) i=arr.length-1;
+        return arr[i].time;
+      },
+      fitContent: function(){
+        var arr = self._getReferenceData();
+        if (!arr || !arr.length) return;
+        self._opts.timeScale.barSpacing  = self._opts.width / Math.max(20, arr.length + 4);
+        self._opts.timeScale.rightOffset = 2;
+        self._fireVisRange();
+        self._scheduleRender();
+      },
+      scrollToRealTime: function(){
+        self._opts.timeScale.rightOffset = 18;
+        self._fireVisRange();
+        self._scheduleRender();
+      }
+    };
+    return this._timeScaleApi;
+  };
+
+  ChartInstance.prototype.priceScale = function(id){
+    var self = this;
+    return {
+      width: function(){ /* right price scale is hidden — return 0 */ return 0; },
+      applyOptions: function(o){ if (o && self._opts.rightPriceScale) deepMerge(self._opts.rightPriceScale, o); self._scheduleRender(); },
+      options: function(){ return self._opts.rightPriceScale; }
+    };
+  };
+
+  ChartInstance.prototype._fireVisRange = function(){
+    for (var i=0;i<this._visLogicalRangeCbs.length;i++){
+      try { this._visLogicalRangeCbs[i](this.timeScale().getVisibleLogicalRange()); } catch(e){}
+    }
+    for (var j=0;j<this._visTimeRangeCbs.length;j++){
+      try { this._visTimeRangeCbs[j](null); } catch(e){}
+    }
+  };
+
+  /* ---------- coordinate helpers ---------- */
+  ChartInstance.prototype._getReferenceData = function(){
+    /* pick the primary data array for coordinate math — first candle series if present,
+       else first series with data. */
+    for (var i=0;i<this._series.length;i++){
+      if (this._series[i]._type==='candle' && this._series[i]._data.length) return this._series[i]._data;
+    }
+    for (var j=0;j<this._series.length;j++){
+      if (this._series[j]._data.length) return this._series[j]._data;
+    }
+    return null;
+  };
+  ChartInstance.prototype._getLastIndex = function(){
+    var arr = this._getReferenceData();
+    return arr ? arr.length-1 : -1;
+  };
+  ChartInstance.prototype._timeToIndex = function(arr, t){
+    if (!arr || !arr.length) return null;
+    /* exact match search first */
+    var idx = bsearchTime(arr, t);
+    if (idx>=0) return idx;
+    /* interpolate by neighbor */
+    if (t <= arr[0].time) return 0;
+    if (t >= arr[arr.length-1].time){
+      /* extrapolate into future using last spacing */
+      var last = arr.length-1;
+      if (arr.length>=2){
+        var step = arr[last].time - arr[last-1].time;
+        if (step>0) return last + (t - arr[last].time)/step;
+      }
+      return last;
+    }
+    /* bracket */
+    for (var i=1;i<arr.length;i++){
+      if (arr[i].time >= t){
+        var t0=arr[i-1].time, t1=arr[i].time;
+        var frac=(t-t0)/Math.max(1,(t1-t0));
+        return (i-1)+frac;
+      }
+    }
+    return arr.length-1;
+  };
+  ChartInstance.prototype._indexToX = function(idx){
+    /* mapping: last data index (lastIdx) sits at x = w - rightOffset*bs. */
+    var w  = this._opts.width;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var lastIdx = this._getLastIndex();
+    if (lastIdx<0) lastIdx = 0;
+    var xLast = w - ro*bs;
+    return xLast + (idx - lastIdx) * bs;
+  };
+  ChartInstance.prototype._xToIndex = function(x){
+    var w  = this._opts.width;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var lastIdx = this._getLastIndex();
+    if (lastIdx<0) lastIdx = 0;
+    var xLast = w - ro*bs;
+    return lastIdx + (x - xLast)/bs;
+  };
+
+  /* ---------- price mapping (per-chart, based on _activeSeries data) ---------- */
+  ChartInstance.prototype._priceRange = function(){
+    /* compute visible price range using candles/points visible on screen */
+    var arr = this._getReferenceData();
+    if (!arr || !arr.length) return null;
+    var w  = this._opts.width;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var lastIdx = arr.length-1;
+    var xLast = w - ro*bs;
+    /* visible index bounds */
+    var iFrom = Math.floor(lastIdx - xLast/bs);
+    var iTo   = Math.ceil(lastIdx + (w - xLast)/bs);
+    if (iFrom<0) iFrom=0;
+    if (iTo>lastIdx) iTo=lastIdx;
+    if (iFrom>iTo){ iFrom=0; iTo=lastIdx; }
+    var hi=-Infinity, lo=Infinity;
+    for (var i=iFrom;i<=iTo;i++){
+      var d = arr[i];
+      if (d.high != null){ if (d.high>hi) hi=d.high; if (d.low<lo) lo=d.low; }
+      else if (d.value != null){ if (d.value>hi) hi=d.value; if (d.value<lo) lo=d.value; }
+      else if (d.close != null){ if (d.close>hi) hi=d.close; if (d.close<lo) lo=d.close; }
+    }
+    /* extend range using any live price on active series */
+    for (var s=0;s<this._series.length;s++){
+      var sv = this._series[s];
+      if (sv._type==='candle' && sv._lastLive != null){
+        if (sv._lastLive>hi) hi=sv._lastLive;
+        if (sv._lastLive<lo) lo=sv._lastLive;
+      }
+    }
+    if (!isFinite(hi) || !isFinite(lo) || hi<=lo){
+      /* fallback to a small padded range */
+      if (isFinite(hi) && isFinite(lo)){
+        var mid = (hi+lo)/2 || 1;
+        hi = mid*1.0001+0.0001; lo = mid*0.9999-0.0001;
+      } else return null;
+    }
+    /* pad using scaleMargins */
+    var sm  = this._opts.rightPriceScale.scaleMargins || {top:0.05, bottom:0.05};
+    var range = hi - lo;
+    var pad   = range;
+    var topPad    = pad * (sm.top    || 0.05);
+    var bottomPad = pad * (sm.bottom || 0.05);
+    return { hi: hi + topPad, lo: lo - bottomPad };
+  };
+  ChartInstance.prototype._priceToY = function(price){
+    var pr = this._priceRange();
+    if (!pr) return null;
+    var h = this._opts.height;
+    if (!isFinite(price)) return null;
+    var frac = (pr.hi - price) / (pr.hi - pr.lo);
+    return frac * h;
+  };
+  ChartInstance.prototype._yToPrice = function(y){
+    var pr = this._priceRange();
+    if (!pr) return null;
+    var h = this._opts.height;
+    if (h<=0) return null;
+    return pr.hi - (y/h) * (pr.hi - pr.lo);
+  };
+
+  /* ============================================================
+   *  Rendering
+   * ============================================================ */
+  ChartInstance.prototype._render = function(){
+    /* auto-resize when host container size changed */
+    if (this._container.clientWidth !== this._opts.width || this._container.clientHeight !== this._opts.height){
+      this._resize();
+    }
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    ctx.clearRect(0,0,w,h);
+
+    var bg = (this._opts.layout && this._opts.layout.background) || null;
+    if (bg && bg.color && bg.color !== 'rgba(0,0,0,0)' && bg.color !== 'transparent'){
+      ctx.fillStyle = bg.color;
+      ctx.fillRect(0,0,w,h);
+    }
+
+    /* Grid */
+    this._renderGrid();
+
+    /* Series (in order) */
+    for (var i=0;i<this._series.length;i++){
+      var s = this._series[i];
+      if (!s._opts || s._opts.visible === false) continue;
+      if (s._type==='candle')      this._renderCandles(s);
+      else if (s._type==='area')   this._renderArea(s);
+      else if (s._type==='line')   this._renderLine(s);
+    }
+
+    /* Price line (yellow horizontal) — using active series lastLive */
+    this._renderPriceLine();
+
+    /* Crosshair */
+    this._renderCrosshair();
+
+    /* Time axis ticks (subtle) */
+    this._renderTimeAxis();
+  };
+
+  ChartInstance.prototype._renderGrid = function(){
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    var g = this._opts.grid || {};
+    ctx.save();
+    ctx.lineWidth = 1;
+    /* vertical grid: aligned to bar-spacing multiples on visible area */
+    if (g.vertLines && g.vertLines.visible !== false){
+      ctx.strokeStyle = g.vertLines.color || '#1a2540';
+      ctx.beginPath();
+      var arr = this._getReferenceData();
+      var bs  = this._opts.timeScale.barSpacing || 6.37;
+      var ro  = this._opts.timeScale.rightOffset || 0;
+      var lastIdx = arr ? arr.length-1 : 0;
+      var xLast   = w - ro*bs;
+      /* draw a line every ~60px */
+      var step = Math.max(1, Math.round(60/bs));
+      var iRight = lastIdx + Math.ceil((w - xLast)/bs);
+      var iLeft  = lastIdx - Math.ceil(xLast/bs);
+      /* align to multiples of step */
+      var startI = Math.ceil(iLeft/step)*step;
+      for (var i=startI; i<=iRight; i+=step){
+        var x = xLast + (i - lastIdx)*bs;
+        if (x < 0 || x > w) continue;
+        var px = Math.round(x) + 0.5;
+        ctx.moveTo(px, 0); ctx.lineTo(px, h);
+      }
+      ctx.stroke();
+    }
+    if (g.horzLines && g.horzLines.visible !== false){
+      ctx.strokeStyle = g.horzLines.color || '#1a2540';
+      ctx.beginPath();
+      var lines = 6;
+      for (var k=1;k<lines;k++){
+        var y = Math.round(h*k/lines)+0.5;
+        ctx.moveTo(0, y); ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  ChartInstance.prototype._renderCandles = function(s){
+    var arr = s._data;
+    if (!arr || !arr.length) return;
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var lastIdx = arr.length-1;
+    var xLast = w - ro*bs;
+    /* visible range of indices */
+    var iRight = lastIdx + Math.ceil((w - xLast)/bs) + 1;
+    var iLeft  = lastIdx - Math.ceil(xLast/bs) - 1;
+    if (iLeft<0) iLeft=0;
+    if (iRight>lastIdx) iRight=lastIdx;
+    var pr = this._priceRange();
+    if (!pr) return;
+    var rangeP = pr.hi - pr.lo;
+    if (!(rangeP>0)) return;
+    var upColor    = s._opts.upColor    || '#26a69a';
+    var downColor  = s._opts.downColor  || '#ef5350';
+    var wickUp     = s._opts.wickUpColor   || upColor;
+    var wickDown   = s._opts.wickDownColor || downColor;
+    var borderUp   = s._opts.borderUpColor   || upColor;
+    var borderDown = s._opts.borderDownColor || downColor;
+    /* FXER FIX (تشوه الشموع عند التصغير):
+       نحدّد عرض الشمعة الموحّد مرة واحدة خارج الحلقة ليبقى ثابتاً لجميع الشموع المرئية،
+       ثم نحسب الإحداثيات اليسرى لكل شمعة من خلال التقريب المتسق (Math.round للاثنين).
+       هذا يمنع تذبذب العرض بين الشموع المتجاورة (بعضها 4px بعضها 5px)
+       ويضمن أن جميع الشموع لها نفس العرض بالبكسل عند أي مستوى تكبير/تصغير. */
+    var candleW_raw = Math.max(1, Math.min(bs*0.85, bs-1));
+    var bwFixed = Math.max(1, Math.round(candleW_raw));
+    /* إذا كان العرض زوجياً نزيح 0.5 للقيم الفردية حتى يتمركز الفتيل تماماً في وسط الجسم */
+    var halfW = bwFixed / 2;
+    /* Body min height = 1px so doji visible */
+    for (var i=iLeft;i<=iRight;i++){
+      var d = arr[i];
+      if (!d) continue;
+      var x = xLast + (i-lastIdx)*bs;
+      var isUp = d.close >= d.open;
+      var yH = (pr.hi - d.high)/rangeP*h;
+      var yL = (pr.hi - d.low)/rangeP*h;
+      var yO = (pr.hi - d.open)/rangeP*h;
+      var yC = (pr.hi - d.close)/rangeP*h;
+      var yTop    = Math.min(yO, yC);
+      var yBottom = Math.max(yO, yC);
+      /* تقريب موحّد: نحدّد bx أولاً من مركز الشمعة المُقرّب، ثم الفتيل يأخذ المنتصف الحقيقي للجسم */
+      var xR = Math.round(x);
+      var bx = xR - Math.floor(halfW);
+      var bw = bwFixed;
+      /* Wick — يمر في منتصف جسم الشمعة تماماً */
+      ctx.strokeStyle = isUp ? wickUp : wickDown;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      var px = bx + Math.floor(bw/2) + 0.5;
+      ctx.moveTo(px, Math.round(yH));
+      ctx.lineTo(px, Math.round(yL));
+      ctx.stroke();
+      /* Body */
+      ctx.fillStyle   = isUp ? upColor    : downColor;
+      ctx.strokeStyle = isUp ? borderUp   : borderDown;
+      var bodyH = Math.max(1, yBottom - yTop);
+      ctx.fillRect(bx, Math.round(yTop), bw, Math.round(bodyH));
+      if (bw>=3){
+        ctx.strokeRect(bx+0.5, Math.round(yTop)+0.5, bw-1, Math.max(1, Math.round(bodyH))-1);
+      }
+    }
+  };
+
+  ChartInstance.prototype._renderLine = function(s){
+    var arr = s._data;
+    if (!arr || !arr.length) return;
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var pr = this._priceRange();
+    if (!pr) return;
+    var rangeP = pr.hi - pr.lo;
+    if (!(rangeP>0)) return;
+    /* We map by index-in-active-data using time match — for indicator series that share
+       the same time axis as candles. If a series has its own times, we find corresponding
+       positions via bisect. */
+    var refArr = this._getReferenceData();
+    if (!refArr || !refArr.length) return;
+    var lastIdx = refArr.length-1;
+    var xLast = w - ro*bs;
+
+    ctx.save();
+    ctx.strokeStyle = s._opts.color || '#22c55e';
+    ctx.lineWidth = s._opts.lineWidth || 1;
+    ctx.lineJoin = 'round';
+    ctx.lineCap  = 'round';
+    ctx.beginPath();
+    var moved = false;
+    for (var i=0;i<arr.length;i++){
+      var d = arr[i];
+      if (d.value == null || !isFinite(d.value)) continue;
+      var idx = this._timeToIndex(refArr, d.time);
+      if (idx == null) continue;
+      var x = xLast + (idx-lastIdx)*bs;
+      if (x < -50 || x > w+50) { moved=false; continue; }
+      var y = (pr.hi - d.value)/rangeP*h;
+      if (!moved){ ctx.moveTo(x, y); moved=true; }
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  ChartInstance.prototype._renderArea = function(s){
+    var arr = s._data;
+    if (!arr || !arr.length) return;
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var pr = this._priceRange();
+    if (!pr) return;
+    var rangeP = pr.hi - pr.lo;
+    if (!(rangeP>0)) return;
+    var refArr = this._getReferenceData();
+    if (!refArr || !refArr.length) return;
+    var lastIdx = refArr.length-1;
+    var xLast = w - ro*bs;
+
+    /* build points */
+    var pts = [];
+    for (var i=0;i<arr.length;i++){
+      var d = arr[i];
+      if (d.value == null || !isFinite(d.value)) continue;
+      var idx = this._timeToIndex(refArr, d.time);
+      if (idx == null) continue;
+      var x = xLast + (idx-lastIdx)*bs;
+      var y = (pr.hi - d.value)/rangeP*h;
+      pts.push({x:x, y:y});
+    }
+    if (!pts.length) return;
+    /* Gradient fill */
+    var top = s._opts.topColor    || 'rgba(34,197,94,0.55)';
+    var bot = s._opts.bottomColor || 'rgba(34,197,94,0.02)';
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, h);
+    ctx.lineTo(pts[0].x, pts[0].y);
+    for (var k=1;k<pts.length;k++) ctx.lineTo(pts[k].x, pts[k].y);
+    ctx.lineTo(pts[pts.length-1].x, h);
+    ctx.closePath();
+    var grad = ctx.createLinearGradient(0,0,0,h);
+    grad.addColorStop(0, top);
+    grad.addColorStop(1, bot);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    /* Line stroke */
+    ctx.strokeStyle = s._opts.lineColor || '#22c55e';
+    ctx.lineWidth   = s._opts.lineWidth || 2;
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (var m=1;m<pts.length;m++) ctx.lineTo(pts[m].x, pts[m].y);
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  ChartInstance.prototype._renderPriceLine = function(){
+    /* draw a yellow horizontal line at active series' last live price if enabled */
+    var s = this._activeSeries;
+    if (!s) return;
+    if (s._opts.priceLineVisible === false) return;
+    if (s._type !== 'candle' && s._type !== 'area' && s._type !== 'line') return;
+    var live = (s._lastLive != null) ? s._lastLive :
+               (s._data.length ? (s._data[s._data.length-1].close != null ? s._data[s._data.length-1].close : s._data[s._data.length-1].value) : null);
+    if (live == null) return;
+    var y = this._priceToY(live);
+    if (y == null) return;
+    var ctx = this._ctx;
+    var w = this._opts.width;
+    var color = s._opts.priceLineColor || '#f1ad24';
+    var lw    = s._opts.priceLineWidth || 1;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(0, Math.round(y)+0.5);
+    ctx.lineTo(w, Math.round(y)+0.5);
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  ChartInstance.prototype._renderCrosshair = function(){
+    if (!this._crosshair.visible) return;
+    var mode = (this._opts.crosshair && this._opts.crosshair.mode);
+    if (mode === CrosshairMode.Hidden) return;
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    var v = (this._opts.crosshair && this._opts.crosshair.vertLine) || {};
+    var hz= (this._opts.crosshair && this._opts.crosshair.horzLine) || {};
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    if (v.visible !== false){
+      ctx.strokeStyle = v.color || '#3e8cff';
+      ctx.beginPath();
+      var x = Math.round(this._crosshair.x)+0.5;
+      ctx.moveTo(x, 0); ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+    if (hz.visible !== false){
+      ctx.strokeStyle = hz.color || '#3e8cff';
+      ctx.beginPath();
+      var y = Math.round(this._crosshair.y)+0.5;
+      ctx.moveTo(0, y); ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  ChartInstance.prototype._renderTimeAxis = function(){
+    /* subtle bottom-area tick labels using the user's tickMarkFormatter */
+    var arr = this._getReferenceData();
+    if (!arr || !arr.length) return;
+    var fmt = this._opts.timeScale.tickMarkFormatter;
+    if (typeof fmt !== 'function') return;
+    var ctx = this._ctx;
+    var w = this._opts.width, h = this._opts.height;
+    var bs = this._opts.timeScale.barSpacing || 6.37;
+    var ro = this._opts.timeScale.rightOffset || 0;
+    var lastIdx = arr.length-1;
+    var xLast = w - ro*bs;
+    var step = Math.max(1, Math.round(60/bs));
+    var iRight = lastIdx + Math.ceil((w - xLast)/bs);
+    var iLeft  = lastIdx - Math.ceil(xLast/bs);
+    if (iLeft < 0) iLeft = 0;
+    if (iRight > lastIdx) iRight = lastIdx;
+    ctx.save();
+    ctx.fillStyle = (this._opts.layout && this._opts.layout.textColor) || '#9aa9ba';
+    var fs = (this._opts.layout && this._opts.layout.fontSize) || 9;
+    ctx.font = fs + 'px ' + ((this._opts.layout && this._opts.layout.fontFamily) || 'system-ui, sans-serif');
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    var startI = Math.ceil(iLeft/step)*step;
+    for (var i=startI; i<=iRight; i+=step){
+      if (i < 0 || i > lastIdx) continue;
+      var d = arr[i];
+      if (!d) continue;
+      var x = xLast + (i-lastIdx)*bs;
+      if (x < 15 || x > w-15) continue;
+      var lbl = '';
+      try { lbl = fmt(d.time) || ''; } catch(e){ lbl=''; }
+      if (lbl) ctx.fillText(lbl, x, h-2);
+    }
+    ctx.restore();
+  };
+
+  /* ============================================================
+   *  Series
+   * ============================================================ */
+  function Series(chart, type, opts){
+    this._chart = chart;
+    this._type  = type;
+    this._data  = [];
+    this._lastLive = null;
+    this._opts = {};
+    if (type === 'candle'){
+      this._opts = {
+        upColor:'#26a69a', downColor:'#ef5350',
+        borderUpColor:'#26a69a', borderDownColor:'#ef5350',
+        wickUpColor:'#26a69a', wickDownColor:'#ef5350',
+        priceFormat:{ type:'price', precision:5, minMove:0.00001 },
+        priceLineVisible:true, priceLineWidth:1, priceLineColor:'#f1ad24',
+        priceLineStyle:LineStyle.Solid, lastValueVisible:true, visible:true
+      };
+    } else if (type === 'area'){
+      this._opts = {
+        lineColor:'#22c55e', topColor:'rgba(34,197,94,0.55)',
+        bottomColor:'rgba(34,197,94,0.02)', lineWidth:2,
+        priceFormat:{ type:'price', precision:5, minMove:0.00001 },
+        priceLineVisible:false, lastValueVisible:false, visible:true
+      };
+    } else {
+      this._opts = {
+        color:'#22c55e', lineWidth:2,
+        priceFormat:{ type:'price', precision:5, minMove:0.00001 },
+        priceLineVisible:false, lastValueVisible:false, visible:true
+      };
+    }
+    if (opts) deepMerge(this._opts, opts);
+  }
+  Series.prototype.applyOptions = function(o){ if (o) deepMerge(this._opts, o); this._chart._scheduleRender(); };
+  Series.prototype.options = function(){ return this._opts; };
+  Series.prototype.setData = function(data){
+    /* store copies (shallow) */
+    if (!Array.isArray(data)){ this._data = []; }
+    else {
+      var out = new Array(data.length);
+      for (var i=0;i<data.length;i++) out[i] = data[i];
+      /* ensure ascending by time */
+      out.sort(function(a,b){ return (a.time||0) - (b.time||0); });
+      this._data = out;
+    }
+    /* update lastLive */
+    if (this._data.length){
+      var last = this._data[this._data.length-1];
+      this._lastLive = (last.close != null) ? last.close : (last.value != null ? last.value : null);
+    } else {
+      this._lastLive = null;
+    }
+    this._chart._scheduleRender();
+    /* fire visible time range change because data set may change time domain */
+    this._chart._fireVisRange();
+  };
+  Series.prototype.update = function(point){
+    if (!point || point.time == null) return;
+    var arr = this._data;
+    if (!arr.length || point.time > arr[arr.length-1].time){
+      arr.push(point);
+    } else if (point.time === arr[arr.length-1].time){
+      arr[arr.length-1] = point;
+    } else {
+      var idx = bsearchTime(arr, point.time);
+      if (idx>=0) arr[idx] = point;
+      else {
+        /* insert in order */
+        var t = point.time;
+        for (var i=arr.length-1;i>=0;i--){
+          if (arr[i].time < t){ arr.splice(i+1, 0, point); break; }
+          if (i===0){ arr.unshift(point); break; }
+        }
+      }
+    }
+    var last = arr[arr.length-1];
+    this._lastLive = (last.close != null) ? last.close : (last.value != null ? last.value : null);
+    this._chart._scheduleRender();
+  };
+  Series.prototype.priceToCoordinate = function(price){
+    return this._chart._priceToY(price);
+  };
+  Series.prototype.coordinateToPrice = function(y){
+    return this._chart._yToPrice(y);
+  };
+  /* setMarkers/createPriceLine/removePriceLine: no-op stubs (consumer code guards them) */
+  Series.prototype.setMarkers = function(){};
+  Series.prototype.createPriceLine = function(o){ return { options: function(){ return o||{}; }, applyOptions:function(){} }; };
+  Series.prototype.removePriceLine = function(){};
+
+  /* ============================================================
+   *  Public factory
+   * ============================================================ */
+  function createChart(container, opts){
+    if (typeof container === 'string') container = document.getElementById(container);
+    return new ChartInstance(container, opts||{});
+  }
+
+  window.LightweightCharts = {
+    __FXER_CANVAS_ENGINE__: true,
+    createChart: createChart,
+    CrosshairMode: CrosshairMode,
+    LineStyle: LineStyle
+  };
+})();
+</script>
+
+<!-- Preserve original hook so window.__fxerChartApi still gets populated -->
+<script>
+(function(){
+  try{
+    if(window.LightweightCharts && typeof window.LightweightCharts.createChart === 'function' && !window.LightweightCharts.__fxerWrapped){
+      var _origCreate = window.LightweightCharts.createChart;
+      window.LightweightCharts.createChart = function(){
+        var api = _origCreate.apply(this, arguments);
+        try{ window.__fxerChartApi = api; }catch(e){}
+        return api;
+      };
+      window.LightweightCharts.__fxerWrapped = true;
+    }
+  }catch(e){}
+})();
+</script>
+
+
+<!-- ============================================================
+     Firebase SDK v12 (App + Auth + Firestore)
+     - Auth : للتحقق من جلسة المستخدم
+     - Firestore : لمزامنة currentIndex العالمي بين جميع الأجهزة
+     ============================================================ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-analytics.js";
+  import {
+    getAuth,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    deleteField,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp,
+    Timestamp
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDQIKQ5swu_XnVtqET0B9EelRKFjr0LXHI",
+    authDomain: "ksksjsh-724f2.firebaseapp.com",
+    projectId: "ksksjsh-724f2",
+    storageBucket: "ksksjsh-724f2.firebasestorage.app",
+    messagingSenderId: "1046924412561",
+    appId: "1:1046924412561:web:1a40834236da75d0d6e130",
+    measurementId: "G-5D3YJQDH8B"
+  };
+
+  const app       = initializeApp(firebaseConfig);
+  try { getAnalytics(app); } catch(e) { /* analytics قد لا يعمل في بيئات معينة */ }
+  const auth      = getAuth(app);
+  const firestore = getFirestore(app);
+
+  // نُصدِّر ما يحتاجه بقية الكود إلى الـ window حتى يستطيع النص العادي (non-module) استخدامه.
+  window.FIREBASE = {
+    app,
+    auth,
+    firestore,
+    onAuthStateChanged,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    deleteField,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp,
+    Timestamp,
+    ready: true
+  };
+
+  // إشعار بقية الكود بأن Firebase جاهز (لأن module قد يُحمَّل بعد DOMContentLoaded).
+  window.dispatchEvent(new Event('firebase-ready'));
+</script>
+
+<style>
+  /* ============================================================
+     DESIGN COPIED VERBATIM FROM REFERENCE FILE
+     (erg_modV3ified_firestore_leaderboard.html)
+     - Colors, sizing, spacing, radii, borders, layout
+     - NO business logic, no data, only visual design
+     ============================================================ */
+  :root{
+    --u:#0d1730;
+    --bd:#223252;
+  }
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+    margin:0;
+    padding:0;
+  }
+  body,html{
+    height:100%;
+    overflow:hidden;
+  }
+  body{
+    background:var(--u);
+    color:#eef5ff;
+    user-select:none;
+    font:500 11px/1.15 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+  }
+
+  /* -------- APP CONTAINER -------- */
+  .app{
+    background:var(--u);
+    width:100vw;
+    height:100dvh;
+    padding-bottom:env(safe-area-inset-bottom);
+    padding-top:env(safe-area-inset-top);
+    flex-direction:column;
+    display:flex;
+    position:relative;
+  }
+
+    /* -------- SPLASH SCREEN (initial load — VERBATIM from ok.html) -------- */
+  .spl{
+    z-index:2147483647;
+    opacity:1;
+    background:#0d1730;
+    justify-content:center;
+    align-items:center;
+    transition:opacity .45s, visibility .45s;
+    display:flex;
+    position:fixed;
+    inset:0;
+  }
+  .spl.h{
+    opacity:0;
+    visibility:hidden;
+  }
+  .spl svg{
+    width:min(42vw,170px);
+    height:min(42vw,170px);
+    display:block;
+  }
+
+/* -------- TOP BAR (balance + deposit) — VERBATIM from ok.html reference -------- */
+  .top{
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:5px 5px 3px;
+    display:flex;
+  }
+  .tc{
+    background:var(--u);
+    border:1px solid var(--bd);
+    direction:ltr;
+    border-radius:8px;
+    max-width:255px;
+    padding:3px 8px;
+  }
+  .t1{
+    align-items:center;
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .lg{
+    align-items:center;
+    display:flex;
+    gap:6px;
+  }
+  .d{
+    color:#fff;
+    background:#f1ad24;
+    border-radius:4px;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font:800 12px/1 system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+    display:grid;
+  }
+  .nm{
+    color:#fff;
+    white-space:nowrap;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:500;
+    display:flex;
+  }
+  .nm b{
+    color:#f1ad24;
+    font-size:13px;
+    font-weight:600;
+    line-height:1;
+    font-style:normal;
+  }
+  .t2{
+    color:#ffcf54;
+    margin-top:2px;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:.2px;
+    align-items:center;
+    display:flex;
+  }
+  #topBalance{
+    color:#ffcf54;
+    font-weight:500;
+    font-size:14px;
+    font-family:system-ui,-apple-system,Segoe UI,Tahoma,Arial,sans-serif;
+  }
+  .usd{
+    color:#ffcf54;
+    border:1px solid #8d6b1f;
+    border-radius:4px;
+    margin-left:6px;
+    padding:1px 5px;
+    font-size:8px;
+    line-height:1;
+  }
+  .dd{
+    color:#f1ad24;
+    margin-top:-4px;
+    font-size:16px;
+    font-weight:600;
+    line-height:1;
+    display:inline-block;
+  }
+  /* Bonus pill (kept for JS compatibility, hidden — not part of the reference top bar) */
+  .fxBonus{
+    display:none !important;
+  }
+  .fxBonus img{
+    width:18px;
+    height:18px;
+    flex:none;
+    filter:brightness(0) invert(1);
+  }
+  .dep{
+    color:#f1ad24;
+    text-align:center;
+    cursor:pointer;
+    font-size:9px;
+    line-height:1.05;
+  }
+  .dep img{
+    filter:brightness(0) saturate(100%) invert(72%) sepia(58%) saturate(720%) hue-rotate(360deg) brightness(97%) contrast(94%);
+    width:32px;
+    height:32px;
+    margin:0 auto 3px;
+    display:block;
+  }
+
+  /* -------- ASSET / PAIR ROW -------- */
+  .asset{
+    align-items:center;
+    display:grid;
+    z-index:20;
+    direction:ltr;
+    flex:none;
+    grid-template-rows:32px auto;
+    grid-template-columns:26px 132px 1fr;
+    place-content:start;
+    column-gap:8px;
+    padding:3px 5px 4px;
+    position:relative;
+  }
+  /* أيقونة جديدة بجانب مربع الزوج، عند الحافة اليسرى للشاشة
+     — بناءً على طلب المستخدم: تُوضع داخل مربع بحواف بسيطة والأيقونة نفسها بيضاء اللون */
+  .assetIcon{
+    grid-area:1/1;
+    width:30px;
+    height:30px;
+    place-self:center;
+    display:grid;
+    place-items:center;
+    /* المربع المحيط بالأيقونة */
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.22);
+    border-radius:6px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25) inset;
+  }
+  .assetIcon img{
+    width:70%;
+    height:70%;
+    object-fit:contain;
+    display:block;
+    /* تلوين الأيقونة بالأبيض (PNG بأي لون → يصبح أبيض نقي) */
+    filter:brightness(0) invert(1);
+    -webkit-filter:brightness(0) invert(1);
+  }
+  /* Live platform time (shown below the pair box) — green live-dot on the LEFT side of the time */
+  .platformTime{
+    grid-column:2 / 3;
+    grid-row:2;
+    margin-top:4px;
+    color:#c7d5ef;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.5px;
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,monospace;
+    direction:ltr;
+    text-align:center;
+    width:132px;
+    background:transparent;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+  }
+  .platformTime::before{
+    content:"";
+    display:inline-block;
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#22c55e;
+    box-shadow:0 0 4px rgba(34,197,94,0.65);
+    flex:none;
+  }
+  .sq{
+    color:#cad6eb;
+    background:var(--u);
+    border:1px solid var(--bd);
+    border-radius:7px;
+    flex:none;
+    grid-area:1/2;
+    place-items:center;
+    width:32px;
+    height:32px;
+    font-size:22px;
+    display:none;
+  }
+  .pair{
+    background:#2a3441;
+    border:1px solid #3a4553;
+    z-index:21;
+    pointer-events:auto;
+    touch-action:manipulation;
+    border-radius:7px;
+    flex:none;
+    grid-area:1/2;
+    align-items:center;
+    gap:6px;
+    width:132px;
+    height:32px;
+    padding:0 8px;
+    display:flex;
+    position:relative;
+    cursor:pointer;
+  }
+  .fg{
+    flex:none;
+    width:30px;
+    height:17px;
+    position:relative;
+  }
+  .fg em{
+    /* بدون خلفية وبدون دائرة وبدون حواف — الأعلام تبقى داخل مربع الزوج مباشرة */
+    background:transparent !important;
+    background-color:transparent !important;
+    background-image:none !important;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    outline:0 !important;
+    padding:0 !important;
+    margin:0 !important;
+    place-items:center;
+    width:17px;
+    height:17px;
+    font-size:13px;
+    font-style:normal;
+    display:grid;
+    position:absolute;
+    top:0;
+    line-height:1;
+  }
+  .fg em img, .fg em svg{
+    /* لو تم استبدال الإيموجي بأيقونة صورة/svg: نضمن أيضاً عدم وجود دائرة أو حواف */
+    background:transparent !important;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    outline:0 !important;
+    width:100% !important;
+    height:100% !important;
+    object-fit:contain;
+  }
+  .fg .c{ left:0; }
+  .fg .j{ left:12px; }
+  .pair small{
+    color:#ffffff94;
+    margin-bottom:1px;
+    font-size:7px;
+    display:block;
+  }
+  .pair b{
+    color:#fff;
+    font-size:12px;
+  }
+
+  /* -------- CHART CONTAINER -------- */
+  .chart{
+    /* يمتد الشارت بعرض الشاشة كاملاً، وينتهي قبل شريط الأدوات السفلي (شريط الأسعار السفلي يمتد للآخر عادي). */
+    background:transparent;
+    touch-action:none;
+    flex:1 1 0;
+    min-height:0;
+    width:100vw;
+    max-width:100vw;
+    margin-top:0;
+    margin-inline:0;
+    position:relative;
+    overflow:hidden;
+  }
+  /* طبقة الشارت نفسها تملأ المساحة كاملة من اليمين إلى اليسار. */
+  #chart{
+    width:100%;
+    height:100%;
+    display:block;
+    position:absolute;
+    inset:0;
+    background:transparent;
+  }
+
+  /* -------- FLOATING PRICE LABELS OVERLAY --------
+     شريط أسعار عائم: أرقام فقط بدون خلفية، بدون حواف، بدون ظل، بدون بادينج.
+     يقع فوق الشارت في الجانب الأيمن، مع مرور الشموع والجريد أسفله بحرية. */
+  .price-overlay{
+    position:absolute;
+    top:0;
+    right:0;
+    bottom:0;
+    width:56px;
+    pointer-events:none;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    margin:0;
+    z-index:5;
+    overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  }
+  .price-overlay .pl{
+    position:absolute;
+    right:4px;
+    transform:translateY(-50%);
+    color:#ffffff;
+    font-size:11px;
+    line-height:1;
+    background:transparent;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    margin:0;
+    white-space:nowrap;
+    direction:ltr;
+    text-align:right;
+  }
+  .price-overlay .pl.live{
+    /* تسمية السعر اللحظي: مربّع أصفر مع ظل واضح */
+    color:#0d1730;
+    font-weight:800;
+    font-size:10px;
+    background:#f1ad24;
+    padding:3px 7px;
+    border-radius:4px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.65), 0 1px 2px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.30);
+    right:2px;
+  }
+  /* علامة الزوم (Zoom debug) مخفية كلياً بناءً على طلب المستخدم */
+  .zoomDebug{ display:none !important; }
+
+  /* ============================================================
+     PRO SKELETON LOADER — يغطي كامل منطقة الشارت أثناء تحميل
+     بيانات الزوج ويعرض شعار FXER بشكل احترافي، ويختفي فور توفر البيانات.
+     ============================================================ */
+  .chartSkeleton{
+    position:absolute;
+    inset:0;
+    z-index:60;
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(62,140,255,0.10), transparent 60%),
+      linear-gradient(180deg, #0d1730 0%, #0a1226 55%, #070d1c 100%);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .chartSkeleton.hidden{ display:none; }
+  .chartSkeleton .sk-grid{
+    position:absolute;
+    inset:0;
+    display:grid;
+    grid-template-rows:repeat(6,1fr);
+    grid-template-columns:repeat(8,1fr);
+    opacity:.28;
+  }
+  .chartSkeleton .sk-grid span{
+    border-right:1px solid rgba(46,68,110,0.55);
+    border-bottom:1px solid rgba(46,68,110,0.55);
+  }
+  /* شريط تمرير ضوئي أفقي عبر الشارت */
+  .chartSkeleton .sk-scan{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,
+      transparent 0%,
+      rgba(62,140,255,0.00) 30%,
+      rgba(62,140,255,0.22) 50%,
+      rgba(62,140,255,0.00) 70%,
+      transparent 100%);
+    background-size:200% 100%;
+    animation:skScan 2.2s linear infinite;
+    z-index:1;
+  }
+  .chartSkeleton .sk-candles{
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    gap:9px;
+    width:88%;
+    max-width:560px;
+    height:46%;
+    margin-top:22px;
+  }
+  .chartSkeleton .sk-candles i{
+    display:block;
+    width:14px;
+    height:var(--h,60%);
+    margin-top:var(--t,20%);
+    border-radius:3px;
+    background:linear-gradient(180deg,
+      rgba(62,140,255,0.55) 0%,
+      rgba(62,140,255,0.28) 50%,
+      rgba(241,173,36,0.35) 100%);
+    background-size:100% 200%;
+    animation:skShimmerV 1.4s ease-in-out infinite;
+    box-shadow:0 0 0 1px rgba(46,68,110,0.65), 0 6px 18px rgba(0,0,0,0.35);
+  }
+  .chartSkeleton .sk-candles i:nth-child(odd){
+    animation-delay:.22s;
+    background:linear-gradient(180deg,
+      rgba(33,201,101,0.55) 0%,
+      rgba(33,201,101,0.25) 60%,
+      rgba(241,173,36,0.28) 100%);
+  }
+  .chartSkeleton .sk-brand{
+    position:relative;
+    z-index:3;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .chartSkeleton .sk-logo{
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+    font-weight:900;
+    font-size:34px;
+    letter-spacing:6px;
+    color:#e8f0ff;
+    background:linear-gradient(90deg,#3e8cff 0%,#f1ad24 50%,#3e8cff 100%);
+    background-size:200% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation:skTextShine 2.4s linear infinite;
+    text-shadow:0 4px 24px rgba(62,140,255,0.25);
+  }
+  .chartSkeleton .sk-sub{
+    font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+    color:#93a6c9;
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    opacity:.85;
+  }
+  .chartSkeleton .sk-dots{
+    display:flex;
+    gap:6px;
+    margin-top:4px;
+  }
+  .chartSkeleton .sk-dots span{
+    width:6px;height:6px;border-radius:50%;
+    background:#3e8cff;
+    opacity:.35;
+    animation:skDots 1.2s ease-in-out infinite;
+  }
+  .chartSkeleton .sk-dots span:nth-child(2){ animation-delay:.15s; }
+  .chartSkeleton .sk-dots span:nth-child(3){ animation-delay:.30s; }
+  .chartSkeleton .sk-caption{
+    position:relative;
+    z-index:3;
+    margin-top:18px;
+    color:#c7d5ef;
+    font-size:12px;
+    letter-spacing:.3px;
+    opacity:.85;
+  }
+  @keyframes skShimmerV{
+    0%   { background-position: 0 200%; opacity:.85; }
+    50%  { opacity:1; }
+    100% { background-position: 0 -200%; opacity:.85; }
+  }
+  @keyframes skScan{
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @keyframes skTextShine{
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+  @keyframes skDots{
+    0%,80%,100% { opacity:.30; transform:scale(0.9); }
+    40%         { opacity:1;   transform:scale(1.2); }
+  }
+
+  /* ============================================================
+     CENTER GUIDE — شريط عمودي شفاف مرتبط بالشمعة النشطة
+     يتحرك مع تمرير الشارت (باتجاه أمامي فقط، لا يتخطى موضعه للخلف)،
+     ويظل ملاصقاً للجهة الأمامية (الأمامية = يمين في RTL بصرياً / اليسار منطقياً في الشارت)
+     للشمعة النشطة بحيث تقف الشمعة النشطة بجانبه من جهة الخلف.
+     ملاحظة: تم تحويل الآلية من left:50% إلى إحداثيات ديناميكية (JS)
+     تُحدَّث عبر timeToCoordinate على زمن الشمعة النشطة.
+     ============================================================ */
+  .centerGuide{
+    position:absolute;
+    top:0;
+    bottom:0;
+    /* الموقع الأفقي يُحسب ديناميكياً في JS عبر translateX — لا نضع left:50% بعد الآن */
+    left:0;
+    width:2px;
+    transform:translateX(-9999px); /* يُخفى مبدئياً حتى تتوفر إحداثيات الشمعة النشطة */
+    pointer-events:none;
+    z-index:6;
+    background:linear-gradient(to bottom,
+      rgba(241,173,36,0.00) 0%,
+      rgba(241,173,36,0.22) 15%,
+      rgba(241,173,36,0.28) 50%,
+      rgba(241,173,36,0.22) 85%,
+      rgba(241,173,36,0.00) 100%);
+    box-shadow:0 0 8px rgba(241,173,36,0.18);
+    /* لا نضع transition على transform لأن الحركة تجري في نفس إطار الشارت */
+    will-change:transform;
+  }
+  .centerGuide::before,
+  .centerGuide::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    width:8px;
+    height:8px;
+    border:1px solid rgba(241,173,36,0.55);
+    background:rgba(241,173,36,0.10);
+    border-radius:50%;
+  }
+  .centerGuide::before{ top:2px; }
+  .centerGuide::after{ bottom:2px; }
+
+  /* ============================================================
+     CHART-TYPE SETTINGS MODAL (نوع الرسم البياني)
+     ============================================================ */
+  .ctModal{
+    position:fixed; inset:0;
+    background:rgba(4,8,18,0.62);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    z-index:200;
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .ctModal.open{ display:flex; }
+  .ctBox{
+    width:100%;
+    max-width:520px;
+    background:linear-gradient(180deg,#131f3a,#0d1730);
+    border:1px solid #22304f;
+    border-radius:18px 18px 0 0;
+    box-shadow:0 -12px 40px rgba(0,0,0,0.55);
+    padding:16px 16px 18px;
+    color:#e6ecfa;
+    direction:rtl;
+    animation:ctSlideUp .22s ease-out;
+  }
+  @keyframes ctSlideUp{
+    from { transform:translateY(30px); opacity:0; }
+    to   { transform:translateY(0);    opacity:1; }
+  }
+  .ctHead{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:2px 4px 12px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    margin-bottom:14px;
+  }
+  .ctTitle{ font-size:15px; font-weight:700; color:#e6ecfa; }
+  .ctClose{
+    width:28px; height:28px; display:grid; place-items:center;
+    color:#c7d5ef; cursor:pointer; font-size:18px; line-height:1;
+    border-radius:6px;
+  }
+  .ctClose:hover{ background:rgba(255,255,255,0.06); }
+  .ctSection{ margin-bottom:16px; }
+  .ctLabel{
+    font-size:13px; color:#b8c6e0; margin:2px 4px 10px; font-weight:500;
+  }
+  .ctTypes{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:10px;
+  }
+  .ctType{
+    aspect-ratio:1/1;
+    background:#1a2540;
+    border:2px solid transparent;
+    border-radius:10px;
+    cursor:pointer;
+    display:grid; place-items:center;
+    padding:8px;
+    transition:border-color .15s, background .15s;
+  }
+  .ctType.on{ border-color:#3e8cff; background:#1e2b4d; }
+  .ctType svg{ width:100%; height:100%; display:block; }
+  .ctColors{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:10px;
+    justify-items:center;
+    margin-bottom:10px;
+  }
+  .ctColor{
+    width:34px; height:34px; border-radius:50%;
+    cursor:pointer;
+    border:2px solid transparent;
+    box-shadow:0 2px 4px rgba(0,0,0,0.35);
+    transition:transform .12s, border-color .15s;
+    position:relative;
+  }
+  .ctColor.on{
+    border-color:#3e8cff;
+    transform:scale(1.05);
+    box-shadow:0 0 0 4px rgba(62,140,255,0.20), 0 3px 8px rgba(0,0,0,0.45);
+  }
+  .ctToggleRow{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 4px;
+    border-top:1px solid rgba(255,255,255,0.06);
+    font-size:13px; color:#dbe3f3;
+  }
+  .ctSwitch{
+    position:relative;
+    width:44px; height:24px;
+    background:#2b3b5c;
+    border-radius:14px;
+    cursor:pointer;
+    transition:background .18s;
+    flex:none;
+  }
+  .ctSwitch::after{
+    content:"";
+    position:absolute;
+    top:3px; left:3px;
+    width:18px; height:18px;
+    border-radius:50%;
+    background:#fff;
+    transition:left .18s;
+  }
+  .ctSwitch.on{ background:#3e8cff; }
+  .ctSwitch.on::after{ left:23px; }
+
+  /* ============================================================
+     DRAWING TOOLS MODAL (أدوات الرسم)
+     ============================================================ */
+  .dtModal{
+    position:fixed; inset:0;
+    background:rgba(4,8,18,0.62);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    z-index:210;
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .dtModal.open{ display:flex; }
+  .dtBox{
+    width:100%;
+    max-width:520px;
+    background:linear-gradient(180deg,#131f3a,#0d1730);
+    border:1px solid #22304f;
+    border-radius:18px 18px 0 0;
+    box-shadow:0 -12px 40px rgba(0,0,0,0.55);
+    padding:16px 16px 22px;
+    color:#e6ecfa;
+    direction:rtl;
+    animation:ctSlideUp .22s ease-out;
+  }
+  .dtHead{
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    padding:2px 4px 14px;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    margin-bottom:14px;
+  }
+  .dtTitle{ font-size:15px; font-weight:700; color:#e6ecfa; }
+  .dtClose{
+    position:absolute; left:4px; top:0;
+    width:28px; height:28px; display:grid; place-items:center;
+    color:#c7d5ef; cursor:pointer; font-size:18px; line-height:1;
+    border-radius:6px;
+  }
+  .dtClose:hover{ background:rgba(255,255,255,0.06); }
+  .dtToolsGrid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .dtTool{
+    background:#1a2540;
+    border:1px solid #22304f;
+    border-radius:10px;
+    cursor:pointer;
+    padding:12px 6px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    transition:border-color .15s, background .15s, transform .1s;
+    color:#dbe3f3;
+    font-size:12px;
+    text-align:center;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  .dtTool:hover{ background:#1e2b4d; }
+  .dtTool.on{ border-color:#3e8cff; background:#1e2b4d; box-shadow:0 0 0 2px rgba(62,140,255,0.15); }
+  .dtTool svg{ width:26px; height:26px; }
+  .dtTool span{ font-size:12px; line-height:1.2; }
+  .dtRow{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 6px;
+    border-top:1px solid rgba(255,255,255,0.06);
+    font-size:14px; color:#dbe3f3;
+    cursor:pointer;
+  }
+  .dtRow:hover{ background:rgba(255,255,255,0.03); }
+  .dtRow .dtRt{ color:#8ea0c2; font-size:14px; display:flex; align-items:center; gap:8px; }
+  .dtRow .dtCount{
+    background:#3e8cff; color:#fff;
+    min-width:22px; height:22px; border-radius:11px;
+    padding:0 7px; font-size:12px; font-weight:700;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .dtArrow{ font-size:16px; color:#8ea0c2; }
+
+  /* -------- Active tools submenu -------- */
+  .dtActive{
+    display:none;
+    max-height:200px;
+    overflow-y:auto;
+    padding:4px 2px;
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .dtActive.open{ display:block; }
+  .dtActiveItem{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 10px;
+    background:#12203c;
+    border-radius:8px;
+    margin:6px 0;
+    font-size:13px;
+  }
+  .dtActiveItem .lbl{ color:#dbe3f3; }
+  .dtActiveItem .del{
+    color:#ef5350; cursor:pointer; font-weight:700;
+    padding:2px 8px; border-radius:6px;
+  }
+  .dtActiveItem .del:hover{ background:rgba(239,83,80,0.15); }
+  .dtEmpty{ text-align:center; color:#6b7a99; font-size:12px; padding:14px 0; }
+
+  /* -------- Drawing overlay canvas on top of chart -------- */
+  #drawCanvas{
+    position:absolute;
+    left:0; top:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:7;
+  }
+  #drawCanvas.drawing{
+    pointer-events:auto;
+    cursor:crosshair;
+  }
+  /* Cursor indicator when drawing tool is selected */
+  .drawModeHint{
+    position:absolute;
+    top:8px; left:50%; transform:translateX(-50%);
+    background:rgba(62,140,255,0.9);
+    color:#fff;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:12px;
+    z-index:11;
+    display:none;
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
+    pointer-events:none;
+  }
+  .drawModeHint.on{ display:block; }
+  .drawModeHint b{ color:#ffe38b; font-weight:700; margin:0 4px; }
+  .drawModeHint .x{
+    display:inline-block; margin-right:6px; cursor:pointer;
+    pointer-events:auto;
+    padding:0 4px; border-radius:4px;
+  }
+
+  /* -------- Indicators submenu -------- */
+  .dtIndList{
+    display:none;
+    padding:4px 2px 6px;
+    border-top:1px solid rgba(255,255,255,0.06);
+  }
+  .dtIndList.open{ display:block; }
+  .dtIndItem{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 10px;
+    background:#12203c;
+    border-radius:8px;
+    margin:6px 0;
+    font-size:13px;
+  }
+  .dtIndItem .lbl{ color:#dbe3f3; }
+  .dtIndItem .sw{
+    position:relative; width:40px; height:22px;
+    background:#2b3b5c; border-radius:12px; cursor:pointer;
+    transition:background .18s; flex:none;
+  }
+  .dtIndItem .sw::after{
+    content:""; position:absolute; top:3px; left:3px;
+    width:16px; height:16px; border-radius:50%;
+    background:#fff; transition:left .18s;
+  }
+  .dtIndItem .sw.on{ background:#3e8cff; }
+  .dtIndItem .sw.on::after{ left:21px; }
+
+  /* أيقونة زر نوع الشارت الجديد داخل شريط الأدوات */
+  .tool.ctBtn{
+    width:26px;
+    padding:0;
+    overflow:hidden;
+  }
+  .tool.ctBtn img{
+    width:16px; height:16px;
+    object-fit:contain;
+    display:block;
+    filter:brightness(0) invert(1) opacity(0.85);
+  }
+
+  /* -------- YELLOW PULSING DOT ON ACTIVE CANDLE HEAD -------- */
+  .liveDot{
+    position:absolute;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#ffcf24;
+    box-shadow:0 0 0 0 rgba(255,207,36,0.85);
+    pointer-events:none;
+    z-index:9;
+    transform:translate(-50%,-50%);
+    display:none;
+    animation:liveDotPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes liveDotPulse{
+    0%   { box-shadow:0 0 0 0   rgba(255,207,36,0.75); transform:translate(-50%,-50%) scale(1); }
+    70%  { box-shadow:0 0 0 6px rgba(255,207,36,0);    transform:translate(-50%,-50%) scale(1.15); }
+    100% { box-shadow:0 0 0 0   rgba(255,207,36,0);    transform:translate(-50%,-50%) scale(1); }
+  }
+  .ptm{
+    z-index:6;
+    pointer-events:none;
+    direction:ltr;
+    background:0 0;
+    border:0;
+    justify-content:flex-start;
+    align-items:center;
+    gap:6px;
+    width:auto;
+    height:34px;
+    padding:0;
+    display:flex;
+    position:absolute;
+    top:41px;
+    left:8px;
+    right:auto;
+  }
+  .pi{
+    color:#fff;
+    background:#2196f3;
+    border-radius:50%;
+    flex:none;
+    place-items:center;
+    width:18px;
+    height:18px;
+    font:800 12px/1 system-ui;
+    display:grid;
+  }
+  .ptx{
+    flex-direction:column;
+    line-height:1;
+    display:flex;
+  }
+  .ptx b, .ptx small{
+    color:#8a99a8;
+    font-weight:700;
+  }
+  .ptx b{ font-size:11px; }
+  .ptx small{ margin-top:3px; font-size:10px; }
+  .pg{
+    background:#10b981;
+    border-radius:50%;
+    flex:none;
+    width:10px;
+    height:10px;
+    box-shadow:0 0 0 2px #0d173099;
+  }
+
+  /* -------- ROLE BADGE (Manager / Viewer live indicator) --------
+     إشارة تظهر أعلى الشارت تُبيّن ما إذا كان الجهاز مديراً للبث (ينتج الأسعار)
+     أو مشاهداً (يستقبل الأسعار من المدير عبر Firestore). */
+  .roleBadge{
+    z-index:8;
+    pointer-events:none;
+    direction:ltr;
+    position:absolute;
+    top:41px;
+    right:8px;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:3px 8px;
+    border-radius:10px;
+    font-size:9px;
+    font-weight:700;
+    line-height:1;
+    letter-spacing:.3px;
+    background:rgba(13,23,48,.85);
+    border:1px solid var(--bd);
+    color:#c7d5ef;
+    box-shadow:0 2px 6px rgba(0,0,0,.35);
+    transition:background .2s, color .2s, border-color .2s;
+  }
+  .roleBadge .dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#7d8fae;
+    box-shadow:0 0 0 2px rgba(255,255,255,.06);
+  }
+  .roleBadge.manager{
+    background:linear-gradient(90deg,#0d1730,#1a2f5c);
+    border-color:#f1ad24;
+    color:#ffd47a;
+  }
+  .roleBadge.manager .dot{
+    background:#21c965;
+    box-shadow:0 0 0 2px rgba(33,201,101,.25);
+    animation:rbPulse 1.4s ease-in-out infinite;
+  }
+  .roleBadge.viewer{
+    background:rgba(13,23,48,.85);
+    border-color:#2b568c;
+    color:#9ec0ff;
+  }
+  .roleBadge.viewer .dot{
+    background:#3e8cff;
+    box-shadow:0 0 0 2px rgba(62,140,255,.25);
+  }
+  .roleBadge.pending{
+    background:rgba(13,23,48,.85);
+    border-color:var(--bd);
+    color:#c7d5ef;
+  }
+  .roleBadge.pending .dot{
+    background:#ffcf54;
+    box-shadow:0 0 0 2px rgba(255,207,84,.25);
+    animation:rbPulse 1s ease-in-out infinite;
+  }
+  @keyframes rbPulse{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%    { transform:scale(1.35); opacity:.55; }
+  }
+
+  /* -------- ZOOM DEBUG READOUT (temporary calibration helper) -------- */
+  .zoomDebug{
+    z-index:7;
+    pointer-events:none;
+    direction:ltr;
+    background:0 0;
+    border:0;
+    box-shadow:none;
+    padding:0;
+    color:#9aa9ba;
+    font-size:9px;
+    font-weight:700;
+    white-space:nowrap;
+    position:absolute;
+    top:41px;
+    right:8px;
+  }
+
+  /* -------- BOTTOM CHART TOOLBAR (.bar) -------- */
+  .bar{
+    background:#4a4f58;
+    direction:ltr;
+    flex:none;
+    justify-content:space-between;
+    align-items:center;
+    gap:4px;
+    height:30px;
+    padding:0 7px;
+    display:flex;
+    border-top:1px solid #5d636d;
+    border-bottom:1px solid #353a43;
+  }
+  .inf,.pm,.tfb,.tool{
+    color:#eef5ff;
+    background:#5a606a;
+    border:1px solid #6d7480;
+    border-radius:7px;
+    flex:none;
+    place-items:center;
+    height:22px;
+    display:grid;
+  }
+  .inf,.pm,.tool{
+    cursor:pointer;
+    width:22px;
+    font-size:12px;
+  }
+  .pm img{
+    object-fit:contain;
+    filter:brightness(0) saturate(1) invert(86%) sepia(12%) saturate(448%) hue-rotate(184deg) brightness(93%) contrast(93%);
+    width:14px;
+    height:14px;
+  }
+  .tfs{
+    flex:1;
+    grid-template-columns:repeat(4,1fr);
+    gap:4px;
+    display:grid;
+  }
+  .tfb{
+    cursor:pointer;
+    font-size:11px;
+  }
+  .tfb.on{
+    color:#ffffff;
+    background:#6a717c;
+    border-color:#8e96a3;
+    font-weight:800;
+  }
+
+  /* -------- CTRL (time + amount rows) -------- */
+  .ctrl{
+    flex:none;
+    padding:3px 3px 0;
+  }
+  .rw{
+    direction:ltr;
+    gap:3px;
+    display:flex;
+    height:34px;
+  }
+  .rw2{
+    direction:ltr;
+    gap:3px;
+    display:flex;
+    height:33px;
+    margin-top:3px;
+  }
+  .bx,.bx3{
+    background:#2a3441;
+    border:1px solid #3a4553;
+  }
+  .bx{
+    color:#fff;
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    display:flex;
+    border-radius:6px;
+  }
+  .bx3{
+    color:#dbe7ff;
+    justify-content:center;
+    align-items:center;
+    width:36px;
+    font-size:17px;
+    display:flex;
+    border-radius:6px;
+    background:#2a3441;
+    cursor:pointer;
+    user-select:none;
+  }
+  .bx3:active{ background:#3a4553; }
+  .bx .bx3{
+    border-top:0;
+    border-bottom:0;
+    height:100%;
+  }
+  .mid,.val{
+    text-align:center;
+    flex:1;
+    font-size:12px;
+  }
+
+  /* -------- ACTIONS ROW (buy / sell buttons) -------- */
+  .acts{
+    flex:none;
+    gap:3px;
+    padding:3px;
+    display:flex;
+  }
+  .btn{
+    color:#fff;
+    text-align:left;
+    border:0;
+    flex:1;
+    height:54px;
+    padding:7px 10px;
+    position:relative;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn b{
+    letter-spacing:.5px;
+    font-size:15px;
+  }
+  .btn .rt{
+    font-size:12px;
+    font-weight:800;
+    position:absolute;
+    top:7px;
+    right:10px;
+  }
+  .btn i{
+    opacity:.9;
+    margin-top:3px;
+    font-size:9px;
+    font-style:normal;
+    display:block;
+  }
+  .btn small{
+    font-size:12px;
+    position:absolute;
+    bottom:7px;
+    right:10px;
+  }
+  .up{
+    background:linear-gradient(#21c965,#109a4a);
+    border-radius:0 0 0 7px;
+  }
+  .dn{
+    background:linear-gradient(#ff4f4f,#d81f1f);
+    border-radius:0 0 7px;
+  }
+
+  /* -------- ICON BOX inside BUY/SELL buttons -------- */
+  /* مربع فارغ داخل كل زر يعرض أيقونة UP/DOWN — تم توسيطها أفقياً وعمودياً
+     في منتصف فراغ البطاقة (بدل التصاقها بالحافة اليسرى)، بناءً على طلب التعديل.
+     لا تؤثر على أي وظيفة أخرى للزر (pointer-events:none). */
+  .btn .icoBox{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:38px;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:transparent;
+    pointer-events:none;
+  }
+  .btn .icoBox img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    filter:drop-shadow(0 0 6px rgba(0,0,0,0.35));
+  }
+  /* النصوص تبقى عند حافة الزر الطبيعية الآن بعد تحرير المساحة اليسرى للأيقونة المُوسَّطة */
+  .btn b, .btn i{
+    margin-left:0;
+  }
+
+  /* -------- SCREEN-EDGE VERTICAL BARS (green right / red left) --------
+     تمتد بدقة من الحافة العلوية لشريط الأدوات/الفريمات (.bar) في الأعلى
+     حتى الحافة السفلية لبطاقة أزرار البيع/الشراء (.acts) في الأسفل —
+     لا تتخطى شريط الفريمات للأعلى مطلقاً، حتى بعد تغيّر حجم/حالة الشارت.
+     top/bottom الفعليان يُضبطان ديناميكياً عبر JS (initEdgeBars). */
+  .edgeBar{
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:3px;
+    pointer-events:none;
+    z-index:8;
+  }
+  .edgeBar.rightGreen{
+    right:0;
+    background:linear-gradient(to bottom, rgba(33,201,101,0) 0%, #21c965 25%, #21c965 100%);
+    box-shadow:0 0 8px rgba(33,201,101,0.55);
+  }
+  .edgeBar.leftRed{
+    left:0;
+    background:linear-gradient(to bottom, rgba(255,79,79,0) 0%, #ff4f4f 25%, #ff4f4f 100%);
+    box-shadow:0 0 8px rgba(255,79,79,0.55);
+  }
+
+  /* -------- BOTTOM NAV -------- */
+  .nav{
+    background:var(--u);
+    direction:ltr;
+    border-top:1px solid #111b31;
+    flex:none;
+    height:54px;
+    display:flex;
+  }
+  .ni{
+    /* اللون الافتراضي مطابق لِلوحة الموقع (نصوص ثانوية ~ #8a99b8) */
+    color:#8a99b8;
+    cursor:pointer;
+    flex-direction:column;
+    flex:1;
+    justify-content:center;
+    align-items:center;
+    gap:3px;
+    display:flex;
+    position:relative;
+    transition:color .15s ease;
+  }
+  .ni img,
+  .ni svg{
+    object-fit:contain;
+    opacity:.9;
+    width:20px;
+    height:20px;
+    display:block;
+    transition:opacity .15s ease, filter .15s ease, transform .15s ease, color .15s ease;
+  }
+  .ni img{
+    /* تلوين الأيقونات في الحالة الافتراضية لتطابق لون الموقع (#8a99b8) */
+    filter:brightness(0) saturate(100%) invert(69%) sepia(11%) saturate(452%) hue-rotate(182deg) brightness(92%) contrast(87%);
+  }
+  .ni span{
+    font-size:10px;
+    color:#8a99b8;
+    transition:color .15s ease;
+  }
+  .profileGlyph{
+    color:#8a99b8;
+  }
+  .profileGlyph circle,
+  .profileGlyph path{
+    stroke:currentColor;
+  }
+  .ni.a .profileGlyph{
+    color:#f1ad24;
+  }
+
+  /* حالة نشطة: لون أصفر للأيقونة والنص + خيط أصفر أسفل الأيقونة */
+  .ni.a{ color:#f1ad24; }
+  .ni.a span{ color:#f1ad24; }
+  .ni.a img,
+  .ni.a svg{
+    opacity:1;
+  }
+  .ni.a img{
+    /* تلوين الأيقونة (PNG) بلون أصفر عبر فلتر ملوّن */
+    filter:brightness(0) saturate(100%) invert(72%) sepia(58%) saturate(650%) hue-rotate(360deg) brightness(101%) contrast(93%);
+  }
+  /* الخيط الأصفر يظهر من أسفل الأيقونة (بدلاً من الأعلى) */
+  .ni.a:before{
+    content:"";
+    background:#f1ad24;
+    height:3px;
+    border-radius:2px 2px 0 0;
+    position:absolute;
+    bottom:0;
+    top:auto;
+    left:14%;
+    right:14%;
+    box-shadow:0 0 6px rgba(241,173,36,0.55);
+  }
+
+  /* ============================================================
+     UPLOAD / LOADING OVERLAY - KEPT FROM ORIGINAL PROJECT
+     (only re-skinned to match reference palette)
+     ============================================================ */
+  .overlay{
+    position:absolute;
+    inset:0;
+    background:rgba(13,23,48,0.95);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    flex-direction:column;
+    gap:20px;
+  }
+  .overlay.hidden{ display:none; }
+  .upload-box{
+    background:var(--u);
+    border:2px dashed var(--bd);
+    border-radius:12px;
+    padding:30px 40px;
+    text-align:center;
+    max-width:460px;
+    transition:all .2s;
+  }
+  .upload-box:hover, .upload-box.drag{
+    border-color:#3e8cff;
+    background:#111a35;
+  }
+  .upload-box h2{
+    font-size:16px;
+    margin-bottom:8px;
+    color:#eef5ff;
+  }
+  .upload-box p{
+    font-size:12px;
+    color:#8a99b8;
+    margin-bottom:16px;
+    line-height:1.6;
+  }
+  .file-input-btn{
+    background:#2796e8;
+    color:#fff;
+    padding:9px 22px;
+    border:none;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+    font-family:inherit;
+  }
+  .file-input-btn:hover{ background:#1e88e5; }
+  .url-input{
+    width:100%;
+    padding:8px 12px;
+    margin-top:10px;
+    background:#0d1730;
+    border:1px solid var(--bd);
+    color:#eef5ff;
+    border-radius:6px;
+    font-size:12px;
+    font-family:inherit;
+  }
+  .divider{
+    color:#5a6883;
+    font-size:11px;
+    margin:12px 0;
+  }
+  .loading-spinner{
+    border:3px solid var(--bd);
+    border-top-color:#3e8cff;
+    border-radius:50%;
+    width:36px;
+    height:36px;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .loading-text{ color:#c7d5ef; font-size:12px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{ width:6px; height:6px; }
+  ::-webkit-scrollbar-track{ background:var(--u); }
+  ::-webkit-scrollbar-thumb{ background:var(--bd); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover{ background:#2a3a5a; }
+
+  /* ============================================================
+     GENERATE PREVIOUS CANDLES — MODAL
+     ============================================================ */
+  .genModal{
+    position:fixed;
+    inset:0;
+    background:rgba(6,12,26,0.72);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    z-index:9999;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
+  .genModal.open{ display:flex; }
+  .genBox{
+    width:100%;
+    max-width:340px;
+    background:#0f1a35;
+    border:1px solid var(--bd);
+    border-radius:14px;
+    padding:16px 14px 14px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    color:#eef5ff;
+    direction:rtl;
+    text-align:right;
+  }
+  .genTitle{
+    font-size:15px;
+    font-weight:800;
+    color:#eef5ff;
+    margin-bottom:2px;
+  }
+  .genSub{
+    font-size:11px;
+    color:#8fa6cf;
+    margin-bottom:12px;
+  }
+  .genRow{
+    margin-bottom:10px;
+  }
+  .genLabel{
+    display:block;
+    font-size:12px;
+    color:#c7d5ef;
+    margin-bottom:6px;
+  }
+  .genInputWrap{
+    display:grid;
+    grid-template-columns:34px 1fr 34px;
+    gap:6px;
+    align-items:stretch;
+  }
+  .genInput{
+    background:#0d1730;
+    border:1px solid var(--bd);
+    border-radius:8px;
+    color:#eef5ff;
+    font-size:15px;
+    font-weight:700;
+    text-align:center;
+    height:36px;
+    outline:none;
+    -moz-appearance:textfield;
+  }
+  .genInput::-webkit-outer-spin-button,
+  .genInput::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  .genInput:focus{ border-color:#2b568c; }
+  .genStep{
+    background:#0d1730;
+    border:1px solid var(--bd);
+    border-radius:8px;
+    color:#c7d5ef;
+    font-size:16px;
+    font-weight:700;
+    height:36px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .genStep:active{ background:#152447; }
+  .genQuick{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:6px 0 14px;
+  }
+  .genChip{
+    flex:1 1 auto;
+    min-width:52px;
+    background:#0d1730;
+    border:1px solid var(--bd);
+    color:#c7d5ef;
+    border-radius:7px;
+    height:28px;
+    font-size:12px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .genChip:active{ background:#152447; color:#56a0ff; border-color:#2b568c; }
+  .genActs{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .genBtn{
+    height:38px;
+    border-radius:9px;
+    font-size:13px;
+    font-weight:800;
+    cursor:pointer;
+    border:1px solid var(--bd);
+  }
+  .genBtn.cancel{
+    background:transparent;
+    color:#c7d5ef;
+  }
+  .genBtn.cancel:active{ background:#0d1730; }
+  .genBtn.go{
+    background:#21c965;
+    color:#0d1730;
+    border-color:#21c965;
+  }
+  .genBtn.go:disabled{
+    opacity:0.55;
+    cursor:not-allowed;
+  }
+  .genMsg{
+    margin-top:10px;
+    font-size:11px;
+    color:#8fa6cf;
+    min-height:14px;
+    text-align:center;
+  }
+  .genMsg.err{ color:#ff7070; }
+  .genMsg.ok { color:#21c965; }
+</style>
+</head>
+<body>
+
+<!-- ============ SPLASH SCREEN (initial load — VERBATIM from ok.html) ============ -->
+<div class="spl" id="spl"><div class="splInner"><svg viewbox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><filter height="200%" id="glow" width="200%" x="-50%" y="-50%"><feGaussianBlur result="blur" stdDeviation="4" /><feFlood flood-color="#8A5CFF" flood-opacity="1" result="color" /><feComposite in="color" in2="blur" operator="in" result="glow" /><feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs><circle stroke-dasharray="70 395" cx="100" cy="100" fill="none" filter="url(#glow)" r="74" stroke="#8A5CFF" stroke-linecap="round" stroke-width="5"><animateTransform from="0 100 100" to="360 100 100" attributeName="transform" dur="2s" repeatCount="indefinite" type="rotate" /></circle><circle stroke-dasharray="70 395" cx="100" cy="100" fill="none" filter="url(#glow)" r="74" stroke="#62F3FF" stroke-dashoffset="198" stroke-linecap="round" stroke-width="5"><animateTransform from="360 100 100" to="0 100 100" attributeName="transform" dur="2s" repeatCount="indefinite" type="rotate" /></circle><polygon points="70,45 130,45 160,100 130,155 70,155 40,100" fill="none" filter="url(#glow)" stroke="#8A5CFF" stroke-width="5"><animate attributeName="stroke-opacity" dur="1.8s" repeatCount="indefinite" values="0.55;1;0.55" /></polygon><rect fill="#62F3FF" height="34" rx="3" width="12" x="76" y="92"><animate attributeName="height" dur="0.7s" repeatCount="indefinite" values="20;42;20" /><animate attributeName="y" dur="0.7s" repeatCount="indefinite" values="106;84;106" /></rect><rect fill="#62F3FF" height="44" rx="3" width="12" x="94" y="82"><animate attributeName="height" begin="0.2s" dur="0.7s" repeatCount="indefinite" values="42;22;42" /><animate attributeName="y" begin="0.2s" dur="0.7s" repeatCount="indefinite" values="84;104;84" /></rect><rect fill="#62F3FF" height="56" rx="3" width="12" x="112" y="70"><animate attributeName="height" begin="0.4s" dur="0.7s" repeatCount="indefinite" values="24;56;24" /><animate attributeName="y" begin="0.4s" dur="0.7s" repeatCount="indefinite" values="102;70;102" /></rect></svg></div><!-- expertoption splash logo pinned to bottom, colored yellow, with progress bar underneath --><div class="splBottom" id="splBottom"><img class="splMarks" src="https://m.expertoption.com/sharedResources/img/eo/splash_marks@2x.png" alt="" /><div class="splProgWrap"><div class="splProgBar"><div class="splProgFill" id="splProgFill"></div></div><div class="splProgText" id="splProgText">0%</div></div></div></div>
+
+<div class="app">
+
+  <!-- ============ SCREEN-EDGE VERTICAL BARS ============
+       شريط أخضر على الحافة اليمنى يمتد حتى بطاقة UP
+       شريط أحمر على الحافة اليسرى يمتد حتى بطاقة DOWN
+       يتم تحديد الارتفاع ديناميكياً في JS ليتوافق مع موقع الأزرار. -->
+  <div class="edgeBar rightGreen" id="edgeBarRight"></div>
+  <div class="edgeBar leftRed"    id="edgeBarLeft"></div>
+
+  <!-- ============ TOP BAR (balance + deposit) — redesigned 1:1 to reference ============ -->
+  <div class="top">
+    <div class="tc">
+      <div class="t1">
+        <div class="lg">
+          <span class="d">D</span>
+          <span class="nm"><span>الخيار</span><b>demo</b></span>
+        </div>
+        <span class="dd">▾</span>
+      </div>
+      <div class="t2">
+        <span id="topBalance">$ 29,960.00</span>
+        <span class="usd">USD</span>
+      </div>
+    </div>
+    <!-- Notifications button — placed IMMEDIATELY to the right of the balance card (as requested).
+         Matches site color scheme (dark navy background, subtle border, gold hover accent).
+         Purely visual/UI; does not affect any existing logic. -->
+    <div class="notifBtn" id="notifBtn" title="الإشعارات" role="button" aria-label="الإشعارات">
+      <img src="https://cdn-icons-png.flaticon.com/128/7687/7687851.png" alt="" />
+    </div>
+    <div class="fxBonus" id="fxBonusBtn">
+      <img src="https://cdn-icons-png.flaticon.com/128/6941/6941697.png" alt="" />
+      <span>احصل على مكافأة 50% علي ايداعك</span>
+    </div>
+    <div class="dep">
+      <img alt="" src="https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_deposit_2x.png" />شحن الرصيد
+    </div>
+  </div>
+
+  <!-- ============ ASSET / PAIR ============ -->
+  <div class="asset">
+    <div class="assetIcon">
+      <img src="https://cdn-icons-png.flaticon.com/128/3303/3303893.png" alt="" />
+    </div>
+    <div class="pair" id="pairBtn">
+      <div class="fg">
+        <em class="c">🇪🇺</em>
+        <em class="j">🇺🇸</em>
+      </div>
+      <div>
+        <small>UP & DOWN</small>
+        <b id="symbolLabel">—</b>
+      </div>
+    </div>
+    <div class="platformTime" id="platformTime">--:--:--</div>
+  </div>
+
+  <!-- ============ CHART ============ -->
+  <div class="chart" id="CH">
+    <div id="chart"></div>
+    <!-- Floating transparent price labels layer -->
+    <div class="price-overlay" id="priceOverlay"></div>
+
+    <!-- Drawing overlay canvas (for trend lines, hlines, vlines, fib, etc.) -->
+    <canvas id="drawCanvas"></canvas>
+
+    <!-- Drawing mode hint bar -->
+    <div class="drawModeHint" id="drawModeHint">
+      <span class="x" id="drawHintCancel">✕</span>
+      ارسم <b id="drawHintTool">خط الاتجاه</b> — <span id="drawHintStep">اضغط للبدء</span>
+    </div>
+
+    <!-- شريط عمودي شفاف في منتصف الشارت بالضبط: يشير لموضع الشمعة النشطة الثابت -->
+    <div class="centerGuide" id="centerGuide"></div>
+
+    <!-- Yellow pulsing dot on top of moving active candle -->
+    <div class="liveDot" id="liveDot"></div>
+
+    <!-- Time / status floating label (hidden by user request - kept for JS compatibility) -->
+    <div class="ptm" style="display:none !important;">
+      <span class="pi">i</span>
+      <div class="ptx">
+        <b id="ptmH">—</b>
+        <small id="statusText">في انتظار البيانات</small>
+      </div>
+      <span class="pg"></span>
+    </div>
+
+    <!-- Zoom debug readout: shows live bar spacing + min/max reached, for calibrating zoom limits later -->
+    <div class="zoomDebug" id="zoomDebug">Zoom: —</div>
+
+    <!-- Role badge (hidden by user request - kept for JS compatibility) -->
+    <div class="roleBadge pending" id="roleBadge" style="display:none !important;">
+      <span class="dot"></span>
+      <span id="roleBadgeText">جاري التحقق...</span>
+    </div>
+
+    <!-- شاشة تحميل سكليتون نظيفة: بدون شموع، بدون نصوص، بدون شعار — فقط شبكة متحركة وشريط تمرير ضوئي. -->
+    <div class="chartSkeleton" id="chartSkeleton">
+      <div class="sk-grid">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="sk-scan"></div>
+    </div>
+    <!-- Loading Overlay (auto-load only, no upload UI) -->
+    <div class="overlay hidden" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">جاري تحميل بيانات الزوج...</div>
+    </div>
+  </div>
+
+  <!-- ============ BAR (tools + timeframes) ============
+       - btnFit (⛶) تمّت إزالته بناءً على طلب المستخدم.
+       - btnChartType: تم استبدال الصورة بأيقونة babaoption الرسمية،
+         وعند الضغط تفتح مودال نوع الرسم البياني (شموع/فارغة/أعمدة/خطي/منطقة)
+         بدون قسم المؤشرات — لأن ctModal لا يحتوي على مؤشرات أصلاً. -->
+  <div class="bar">
+    <div class="tool" id="btnReload" title="تحميل CSV">↻</div>
+    <div class="tool" id="btnGenPrev" title="توليد شموع سابقة">＋</div>
+    <div class="tool ctBtn" id="btnChartType" title="نوع الرسم البياني"><img src="https://www.babaoption.com/mwebterminal/mobile-assets/images/icon_chart_type.png" alt="chart type" /></div>
+    <div class="tfs" id="tfButtons">
+      <div class="tfb on" data-tf="1m">1m</div>
+      <div class="tfb" data-tf="5m">5m</div>
+      <div class="tfb" data-tf="15m">15m</div>
+      <div class="tfb" data-tf="1h">1H</div>
+    </div>
+    <div class="inf" id="btnLive" title="Live">●</div>
+  </div>
+
+  <!-- ============ CTRL (time / amount rows) ============ -->
+  <div class="ctrl">
+    <div class="rw">
+      <div class="bx3" id="tmM">-</div>
+      <div class="bx cp" id="tOpen">
+        <div class="mid" id="tVal">00:01:00</div>
+      </div>
+      <div class="bx3" id="tmP">+</div>
+    </div>
+    <div class="rw2">
+      <div class="bx cp" id="aOpen">
+        <div class="bx3" id="amM">-</div>
+        <div class="val" id="aVal">$ 23</div>
+        <div class="bx3" id="amP">+</div>
+      </div>
+      <div class="bx">
+        <div class="bx3">-</div>
+        <div class="val" id="livePrice">0.00000</div>
+        <div class="bx3">+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ACTS (BUY / SELL buttons) ============ -->
+  <div class="acts">
+    <button class="btn up" id="btnBuy">
+      <span class="icoBox"><img src="https://i.ibb.co/Lhg3BSqL/IMG.png" alt="UP" /></span>
+      <b>UP</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p1">$ 21.39</small>
+    </button>
+    <button class="btn dn" id="btnSell">
+      <span class="icoBox"><img src="https://i.ibb.co/211vdkBD/IMG.png" alt="DOWN" /></span>
+      <b>DOWN</b>
+      <div class="rt">93%</div>
+      <i>الربح</i>
+      <small id="p2">$ 21.39</small>
+    </button>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="nav">
+    <div class="ni a">
+      <img src="https://i.ibb.co/Rpz3mRPf/69.png" alt="" />
+      <span>الرسم البياني</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/PsZW7C4x/68.png" alt="" />
+      <span>ترتيب</span>
+    </div>
+    <div class="ni">
+      <img src="https://i.ibb.co/m5hRKGpS/67.png" alt="" />
+      <span>السجل</span>
+      <span id="statsText" style="display:none"></span>
+    </div>
+    <div class="ni">
+      <svg class="profileGlyph" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8.2" r="3.2"></circle>
+        <path d="M5.5 19c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"></path>
+      </svg>
+      <span>الملف</span>
+    </div>
+  </div>
+
+  <!-- Hidden helper: close-all positions button (kept from original for functionality) -->
+  <button id="btnCloseAll" style="display:none"></button>
+  <div id="positionsList" style="display:none"></div>
+
+  <!-- ============ CHART TYPE / COLOR SETTINGS MODAL ============ -->
+  <div class="ctModal" id="ctModal">
+    <div class="ctBox" role="dialog" aria-label="نوع الرسم البياني">
+      <div class="ctHead">
+        <div class="ctTitle">نوع الرسم البياني</div>
+        <div class="ctClose" id="ctClose">✕</div>
+      </div>
+
+      <div class="ctSection">
+        <div class="ctTypes" id="ctTypes">
+          <div class="ctType" data-type="area" title="منطقة">
+            <svg viewBox="0 0 60 40" fill="none">
+              <path d="M2 30 L12 22 L20 26 L28 14 L38 20 L48 10 L58 16 L58 38 L2 38 Z" fill="rgba(94,214,208,0.28)" stroke="#5ed6d0" stroke-width="1.6"/>
+            </svg>
+          </div>
+          <div class="ctType" data-type="line" title="خطي">
+            <svg viewBox="0 0 60 40" fill="none">
+              <path d="M2 30 L12 22 L20 26 L28 14 L38 20 L48 10 L58 16" stroke="#5ed6d0" stroke-width="1.8" fill="none"/>
+            </svg>
+          </div>
+          <div class="ctType on" data-type="candles" title="شموع">
+            <svg viewBox="0 0 60 40">
+              <line x1="8"  y1="6"  x2="8"  y2="34" stroke="#ef5350" stroke-width="1"/>
+              <rect x="5"  y="14" width="6" height="14" fill="#ef5350"/>
+              <line x1="20" y1="10" x2="20" y2="30" stroke="#ef5350" stroke-width="1"/>
+              <rect x="17" y="12" width="6" height="10" fill="#ef5350"/>
+              <line x1="32" y1="4"  x2="32" y2="32" stroke="#26a69a" stroke-width="1"/>
+              <rect x="29" y="8"  width="6" height="18" fill="#26a69a"/>
+              <line x1="44" y1="8"  x2="44" y2="30" stroke="#26a69a" stroke-width="1"/>
+              <rect x="41" y="12" width="6" height="14" fill="#26a69a"/>
+              <line x1="55" y1="6"  x2="55" y2="30" stroke="#ef5350" stroke-width="1"/>
+              <rect x="52" y="10" width="6" height="12" fill="#ef5350"/>
+            </svg>
+          </div>
+          <div class="ctType" data-type="hollow" title="شموع فارغة">
+            <svg viewBox="0 0 60 40">
+              <line x1="8"  y1="6"  x2="8"  y2="34" stroke="#ef5350" stroke-width="1"/>
+              <rect x="5"  y="14" width="6" height="14" fill="none" stroke="#ef5350" stroke-width="1.4"/>
+              <line x1="20" y1="10" x2="20" y2="30" stroke="#ef5350" stroke-width="1"/>
+              <rect x="17" y="12" width="6" height="10" fill="none" stroke="#ef5350" stroke-width="1.4"/>
+              <line x1="32" y1="4"  x2="32" y2="32" stroke="#26a69a" stroke-width="1"/>
+              <rect x="29" y="8"  width="6" height="18" fill="#26a69a"/>
+              <line x1="44" y1="8"  x2="44" y2="30" stroke="#26a69a" stroke-width="1"/>
+              <rect x="41" y="12" width="6" height="14" fill="none" stroke="#26a69a" stroke-width="1.4"/>
+              <line x1="55" y1="6"  x2="55" y2="30" stroke="#ef5350" stroke-width="1"/>
+              <rect x="52" y="10" width="6" height="12" fill="none" stroke="#ef5350" stroke-width="1.4"/>
+            </svg>
+          </div>
+          <div class="ctType" data-type="bars" title="أعمدة">
+            <svg viewBox="0 0 60 40">
+              <g stroke="#26a69a" stroke-width="1.6">
+                <line x1="6"  y1="8"  x2="6"  y2="32"/>
+                <line x1="3"  y1="14" x2="6"  y2="14"/>
+                <line x1="6"  y1="24" x2="9"  y2="24"/>
+              </g>
+              <g stroke="#ef5350" stroke-width="1.6">
+                <line x1="18" y1="12" x2="18" y2="30"/>
+                <line x1="15" y1="16" x2="18" y2="16"/>
+                <line x1="18" y1="26" x2="21" y2="26"/>
+              </g>
+              <g stroke="#26a69a" stroke-width="1.6">
+                <line x1="30" y1="6"  x2="30" y2="28"/>
+                <line x1="27" y1="10" x2="30" y2="10"/>
+                <line x1="30" y1="22" x2="33" y2="22"/>
+              </g>
+              <g stroke="#ef5350" stroke-width="1.6">
+                <line x1="42" y1="10" x2="42" y2="34"/>
+                <line x1="39" y1="14" x2="42" y2="14"/>
+                <line x1="42" y1="28" x2="45" y2="28"/>
+              </g>
+              <g stroke="#26a69a" stroke-width="1.6">
+                <line x1="54" y1="8"  x2="54" y2="30"/>
+                <line x1="51" y1="12" x2="54" y2="12"/>
+                <line x1="54" y1="24" x2="57" y2="24"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctSection">
+        <div class="ctLabel">لون الرسم البياني</div>
+        <div class="ctColors" id="ctColorsUp" data-role="up">
+          <div class="ctColor" data-color="#ffffff" style="background:#ffffff"></div>
+          <div class="ctColor" data-color="#ef5350" style="background:#ef5350"></div>
+          <div class="ctColor" data-color="#f1ad24" style="background:#f1ad24"></div>
+          <div class="ctColor on" data-color="#f5e719" style="background:#f5e719"></div>
+          <div class="ctColor" data-color="#8bd12a" style="background:#8bd12a"></div>
+          <div class="ctColor" data-color="#2eb8ff" style="background:#2eb8ff"></div>
+          <div class="ctColor" data-color="#173a8a" style="background:#173a8a"></div>
+        </div>
+        <div class="ctColors" id="ctColorsDown" data-role="down">
+          <div class="ctColor" data-color="#ffffff" style="background:#ffffff"></div>
+          <div class="ctColor on" data-color="#ef5350" style="background:#ef5350"></div>
+          <div class="ctColor" data-color="#f1ad24" style="background:#f1ad24"></div>
+          <div class="ctColor" data-color="#f5e719" style="background:#f5e719"></div>
+          <div class="ctColor" data-color="#8bd12a" style="background:#8bd12a"></div>
+          <div class="ctColor" data-color="#2eb8ff" style="background:#2eb8ff"></div>
+          <div class="ctColor" data-color="#173a8a" style="background:#173a8a"></div>
+        </div>
+      </div>
+
+      <div class="ctToggleRow">
+        <span>خط السعر الحالي بكامل العرض</span>
+        <div class="ctSwitch on" id="ctSwFullLine" data-key="fullLine"></div>
+      </div>
+      <div class="ctToggleRow">
+        <span>التكبير المركز</span>
+        <div class="ctSwitch on" id="ctSwCenterZoom" data-key="centerZoom"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DRAWING TOOLS MODAL (أدوات الرسم) ============ -->
+  <div class="dtModal" id="dtModal">
+    <div class="dtBox" role="dialog" aria-label="أدوات الرسم">
+      <div class="dtHead">
+        <div class="dtTitle">أدوات الرسم</div>
+        <div class="dtClose" id="dtClose">✕</div>
+      </div>
+
+      <!-- Drawing tools grid (Trend Line, Horizontal, Vertical, Fibonacci, etc.) -->
+      <div class="dtToolsGrid">
+        <div class="dtTool" data-tool="trend" title="خط الاتجاه">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#dbe3f3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="20" x2="20" y2="4"/>
+            <circle cx="4" cy="20" r="1.6" fill="#dbe3f3"/>
+            <circle cx="20" cy="4" r="1.6" fill="#dbe3f3"/>
+          </svg>
+          <span>خط الاتجاه</span>
+        </div>
+        <div class="dtTool" data-tool="hline" title="خط أفقي">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#dbe3f3" stroke-width="1.8" stroke-linecap="round">
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <circle cx="12" cy="12" r="1.6" fill="#dbe3f3"/>
+          </svg>
+          <span>خط أفقي</span>
+        </div>
+        <div class="dtTool" data-tool="vline" title="خط رأسي">
+          
