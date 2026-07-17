@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 لوحة التحكم الشاملة - EAPQLO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a0f;
+            color: #eee;
+            padding: 15px;
+            direction: rtl;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: #12121a;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #2a2a35;
+            overflow-x: auto;
+        }
+        h1 {
+            color: #f5c518;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .sub {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a2a35;
+            padding-bottom: 12px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: #1a1a26;
+            border: 1px solid #2a2a35;
+            border-radius: 14px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 24px;
+            color: #f5c518;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .refresh-btn {
+            background: #f5c518;
+            color: #000;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 10px 0;
+        }
+        .refresh-btn:hover {
+            background: #d4a80f;
+            transform: scale(1.02);
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a2a35;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: 1px solid #2a2a35;
+            color: #aaa;
+            padding: 8px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #f5c518;
+            color: #000;
+            border-color: #f5c518;
+        }
+        .tab-btn:hover {
+            background: #2a2a35;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 800px;
+        }
+        th {
+            background: #1f1f2e;
+            color: #f5c518;
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 2px solid #f5c518;
+            white-space: nowrap;
+        }
+        td {
+            padding: 8px 8px;
+            border-bottom: 1px solid #2a2a35;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+        tr:hover {
+            background: #1a1a26;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .badge-gold { background: #f5c51820; color: #f5c518; border: 1px solid #f5c51840; }
+        .badge-green { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; }
+        .badge-red { background: #ef444420; color: #ef4444; border: 1px solid #ef444440; }
+        .badge-blue { background: #3b82f620; color: #3b82f6; border: 1px solid #3b82f640; }
+        .badge-yellow { background: #eab30820; color: #eab308; border: 1px solid #eab30840; }
+        .action-btn {
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            padding: 3px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            margin: 2px;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background: #3b82f620; }
+        .action-btn.danger { border-color: #ef4444; color: #ef4444; }
+        .action-btn.danger:hover { background: #ef444420; }
+        .action-btn.gold { border-color: #f5c518; color: #f5c518; }
+        .action-btn.gold:hover { background: #f5c51820; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 15px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #1a1a26;
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid #2a2a35;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+        .modal-content h2 { color: #f5c518; margin-bottom: 12px; font-size: 20px; }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0a0a0f;
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .modal-content input:focus, .modal-content select:focus { border-color: #f5c518; }
+        .modal-content .gold-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f5c518;
+            color: #000;
+            font-weight: 900;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .modal-content .gold-btn:hover { background: #d4a80f; }
+        .modal-content .close-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-content .close-btn:hover { color: #fff; }
+        .loading { text-align: center; padding: 30px; color: #888; }
+        .error { color: #ef4444; background: #1a0a0a; padding: 15px; border-radius: 12px; border: 1px solid #ef444440; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .pass-text { direction: ltr; font-family: monospace; font-size: 12px; color: #f5c518; }
+        .tx-type.deposit { color: #22c55e; }
+        .tx-type.withdraw { color: #ef4444; }
+        .tx-status.pending { color: #eab308; }
+        .tx-status.approved { color: #22c55e; }
+        .tx-status.rejected { color: #ef4444; }
+        .msg-bubble {
+            background: #0a0a0f;
+            border: 1px solid #2a2a35;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+        .msg-bubble .sender { font-weight: 800; color: #f5c518; font-size: 12px; }
+        .msg-bubble .msg-time { font-size: 10px; color: #888; margin-right: 10px; }
+        .msg-bubble .msg-text { font-size: 13px; margin-top: 4px; }
+        @media (max-width: 700px) {
+            .container { padding: 10px; }
+            table { font-size: 10px; min-width: 600px; }
+            th, td { padding: 5px 4px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="flex-between">
+        <h1>👑 لوحة التحكم الشاملة</h1>
+        <button class="refresh-btn" onclick="fetchAllData()">🔄 تحديث الكل</button>
+    </div>
+    <div class="sub">إدارة المستخدمين، العمليات، الإشارات، والدعم الفني</div>
+
+    <!-- الإحصائيات -->
+    <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><h3 id="stat-users">0</h3><p>👥 المستخدمين</p></div>
+        <div class="stat-card"><h3 id="stat-balance">0.00</h3><p>💰 إجمالي الرصيد</p></div>
+        <div class="stat-card"><h3 id="stat-deposits">0</h3><p>📥 الإيداعات</p></div>
+        <div class="stat-card"><h3 id="stat-withdraws">0</h3><p>📤 السحوبات</p></div>
+        <div class="stat-card"><h3 id="stat-signals">0</h3><p>📡 الإشارات</p></div>
+        <div class="stat-card"><h3 id="stat-messages">0</h3><p>💬 رسائل الدعم</p></div>
+    </div>
+
+    <!-- التبويبات -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="users">👥 المستخدمين</button>
+        <button class="tab-btn" data-tab="transactions">💳 العمليات</button>
+        <button class="tab-btn" data-tab="signals">📡 الإشارات</button>
+        <button class="tab-btn" data-tab="support">💬 الدعم الفني</button>
+    </div>
+
+    <!-- ===== تبويب المستخدمين ===== -->
+    <div id="tab-users" class="tab-content active">
+        <div id="users-table-container"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <!-- ===== تبويب العمليات ===== -->
+    <div id="tab-transactions" class="tab-content">
+        <div id="transactions-table-container"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <!-- ===== تبويب الإشارات ===== -->
+    <div id="tab-signals" class="tab-content">
+        <div style="margin-bottom:15px;">
+            <button class="action-btn gold" onclick="openAddSignalModal()">➕ إضافة إشارة جديدة</button>
+        </div>
+        <div id="signals-table-container"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+
+    <!-- ===== تبويب الدعم الفني ===== -->
+    <div id="tab-support" class="tab-content">
+        <div id="support-messages-container"><div class="loading">⏳ جاري التحميل...</div></div>
+    </div>
+</div>
+
+<!-- ===== نافذة تعديل كلمة المرور ===== -->
+<div class="modal" id="edit-pass-modal">
+    <div class="modal-content">
+        <h2>🔑 تعديل كلمة المرور</h2>
+        <p style="color:#888; font-size:13px; margin-bottom:10px;">المستخدم: <span id="edit-user-email" style="color:#f5c518;"></span></p>
+        <input type="text" id="edit-pass-input" placeholder="كلمة المرور الجديدة" dir="ltr">
+        <button class="gold-btn" onclick="savePassword()">💾 حفظ</button>
+        <button class="close-btn" onclick="closeModal('edit-pass-modal')">إلغاء</button>
+    </div>
+</div>
+
+<!-- ===== نافذة إضافة/تعديل إشارة ===== -->
+<div class="modal" id="signal-modal">
+    <div class="modal-content">
+        <h2 id="signal-modal-title">➕ إشارة جديدة</h2>
+        <input type="text" id="signal-pair" placeholder="الزوج (مثل BTC/USDT)">
+        <select id="signal-type">
+            <option value="BUY">شراء (BUY)</option>
+            <option value="SELL">بيع (SELL)</option>
+        </select>
+        <input type="number" id="signal-profit" placeholder="الربح المتوقع (%)" step="0.1">
+        <input type="number" id="signal-balance" placeholder="الرصيد المطلوب ($)" step="1">
+        <input type="number" id="signal-level" placeholder="المستوى المطلوب" step="1">
+        <input type="datetime-local" id="signal-endtime">
+        <button class="gold-btn" onclick="saveSignal()">💾 حفظ</button>
+        <button class="close-btn" onclick="closeModal('signal-modal')">إلغاء</button>
+    </div>
+</div>
+
+<script>
+    // ==================== بيانات Supabase ====================
+    const SUPABASE_URL = 'https://kxdgowkgprvygsntqyrd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4ZGdvd2tncHJ2eWdzbnRxeXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY5MzYsImV4cCI6MjA5OTUwMjkzNn0._hmiFAW9TWWtH8hLdwUVBJkYK71V_DpAXMExpD2jzFw';
+
+    let currentEditEmail = null;
+    let currentEditSignalId = null;
+
+    // ==================== دوال مساعدة ====================
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+
+    function showAlert(msg) {
+        alert(msg);
+    }
+
+    // ==================== جلب جميع البيانات ====================
+    async function fetchAllData() {
+        await Promise.all([
+            fetchUsers(),
+            fetchTransactions(),
+            fetchSignals(),
+            fetchSupportMessages(),
+            fetchStats()
+        ]);
+    }
+
+    // ==================== الإحصائيات ====================
+    async function fetchStats() {
+        try {
+            const [usersRes, txsRes, signalsRes, msgsRes] = await Promise.all([
+                fetch(`${SUPABASE_URL}/rest/v1/profiles?select=*`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
+                fetch(`${SUPABASE_URL}/rest/v1/transactions?select=*`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
+                fetch(`${SUPABASE_URL}/rest/v1/signals?select=*`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }),
+                fetch(`${SUPABASE_URL}/rest/v1/support_messages?select=*`, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } })
+            ]);
+
+            const users = await usersRes.json();
+            const txs = await txsRes.json();
+            const signals = await signalsRes.json();
+            const msgs = await msgsRes.json();
+
+            const totalBalance = users.reduce((sum, u) => sum + (parseFloat(u.wallet_balance) || 0), 0);
+            const deposits = txs.filter(t => t.type === 'deposit' || t.type === 'deposit_approve');
+            const withdraws = txs.filter(t => t.type === 'withdraw' || t.type === 'withdraw_profit');
+
+            document.getElementById('stat-users').innerText = users.length;
+            document.getElementById('stat-balance').innerText = totalBalance.toFixed(2);
+            document.getElementById('stat-deposits').innerText = deposits.length;
+            document.getElementById('stat-withdraws').innerText = withdraws.length;
+            document.getElementById('stat-signals').innerText = signals.length;
+            document.getElementById('stat-messages').innerText = msgs.length;
+        } catch(e) { console.error(e); }
+    }
+
+    // ==================== تبويب المستخدمين ====================
+    async function fetchUsers() {
+        const container = document.getElementById('users-table-container');
+        container.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const users = await response.json();
+
+            if (!users || users.length === 0) {
+                container.innerHTML = `<div class="loading">📭 لا يوجد مستخدمون</div>`;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>UID</th>
+                            <th>اسم المستخدم</th>
+                            <th>البريد</th>
+                            <th>🔑 كلمة المرور</th>
+                            <th>الرصيد ($)</th>
+                            <th>KYC</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach((u, i) => {
+                const kycBadge = u.kyc_status === 'verified'
+                    ? `<span class="badge badge-green">✅ موثق</span>`
+                    : u.kyc_status === 'pending'
+                    ? `<span class="badge badge-blue">⏳ قيد المراجعة</span>`
+                    : `<span class="badge badge-red">❌ غير موثق</span>`;
+
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><span class="badge badge-gold">${u.user_uid || '—'}</span></td>
+                        <td><strong>${u.username || '—'}</strong></td>
+                        <td style="direction:ltr;font-size:11px;">${u.email || '—'}</td>
+                        <td class="pass-text">${u.password || '—'}</td>
+                        <td style="direction:ltr;font-weight:700;color:#f5c518;">${(parseFloat(u.wallet_balance) || 0).toFixed(2)}</td>
+                        <td>${kycBadge}</td>
+                        <td>
+                            <button class="action-btn gold" onclick="openEditPassModal('${u.email}')">✏️ تعديل</button>
+                            <button class="action-btn danger" onclick="deleteUser('${u.email}')">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML = `<div class="error">❌ فشل التحميل: ${e.message}</div>`;
+        }
+    }
+
+    // ==================== تعديل كلمة المرور ====================
+    function openEditPassModal(email) {
+        currentEditEmail = email;
+        document.getElementById('edit-user-email').innerText = email;
+        document.getElementById('edit-pass-input').value = '';
+        document.getElementById('edit-pass-modal').classList.add('active');
+    }
+
+    async function savePassword() {
+        const newPass = document.getElementById('edit-pass-input').value.trim();
+        if (!newPass || newPass.length < 4) {
+            alert('كلمة المرور 4 أحرف على الأقل.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(currentEditEmail)}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: newPass })
+            });
+
+            if (response.ok) {
+                alert('✅ تم التغيير بنجاح!');
+                closeModal('edit-pass-modal');
+                fetchUsers();
+            } else {
+                alert('❌ فشل التغيير: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== حذف مستخدم ====================
+    async function deleteUser(email) {
+        if (!confirm(`⚠️ حذف المستخدم (${email}) نهائياً؟`)) return;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+
+            if (response.ok) {
+                alert('✅ تم الحذف!');
+                fetchUsers();
+                fetchStats();
+            } else {
+                alert('❌ فشل الحذف: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== تبويب العمليات ====================
+    async function fetchTransactions() {
+        const container = document.getElementById('transactions-table-container');
+        container.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const txs = await response.json();
+
+            if (!txs || txs.length === 0) {
+                container.innerHTML = `<div class="loading">📭 لا توجد عمليات</div>`;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المستخدم</th>
+                            <th>النوع</th>
+                            <th>المبلغ ($)</th>
+                            <th>الصافي ($)</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            txs.forEach((tx, i) => {
+                const typeClass = tx.type === 'deposit' || tx.type === 'deposit_approve' ? 'deposit' : 'withdraw';
+                const typeLabel = tx.type === 'deposit' ? '💰 إيداع' :
+                                  tx.type === 'deposit_approve' ? '✅ إيداع معتمد' :
+                                  tx.type === 'withdraw' ? '💸 سحب أساسي' :
+                                  tx.type === 'withdraw_profit' ? '💸 سحب أرباح' :
+                                  tx.type === 'trade' ? '📈 تداول' :
+                                  tx.type === 'wheel' ? '🎡 عجلة' :
+                                  tx.type === 'wheel_cost' ? '🔴 تكلفة عجلة' :
+                                  tx.type === 'reward' ? '🎁 مكافأة' : tx.type;
+
+                const statusClass = tx.status === 'pending' ? 'pending' :
+                                    tx.status === 'approved' ? 'approved' : 'rejected';
+                const statusLabel = tx.status === 'pending' ? '⏳ قيد الانتظار' :
+                                    tx.status === 'approved' ? '✅ تمت الموافقة' : '❌ مرفوض';
+
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${tx.username || '—'}</td>
+                        <td><span class="tx-type ${typeClass}">${typeLabel}</span></td>
+                        <td style="direction:ltr;">${(parseFloat(tx.amount) || 0).toFixed(2)}</td>
+                        <td style="direction:ltr;">${(parseFloat(tx.net_amount) || parseFloat(tx.amount) || 0).toFixed(2)}</td>
+                        <td><span class="tx-status ${statusClass}">${statusLabel}</span></td>
+                        <td style="font-size:10px;">${tx.created_at ? new Date(tx.created_at).toLocaleString('ar-EG') : '—'}</td>
+                        <td>
+                            <button class="action-btn" onclick="updateTxStatus('${tx.id}', 'approved')">✅ موافقة</button>
+                            <button class="action-btn danger" onclick="updateTxStatus('${tx.id}', 'rejected')">❌ رفض</button>
+                            <button class="action-btn danger" onclick="deleteTx('${tx.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML = `<div class="error">❌ فشل التحميل: ${e.message}</div>`;
+        }
+    }
+
+    // ==================== تحديث حالة العملية ====================
+    async function updateTxStatus(txId, status) {
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions?id=eq.${txId}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: status })
+            });
+
+            if (response.ok) {
+                alert('✅ تم التحديث!');
+                fetchTransactions();
+                fetchStats();
+            } else {
+                alert('❌ فشل التحديث: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== حذف عملية ====================
+    async function deleteTx(txId) {
+        if (!confirm('⚠️ حذف العملية نهائياً؟')) return;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions?id=eq.${txId}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+
+            if (response.ok) {
+                alert('✅ تم الحذف!');
+                fetchTransactions();
+                fetchStats();
+            } else {
+                alert('❌ فشل الحذف: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== تبويب الإشارات ====================
+    async function fetchSignals() {
+        const container = document.getElementById('signals-table-container');
+        container.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/signals?select=*`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const signals = await response.json();
+
+            if (!signals || signals.length === 0) {
+                container.innerHTML = `<div class="loading">📭 لا توجد إشارات</div>`;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الزوج</th>
+                            <th>النوع</th>
+                            <th>الربح (%)</th>
+                            <th>الرصيد المطلوب</th>
+                            <th>المستوى</th>
+                            <th>الحالة</th>
+                            <th>ينتهي</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            signals.forEach((sig, i) => {
+                const statusBadge = sig.status === 'active'
+                    ? `<span class="badge badge-green">✅ نشط</span>`
+                    : `<span class="badge badge-red">❌ غير نشط</span>`;
+
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td style="direction:ltr;">${sig.pair || '—'}</td>
+                        <td><span class="badge ${sig.type === 'BUY' ? 'badge-green' : 'badge-red'}">${sig.type === 'BUY' ? '🟢 شراء' : '🔴 بيع'}</span></td>
+                        <td>${sig.expected_profit || 0}%</td>
+                        <td>$${parseFloat(sig.target_balance || 0).toFixed(0)}</td>
+                        <td>${sig.target_level || 1}</td>
+                        <td>${statusBadge}</td>
+                        <td style="font-size:10px;">${sig.end_time ? new Date(sig.end_time).toLocaleString('ar-EG') : '—'}</td>
+                        <td>
+                            <button class="action-btn gold" onclick="editSignal('${sig.id}')">✏️</button>
+                            <button class="action-btn" onclick="toggleSignalStatus('${sig.id}', '${sig.status}')">🔄</button>
+                            <button class="action-btn danger" onclick="deleteSignal('${sig.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML = `<div class="error">❌ فشل التحميل: ${e.message}</div>`;
+        }
+    }
+
+    // ==================== إضافة إشارة جديدة ====================
+    function openAddSignalModal() {
+        currentEditSignalId = null;
+        document.getElementById('signal-modal-title').innerText = '➕ إشارة جديدة';
+        document.getElementById('signal-pair').value = '';
+        document.getElementById('signal-type').value = 'BUY';
+        document.getElementById('signal-profit').value = '';
+        document.getElementById('signal-balance').value = '';
+        document.getElementById('signal-level').value = '';
+        document.getElementById('signal-endtime').value = '';
+        document.getElementById('signal-modal').classList.add('active');
+    }
+
+    function editSignal(id) {
+        currentEditSignalId = id;
+        document.getElementById('signal-modal-title').innerText = '✏️ تعديل إشارة';
+        // جلب البيانات الحالية
+        fetch(`${SUPABASE_URL}/rest/v1/signals?id=eq.${id}`, {
+            headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const sig = data[0];
+            if (sig) {
+                document.getElementById('signal-pair').value = sig.pair || '';
+                document.getElementById('signal-type').value = sig.type || 'BUY';
+                document.getElementById('signal-profit').value = sig.expected_profit || '';
+                document.getElementById('signal-balance').value = sig.target_balance || '';
+                document.getElementById('signal-level').value = sig.target_level || '';
+                if (sig.end_time) {
+                    const dt = new Date(sig.end_time);
+                    document.getElementById('signal-endtime').value = dt.toISOString().slice(0, 16);
+                }
+                document.getElementById('signal-modal').classList.add('active');
+            }
+        })
+        .catch(err => alert('❌ خطأ: ' + err.message));
+    }
+
+    async function saveSignal() {
+        const pair = document.getElementById('signal-pair').value.trim();
+        const type = document.getElementById('signal-type').value;
+        const profit = parseFloat(document.getElementById('signal-profit').value);
+        const balance = parseFloat(document.getElementById('signal-balance').value) || 0;
+        const level = parseInt(document.getElementById('signal-level').value) || 1;
+        const endTime = document.getElementById('signal-endtime').value;
+
+        if (!pair || !profit) {
+            alert('الرجاء تعبئة الزوج والربح المتوقع.');
+            return;
+        }
+
+        const data = {
+            pair: pair,
+            type: type,
+            expected_profit: profit,
+            target_balance: balance,
+            target_level: level,
+            status: 'active',
+            end_time: endTime ? new Date(endTime).toISOString() : null
+        };
+
+        try {
+            let response;
+            if (currentEditSignalId) {
+                response = await fetch(`${SUPABASE_URL}/rest/v1/signals?id=eq.${currentEditSignalId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+            } else {
+                response = await fetch(`${SUPABASE_URL}/rest/v1/signals`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+            }
+
+            if (response.ok) {
+                alert('✅ تم الحفظ بنجاح!');
+                closeModal('signal-modal');
+                fetchSignals();
+                fetchStats();
+            } else {
+                alert('❌ فشل الحفظ: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== تبديل حالة الإشارة ====================
+    async function toggleSignalStatus(id, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/signals?id=eq.${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (response.ok) {
+                alert('✅ تم التحديث!');
+                fetchSignals();
+            } else {
+                alert('❌ فشل التحديث: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== حذف إشارة ====================
+    async function deleteSignal(id) {
+        if (!confirm('⚠️ حذف الإشارة نهائياً؟')) return;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/signals?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+
+            if (response.ok) {
+                alert('✅ تم الحذف!');
+                fetchSignals();
+                fetchStats();
+            } else {
+                alert('❌ فشل الحذف: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== تبويب الدعم الفني ====================
+    async function fetchSupportMessages() {
+        const container = document.getElementById('support-messages-container');
+        container.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/support_messages?select=*&order=created_at.desc`, {
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+            const msgs = await response.json();
+
+            if (!msgs || msgs.length === 0) {
+                container.innerHTML = `<div class="loading">📭 لا توجد رسائل</div>`;
+                return;
+            }
+
+            let html = '';
+            msgs.forEach(msg => {
+                const roleLabel = msg.sender_role === 'admin' ? '🛡️ إداري' : '👤 مستخدم';
+                const roleColor = msg.sender_role === 'admin' ? '#f5c518' : '#3b82f6';
+                html += `
+                    <div class="msg-bubble">
+                        <div>
+                            <span class="sender" style="color:${roleColor};">${roleLabel}</span>
+                            <span class="msg-time">${msg.created_at ? new Date(msg.created_at).toLocaleString('ar-EG') : '—'}</span>
+                        </div>
+                        <div class="msg-text">${msg.message || '—'}</div>
+                        <div style="font-size:11px;color:#888;margin-top:4px;">👤 ${msg.username || '—'} (${msg.user_uid || '—'})</div>
+                        <button class="action-btn gold" style="margin-top:6px;" onclick="replySupport('${msg.user_uid}', '${msg.username}')">💬 رد</button>
+                        <button class="action-btn danger" onclick="deleteSupportMsg('${msg.id}')">🗑️</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+        } catch(e) {
+            container.innerHTML = `<div class="error">❌ فشل التحميل: ${e.message}</div>`;
+        }
+    }
+
+    // ==================== رد على رسالة الدعم ====================
+    function replySupport(userUid, username) {
+        const reply = prompt(`💬 الرد على ${username}:`);
+        if (reply && reply.trim()) {
+            fetch(`${SUPABASE_URL}/rest/v1/support_messages`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_uid: userUid,
+                    username: username,
+                    sender_role: 'admin',
+                    message: reply.trim()
+                })
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('✅ تم إرسال الرد!');
+                    fetchSupportMessages();
+                    fetchStats();
+                } else {
+                    alert('❌ فشل الإرسال: ' + res.status);
+                }
+            })
+            .catch(err => alert('❌ خطأ: ' + err.message));
+        }
+    }
+
+    // ==================== حذف رسالة دعم ====================
+    async function deleteSupportMsg(id) {
+        if (!confirm('⚠️ حذف الرسالة نهائياً؟')) return;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/support_messages?id=eq.${id}`, {
+                method: 'DELETE',
+                headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+            });
+
+            if (response.ok) {
+                alert('✅ تم الحذف!');
+                fetchSupportMessages();
+                fetchStats();
+            } else {
+                alert('❌ فشل الحذف: ' + response.status);
+            }
+        } catch(e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== التبويبات ====================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // تحديث التبويب المعروض
+            if (tabId === 'users') fetchUsers();
+            else if (tabId === 'transactions') fetchTransactions();
+            else if (tabId === 'signals') fetchSignals();
+            else if (tabId === 'support') fetchSupportMessages();
+        });
+    });
+
+    // ==================== التحميل الأولي ====================
+    window.onload = function() {
+        fetchAllData();
+    };
+</script>
+</body>
+</html>
