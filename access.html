@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 لوحة التحكم - EAPQLO</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a0f;
+            color: #eee;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 1400px;
+            margin: auto;
+            background: #12121a;
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid #2a2a35;
+        }
+        h1 { color: #f5c518; font-size: 28px; display: flex; align-items: center; gap: 12px; }
+        .sub { color: #888; font-size: 14px; margin-bottom: 25px; border-bottom: 1px solid #2a2a35; padding-bottom: 15px; }
+        .stats {
+            display: flex; gap: 25px; flex-wrap: wrap;
+            background: #1a1a26; padding: 15px 20px; border-radius: 14px; margin-bottom: 25px;
+        }
+        .stats span { color: #aaa; font-size: 14px; }
+        .stats strong { color: #fff; font-size: 18px; margin-left: 5px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #1f1f2e; color: #f5c518; padding: 12px; text-align: right; border-bottom: 2px solid #f5c518; }
+        td { padding: 10px 12px; border-bottom: 1px solid #2a2a35; vertical-align: middle; }
+        tr:hover { background: #1a1a26; }
+        .badge {
+            display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+        }
+        .badge-gold { background: #f5c51820; color: #f5c518; border: 1px solid #f5c51840; }
+        .badge-green { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; }
+        .badge-red { background: #ef444420; color: #ef4444; border: 1px solid #ef444440; }
+        .badge-blue { background: #3b82f620; color: #3b82f6; border: 1px solid #3b82f640; }
+        .refresh-btn {
+            background: #f5c518; color: #000; border: none; padding: 10px 28px;
+            border-radius: 30px; font-weight: 800; font-size: 15px; cursor: pointer;
+            transition: 0.2s; margin: 10px 0;
+        }
+        .refresh-btn:hover { background: #d4a80f; transform: scale(1.02); }
+        .action-btn {
+            background: transparent; border: 1px solid #3b82f6; color: #3b82f6;
+            padding: 4px 12px; border-radius: 20px; cursor: pointer; font-size: 12px;
+            font-weight: 700; margin: 0 3px; transition: 0.2s;
+        }
+        .action-btn:hover { background: #3b82f620; }
+        .action-btn.danger { border-color: #ef4444; color: #ef4444; }
+        .action-btn.danger:hover { background: #ef444420; }
+        .action-btn.gold { border-color: #f5c518; color: #f5c518; }
+        .action-btn.gold:hover { background: #f5c51820; }
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 999;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: #1a1a26; padding: 30px; border-radius: 20px; max-width: 400px; width: 90%;
+            border: 1px solid #2a2a35; box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+        .modal-content h2 { color: #f5c518; margin-bottom: 15px; }
+        .modal-content input {
+            width: 100%; padding: 12px 16px; background: #0a0a0f; border: 1px solid #2a2a35;
+            border-radius: 12px; color: #fff; font-size: 15px; margin-bottom: 15px; outline: none;
+        }
+        .modal-content input:focus { border-color: #f5c518; }
+        .modal-content .gold-btn {
+            width: 100%; padding: 14px; background: #f5c518; color: #000; font-weight: 900;
+            border: none; border-radius: 14px; cursor: pointer; font-size: 16px;
+        }
+        .modal-content .gold-btn:hover { background: #d4a80f; }
+        .modal-content .close-btn {
+            background: transparent; border: none; color: #888; cursor: pointer;
+            font-size: 14px; margin-top: 10px; width: 100%; text-align: center;
+        }
+        .modal-content .close-btn:hover { color: #fff; }
+        .loading { text-align: center; padding: 40px; color: #888; }
+        .error { color: #ef4444; background: #1a0a0a; padding: 20px; border-radius: 12px; border: 1px solid #ef444440; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .pass-text { direction: ltr; font-family: monospace; font-size: 13px; color: #f5c518; }
+        @media (max-width: 700px) { table { font-size: 11px; } th, td { padding: 6px 4px; } .stats { flex-direction: column; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="flex-between">
+        <h1>👑 لوحة التحكم</h1>
+        <div>
+            <button class="refresh-btn" onclick="fetchUsers()" style="margin:0;">🔄 تحديث</button>
+        </div>
+    </div>
+    <div class="sub">إدارة المستخدمين وعرض كلمات المرور (للأغراض التعليمية فقط)</div>
+
+    <div class="stats">
+        <span>👥 إجمالي المسجلين: <strong id="total-users">0</strong></span>
+        <span>✅ الموثقون (KYC): <strong id="kyc-users">0</strong></span>
+        <span>🪙 الرصيد الإجمالي: <strong id="total-balance">0.00</strong> $</span>
+        <span>📅 آخر تحديث: <strong id="last-update">-</strong></span>
+    </div>
+
+    <div id="table-container">
+        <div class="loading">⏳ جاري تحميل البيانات...</div>
+    </div>
+</div>
+
+<!-- ===== نافذة تعديل كلمة المرور ===== -->
+<div class="modal" id="edit-modal">
+    <div class="modal-content">
+        <h2>🔑 تعديل كلمة المرور</h2>
+        <p style="color:#888; font-size:13px; margin-bottom:12px;">المستخدم: <span id="edit-user-email" style="color:#f5c518;"></span></p>
+        <input type="text" id="edit-pass-input" placeholder="كلمة المرور الجديدة" dir="ltr">
+        <button class="gold-btn" onclick="savePassword()">💾 حفظ التغييرات</button>
+        <button class="close-btn" onclick="closeModal()">إلغاء</button>
+    </div>
+</div>
+
+<script>
+    // ==================== بيانات Supabase ====================
+    const SUPABASE_URL = 'https://kxdgowkgprvygsntqyrd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4ZGdvd2tncHJ2eWdzbnRxeXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY5MzYsImV4cCI6MjA5OTUwMjkzNn0._hmiFAW9TWWtH8hLdwUVBJkYK71V_DpAXMExpD2jzFw';
+
+    let currentEditEmail = null;
+
+    // ==================== جلب البيانات ====================
+    async function fetchUsers() {
+        const container = document.getElementById('table-container');
+        container.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=*`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const users = await response.json();
+
+            if (!users || users.length === 0) {
+                container.innerHTML = `<div class="loading">📭 لا يوجد مستخدمون</div>`;
+                return;
+            }
+
+            // إحصائيات
+            document.getElementById('total-users').innerText = users.length;
+            const kycCount = users.filter(u => u.kyc_status === 'verified').length;
+            document.getElementById('kyc-users').innerText = kycCount;
+            const totalBal = users.reduce((sum, u) => sum + (parseFloat(u.wallet_balance) || 0), 0);
+            document.getElementById('total-balance').innerText = totalBal.toFixed(2);
+            document.getElementById('last-update').innerText = new Date().toLocaleString('ar-EG');
+
+            // بناء الجدول
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>UID</th>
+                            <th>اسم المستخدم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>🔑 كلمة المرور</th>
+                            <th>الرصيد ($)</th>
+                            <th>KYC</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach((u, i) => {
+                const kycBadge = u.kyc_status === 'verified'
+                    ? `<span class="badge badge-green">✅ موثق</span>`
+                    : u.kyc_status === 'pending'
+                    ? `<span class="badge badge-blue">⏳ قيد المراجعة</span>`
+                    : `<span class="badge badge-red">❌ غير موثق</span>`;
+
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><span class="badge badge-gold">${u.user_uid || '—'}</span></td>
+                        <td><strong>${u.username || '—'}</strong></td>
+                        <td style="direction: ltr; font-size: 12px;">${u.email || '—'}</td>
+                        <td class="pass-text">${u.password || '—'}</td>
+                        <td style="direction: ltr; font-weight: 700; color: #f5c518;">${(parseFloat(u.wallet_balance) || 0).toFixed(2)}</td>
+                        <td>${kycBadge}</td>
+                        <td>
+                            <button class="action-btn gold" onclick="openEditModal('${u.email}')">✏️ تعديل</button>
+                            <button class="action-btn danger" onclick="deleteUser('${u.email}')">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+
+        } catch (error) {
+            container.innerHTML = `<div class="error">❌ فشل التحميل: ${error.message}</div>`;
+            console.error(error);
+        }
+    }
+
+    // ==================== فتح نافذة التعديل ====================
+    function openEditModal(email) {
+        currentEditEmail = email;
+        document.getElementById('edit-user-email').innerText = email;
+        document.getElementById('edit-pass-input').value = '';
+        document.getElementById('edit-modal').classList.add('active');
+    }
+
+    // ==================== حفظ كلمة المرور الجديدة ====================
+    async function savePassword() {
+        const newPass = document.getElementById('edit-pass-input').value.trim();
+        if (!newPass || newPass.length < 4) {
+            alert('كلمة المرور يجب أن تكون 4 أحرف على الأقل.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(currentEditEmail)}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: newPass })
+            });
+
+            if (response.ok) {
+                alert('✅ تم تغيير كلمة المرور بنجاح!');
+                closeModal();
+                fetchUsers();
+            } else {
+                alert('❌ فشل التغيير: ' + response.status);
+            }
+        } catch (e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== حذف مستخدم ====================
+    async function deleteUser(email) {
+        if (!confirm(`⚠️ هل أنت متأكد من حذف المستخدم (${email}) نهائياً؟`)) return;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}`, {
+                method: 'DELETE',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
+
+            if (response.ok) {
+                alert('✅ تم حذف المستخدم بنجاح!');
+                fetchUsers();
+            } else {
+                alert('❌ فشل الحذف: ' + response.status);
+            }
+        } catch (e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== إغلاق النافذة ====================
+    function closeModal() {
+        document.getElementById('edit-modal').classList.remove('active');
+        currentEditEmail = null;
+    }
+
+    // ==================== تشغيل التحميل عند فتح الصفحة ====================
+    fetchUsers();
+</script>
+</body>
+</html>
