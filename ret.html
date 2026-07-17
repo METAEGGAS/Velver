@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 لوحة التحكم - EAPQLO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #0a0a0f;
+            color: #eee;
+            padding: 10px;
+            direction: rtl;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            background: #12121a;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #2a2a35;
+            overflow-x: auto;
+        }
+        h1 {
+            color: #f5c518;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .sub {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a2a35;
+            padding-bottom: 12px;
+        }
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            background: #1a1a26;
+            padding: 12px 18px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+        .stats span {
+            color: #aaa;
+            font-size: 13px;
+        }
+        .stats strong {
+            color: #fff;
+            font-size: 17px;
+            margin-left: 4px;
+        }
+        .refresh-btn {
+            background: #f5c518;
+            color: #000;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 5px 0;
+        }
+        .refresh-btn:hover {
+            background: #d4a80f;
+            transform: scale(1.02);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 900px;
+        }
+        th {
+            background: #1f1f2e;
+            color: #f5c518;
+            padding: 10px 8px;
+            text-align: right;
+            border-bottom: 2px solid #f5c518;
+            white-space: nowrap;
+        }
+        td {
+            padding: 8px 8px;
+            border-bottom: 1px solid #2a2a35;
+            vertical-align: middle;
+            word-break: break-word;
+        }
+        tr:hover {
+            background: #1a1a26;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .badge-gold {
+            background: #f5c51820;
+            color: #f5c518;
+            border: 1px solid #f5c51840;
+        }
+        .badge-green {
+            background: #22c55e20;
+            color: #22c55e;
+            border: 1px solid #22c55e40;
+        }
+        .badge-red {
+            background: #ef444420;
+            color: #ef4444;
+            border: 1px solid #ef444440;
+        }
+        .badge-blue {
+            background: #3b82f620;
+            color: #3b82f6;
+            border: 1px solid #3b82f640;
+        }
+        .badge-yellow {
+            background: #eab30820;
+            color: #eab308;
+            border: 1px solid #eab30840;
+        }
+        .action-btn {
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            padding: 3px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            margin: 2px;
+            transition: 0.2s;
+        }
+        .action-btn:hover {
+            background: #3b82f620;
+        }
+        .action-btn.danger {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .action-btn.danger:hover {
+            background: #ef444420;
+        }
+        .action-btn.gold {
+            border-color: #f5c518;
+            color: #f5c518;
+        }
+        .action-btn.gold:hover {
+            background: #f5c51820;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 15px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #1a1a26;
+            padding: 25px;
+            border-radius: 20px;
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid #2a2a35;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+        }
+        .modal-content h2 {
+            color: #f5c518;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0a0a0f;
+            border: 1px solid #2a2a35;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+        }
+        .modal-content input:focus,
+        .modal-content select:focus {
+            border-color: #f5c518;
+        }
+        .modal-content .gold-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f5c518;
+            color: #000;
+            font-weight: 900;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .modal-content .gold-btn:hover {
+            background: #d4a80f;
+        }
+        .modal-content .close-btn {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+            width: 100%;
+            text-align: center;
+        }
+        .modal-content .close-btn:hover {
+            color: #fff;
+        }
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+        }
+        .error {
+            color: #ef4444;
+            background: #1a0a0a;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #ef444440;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pass-text {
+            direction: ltr;
+            font-family: monospace;
+            font-size: 12px;
+            color: #f5c518;
+        }
+        .tx-type {
+            font-weight: 800;
+        }
+        .tx-type.deposit {
+            color: #22c55e;
+        }
+        .tx-type.withdraw {
+            color: #ef4444;
+        }
+        .tx-status {
+            font-weight: 700;
+        }
+        .tx-status.pending {
+            color: #eab308;
+        }
+        .tx-status.approved {
+            color: #22c55e;
+        }
+        .tx-status.rejected {
+            color: #ef4444;
+        }
+        .history-toggle {
+            background: transparent;
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            padding: 3px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 700;
+            margin: 2px;
+        }
+        .history-toggle:hover {
+            background: #3b82f620;
+        }
+        .history-row {
+            display: none;
+            background: #0d0d18;
+        }
+        .history-row.show {
+            display: table-row;
+        }
+        .history-row td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #1f1f2e;
+        }
+        .history-table {
+            width: 100%;
+            font-size: 11px;
+            border-collapse: collapse;
+        }
+        .history-table th {
+            background: #1a1a2e;
+            color: #aaa;
+            padding: 6px 8px;
+            font-size: 10px;
+            text-align: right;
+            border-bottom: 1px solid #2a2a35;
+        }
+        .history-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #1f1f2e;
+            color: #ccc;
+        }
+        @media (max-width: 700px) {
+            .container {
+                padding: 10px;
+            }
+            table {
+                font-size: 10px;
+                min-width: 700px;
+            }
+            th,
+            td {
+                padding: 5px 4px;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .modal-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="flex-between">
+        <h1>👑 لوحة التحكم</h1>
+        <button class="refresh-btn" onclick="fetchUsers()">🔄 تحديث</button>
+    </div>
+    <div class="sub">إدارة المستخدمين + سجل الإيداعات والسحوبات</div>
+
+    <div class="stats">
+        <span>👥 المسجلين: <strong id="total-users">0</strong></span>
+        <span>✅ الموثقون: <strong id="kyc-users">0</strong></span>
+        <span>🪙 الرصيد الإجمالي: <strong id="total-balance">0.00</strong> $</span>
+        <span>📅 آخر تحديث: <strong id="last-update">-</strong></span>
+    </div>
+
+    <div id="table-container">
+        <div class="loading">⏳ جاري التحميل...</div>
+    </div>
+</div>
+
+<!-- ===== نافذة تعديل كلمة المرور ===== -->
+<div class="modal" id="edit-modal">
+    <div class="modal-content">
+        <h2>🔑 تعديل كلمة المرور</h2>
+        <p style="color:#888; font-size:13px; margin-bottom:10px;">المستخدم: <span id="edit-user-email" style="color:#f5c518;"></span></p>
+        <input type="text" id="edit-pass-input" placeholder="كلمة المرور الجديدة" dir="ltr">
+        <button class="gold-btn" onclick="savePassword()">💾 حفظ</button>
+        <button class="close-btn" onclick="closeModal()">إلغاء</button>
+    </div>
+</div>
+
+<!-- ===== نافذة إضافة عملية ===== -->
+<div class="modal" id="tx-modal">
+    <div class="modal-content">
+        <h2>➕ إضافة عملية</h2>
+        <p style="color:#888; font-size:13px; margin-bottom:10px;">المستخدم: <span id="tx-user-email" style="color:#f5c518;"></span></p>
+        <select id="tx-type-select">
+            <option value="deposit">إيداع</option>
+            <option value="withdraw">سحب</option>
+        </select>
+        <input type="number" id="tx-amount-input" placeholder="المبلغ ($)" step="0.01">
+        <select id="tx-status-select">
+            <option value="pending">قيد الانتظار</option>
+            <option value="approved">تمت الموافقة</option>
+            <option value="rejected">مرفوض</option>
+        </select>
+        <button class="gold-btn" onclick="addTransaction()">➕ إضافة</button>
+        <button class="close-btn" onclick="closeTxModal()">إلغاء</button>
+    </div>
+</div>
+
+<script>
+    // ==================== بيانات Supabase ====================
+    const SUPABASE_URL = 'https://kxdgowkgprvygsntqyrd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4ZGdvd2tncHJ2eWdzbnRxeXJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM5MjY5MzYsImV4cCI6MjA5OTUwMjkzNn0._hmiFAW9TWWtH8hLdwUVBJkYK71V_DpAXMExpD2jzFw';
+
+    let currentEditEmail = null;
+    let currentTxEmail = null;
+
+    // ==================== جلب البيانات ====================
+    async function fetchUsers() {
+        const container = document.getElementById('table-container');
+        container.innerHTML = `<div class="loading">⏳ جاري التحميل...</div>`;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=*`, {
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const users = await response.json();
+
+            if (!users || users.length === 0) {
+                container.innerHTML = `<div class="loading">📭 لا يوجد مستخدمون</div>`;
+                return;
+            }
+
+            document.getElementById('total-users').innerText = users.length;
+            const kycCount = users.filter(u => u.kyc_status === 'verified').length;
+            document.getElementById('kyc-users').innerText = kycCount;
+            const totalBal = users.reduce((sum, u) => sum + (parseFloat(u.wallet_balance) || 0), 0);
+            document.getElementById('total-balance').innerText = totalBal.toFixed(2);
+            document.getElementById('last-update').innerText = new Date().toLocaleString('ar-EG');
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>UID</th>
+                            <th>المستخدم</th>
+                            <th>البريد</th>
+                            <th>🔑 كلمة المرور</th>
+                            <th>الرصيد ($)</th>
+                            <th>KYC</th>
+                            <th>سجل العمليات</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach((u, i) => {
+                const kycBadge = u.kyc_status === 'verified' ?
+                    `<span class="badge badge-green">✅ موثق</span>` :
+                    u.kyc_status === 'pending' ?
+                    `<span class="badge badge-blue">⏳ قيد المراجعة</span>` :
+                    `<span class="badge badge-red">❌ غير موثق</span>`;
+
+                // محاكاة سجل العمليات (في الواقع ستجلب من جدول منفصل)
+                const transactions = [
+                    { type: 'deposit', amount: 50, status: 'approved', date: '2026-07-17 14:30' },
+                    { type: 'withdraw', amount: 20, status: 'pending', date: '2026-07-17 13:00' },
+                    { type: 'deposit', amount: 100, status: 'rejected', date: '2026-07-16 22:15' }
+                ];
+
+                let historyHtml = `<table class="history-table">
+                    <thead><tr><th>النوع</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                    <tbody>`;
+                transactions.forEach(tx => {
+                    const txTypeClass = tx.type === 'deposit' ? 'deposit' : 'withdraw';
+                    const txStatusClass = tx.status;
+                    historyHtml += `<tr>
+                        <td><span class="tx-type ${txTypeClass}">${tx.type === 'deposit' ? '💰 إيداع' : '💸 سحب'}</span></td>
+                        <td>$${tx.amount.toFixed(2)}</td>
+                        <td><span class="tx-status ${txStatusClass}">${tx.status === 'pending' ? '⏳ قيد الانتظار' : tx.status === 'approved' ? '✅ تمت الموافقة' : '❌ مرفوض'}</span></td>
+                        <td style="font-size:10px;color:#888;">${tx.date}</td>
+                    </tr>`;
+                });
+                historyHtml += `</tbody></table>`;
+
+                html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><span class="badge badge-gold">${u.user_uid || '—'}</span></td>
+                        <td><strong>${u.username || '—'}</strong></td>
+                        <td style="direction:ltr;font-size:11px;">${u.email || '—'}</td>
+                        <td class="pass-text">${u.password || '—'}</td>
+                        <td style="direction:ltr;font-weight:700;color:#f5c518;">${(parseFloat(u.wallet_balance) || 0).toFixed(2)}</td>
+                        <td>${kycBadge}</td>
+                        <td>
+                            <button class="history-toggle" onclick="toggleHistory(this)">📋 عرض</button>
+                            <button class="action-btn gold" style="font-size:9px;padding:2px 8px;" onclick="openTxModal('${u.email}')">➕ إضافة</button>
+                            <div style="display:none;" class="history-data">${historyHtml}</div>
+                        </td>
+                        <td>
+                            <button class="action-btn gold" onclick="openEditModal('${u.email}')">✏️ تعديل</button>
+                            <button class="action-btn danger" onclick="deleteUser('${u.email}')">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                    <tr class="history-row">
+                        <td colspan="9">
+                            <div class="history-content"></div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+
+        } catch (error) {
+            container.innerHTML = `<div class="error">❌ فشل التحميل: ${error.message}</div>`;
+            console.error(error);
+        }
+    }
+
+    // ==================== عرض/إخفاء السجل ====================
+    function toggleHistory(btn) {
+        const row = btn.closest('tr').nextElementSibling;
+        if (row.classList.contains('history-row')) {
+            row.classList.toggle('show');
+            const content = row.querySelector('.history-content');
+            const dataDiv = btn.closest('td').querySelector('.history-data');
+            if (row.classList.contains('show')) {
+                content.innerHTML = dataDiv.innerHTML;
+                btn.innerText = '📋 إخفاء';
+            } else {
+                content.innerHTML = '';
+                btn.innerText = '📋 عرض';
+            }
+        }
+    }
+
+    // ==================== تعديل كلمة المرور ====================
+    function openEditModal(email) {
+        currentEditEmail = email;
+        document.getElementById('edit-user-email').innerText = email;
+        document.getElementById('edit-pass-input').value = '';
+        document.getElementById('edit-modal').classList.add('active');
+    }
+
+    async function savePassword() {
+        const newPass = document.getElementById('edit-pass-input').value.trim();
+        if (!newPass || newPass.length < 4) {
+            alert('كلمة المرور 4 أحرف على الأقل.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(currentEditEmail)}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: newPass })
+            });
+
+            if (response.ok) {
+                alert('✅ تم التغيير بنجاح!');
+                closeModal();
+                fetchUsers();
+            } else {
+                alert('❌ فشل التغيير: ' + response.status);
+            }
+        } catch (e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('edit-modal').classList.remove('active');
+        currentEditEmail = null;
+    }
+
+    // ==================== إضافة عملية (سحب/إيداع) ====================
+    function openTxModal(email) {
+        currentTxEmail = email;
+        document.getElementById('tx-user-email').innerText = email;
+        document.getElementById('tx-amount-input').value = '';
+        document.getElementById('tx-modal').classList.add('active');
+    }
+
+    function closeTxModal() {
+        document.getElementById('tx-modal').classList.remove('active');
+        currentTxEmail = null;
+    }
+
+    async function addTransaction() {
+        const type = document.getElementById('tx-type-select').value;
+        const amount = parseFloat(document.getElementById('tx-amount-input').value);
+        const status = document.getElementById('tx-status-select').value;
+
+        if (!amount || amount <= 0) {
+            alert('أدخل مبلغاً صحيحاً.');
+            return;
+        }
+
+        // في التطبيق الحقيقي، ستُرسل إلى جدول `transactions`
+        alert(`✅ تمت إضافة عملية ${type === 'deposit' ? 'إيداع' : 'سحب'} بمبلغ $${amount.toFixed(2)} وحالة "${status}" للمستخدم ${currentTxEmail}`);
+        closeTxModal();
+        fetchUsers();
+    }
+
+    // ==================== حذف مستخدم ====================
+    async function deleteUser(email) {
+        if (!confirm(`⚠️ حذف المستخدم (${email}) نهائياً؟`)) return;
+
+        try {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?email=eq.${encodeURIComponent(email)}`, {
+                method: 'DELETE',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                }
+            });
+
+            if (response.ok) {
+                alert('✅ تم الحذف!');
+                fetchUsers();
+            } else {
+                alert('❌ فشل الحذف: ' + response.status);
+            }
+        } catch (e) {
+            alert('❌ خطأ: ' + e.message);
+        }
+    }
+
+    // ==================== تشغيل التحميل ====================
+    fetchUsers();
+</script>
+</body>
+</html>
