@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <button id="googleBtn">تسجيل الدخول بـ Google</button>
+  <pre id="result"></pre>
+
+  <script>
+    // ====== بيانات Firebase من التطبيق ======
+    const firebaseConfig = {
+      apiKey: "AIzaSyC97dyFTRix5WNiXSjwoaecEtxQGgxN9Uc",
+      authDomain: "mofa-sy.firebaseapp.com",
+      projectId: "mofa-sy",
+      storageBucket: "mofa-sy.firebasestorage.app",
+      messagingSenderId: "410865695937",
+      appId: "1:410865695937:android:51c0f5db24220084fbe840"
+    };
+
+    // ====== تهيئة Firebase ======
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ====== زر تسجيل الدخول ======
+    document.getElementById('googleBtn').onclick = function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(result => {
+          document.getElementById('result').textContent = 
+            '✅ تم تسجيل الدخول:\n' + 
+            'الاسم: ' + result.user.displayName + '\n' +
+            'البريد: ' + result.user.email + '\n' +
+            'UID: ' + result.user.uid;
+        })
+        .catch(error => {
+          document.getElementById('result').textContent = 
+            '❌ فشل:\n' + error.message;
+        });
+    };
+  </script>
+</body>
+</html>
