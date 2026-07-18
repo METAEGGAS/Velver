@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دخول مجهول Firebase</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#0f172a;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    width:350px;
+    background:#1e293b;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 0 20px rgba(0,0,0,.4);
+}
+
+h2{
+    color:#fff;
+    text-align:center;
+    margin-bottom:20px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#2563eb;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#msg{
+    margin-top:15px;
+    padding:10px;
+    border-radius:8px;
+    display:none;
+    text-align:center;
+    color:#fff;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>دخول مجهول</h2>
+
+    <button onclick="login()">
+        تسجيل الدخول
+    </button>
+
+    <div id="msg"></div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC97dyFTRix5WNiXSjwoaecEtxQGgxN9Uc",
+    authDomain: "mofa-sy.firebaseapp.com",
+    projectId: "mofa-sy",
+    storageBucket: "mofa-sy.firebasestorage.app",
+    messagingSenderId: "410865695937",
+    appId: "1:410865695937:android:51c0f5db24220084fbe840"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.login = function(){
+
+    const msg=document.getElementById("msg");
+
+    signInAnonymously(auth)
+
+    .then((userCredential)=>{
+
+        msg.style.display="block";
+        msg.style.background="#16a34a";
+        msg.innerHTML=
+        "✅ تم تسجيل الدخول بنجاح<br><br>" +
+        "UID:<br>" +
+        userCredential.user.uid;
+
+        console.log(userCredential.user);
+
+    })
+
+    .catch((error)=>{
+
+        let text="";
+
+        switch(error.code){
+
+            case "auth/operation-not-allowed":
+                text="تسجيل الدخول المجهول غير مفعل في Firebase.";
+                break;
+
+            case "auth/network-request-failed":
+                text="لا يوجد اتصال بالإنترنت.";
+                break;
+
+            case "auth/too-many-requests":
+                text="عدد كبير من المحاولات، حاول لاحقًا.";
+                break;
+
+            case "auth/internal-error":
+                text="حدث خطأ داخلي في Firebase.";
+                break;
+
+            default:
+                text=error.message;
+
+        }
+
+        msg.style.display="block";
+        msg.style.background="#dc2626";
+        msg.innerHTML="❌ فشل تسجيل الدخول<br><br>"+text;
+
+        console.error(error);
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
