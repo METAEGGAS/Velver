@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <button onclick="signInGoogle()">🔵 دخول بـ Google</button>
+  <pre id="res"></pre>
+  <script>
+    const config = {
+      apiKey: "AIzaSyC97dyFTRix5WNiXSjwoaecEtxQGgxN9Uc",
+      authDomain: "mofa-sy.firebaseapp.com",
+      projectId: "mofa-sy",
+      storageBucket: "mofa-sy.firebasestorage.app",
+      messagingSenderId: "410865695937",
+      appId: "1:410865695937:android:51c0f5db24220084fbe840"
+    };
+
+    firebase.initializeApp(config);
+    const auth = firebase.auth();
+
+    function signInGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then(result => {
+          document.getElementById('res').textContent = 
+            '✅ تم الدخول:\n' + 
+            'الاسم: ' + result.user.displayName + '\n' +
+            'البريد: ' + result.user.email + '\n' +
+            'UID: ' + result.user.uid;
+        })
+        .catch(err => {
+          document.getElementById('res').textContent = '❌ ' + err.message;
+        });
+    }
+  </script>
+</body>
+</html>
