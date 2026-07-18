@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOFA-SY - Firebase Comprehensive Dashboard</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js">
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0a0a14;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f97316, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .subtitle {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .header .badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-warning {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+            border-color: rgba(249, 115, 22, 0.3);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(249, 115, 22, 0.2);
+        }
+
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .stat-card .sub {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .controls input,
+        .controls select {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-size: 13px;
+            outline: none;
+            min-width: 150px;
+            flex: 1;
+        }
+
+        .controls input:focus,
+        .controls select:focus {
+            border-color: #f97316;
+        }
+
+        .controls input::placeholder {
+            color: #64748b;
+        }
+
+        .controls select option {
+            background: #1a1a2e;
+            color: #e2e8f0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #f97316;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #ea580c;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-outline:hover {
+            border-color: #f97316;
+            color: #f97316;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .status-item .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-green {
+            background: #22c55e;
+        }
+        .dot-red {
+            background: #ef4444;
+        }
+        .dot-orange {
+            background: #f97316;
+        }
+        .dot-gray {
+            background: #64748b;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+        }
+
+        .tab-btn.active {
+            background: #f97316;
+            color: #fff;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Panels */
+        .panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Table */
+        .table-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        th {
+            padding: 12px 14px;
+            text-align: right;
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+            word-break: break-word;
+            font-size: 13px;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-role {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        .badge-moderator {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+        .badge-user {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+        .badge-guest {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+        .badge-inactive {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+        .badge-pending {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .loading .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #f97316;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .empty .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        /* Logs */
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            line-height: 1.8;
+        }
+
+        .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .log-success {
+            color: #4ade80;
+        }
+        .log-error {
+            color: #f87171;
+        }
+        .log-warning {
+            color: #f97316;
+        }
+        .log-info {
+            color: #60a5fa;
+        }
+        .log-gray {
+            color: #94a3b8;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .toast-success {
+            background: #22c55e;
+        }
+        .toast-error {
+            background: #ef4444;
+        }
+        .toast-warning {
+            background: #f97316;
+        }
+        .toast-info {
+            background: #3b82f6;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(249, 115, 22, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(249, 115, 22, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 16px 20px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .controls input,
+            .controls select {
+                width: 100%;
+                min-width: unset;
+            }
+            .controls .btn {
+                width: 100%;
+                text-align: center;
+            }
+            th,
+            td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            .tab-btn {
+                flex: 1;
+                text-align: center;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .status-bar {
+                flex-direction: column;
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div>
+                <h1>🔥 MOFA-SY · Firebase Dashboard</h1>
+                <div class="subtitle">إدارة شاملة للمستخدمين، البيانات، والمصادقة مع تقارير النجاح/الفشل</div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <span class="badge" id="connectionStatus">⏳ جاري الاتصال...</span>
+                <button class="btn btn-primary" onclick="runFullScan()">🔍 فحص شامل</button>
+                <button class="btn btn-secondary" onclick="clearAll()">🗑️ مسح الكل</button>
+            </div>
+        </div>
+
+        <!-- ===== STATUS BAR ===== -->
+        <div class="status-bar" id="statusBar">
+            <div class="status-item">
+                <span class="dot" id="dotFirestore"></span>
+                <span>Firestore: <span id="statusFirestore">—</span></span>
+            </div>
+            <div class="status-item">
+                <span class="dot" id="dotRtdb"></span>
+                <span>Realtime DB: <span id="statusRtdb">—</span></span>
+            </div>
+            <div class="status-item">
+                <span class="dot" id="dotAuth"></span>
+                <span>المصادقة: <span id="statusAuth">—</span></span>
+            </div>
+            <div class="status-item">
+                <span class="dot" id="dotStorage"></span>
+                <span>التخزين: <span id="statusStorage">—</span></span>
+            </div>
+            <div class="status-item" style="margin-right:auto;">
+                <span>🕐 آخر تحديث: <span id="lastUpdate">—</span></span>
+            </div>
+        </div>
+
+        <!-- ===== STATS ===== -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="number" id="totalUsers">0</div>
+                <div class="label">👥 المستخدمين</div>
+                <div class="sub">من Firestore</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="adminCount">0</div>
+                <div class="label">🛡️ الأدمن</div>
+                <div class="sub">صلاحيات إدارية</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="moderatorCount">0</div>
+                <div class="label">⚙️ المشرفين</div>
+                <div class="sub">صلاحيات محدودة</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="rtdbCount">0</div>
+                <div class="label">📡 Realtime DB</div>
+                <div class="sub">عدد العناصر</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="storageCount">0</div>
+                <div class="label">📁 الملفات</div>
+                <div class="sub">في Storage</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="scanStatus">—</div>
+                <div class="label">🔍 الفحص</div>
+                <div class="sub">آخر عملية</div>
+            </div>
+        </div>
+
+        <!-- ===== CONTROLS ===== -->
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="🔍 بحث في الجداول... (اسم أو بريد)" oninput="filterTables()" />
+            <select id="collectionSelect" onchange="loadFirestoreCollection()">
+                <option value="users">👥 users</option>
+                <option value="admins">🛡️ admins</option>
+                <option value="posts">📝 posts</option>
+                <option value="orders">📦 orders</option>
+                <option value="messages">💬 messages</option>
+                <option value="settings">⚙️ settings</option>
+                <option value="profiles">👤 profiles</option>
+                <option value="products">🛒 products</option>
+            </select>
+            <button class="btn btn-success" onclick="loadFirestoreCollection()">📥 تحميل</button>
+            <button class="btn btn-outline" onclick="document.getElementById('collectionSelect').value='users';loadFirestoreCollection();">🔄 إعادة ضبط</button>
+        </div>
+
+        <!-- ===== TABS ===== -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('users')">👥 المستخدمين</button>
+            <button class="tab-btn" onclick="switchTab('admins')">🛡️ الأدمن</button>
+            <button class="tab-btn" onclick="switchTab('firestore')">📄 Firestore</button>
+            <button class="tab-btn" onclick="switchTab('rtdb')">📡 Realtime DB</button>
+            <button class="tab-btn" onclick="switchTab('storage')">📁 Storage</button>
+            <button class="tab-btn" onclick="switchTab('logs')">📋 السجلات</button>
+            <button class="tab-btn" onclick="switchTab('raw')">🔍 عرض خام</button>
+        </div>
+
+        <!-- ===== PANEL: USERS ===== -->
+        <div id="panelUsers" class="panel active">
+            <div class="table-wrapper" id="usersContainer">
+                <div class="loading"><div class="spinner"></div> جاري تحميل المستخدمين...</div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL: ADMINS ===== -->
+        <div id="panelAdmins" class="panel">
+            <div class="table-wrapper" id="adminsContainer">
+                <div class="loading"><div class="spinner"></div> جاري تحميل الأدمن...</div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL: FIRESTORE ===== -->
+        <div id="panelFirestore" class="panel">
+            <div class="table-wrapper" id="firestoreContainer">
+                <div class="loading"><div class="spinner"></div> اختر مجموعة للتحميل...</div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL: REALTIME DB ===== -->
+        <div id="panelRtdb" class="panel">
+            <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+                <input type="text" id="rtdbPath" placeholder="📂 المسار (مثل: /users, /messages)" value="/" style="flex:1;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e2e8f0;outline:none;" />
+                <button class="btn btn-primary" onclick="loadRealtimeDB()">📥 تحميل</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rtdbPath').value='/';loadRealtimeDB();">/</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rtdbPath').value='/users';loadRealtimeDB();">/users</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rtdbPath').value='/messages';loadRealtimeDB();">/messages</button>
+            </div>
+            <div class="table-wrapper" id="rtdbContainer">
+                <div class="loading"><div class="spinner"></div> أدخل مساراً للتحميل...</div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL: STORAGE ===== -->
+        <div id="panelStorage" class="panel">
+            <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="loadStorage()">📥 تحميل الملفات</button>
+                <button class="btn btn-secondary" onclick="loadStorageWithDetails()">📊 مع التفاصيل</button>
+            </div>
+            <div class="table-wrapper" id="storageContainer">
+                <div class="loading"><div class="spinner"></div> جاري تحميل الملفات...</div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL: LOGS ===== -->
+        <div id="panelLogs" class="panel">
+            <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+                <span style="color:#94a3b8;font-size:13px;">📋 سجلات العمليات مع أسباب النجاح/الفشل</span>
+                <button class="btn btn-secondary btn-sm" onclick="clearLogs()">🗑️ مسح السجلات</button>
+                <button class="btn btn-secondary btn-sm" onclick="exportLogs()">📤 تصدير</button>
+            </div>
+            <div class="table-wrapper" id="logsContainer">
+                <div class="log-container" id="logEntries">
+                    <div class="log-entry log-gray">⏳ السجلات جاهزة...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL: RAW ===== -->
+        <div id="panelRaw" class="panel">
+            <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="loadRawAll()">📥 تحميل جميع البيانات</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rawOutput').textContent='';">🗑️ مسح</button>
+                <button class="btn btn-secondary" onclick="copyRaw()">📋 نسخ</button>
+            </div>
+            <div class="table-wrapper">
+                <pre id="rawOutput" style="padding:20px;font-family:'Courier New',monospace;font-size:12px;color:#e2e8f0;max-height:500px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0;line-height:1.6;">📌 انتظر تحميل البيانات...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🔥 MOFA-SY - FIREBASE COMPREHENSIVE DASHBOARD
+        // ============================================================
+
+        // ✅ Firebase Configuration
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyC97dyFTRix5WNiXSjwoaecEtxQGgxN9Uc",
+            authDomain: "mofa-sy.firebaseapp.com",
+            projectId: "mofa-sy",
+            storageBucket: "mofa-sy.firebasestorage.app",
+            messagingSenderId: "410865695937",
+            appId: "1:410865695937:android:51c0f5db24220084fbe840"
+        };
+
+        // ✅ Initialize Firebase
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+        const storage = firebase.storage();
+
+        // ============================================================
+        // 📌 STATE
+        // ============================================================
+        let allUsers = [];
+        let allAdmins = [];
+        let allFirestoreData = [];
+        let allRtdbData = [];
+        let allStorageData = [];
+        let logs = [];
+        let currentTab = 'users';
+        let lastUpdateTime = null;
+
+        // ============================================================
+        // 📌 TOAST
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // ============================================================
+        // 📌 LOGS
+        // ============================================================
+        function addLog(message, type = 'info', details = '') {
+            const timestamp = new Date().toLocaleTimeString('ar-EG');
+            logs.push({ timestamp, message, type, details });
+            renderLogs();
+            updateStatusBar();
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logEntries');
+            if (!container) return;
+
+            if (logs.length === 0) {
+                container.innerHTML = `<div class="log-entry log-gray">⏳ لا توجد سجلات بعد...</div>`;
+                return;
+            }
+
+            container.innerHTML = logs.map(log =>
+                `<div class="log-entry log-${log.type}">
+                    <span style="color:#64748b;">[${log.timestamp}]</span>
+                    <span>${log.message}</span>
+                    ${log.details ? `<span style="color:#64748b;font-size:11px;"> — ${log.details}</span>` : ''}
+                </div>`
+            ).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function clearLogs() {
+            logs = [];
+            renderLogs();
+            showToast('🗑️ تم مسح السجلات', 'info');
+        }
+
+        function exportLogs() {
+            const text = logs.map(l => `[${l.timestamp}] ${l.message} ${l.details || ''}`).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 تم نسخ السجلات', 'success');
+            }).catch(() => {
+                showToast('❌ فشل النسخ', 'error');
+            });
+        }
+
+        // ============================================================
+        // 📌 STATUS BAR
+        // ============================================================
+        function updateStatusBar() {
+            const now = new Date().toLocaleString('ar-EG');
+            document.getElementById('lastUpdate').textContent = now;
+        }
+
+        function setStatus(service, status, message) {
+            const map = {
+                firestore: { dot: 'dotFirestore', text: 'statusFirestore' },
+                rtdb: { dot: 'dotRtdb', text: 'statusRtdb' },
+                auth: { dot: 'dotAuth', text: 'statusAuth' },
+                storage: { dot: 'dotStorage', text: 'statusStorage' }
+            };
+
+            const el = map[service];
+            if (!el) return;
+
+            const dot = document.getElementById(el.dot);
+            const text = document.getElementById(el.text);
+
+            if (status === 'success') {
+                dot.className = 'dot dot-green';
+                text.textContent = message || '✅ متصل';
+                text.style.color = '#4ade80';
+            } else if (status === 'error') {
+                dot.className = 'dot dot-red';
+                text.textContent = message || '❌ فشل';
+                text.style.color = '#f87171';
+            } else if (status === 'warning') {
+                dot.className = 'dot dot-orange';
+                text.textContent = message || '⚠️ محدود';
+                text.style.color = '#f97316';
+            } else {
+                dot.className = 'dot dot-gray';
+                text.textContent = message || '⏳ غير معروف';
+                text.style.color = '#94a3b8';
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const el = document.getElementById('connectionStatus');
+            if (status === 'connected') {
+                el.textContent = '✅ متصل';
+                el.className = 'badge badge-success';
+            } else if (status === 'error') {
+                el.textContent = `❌ ${message}`;
+                el.className = 'badge badge-error';
+            } else if (status === 'warning') {
+                el.textContent = `⚠️ ${message}`;
+                el.className = 'badge badge-warning';
+            } else {
+                el.textContent = `⏳ ${message}`;
+                el.className = 'badge badge-info';
+            }
+        }
+
+        // ============================================================
+        // 📌 TABS
+        // ============================================================
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            const panelMap = {
+                users: 'panelUsers',
+                admins: 'panelAdmins',
+                firestore: 'panelFirestore',
+                rtdb: 'panelRtdb',
+                storage: 'panelStorage',
+                logs: 'panelLogs',
+                raw: 'panelRaw'
+            };
+
+            const tabMap = {
+                users: 'tabUsers',
+                admins: 'tabAdmins',
+                firestore: 'tabFirestore',
+                rtdb: 'tabRtdb',
+                storage: 'tabStorage',
+                logs: 'tabLogs',
+                raw: 'tabRaw'
+            };
+
+            const panel = document.getElementById(panelMap[tab]);
+            if (panel) panel.classList.add('active');
+
+            const tabBtn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+
+            // Load data on tab switch
+            if (tab === 'users') loadUsers();
+            else if (tab === 'admins') loadAdmins();
+            else if (tab === 'firestore') loadFirestoreCollection();
+            else if (tab === 'rtdb') loadRealtimeDB();
+            else if (tab === 'storage') loadStorage();
+        }
+
+        // ============================================================
+        // 📌 FILTER TABLES
+        // ============================================================
+        function filterTables() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            if (currentTab === 'users') renderUsers(allUsers, search);
+            else if (currentTab === 'admins') renderAdmins(allAdmins, search);
+            else if (currentTab === 'firestore') renderFirestore(allFirestoreData, search);
+        }
+
+        // ============================================================
+        // 📌 LOAD USERS
+        // ============================================================
+        async function loadUsers() {
+            const container = document.getElementById('usersContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div> جاري تحميل المستخدمين...</div>';
+
+            try {
+                const snapshot = await db.collection('users').get();
+                const users = [];
+                snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+
+                allUsers = users;
+                renderUsers(users
