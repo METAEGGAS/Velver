@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bishola - تسجيل الدخول</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .logo h1 span {
+            color: #f97316;
+        }
+
+        .logo p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+            color: #94a3b8;
+        }
+
+        .tab-btn.active {
+            background: #f97316;
+            color: #fff;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: #f97316;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #ea580c;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .message.success {
+            display: block;
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .message.info {
+            display: block;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .divider {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .divider::before {
+            left: 0;
+        }
+        .divider::after {
+            right: 0;
+        }
+
+        .social-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #f97316;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <h1>Bishola<span>.</span></h1>
+            <p>منصة متكاملة لإدارة الأعمال</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tabLogin" onclick="switchTab('login')">تسجيل الدخول</button>
+            <button class="tab-btn" id="tabRegister" onclick="switchTab('register')">إنشاء حساب</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="loginEmail" placeholder="example@email.com" />
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="loginPassword" placeholder="••••••••" />
+            </div>
+            <button class="btn-primary" id="loginBtn" onclick="handleLogin()">تسجيل الدخول</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="registerName" placeholder="أحمد محمد" />
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="registerEmail" placeholder="example@email.com" />
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="registerPassword" placeholder="••••••••" />
+            </div>
+            <div class="form-group">
+                <label>تأكيد كلمة المرور</label>
+                <input type="password" id="registerConfirm" placeholder="••••••••" />
+            </div>
+            <button class="btn-primary" id="registerBtn" onclick="handleRegister()">إنشاء حساب</button>
+        </div>
+
+        <!-- Message -->
+        <div id="message" class="message"></div>
+
+        <!-- Divider -->
+        <div class="divider">أو</div>
+
+        <!-- Social Buttons -->
+        <div class="social-btns">
+            <button class="social-btn" onclick="handleGoogle()">🔵 Google</button>
+            <button class="social-btn" onclick="handleApple()">⚫ Apple</button>
+        </div>
+
+        <div class="footer">
+            © 2026 Bishola. جميع الحقوق محفوظة.
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🔥 BISHOLA - تسجيل الدخول وإنشاء حساب باستخدام Firebase
+        // ============================================================
+
+        // ✅ بيانات Firebase المستخرجة من التطبيق
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhxRiVRjN-DBJ3cg7BQ5Vgcll5_go7XYE",
+            authDomain: "bishola-dev-testing.firebaseapp.com",
+            projectId: "bishola-dev-testing",
+            storageBucket: "bishola-dev-testing.firebasestorage.app",
+            messagingSenderId: "356626457219",
+            appId: "1:356626457219:android:6e6c18dafa89c63fffb1b6"
+        };
+
+        // ✅ تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ============================================================
+        // 📌 إدارة التبويبات
+        // ============================================================
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const message = document.getElementById('message');
+
+            // إخفاء الرسالة
+            message.className = 'message';
+            message.textContent = '';
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+            }
+        }
+
+        // ============================================================
+        // 📌 تسجيل الدخول
+        // ============================================================
+        async function handleLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const message = document.getElementById('message');
+            const btn = document.getElementById('loginBtn');
+
+            // التحقق من الإدخال
+            if (!email || !password) {
+                showMessage('الرجاء إدخال البريد الإلكتروني وكلمة المرور', 'error');
+                return;
+            }
+
+            // تعطيل الزر أثناء التنفيذ
+            btn.disabled = true;
+            btn.textContent = 'جاري تسجيل الدخول...';
+
+            try {
+                const result = await auth.signInWithEmailAndPassword(email, password);
+                const user = result.user;
+
+                // جلب بيانات المستخدم من Firestore
+                const doc = await db.collection('users').doc(user.uid).get();
+                const userData = doc.exists ? doc.data() : {};
+
+                showMessage(`✅ مرحباً ${userData.name || user.email}! تم تسجيل الدخول بنجاح.`, 'success');
+                console.log('👤 User:', {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    ...userData
+                });
+
+                // يمكن تخزين التوكن
+                const token = await user.getIdToken();
+                console.log('🔑 Access Token:', token);
+
+            } catch (error) {
+                showMessage(`❌ فشل تسجيل الدخول: ${error.message}`, 'error');
+                console.error('Login Error:', error);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'تسجيل الدخول';
+        }
+
+        // ============================================================
+        // 📌 إنشاء حساب جديد
+        // ============================================================
+        async function handleRegister() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            const confirm = document.getElementById('registerConfirm').value.trim();
+            const message = document.getElementById('message');
+            const btn = document.getElementById('registerBtn');
+
+            // التحقق من الإدخال
+            if (!name || !email || !password || !confirm) {
+                showMessage('الرجاء إدخال جميع البيانات المطلوبة', 'error');
+                return;
+            }
+
+            if (password !== confirm) {
+                showMessage('كلمة المرور غير متطابقة مع تأكيدها', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+                return;
+            }
+
+            // تعطيل الزر أثناء التنفيذ
+            btn.disabled = true;
+            btn.textContent = 'جاري إنشاء الحساب...';
+
+            try {
+                // إنشاء حساب في Firebase Auth
+                const result = await auth.createUserWithEmailAndPassword(email, password);
+                const user = result.user;
+
+                // تحديث الاسم في Firebase Auth
+                await user.updateProfile({
+                    displayName: name
+                });
+
+                // حفظ بيانات المستخدم في Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: user.uid,
+                    provider: 'email',
+                    role: 'user',
+                    isVerified: false
+                });
+
+                showMessage(`✅ مرحباً ${name}! تم إنشاء الحساب بنجاح.`, 'success');
+                console.log('👤 New User:', {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: name
+                });
+
+            } catch (error) {
+                showMessage(`❌ فشل إنشاء الحساب: ${error.message}`, 'error');
+                console.error('Register Error:', error);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'إنشاء حساب';
+        }
+
+        // ============================================================
+        // 📌 تسجيل الدخول بـ Google
+        // ============================================================
+        async function handleGoogle() {
+            showMessage('🔄 جاري التوجيه إلى Google...', 'info');
+
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                // حفظ البيانات في Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: user.displayName || 'مستخدم Google',
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: user.uid,
+                    provider: 'google',
+                    role: 'user'
+                }, { merge: true });
+
+                showMessage(`✅ مرحباً ${user.displayName}! تم تسجيل الدخول عبر Google.`, 'success');
+                console.log('👤 Google User:', user);
+
+            } catch (error) {
+                showMessage(`❌ فشل تسجيل الدخول عبر Google: ${error.message}`, 'error');
+                console.error('Google Error:', error);
+            }
+        }
+
+        // ============================================================
+        // 📌 تسجيل الدخول بـ Apple
+        // ============================================================
+        async function handleApple() {
+            showMessage('🔄 جاري التوجيه إلى Apple...', 'info');
+
+            try {
+                const provider = new firebase.auth.OAuthProvider('apple.com');
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                await db.collection('users').doc(user.uid).set({
+                    name: user.displayName || 'مستخدم Apple',
+                    email: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: user.uid,
+                    provider: 'apple',
+                    role: 'user'
+                }, { merge: true });
+
+                showMessage(`✅ مرحباً ${user.displayName || 'مستخدم Apple'}! تم تسجيل الدخول عبر Apple.`, 'success');
+                console.log('👤 Apple User:', user);
+
+            } catch (error) {
+                showMessage(`❌ فشل تسجيل الدخول عبر Apple: ${error.message}`, 'error');
+                console.error('Apple Error:', error);
+            }
+        }
+
+        // ============================================================
+        // 📌 عرض الرسائل
+        // ============================================================
+        function showMessage(text, type = 'info') {
+            const message = document.getElementById('message');
+            message.className = `message ${type}`;
+            message.textContent = text;
+        }
+
+        // ============================================================
+        // 📌 التحقق من حالة المستخدم (تلقائي)
+        // ============================================================
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log('✅ User is signed in:', user.email);
+                // يمكن إجراء إجراءات إضافية هنا
+            } else {
+                console.log('🔴 User is signed out');
+            }
+        });
+
+        // ============================================================
+        // 📌 إدخال Enter لتسجيل الدخول
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const loginForm = document.getElementById('loginForm');
+                if (!loginForm.classList.contains('hidden')) {
+                    handleLogin();
+                } else {
+                    handleRegister();
+                }
+            }
+        });
+
+        console.log('%c🔥 BISHOLA - Login & Register', 'font-size:20px; font-weight:bold; color:#f97316;');
+        console.log('📦 Firebase Config:', firebaseConfig);
+        console.log('🔑 API Key:', firebaseConfig.apiKey);
+    </script>
+
+</body>
+</html>
