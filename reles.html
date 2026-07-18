@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔥 MOFA-SY · اختبار تسجيل الدخول</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+        body {
+            background: #0a0a14;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .container {
+            background: #1a1a2e;
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        h1 {
+            color: #f97316;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+        .sub {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: border 0.3s;
+        }
+        .form-group input:focus {
+            border-color: #f97316;
+        }
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #f97316;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #ea580c;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .result.success {
+            border-color: #22c55e;
+            color: #4ade80;
+        }
+        .result.error {
+            border-color: #ef4444;
+            color: #f87171;
+        }
+        .result.info {
+            border-color: #3b82f6;
+            color: #60a5fa;
+        }
+        .hint {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 13px;
+        }
+        .hint a {
+            color: #f97316;
+            text-decoration: none;
+        }
+        .hint a:hover {
+            text-decoration: underline;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        .status-dot.green { background: #22c55e; }
+        .status-dot.red { background: #ef4444; }
+        .status-dot.orange { background: #f97316; }
+        .status-dot.gray { background: #64748b; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔥 MOFA-SY</h1>
+    <div class="sub">اختبار تسجيل الدخول عبر Email/Password</div>
+
+    <div class="form-group">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="email" placeholder="example@email.com" value="test@example.com" />
+    </div>
+
+    <div class="form-group">
+        <label>كلمة المرور</label>
+        <input type="password" id="password" placeholder="••••••••" value="password123" />
+    </div>
+
+    <button class="btn" id="loginBtn" onclick="handleLogin()">🚀 تسجيل الدخول</button>
+
+    <div class="result" id="result">⏳ انتظر...</div>
+
+    <div class="hint">
+        💡 <span id="hintText">جرب البريد: test@example.com | كلمة المرور: password123</span>
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    // 🔥 MOFA-SY · تسجيل الدخول باستخدام Firebase REST API
+    // ================================================================
+
+    const API_KEY = 'AIzaSyC97dyFTRix5WNiXSjwoaecEtxQGgxN9Uc';
+    const PROJECT_ID = 'mofa-sy';
+
+    const resultEl = document.getElementById('result');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const hintEl = document.getElementById('hintText');
+
+    // ================================================================
+    // ✅ دالة تسجيل الدخول
+    // ================================================================
+    async function handleLogin() {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        if (!email || !password) {
+            showResult('❌ الرجاء إدخال البريد الإلكتروني وكلمة المرور', 'error');
+            return;
+        }
+
+        // تعطيل الزر أثناء التنفيذ
+        loginBtn.disabled = true;
+        loginBtn.textContent = '⏳ جاري الاتصال...';
+        showResult('⏳ جاري تسجيل الدخول...', 'info');
+
+        try {
+            const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    returnSecureToken: true
+                })
+            });
+
+            const data = await response.json();
+
+            // ============================================================
+            // 📌 تحليل النتيجة
+            // ============================================================
+
+            if (response.ok && data.idToken) {
+                // ✅ نجاح
+                showResult(
+                    '✅ تم تسجيل الدخول بنجاح!\n\n' +
+                    '👤 البريد: ' + data.email + '\n' +
+                    '🆔 UID: ' + data.localId + '\n' +
+                    '🔑 ID Token: ' + data.idToken.substring(0, 40) + '...\n' +
+                    '🔄 Refresh Token: ' + data.refreshToken.substring(0, 30) + '...\n' +
+                    '📅 تاريخ الإنشاء: ' + new Date(parseInt(data.createdAt)).toLocaleString('ar-EG') + '\n' +
+                    '⏰ آخر تسجيل دخول: ' + new Date(parseInt(data.lastLoginAt)).toLocaleString('ar-EG'),
+                    'success'
+                );
+                hintEl.textContent = '✅ تم تسجيل الدخول بنجاح! يمكنك الآن استخدام ID Token لقراءة البيانات.';
+                hintEl.style.color = '#4ade80';
+
+            } else if (data.error) {
+                // ❌ فشل
+                const errorMessage = data.error.message || 'خطأ غير معروف';
+                let userHint = '';
+
+                if (errorMessage.includes('EMAIL_NOT_FOUND')) {
+                    userHint = '⚠️ البريد الإلكتروني غير مسجل. جرب إنشاء حساب جديد.';
+                } else if (errorMessage.includes('INVALID_PASSWORD')) {
+                    userHint = '⚠️ كلمة المرور غير صحيحة. حاول مرة أخرى.';
+                } else if (errorMessage.includes('USER_DISABLED')) {
+                    userHint = '⚠️ هذا الحساب معطل.';
+                } else if (errorMessage.includes('OPERATION_NOT_ALLOWED')) {
+                    userHint = '⚠️ خدمة Email/Password غير مفعلة في هذا المشروع. (auth/operation-not-allowed)';
+                } else if (errorMessage.includes('TOO_MANY_ATTEMPTS')) {
+                    userHint = '⚠️ محاولات كثيرة جداً. انتظر قليلاً.';
+                } else {
+                    userHint = '❌ ' + errorMessage;
+                }
+
+                showResult('❌ فشل تسجيل الدخول\n\n' + userHint, 'error');
+                hintEl.textContent = userHint;
+                hintEl.style.color = '#f87171';
+
+            } else {
+                showResult('❌ حدث خطأ غير متوقع', 'error');
+            }
+
+        } catch (error) {
+            showResult('❌ خطأ في الاتصال:\n' + error.message, 'error');
+            hintEl.textContent = '❌ تعذر الاتصال بـ Firebase. تأكد من اتصالك بالإنترنت.';
+            hintEl.style.color = '#f87171';
+        }
+
+        // إعادة تفعيل الزر
+        loginBtn.disabled = false;
+        loginBtn.textContent = '🚀 تسجيل الدخول';
+    }
+
+    // ================================================================
+    // 📌 عرض النتيجة
+    // ================================================================
+    function showResult(text, type = 'info') {
+        resultEl.textContent = text;
+        resultEl.className = 'result ' + type;
+    }
+
+    // ================================================================
+    // 📌 إدخال Enter
+    // ================================================================
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    });
+
+    // ================================================================
+    // 📌 اختبار بسيط عند التحميل
+    // ================================================================
+    showResult('⏳ جاهز... أدخل البريد وكلمة المرور ثم اضغط "تسجيل الدخول"', 'info');
+
+    console.log('%c🔥 MOFA-SY Login Tester', 'font-size:20px; font-weight:bold; color:#f97316;');
+    console.log('🔑 API Key:', API_KEY);
+    console.log('📁 Project ID:', PROJECT_ID);
+</script>
+
+</body>
+</html>
