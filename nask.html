@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOFA-SY - لوحة تحكم Firebase</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js">
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0f0f1a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f97316, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .header .badge {
+            background: rgba(249, 115, 22, 0.2);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            color: #f97316;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #f97316;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+        }
+
+        .tab-btn.active {
+            background: #f97316;
+            color: #fff;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #fff;
+        }
+
+        /* Panels */
+        .panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .controls input:focus {
+            border-color: #f97316;
+        }
+
+        .controls input::placeholder {
+            color: #64748b;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #f97316;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #ea580c;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: right;
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+            word-break: break-word;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-role {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        .badge-user {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .badge-moderator {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        .badge-guest {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94a3b8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .loading .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #f97316;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .empty .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Realtime DB */
+        .rtdb-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .rtdb-item .key {
+            color: #f97316;
+            font-weight: 600;
+        }
+
+        .rtdb-item .value {
+            color: #60a5fa;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.success {
+            background: #22c55e;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        .toast.info {
+            background: #3b82f6;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .controls input {
+                width: 100%;
+            }
+            th,
+            td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            .tab-btn {
+                flex: 1;
+                text-align: center;
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(249, 115, 22, 0.3);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(249, 115, 22, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="app">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>🔥 MOFA-SY Dashboard</h1>
+                <div class="subtitle">إدارة المستخدمين والبيانات – Firebase Console</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <span class="badge" id="connectionStatus">⏳ جاري الاتصال...</span>
+                <button class="btn btn-secondary" onclick="refreshAll()">🔄 تحديث الكل</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ مسح البيانات المعروضة</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="totalUsers">0</div>
+                <div class="label">👥 إجمالي المستخدمين</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="adminCount">0</div>
+                <div class="label">🛡️ الأدمن</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="moderatorCount">0</div>
+                <div class="label">⚙️ المشرفين</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="rtdbCount">0</div>
+                <div class="label">📦 سجلات Realtime DB</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('admins')">🛡️ الأدمن</button>
+            <button class="tab-btn" onclick="switchTab('users')">👥 المستخدمين</button>
+            <button class="tab-btn" onclick="switchTab('firestore')">📄 Firestore</button>
+            <button class="tab-btn" onclick="switchTab('rtdb')">📡 Realtime DB</button>
+            <button class="tab-btn" onclick="switchTab('raw')">🔍 عرض خام</button>
+        </div>
+
+        <!-- Panel: Admins -->
+        <div id="panelAdmins" class="panel active">
+            <div class="controls">
+                <input type="text" id="adminSearch" placeholder="🔍 بحث عن أدمن... (بريد إلكتروني)" oninput="filterAdmins()" />
+                <button class="btn btn-primary" onclick="loadAdmins()">🔄 تحميل الأدمن</button>
+            </div>
+            <div class="table-container" id="adminTableContainer">
+                <div class="loading"><div class="spinner"></div> جاري تحميل الأدمن...</div>
+            </div>
+        </div>
+
+        <!-- Panel: Users -->
+        <div id="panelUsers" class="panel">
+            <div class="controls">
+                <input type="text" id="userSearch" placeholder="🔍 بحث عن مستخدم... (اسم أو بريد)" oninput="filterUsers()" />
+                <button class="btn btn-primary" onclick="loadUsers()">🔄 تحميل المستخدمين</button>
+            </div>
+            <div class="table-container" id="userTableContainer">
+                <div class="loading"><div class="spinner"></div> جاري تحميل المستخدمين...</div>
+            </div>
+        </div>
+
+        <!-- Panel: Firestore -->
+        <div id="panelFirestore" class="panel">
+            <div class="controls">
+                <input type="text" id="firestoreCollection" placeholder="📁 اسم المجموعة (مثل: users, posts, orders)" value="users" />
+                <button class="btn btn-primary" onclick="loadFirestore()">📥 تحميل</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('firestoreCollection').value='users';loadFirestore();">users</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('firestoreCollection').value='posts';loadFirestore();">posts</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('firestoreCollection').value='orders';loadFirestore();">orders</button>
+            </div>
+            <div class="table-container" id="firestoreContainer">
+                <div class="loading"><div class="spinner"></div> أدخل اسم مجموعة للتحميل...</div>
+            </div>
+        </div>
+
+        <!-- Panel: Realtime DB -->
+        <div id="panelRtdb" class="panel">
+            <div class="controls">
+                <input type="text" id="rtdbPath" placeholder="📂 المسار (مثل: /users, /messages, /settings)" value="/" />
+                <button class="btn btn-primary" onclick="loadRealtimeDB()">📥 تحميل</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rtdbPath').value='/users';loadRealtimeDB();">/users</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rtdbPath').value='/messages';loadRealtimeDB();">/messages</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rtdbPath').value='/settings';loadRealtimeDB();">/settings</button>
+            </div>
+            <div id="rtdbContainer">
+                <div class="loading"><div class="spinner"></div> أدخل مساراً للتحميل...</div>
+            </div>
+        </div>
+
+        <!-- Panel: Raw -->
+        <div id="panelRaw" class="panel">
+            <div class="controls">
+                <button class="btn btn-primary" onclick="loadRawAll()">📥 تحميل جميع البيانات</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('rawOutput').textContent='';">🗑️ مسح</button>
+                <button class="btn btn-secondary" onclick="copyRaw()">📋 نسخ</button>
+            </div>
+            <div class="table-container">
+                <pre id="rawOutput" style="padding:20px;font-family:'Courier New',monospace;font-size:13px;color:#e2e8f0;max-height:600px;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:0;">📌 انتظر تحميل البيانات...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // 🔥 MOFA-SY - FIREBASE CONSOLE
+        // ============================================================
+
+        // ✅ بيانات Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC97dyFTRix5WNiXSjwoaecEtxQGgxN9Uc",
+            authDomain: "mofa-sy.firebaseapp.com",
+            projectId: "mofa-sy",
+            storageBucket: "mofa-sy.firebasestorage.app",
+            messagingSenderId: "410865695937",
+            appId: "1:410865695937:android:51c0f5db24220084fbe840"
+        };
+
+        // ✅ تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const rtdb = firebase.database();
+
+        // ============================================================
+        // 📌 المتغيرات العامة
+        // ============================================================
+        let allAdmins = [];
+        let allUsers = [];
+        let allFirestoreData = [];
+        let allRtdbData = [];
+        let currentTab = 'admins';
+
+        // ============================================================
+        // 📌 إدارة التبويبات
+        // ============================================================
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(`panel${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+            document.querySelector(`.tab-btn[onclick*="${tab}"]`).classList.add('active');
+
+            // تحميل البيانات عند التبديل
+            if (tab === 'admins') loadAdmins();
+            if (tab === 'users') loadUsers();
+        }
+
+        // ============================================================
+        // 📌 عرض رسائل (Toast)
+        // ============================================================
+        function showToast(message, type = 'info') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // ============================================================
+        // 📌 تحديث حالة الاتصال
+        // ============================================================
+        function updateConnectionStatus(status, message) {
+            const el = document.getElementById('connectionStatus');
+            if (status === 'connected') {
+                el.textContent = '✅ متصل';
+                el.style.borderColor = '#22c55e';
+                el.style.color = '#4ade80';
+            } else if (status === 'error') {
+                el.textContent = `❌ ${message}`;
+                el.style.borderColor = '#ef4444';
+                el.style.color = '#f87171';
+            } else {
+                el.textContent = `⏳ ${message}`;
+                el.style.borderColor = '#f97316';
+                el.style.color = '#f97316';
+            }
+        }
+
+        // ============================================================
+        // 📌 تحميل الأدمن
+        // ============================================================
+        async function loadAdmins() {
+            const container = document.getElementById('adminTableContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div> جاري تحميل الأدمن...</div>';
+
+            try {
+                // محاولة جلب المستخدمين من Firestore
+                const snapshot = await db.collection('users').where('role', '==', 'admin').get();
+                const admins = [];
+                snapshot.forEach(doc => {
+                    admins.push({ id: doc.id, ...doc.data() });
+                });
+
+                // إذا لم يوجد أدمن، جلب كل المستخدمين وفلترة
+                if (admins.length === 0) {
+                    const allSnapshot = await db.collection('users').get();
+                    allSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.role === 'admin' || data.isAdmin === true || data.is_admin === true) {
+                            admins.push({ id: doc.id, ...data });
+                        }
+                    });
+                }
+
+                allAdmins = admins;
+                renderAdmins(admins);
+                updateStats();
+
+                if (admins.length === 0) {
+                    showToast('لم يتم العثور على أدمن', 'info');
+                } else {
+                    showToast(`✅ تم تحميل ${admins.length} أدمن`, 'success');
+                }
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">❌</div>
+                        <div>فشل تحميل الأدمن</div>
+                        <div style="font-size:13px;color:#64748b;margin-top:8px;">${error.message}</div>
+                        <button class="btn btn-primary" style="margin-top:16px;" onclick="loadAdmins()">🔄 إعادة المحاولة</button>
+                    </div>
+                `;
+                showToast(`❌ فشل تحميل الأدمن: ${error.message}`, 'error');
+                updateConnectionStatus('error', error.message);
+                console.error('Load Admins Error:', error);
+            }
+        }
+
+        function renderAdmins(admins) {
+            const container = document.getElementById('adminTableContainer');
+
+            if (!admins || admins.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">🛡️</div>
+                        <div>لا يوجد أدمن</div>
+                        <div style="font-size:13px;color:#64748b;margin-top:8px;">لم يتم العثور على أي مستخدم مع صلاحيات أدمن</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المعرف (UID)</th>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الدور</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            admins.forEach((admin, index) => {
+                const roleClass = admin.role === 'admin' ? 'badge-admin' :
+                    admin.role === 'moderator' ? 'badge-moderator' : 'badge-user';
+                const roleLabel = admin.role || 'user';
+                const name = admin.name || admin.displayName || admin.username || 'غير معروف';
+                const email = admin.email || 'لا يوجد بريد';
+                const createdAt = admin.createdAt ? new Date(admin.createdAt.seconds * 1000).toLocaleString('ar-EG') :
+                    admin.created_at || 'غير معروف';
+                const status = admin.isActive !== false ? '🟢 نشط' : '🔴 غير نشط';
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><code style="font-size:12px;color:#94a3b8;">${admin.id || 'N/A'}</code></td>
+                        <td><strong>${name}</strong></td>
+                        <td>${email}</td>
+                        <td><span class="badge-role ${roleClass}">${roleLabel}</span></td>
+                        <td>${createdAt}</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        // 📌 تحميل المستخدمين
+        // ============================================================
+        async function loadUsers() {
+            const container = document.getElementById('userTableContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div> جاري تحميل المستخدمين...</div>';
+
+            try {
+                const snapshot = await db.collection('users').get();
+                const users = [];
+                snapshot.forEach(doc => {
+                    users.push({ id: doc.id, ...doc.data() });
+                });
+
+                allUsers = users;
+                renderUsers(users);
+                updateStats();
+
+                showToast(`✅ تم تحميل ${users.length} مستخدم`, 'success');
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">❌</div>
+                        <div>فشل تحميل المستخدمين</div>
+                        <div style="font-size:13px;color:#64748b;margin-top:8px;">${error.message}</div>
+                        <button class="btn btn-primary" style="margin-top:16px;" onclick="loadUsers()">🔄 إعادة المحاولة</button>
+                    </div>
+                `;
+                showToast(`❌ فشل تحميل المستخدمين: ${error.message}`, 'error');
+                console.error('Load Users Error:', error);
+            }
+        }
+
+        function renderUsers(users) {
+            const container = document.getElementById('userTableContainer');
+            const search = document.getElementById('userSearch').value.toLowerCase();
+
+            let filtered = users;
+            if (search) {
+                filtered = users.filter(u => {
+                    const name = (u.name || u.displayName || u.username || '').toLowerCase();
+                    const email = (u.email || '').toLowerCase();
+                    return name.includes(search) || email.includes(search);
+                });
+            }
+
+            if (!filtered || filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">👥</div>
+                        <div>${search ? 'لا توجد نتائج للبحث' : 'لا يوجد مستخدمين'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>المعرف (UID)</th>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الدور</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filtered.forEach((user, index) => {
+                const roleClass = user.role === 'admin' ? 'badge-admin' :
+                    user.role === 'moderator' ? 'badge-moderator' : 'badge-user';
+                const roleLabel = user.role || 'user';
+                const name = user.name || user.displayName || user.username || 'غير معروف';
+                const email = user.email || 'لا يوجد بريد';
+                const createdAt = user.createdAt ? new Date(user.createdAt.seconds * 1000).toLocaleString('ar-EG') :
+                    user.created_at || 'غير معروف';
+                const status = user.isActive !== false ? '🟢 نشط' : '🔴 غير نشط';
+
+                html += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><code style="font-size:12px;color:#94a3b8;">${user.id || 'N/A'}</code></td>
+                        <td><strong>${name}</strong></td>
+                        <td>${email}</td>
+                        <td><span class="badge-role ${roleClass}">${roleLabel}</span></td>
+                        <td>${createdAt}</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function filterUsers() {
+            renderUsers(allUsers);
+        }
+
+        function filterAdmins() {
+            const search = document.getElementById('adminSearch').value.toLowerCase();
+            const filtered = allAdmins.filter(a => {
+                const email = (a.email || '').toLowerCase();
+                const name = (a.name || a.displayName || '').toLowerCase();
+                return email.includes(search) || name.includes(search);
+            });
+            renderAdmins(filtered);
+        }
+
+        // ============================================================
+        // 📌 تحميل Firestore
+        // ============================================================
+        async function loadFirestore() {
+            const collection = document.getElementById('firestoreCollection').value.trim() || 'users';
+            const container = document.getElementById('firestoreContainer');
+            container.innerHTML = `<div class="loading"><div class="spinner"></div> جاري تحميل مجموعة ${collection}...</div>`;
+
+            try {
+                const snapshot = await db.collection(collection).get();
+                const data = [];
+                snapshot.forEach(doc => {
+                    data.push({ id: doc.id, ...doc.data() });
+                });
+
+                allFirestoreData = data;
+                renderFirestore(data, collection);
+
+                if (data.length === 0) {
+                    showToast(`ℹ️ مجموعة ${collection} فارغة`, 'info');
+                } else {
+                    showToast(`✅ تم تحميل ${data.length} وثيقة من ${collection}`, 'success');
+                }
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">❌</div>
+                        <div>فشل تحميل مجموعة ${collection}</div>
+                        <div style="font-size:13px;color:#64748b;margin-top:8px;">${error.message}</div>
+                        <button class="btn btn-primary" style="margin-top:16px;" onclick="loadFirestore()">🔄 إعادة المحاولة</button>
+                    </div>
+                `;
+                showToast(`❌ فشل تحميل Firestore: ${error.message}`, 'error');
+                console.error('Firestore Error:', error);
+            }
+        }
+
+        function renderFirestore(data, collection) {
+            const container = document.getElementById('firestoreContainer');
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">📄</div>
+                        <div>مجموعة "${collection}" فارغة</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // استخراج المفاتيح
+            const keys = new Set();
+            data.forEach(doc => {
+                Object.keys(doc).forEach(k => keys.add(k));
+            });
+            const columns = ['id', ...Array.from(keys).filter(k => k !== 'id')];
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            ${columns.map(col => `<th>${col}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach(doc => {
+                html += `<tr>`;
+                columns.forEach(col => {
+                    let val = doc[col];
+                    if (val === undefined || val === null) val = '—';
+                    else if (typeof val === 'object') {
+                        if (val.seconds) {
+                            val = new Date(val.seconds * 1000).toLocaleString('ar-EG');
+                        } else {
+                            val = JSON.stringify(val).substring(0, 100) + (JSON.stringify(val).length > 100 ? '...' :
+                            '');
+                        }
+                    } else if (typeof val === 'boolean') {
+                        val = val ? '✅' : '❌';
+                    }
+                    html += `<td style="font-size:13px;">${val}</td>`;
+                });
+                html += `</tr>`;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        // 📌 تحميل Realtime Database
+        // ============================================================
+        async function loadRealtimeDB() {
+            const path = document.getElementById('rtdbPath').value.trim() || '/';
+            const container = document.getElementById('rtdbContainer');
+            container.innerHTML = `<div class="loading"><div class="spinner"></div> جاري تحميل ${path}...</div>`;
+
+            try {
+                const ref = rtdb.ref(path);
+                const snapshot = await ref.get();
+                const data = snapshot.val();
+
+                allRtdbData = data;
+                renderRealtimeDB(data, path);
+
+                if (data === null || data === undefined) {
+                    showToast(`ℹ️ المسار ${path} فارغ`, 'info');
+                } else {
+                    const count = Array.isArray(data) ? data.length : Object.keys(data).length;
+                    showToast(`✅ تم تحميل ${count} عنصر من ${path}`, 'success');
+                }
+
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">❌</div>
+                        <div>فشل تحميل ${path}</div>
+                        <div style="font-size:13px;color:#64748b;margin-top:8px;">${error.message}</div>
+                        <button class="btn btn-primary" style="margin-top:16px;" onclick="loadRealtimeDB()">🔄 إعادة المحاولة</button>
+                    </div>
+                `;
+                showToast(`❌ فشل تحميل Realtime DB: ${error.message}`, 'error');
+                console.error('Realtime DB Error:', error);
+            }
+        }
+
+        function renderRealtimeDB(data, path) {
+            const container = document.getElementById('rtdbContainer');
+
+            if (data === null || data === undefined) {
+                container.innerHTML = `
+                    <div class="empty">
+                        <div class="icon">📡</div>
+                        <div>المسار "${path}" فارغ أو غير موجود</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // عرض البيانات بصيغة JSON جميلة
+            const json = JSON.stringify(data, null, 2);
+            const formatted = json
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            container.innerHTML = `
+                <div class="table-container" style="padding:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                        <span style="color:#94a3b8;font-size:13px;">📂 المسار: <code style="color:#f97316;">${path}</code></span>
+                        <span style="color:#94a3b8;font-size:13px;">📦 ${Array.isArray(data) ? data.length : Object.keys(data).length} عنصر</span>
+                        <button class="btn btn-secondary" onclick="copyRtdb()">📋 نسخ</button>
+                    </div>
+                    <pre style="font-family:'Courier New',monospace;font-size:13px;color:#e2e8f0;background:rgba(0,0,0,0.3);padding:16px;border-radius:8px;overflow:auto;max-height:500px;white-space:pre-wrap;word-break:break-all;margin:0;">${formatted}</pre>
+                </div>
+            `;
+        }
+
+        function copyRtdb() {
+            const pre = document.querySelector('#rtdbContainer pre');
+            if (pre) {
+                navigator.clipboard.writeText(pre.textContent).then(() => {
+                    showToast('📋 تم نسخ البيانات', 'success');
+                }).catch(() => {
+                    showToast('❌ فشل النسخ', 'error');
+                });
+            }
+        }
+
+        // ============================================================
+        // 📌 تحميل جميع البيانات (Raw)
+        // ============================================================
+        async function loadRawAll() {
+            const output = document.getElementById('rawOutput');
+            output.textContent = '⏳ جاري تحميل جميع البيانات...\n';
+
+            const results = {};
+
+            try {
+                // Firestore - users
+                const usersSnapshot = await db.collection('users').get();
+                const users = [];
+                usersSnapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+                results.users = users;
+                output.textContent += `✅ users: ${users.length} وثيقة\n`;
+            } catch (e) {
+                results.users = { error: e.message };
+                output.textContent += `❌ users: ${e.message}\n`;
+            }
+
+            try {
+                // Firestore - admins
+                const adminsSnapshot = await db.collection('users').where('role', '==', 'admin').get();
+                const admins = [];
+                adminsSnapshot.forEach(doc => admins.push({ id: doc.id, ...doc.data() }));
+                results.admins = admins;
+                output.textContent += `✅ admins: ${admins.length} أدمن\n`;
+            } catch (e) {
+                results.admins = { error: e.message };
+                output.textContent += `❌ admins: ${e.message}\n`;
+            }
+
+            try {
+                // Realtime DB - /
+                const rtdbSnapshot = await rtdb.ref('/').get();
+                results.rtdb = rtdbSnapshot.val();
+                const rtdbCount = rtdbSnapshot.val() ? Object.keys(rtdbSnapshot.val()).length : 0;
+                output.textContent += `✅ rtdb: ${rtdbCount} عنصر\n`;
+            } catch (e) {
+                results.rtdb = { error: e.message };
+                output.textContent += `❌ rtdb: ${e.message}\n`;
+            }
+
+            // عرض البيانات الكاملة
+            output.textContent += '\n' + '='.repeat(60) + '\n';
+            output.textContent += JSON.stringify(results, (key, value) => {
+                if (value && typeof value === 'object' && value.seconds) {
+                    return new Date(value.seconds * 1000).toLocaleString('ar-EG');
+                }
+                if (typeof value === 'string' && value.length > 1000) {
+                    return value.substring(0, 1000) + '... (مقطوع)';
+                }
+                return value;
+            }, 2);
+
+            showToast('✅ تم تحميل جميع البيانات', 'success');
+        }
+
+        function copyRaw() {
+            const pre = document.getElementById('rawOutput');
+            if (pre) {
+                navigator.clipboard.writeText(pre.textContent).then(() => {
+                    showToast('📋 تم نسخ البيانات', 'success');
+                }).catch(() => {
+                    showToast('❌ فشل النسخ', 'error');
+                });
+            }
+        }
+
+        // ============================================================
+        // 📌 تحديث الإحصائيات
+        // ============================================================
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length || 0;
+            document.getElementById('adminCount').textContent = allAdmins.length || 0;
+            document.getElementById('moderatorCount').textContent = allUsers.filter(u => u.role === 'moderator').length || 0;
+            document.getElementById('rtdbCount').textContent = allRtdbData ? (Array.isArray(allRtdbData) ? allRtdbData
+                .length : Object.keys(allRtdbData).length) : 0;
+        }
+
+        // ============================================================
+        // 📌 تحديث الكل
+        // ============================================================
+        function refreshAll() {
+            showToast('🔄 جاري تحديث جميع البيانات...', 'info');
+            if (currentTab === 'admins') loadAdmins();
+            else if (currentTab === 'users') loadUsers();
+            else if (currentTab === 'firestore') loadFirestore();
+            else if (currentTab === 'rtdb') loadRealtimeDB();
+            else if (currentTab === 'raw') loadRawAll();
+            else {
+                loadAdmins();
+                loadUsers();
+            }
+            updateStats();
+        }
+
+        // ============================================================
+        // 📌 مسح البيانات المعروضة
+        // ============================================================
+        function clearAllData() {
+            const containers = [
+                'adminTableContainer',
+                'userTableContainer',
+                'firestoreContainer',
+                'rtdbContainer'
+            ];
+            containers.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.innerHTML = `<div class="empty"><div class="icon">🗑️</div><div>تم مسح البيانات</div></div>`;
+                }
+            });
+            document.getElementById('rawOutput').textContent = '🗑️ تم مسح البيانات';
+            showToast('🗑️ تم مسح جميع البيانات المعروضة', 'info');
+        }
+
+        // ============================================================
+        // 📌 تفعيل Enter للبحث
+        // ============================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const target = e.target;
+                if (target.id === 'adminSearch') filterAdmins();
+                else if (target.id === 'userSearch') filterUsers();
+                else if (target.id === 'firestoreCollection') loadFirestore();
+                else if (target.id === 'rtdbPath') loadRealtimeDB();
+            }
+        });
+
+        // ============================================================
+        // 📌 تحميل أولي
+        // ============================================================
+        updateConnectionStatus('loading', 'جاري الاتصال...');
+
+        // محاولة الاتصال
+        setTimeout(() => {
+            try {
+                const testRef = rtdb.ref('.info/connected');
+                testRef.on('value', (snap) => {
+                    if (snap.val() === true) {
+                        updateConnectionStatus('connected', 'متصل بـ Firebase');
+                        // تحميل البيانات الأولية
+                        loadAdmins();
+                        loadUsers();
+                    } else {
+                        updateConnectionStatus('loading', 'في انتظار الاتصال...');
+                    }
+                });
+
+                // Fallback: إذا لم يستجب خلال 5 ثوانٍ
+                setTimeout(() => {
+                    const status = document.getElementById('connectionStatus');
+                    if (status.textContent.includes('جاري')) {
+                        updateConnectionStatus('error', 'تعذر الاتصال بـ Firebase');
+                        showToast('⚠️ تعذر الاتصال بـ Firebase. تحقق من اتصالك بالإنترنت.', 'error');
+                    }
+                }, 5000);
+            } catch (e) {
+                updateConnectionStatus('error', e.message);
+                showToast(`❌ خطأ في الاتصال: ${e.message}`, 'error');
+                console.error('Connection Error:', e);
+            }
+        }, 500);
+
+        console.log('%c🔥 MOFA-SY Dashboard Loaded', 'font-size:20px; font-weight:bold; color:#f97316;');
+        console.log('📦 Firebase Config:', firebaseConfig);
+        console.log('🔑 API Key:', firebaseConfig.apiKey);
+        console.log('📁 Project ID:', firebaseConfig.projectId);
+    </script>
+
+</body>
+</html>
