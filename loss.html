@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول والإشعارات</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    body {
+      margin: 0; min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+    }
+    .card {
+      background: #fff; padding: 30px; border-radius: 16px;
+      width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,.4);
+    }
+    h2 { margin: 0 0 20px; text-align: center; color: #1a1a2e; }
+    input {
+      width: 100%; padding: 12px; margin-bottom: 12px;
+      border: 1px solid #ddd; border-radius: 8px; font-size: 15px;
+    }
+    button {
+      width: 100%; padding: 12px; border: none; border-radius: 8px;
+      font-size: 16px; cursor: pointer; margin-bottom: 10px; font-weight: bold;
+    }
+    .btn-primary { background: #4a6cf7; color: #fff; }
+    .btn-secondary { background: #eef1ff; color: #4a6cf7; }
+    .btn-notif { background: #12b76a; color: #fff; }
+    .btn-danger { background: #f04438; color: #fff; }
+    #status {
+      padding: 10px; border-radius: 8px; font-size: 14px;
+      margin-bottom: 12px; display: none; word-break: break-all;
+    }
+    .success { background: #e7f8ef; color: #067647; display: block !important; }
+    .error { background: #fef3f2; color: #b42318; display: block !important; }
+    #app-section { display: none; }
+    #token-box {
+      background: #f4f4f4; padding: 10px; border-radius: 8px;
+      font-size: 11px; word-break: break-all; max-height: 80px;
+      overflow-y: auto; direction: ltr; text-align: left;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🔐 حسابي</h2>
+  <div id="status"></div>
+
+  <!-- قسم تسجيل الدخول / إنشاء حساب -->
+  <div id="auth-section">
+    <input type="email" id="email" placeholder="البريد الإلكتروني" dir="ltr">
+    <input type="password" id="password" placeholder="كلمة المرور (6 أحرف فأكثر)" dir="ltr">
+    <button class="btn-primary" onclick="login()">تسجيل الدخول</button>
+    <button class="btn-secondary" onclick="signup()">إنشاء حساب جديد</button>
+  </div>
+
+  <!-- قسم التطبيق بعد الدخول -->
+  <div id="app-section">
+    <p>أهلاً بيك 👋 <b id="user-email"></b></p>
+    <button class="btn-notif" onclick="enableNotifications()">🔔 تفعيل الإشعارات</button>
+    <div id="token-container" class="hidden">
+      <p style="font-size:13px; margin:8px 0 4px;">توكن الجهاز (FCM Token):</p>
+      <div id="token-box"></div>
+    </div>
+    <button class="btn-danger" onclick="logout()" style="margin-top:10px;">تسجيل الخروج</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { getMessaging, getToken, onMessage }
+    from "https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBvzfJOOjRFZnTgTUrwEZQPr8Ba7zKKlNg",
+    authDomain: "hhhxh-5ebe4.firebaseapp.com",
+    projectId: "hhhxh-5ebe4",
+    storageBucket: "hhhxh-5ebe4.firebasestorage.app",
+    messagingSenderId: "79243000696",
+    appId: "1:79243000696:web:ee0fb2d2ccce791954e68d",
+    measurementId: "G-08BR6LN6PT"
+  };
+
+  // ⚠️ مفتاح Web Push (VAPID) — تأكد إنه نفس الموجود في Cloud Messaging
+  const VAPID_KEY = "BCvP2em6Mfbf_3C0LB_R3l7DJ16eDHWAusqtTLMOc7D8wG8dHEhNxRCoOKsixoO5cdjFMUgIkaf_bTBmIWewzSI";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const messaging = getMessaging(app);
+
+  const statusEl = document.getElementById('status');
+  const showStatus = (msg, isError = false) => {
+    statusEl.textContent = msg;
+    statusEl.className = isError ? 'error' : 'success';
+  };
+
+  // ===== إنشاء حساب =====
+  window.signup = async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      showStatus('✅ تم إنشاء الحساب بنجاح');
+    } catch (e) {
+      showStatus('❌ ' + translateError(e.code), true);
+    }
+  };
+
+  // ===== تسجيل الدخول =====
+  window.login = async () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      showStatus('✅ تم تسجيل الدخول بنجاح');
+    } catch (e) {
+      showStatus('❌ ' + translateError(e.code), true);
+    }
+  };
+
+  // ===== تسجيل الخروج =====
+  window.logout = async () => {
+    await signOut(auth);
+    showStatus('تم تسجيل الخروج');
+  };
+
+  // ===== مراقبة حالة المستخدم =====
+  onAuthStateChanged(auth, (user) => {
+    document.getElementById('auth-section').style.display = user ? 'none' : 'block';
+    document.getElementById('app-section').style.display = user ? 'block' : 'none';
+    if (user) document.getElementById('user-email').textContent = user.email;
+  });
+
+  // ===== تفعيل الإشعارات =====
+  window.enableNotifications = async () => {
+    try {
+      if (!('Notification' in window)) {
+        showStatus('❌ المتصفح ده مش بيدعم الإشعارات', true);
+        return;
+      }
+      if (!('serviceWorker' in navigator)) {
+        showStatus('❌ المتصفح ده مش بيدعم Service Worker', true);
+        return;
+      }
+
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        showStatus('❌ تم رفض إذن الإشعارات من المتصفح', true);
+        return;
+      }
+
+      // تسجيل الـ Service Worker (لازم يكون في جذر الموقع)
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+
+      const token = await getToken(messaging, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registration
+      });
+
+      if (token) {
+        document.getElementById('token-container').classList.remove('hidden');
+        document.getElementById('token-box').textContent = token;
+        showStatus('✅ الإشعارات مفعّلة! التوكن ظهر تحت');
+        // TODO: ابعت التوكن ده لسيرفرك/قاعدة البيانات عشان تبعتله إشعارات
+      } else {
+        showStatus('❌ لم يتم الحصول على التوكن', true);
+      }
+    } catch (e) {
+      showStatus('❌ خطأ في الإشعارات: ' + e.message, true);
+    }
+  };
+
+  // ===== استقبال الإشعارات والصفحة مفتوحة =====
+  onMessage(messaging, (payload) => {
+    const title = payload.notification?.title || 'إشعار جديد';
+    const body = payload.notification?.body || '';
+    showStatus('🔔 ' + title + ' — ' + body);
+  });
+
+  // ===== ترجمة أخطاء Firebase =====
+  function translateError(code) {
+    const errors = {
+      'auth/email-already-in-use': 'البريد ده مسجل قبل كده، جرب تسجيل الدخول',
+      'auth/invalid-email': 'البريد الإلكتروني غير صحيح',
+      'auth/weak-password': 'كلمة المرور ضعيفة (6 أحرف على الأقل)',
+      'auth/user-not-found': 'مفيش حساب بالبريد ده',
+      'auth/wrong-password': 'كلمة المرور غير صحيحة',
+      'auth/invalid-credential': 'بيانات الدخول غير صحيحة',
+      'auth/too-many-requests': 'محاولات كتير، استنى شوية وحاول تاني'
+    };
+    return errors[code] || code;
+  }
+</script>
+</body>
+</html>
