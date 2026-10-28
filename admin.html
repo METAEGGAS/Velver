@@ -1,142 +1,268 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Pro Chart</title><style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;background:#0d1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:hidden;color:#d1d4dc}#wrap{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column}#bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#131722;border-bottom:1px solid #1e222d;flex-wrap:wrap;gap:8px;z-index:5}#sym{font-weight:600;font-size:15px;color:#f0f3fa}#info{display:flex;gap:14px;font-size:12px;flex-wrap:wrap}.pill{display:flex;flex-direction:column;gap:2px}.pill span:first-child{color:#787b86;font-size:10px;text-transform:uppercase}.pill span:last-child{font-weight:600}.up{color:#26a69a}.dn{color:#ef5350}#main{flex:1;display:flex;position:relative;min-height:0}#tools{width:44px;background:#131722;border-left:1px solid #1e222d;display:flex;flex-direction:column;padding:6px 4px;gap:2px;z-index:10}.tool{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;color:#b2b5be;transition:all .15s;user-select:none;position:relative}.tool:hover{background:#1e222d;color:#f0f3fa}.tool.active{background:#2962ff;color:#fff}.tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tool .tip{position:absolute;right:44px;top:50%;transform:translateY(-50%);background:#1e222d;color:#f0f3fa;padding:4px 8px;border-radius:3px;font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;border:1px solid #2a2e39}.tool:hover .tip{opacity:1}.sep{height:1px;background:#1e222d;margin:4px 6px}#chartWrap{flex:1;position:relative;min-width:0}#chart{width:100%;height:100%}#draw{position:absolute;top:0;left:0;pointer-events:none;touch-action:none}#draw.act{pointer-events:auto;cursor:crosshair}#draw.mv{cursor:move}#txtIn{position:absolute;background:#1e222d;color:#f0f3fa;border:1px solid #2962ff;padding:4px 8px;font-size:13px;border-radius:3px;outline:none;display:none;z-index:20;font-family:inherit}#ctx{position:absolute;background:#1e222d;border:1px solid #2a2e39;border-radius:4px;padding:4px;display:none;z-index:30;box-shadow:0 4px 12px rgba(0,0,0,.4)}.ci{padding:6px 14px;font-size:12px;cursor:pointer;color:#d1d4dc;border-radius:3px;display:flex;align-items:center;gap:8px}.ci:hover{background:#2a2e39}.ci.del{color:#ef5350}.sw{display:flex;gap:4px;padding:4px}.sw div{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent}.sw div.on{border-color:#fff}</style></head><body><div id="wrap"><div id="bar"><div id="sym">BTC/USDT · 1m</div><div id="info"><div class="pill"><span>O</span><span id="o">-</span></div><div class="pill"><span>H</span><span id="h">-</span></div><div class="pill"><span>L</span><span id="l">-</span></div><div class="pill"><span>C</span><span id="c">-</span></div><div class="pill"><span>Change</span><span id="ch">-</span></div></div></div><div id="main"><div id="chartWrap"><div id="chart"></div><canvas id="draw"></canvas><input id="txtIn" type="text" placeholder="Text..."><div id="ctx"></div></div><div id="tools">
-<div class="tool" data-t="cursor" title="Cursor"><svg viewBox="0 0 24 24"><path d="M5 3l6 18 2-8 8-2z"/></svg><span class="tip">مؤشر</span></div>
-<div class="sep"></div>
-<div class="tool" data-t="trend"><svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><circle cx="4" cy="20" r="1.5"/><circle cx="20" cy="4" r="1.5"/></svg><span class="tip">خط اتجاه</span></div>
-<div class="tool" data-t="hline"><svg viewBox="0 0 24 24"><path d="M2 12h20"/></svg><span class="tip">خط أفقي</span></div>
-<div class="tool" data-t="vline"><svg viewBox="0 0 24 24"><path d="M12 2v20"/></svg><span class="tip">خط عمودي</span></div>
-<div class="tool" data-t="arrow"><svg viewBox="0 0 24 24"><path d="M4 20L20 4M20 4h-7M20 4v7"/></svg><span class="tip">سهم</span></div>
-<div class="sep"></div>
-<div class="tool" data-t="rect"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12"/></svg><span class="tip">مستطيل</span></div>
-<div class="tool" data-t="circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg><span class="tip">دائرة</span></div>
-<div class="sep"></div>
-<div class="tool" data-t="fib"><svg viewBox="0 0 24 24"><path d="M3 4h18M3 9h18M3 14h18M3 19h18"/></svg><span class="tip">فيبوناتشي</span></div>
-<div class="tool" data-t="measure"><svg viewBox="0 0 24 24"><path d="M3 17L17 3M6 8l2 2M9 5l2 2M12 12l2 2M15 9l2 2"/></svg><span class="tip">قياس</span></div>
-<div class="sep"></div>
-<div class="tool" data-t="text"><svg viewBox="0 0 24 24"><path d="M5 5h14M12 5v14M8 19h8"/></svg><span class="tip">نص</span></div>
-<div class="sep"></div>
-<div class="tool" data-t="clear"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg><span class="tip">مسح الكل</span></div>
-</div></div></div>
-<script src="https://unpkg.com/lightweight-charts@5.0.7/dist/lightweight-charts.standalone.production.js"></script><script>
-(()=>{const {createChart,CandlestickSeries,CrosshairMode}=LightweightCharts;
-const el=document.getElementById('chart');
-const chart=createChart(el,{layout:{background:{type:'solid',color:'#0d1117'},textColor:'#d1d4dc',fontSize:12,attributionLogo:false},grid:{vertLines:{color:'#1e222d'},horzLines:{color:'#1e222d'}},crosshair:{mode:CrosshairMode.Normal,vertLine:{color:'#787b86',width:1,style:3,labelBackgroundColor:'#2962ff'},horzLine:{color:'#787b86',width:1,style:3,labelBackgroundColor:'#2962ff'}},rightPriceScale:{borderColor:'#1e222d',scaleMargins:{top:0.1,bottom:0.1}},timeScale:{borderColor:'#1e222d',timeVisible:true,secondsVisible:false,rightOffset:12,barSpacing:8,minBarSpacing:0.5},handleScroll:{mouseWheel:true,pressedMouseMove:true,horzTouchDrag:true,vertTouchDrag:true},handleScale:{axisPressedMouseMove:true,mouseWheel:true,pinch:true},autoSize:true,kineticScroll:{touch:true,mouse:false}});
-const series=chart.addSeries(CandlestickSeries,{upColor:'#26a69a',downColor:'#ef5350',borderUpColor:'#26a69a',borderDownColor:'#ef5350',wickUpColor:'#26a69a',wickDownColor:'#ef5350',priceFormat:{type:'price',precision:2,minMove:0.01}});
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="theme-color" content="#104b8f"><title>Marex — لوحة التحكم</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
 
-const Feed={interval:60,price:65000,trend:0,vol:0.0008,bars:[],now(){return Math.floor(Date.now()/1000)},bucket(t){return t-(t%this.interval)},
-genHistorical(count){let t=this.bucket(this.now())-count*this.interval;let p=this.price;for(let i=0;i<count;i++){const o=p;if(Math.random()<0.03)this.trend=(Math.random()-0.5)*0.001;const drift=this.trend;const steps=20;let h=o,l=o,c=o;for(let s=0;s<steps;s++){const r=(Math.random()-0.5)*this.vol*2;c=c*(1+r+drift/steps);if(c>h)h=c;if(c<l)l=c}h*=1+Math.random()*this.vol*0.5;l*=1-Math.random()*this.vol*0.5;this.bars.push({time:t,open:o,high:h,low:l,close:c});p=c;t+=this.interval}this.price=p;return this.bars},
-tick(){const t=this.now();const b=this.bucket(t);let last=this.bars[this.bars.length-1];if(!last||b>last.time){const openPrice=last?last.close:this.price;last={time:b,open:openPrice,high:openPrice,low:openPrice,close:openPrice};this.bars.push(last);if(Math.random()<0.15)this.trend=(Math.random()-0.5)*0.0008}const r=(Math.random()-0.5)*this.vol*1.2+this.trend*0.3;const newPrice=last.close*(1+r);last.close=newPrice;if(newPrice>last.high)last.high=newPrice;if(newPrice<last.low)last.low=newPrice;this.price=newPrice;return last}};
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Noto Sans Arabic',-apple-system,'Segoe UI',Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+:root{--bg0:#02081a;--bg1:#050a14;--card:#0a1526;--card2:#0d1b31;--line:#16263f;--acc:#104b8f;--acc2:#1a5fd0;--cyan:#00e5ff;--txt:#e8eefb;--sub:#8ba3c7;--ok:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+html,body{height:100%}
+body{background:radial-gradient(ellipse 140% 60% at 50% -5%,#1a5fd0 0%,#0d3a8f 22%,#071e4d 45%,#040f28 70%,#02081a 100%) fixed;color:var(--txt);min-height:100vh;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none}
+input,select,textarea{font-family:inherit;color:var(--txt);background:#081226;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px;width:100%;outline:none}
+input:focus,textarea:focus{border-color:var(--acc2)}
+::-webkit-scrollbar{width:0;height:0}
+.hidden{display:none!important}
+/* ============ LOGIN ============ */
+#loginWrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.lgCard{width:100%;max-width:400px;background:linear-gradient(180deg,rgba(16,75,143,.25),rgba(5,10,20,.9));border:1px solid var(--line);border-radius:24px;padding:34px 26px;box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+.lgLogo{text-align:center;margin-bottom:8px}
+.lgLogo .t1{font-size:26px;font-weight:800;letter-spacing:1px;background:linear-gradient(90deg,#fff,#7cc4ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lgLogo .t2{font-size:12px;color:var(--sub);margin-top:4px}
+.lgTitle{font-size:18px;font-weight:700;text-align:center;margin:18px 0 4px}
+.lgSub{font-size:12.5px;color:var(--sub);text-align:center;margin-bottom:22px}
+.lgBtn{width:100%;margin-top:14px;padding:14px;border-radius:14px;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--acc2),var(--acc));box-shadow:0 8px 24px rgba(26,95,208,.4)}
+.lgBtn:active{transform:scale(.98)}
+.lgErr{color:var(--bad);font-size:12.5px;text-align:center;margin-top:12px;min-height:18px}
+/* ============ APP LAYOUT ============ */
+#app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg1);padding-bottom:calc(86px + env(safe-area-inset-bottom));position:relative;box-shadow:0 0 60px rgba(0,0,0,.6);isolation:isolate}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(5,10,20,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.topbar .tt{font-size:16px;font-weight:800}
+.topbar .tt span{color:var(--cyan)}
+.iconBtn{width:38px;height:38px;border-radius:12px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--sub)}
+.iconBtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.page{padding:16px 14px;animation:pgIn .25s ease}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* bottom nav */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:1000;background:rgba(8,16,32,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+.bnav button{flex:1;background:none;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;padding:6px 0;border-radius:12px}
+.bnav button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bnav button .nic{width:46px;height:32px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#0d1b31;border:1px solid var(--line);transition:all .2s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.bnav button:active .nic{transform:scale(.94)}
+.bnav button.on{color:#7cc4ff}
+.bnav button.on .nic{background:linear-gradient(135deg,var(--acc2),var(--acc));border-color:#3d7fe0;color:#fff;box-shadow:0 6px 18px rgba(26,95,208,.5),inset 0 1px 0 rgba(255,255,255,.3)}
+.bnav button .bdg{position:absolute;margin-top:-4px;margin-inline-start:20px;background:var(--bad);color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:700}
+.bnav button{position:relative}
+/* stat cards */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:linear-gradient(160deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat .lb{font-size:11.5px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.stat .lb svg{width:15px;height:15px;stroke:var(--cyan);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stat .vl{font-size:20px;font-weight:800;margin-top:6px}
+.stat .vl small{font-size:11px;color:var(--sub);font-weight:500}
+.stat.big{grid-column:1/-1;background:linear-gradient(120deg,rgba(26,95,208,.35),rgba(16,75,143,.15));border-color:#1d3a63}
+.secT{font-size:14px;font-weight:800;margin:20px 2px 10px;display:flex;align-items:center;justify-content:space-between}
+.secT .more{font-size:11px;color:var(--cyan);font-weight:600;cursor:pointer}
+/* list rows / cards */
+.row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;display:flex;align-items:center;gap:11px}
+.row .av{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--acc2),#0a2a5e);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#cfe4ff;flex-shrink:0}
+.row .inf{flex:1;min-width:0}
+.row .nm{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .sb{font-size:11px;color:var(--sub);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{font-size:10px;font-weight:700;padding:4px 9px;border-radius:20px;flex-shrink:0}
+.chip.ok{background:rgba(34,197,94,.14);color:var(--ok)}
+.chip.bad{background:rgba(239,68,68,.14);color:var(--bad)}
+.chip.warn{background:rgba(245,158,11,.14);color:var(--warn)}
+.chip.info{background:rgba(0,229,255,.1);color:var(--cyan)}
+.chip.kyc-ok{background:rgba(34,197,94,.16);color:var(--ok);border:1.5px solid rgba(34,197,94,.55);padding:3px 8px;font-size:9.5px}
+.chip.kyc-no{background:rgba(245,158,11,.16);color:var(--warn);border:1.5px solid rgba(245,158,11,.55);padding:3px 8px;font-size:9.5px}
+.chip.chk{background:rgba(245,158,11,.2);color:var(--warn);border:2px solid rgba(245,158,11,.65);padding:3px 9px;font-size:9.5px;border-radius:8px}
+.chip.st-ok{background:rgba(34,197,94,.18);color:var(--ok);border:2px solid rgba(34,197,94,.6);padding:3px 9px;font-size:9.5px;border-radius:8px}
+.chip.st-bad{background:rgba(239,68,68,.18);color:var(--bad);border:2px solid rgba(239,68,68,.6);padding:3px 9px;font-size:9.5px;border-radius:8px}
+.chips{display:flex;flex-direction:row;align-items:center;gap:5px;flex-shrink:0}
+.row .av.avImg{padding:0;overflow:hidden;background:linear-gradient(135deg,#123a75,#081226);border:1.5px solid #1d3a63}
+.row .av.avImg img{width:100%;height:100%;object-fit:cover;display:block}
+/* search */
+.srch{display:flex;gap:8px;margin-bottom:12px}
+.srch input{flex:1}
+.srch button{padding:0 18px;border-radius:12px;background:linear-gradient(90deg,var(--acc2),var(--acc));color:#fff;font-weight:700;font-size:13px}
+.fltRow{display:flex;gap:7px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.flt{flex-shrink:0;font-size:11.5px;font-weight:700;padding:7px 14px;border-radius:20px;background:var(--card);border:1px solid var(--line);color:var(--sub)}
+.flt.on{background:linear-gradient(90deg,var(--acc2),var(--acc));color:#fff;border-color:transparent}
+/* action buttons */
+.btn{padding:10px 16px;border-radius:12px;font-size:12.5px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--acc2),var(--acc))}
+.btn.ok{background:linear-gradient(90deg,#16a34a,#15803d)}
+.btn.bad{background:linear-gradient(90deg,#dc2626,#b91c1c)}
+.btn.ghost{background:var(--card2);border:1px solid var(--line);color:var(--sub)}
+.btn.sm{padding:7px 12px;font-size:11px;border-radius:10px}
+.btnRow{display:flex;gap:8px;margin-top:10px}
+.btnRow .btn{flex:1;text-align:center}
 
-const $o=document.getElementById('o'),$h=document.getElementById('h'),$l=document.getElementById('l'),$c=document.getElementById('c'),$ch=document.getElementById('ch');
-const fmt=n=>n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
-function updateInfo(b,prev){$o.textContent=fmt(b.open);$h.textContent=fmt(b.high);$l.textContent=fmt(b.low);$c.textContent=fmt(b.close);const base=prev?prev.close:b.open;const diff=b.close-base;const pct=(diff/base*100);const cls=diff>=0?'up':'dn';const sign=diff>=0?'+':'';$c.className=cls;$ch.className=cls;$ch.textContent=`${sign}${fmt(diff)} (${sign}${pct.toFixed(2)}%)`}
+/* Adapt the reference's presentation to the original Marex DOM. */
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{margin:0;font-size:14px;line-height:1.8}
+main{width:100%;max-width:480px;min-height:100dvh;margin:0 auto;background:var(--bg1);padding:0 14px calc(104px + env(safe-area-inset-bottom));box-shadow:0 0 60px rgba(0,0,0,.6);isolation:isolate;position:relative}
+header{position:sticky;top:0;z-index:50;margin:0 -14px 18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(5,10,20,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header>div{min-width:0;flex:1}
+h1{font-size:16px;font-weight:800;margin:0;line-height:1.7}h1 span{color:var(--cyan)}
+h2{font-size:16px;font-weight:800;margin:0 0 16px}h3{font-size:14px;font-weight:800;margin:0 0 10px}
+p{margin:8px 0;overflow-wrap:anywhere}small,.hint{color:var(--sub)}.hint{font-size:11.5px;line-height:1.95}
+#identity{font-size:10px;direction:ltr;text-align:right;color:var(--sub);overflow-wrap:anywhere;margin:3px 0 0}
+button{color:var(--txt);font-size:12.5px;font-weight:700;padding:11px 15px;border-radius:12px;background:linear-gradient(90deg,var(--acc2),var(--acc));line-height:1.7;transition:filter .15s,transform .15s}
+button:hover:not(:disabled){filter:brightness(1.12)}button:active:not(:disabled){transform:scale(.98)}button:disabled{opacity:.5;cursor:wait}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+input,select{line-height:1.8;min-height:46px;min-width:0}input[dir=ltr]{text-align:left}select{color-scheme:dark}input::placeholder{color:#6f85a8;font-size:11.5px}input:focus,select:focus{border-color:var(--acc2)}
+label{display:block;font-size:11.5px;color:var(--sub);font-weight:600;margin:14px 0 6px}
+#logout{width:38px;height:38px;padding:9px;display:flex;align-items:center;justify-content:center;background:var(--card2);border:1px solid var(--line);flex-shrink:0;color:var(--sub)}
+svg.ui-icon{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+#login-box{width:100%;max-width:400px;margin:34px auto 22px;background:linear-gradient(180deg,rgba(16,75,143,.25),rgba(5,10,20,.9));border-radius:24px;padding:30px 25px;box-shadow:0 20px 60px rgba(0,0,0,.5);backdrop-filter:blur(10px)}
+#login-box h2{text-align:center;font-size:18px;margin:18px 0 4px}#login-box .lgSub{margin-bottom:20px}#login-box>.hint{border-top:1px solid var(--line);padding-top:14px;margin-top:18px;font-size:11px}
+#admin-pin{text-align:center;letter-spacing:3px;font-size:17px}#login-button{width:100%;margin-top:22px;padding:14px;border-radius:14px;font-size:15px;box-shadow:0 8px 24px rgba(26,95,208,.4)}
+.message{padding:12px 14px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.35);color:#c8f6df;margin:12px 0 16px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}.message:empty,#message:empty{display:none}.message.error{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.4);color:#ffc0c0}
+.stats{gap:10px;margin-bottom:18px}.stats>.stat{padding:15px 13px}.stats .lb{font-size:11px;line-height:1.8}.stats strong{display:block;font-size:25px;font-weight:800;line-height:1.5;margin-top:8px;font-variant-numeric:tabular-nums}.stats>.stat:nth-child(2) strong{color:var(--warn)}
+.dashboard-heading{margin:16px 2px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.dashboard-heading h2{margin:0;font-size:14px}.dashboard-heading span{font-size:10px;color:var(--sub)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:1000;background:rgba(8,16,32,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;gap:4px;margin:0;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+nav button{flex:1;min-width:0;background:none;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;padding:6px 0;border-radius:12px;box-shadow:none;line-height:1.7}
+nav button .nic{width:46px;height:32px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:#0d1b31;border:1px solid var(--line);transition:all .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+nav button.active{color:#7cc4ff;background:none}nav button.active .nic{background:linear-gradient(135deg,var(--acc2),var(--acc));border-color:#3d7fe0;color:#fff;box-shadow:0 6px 18px rgba(26,95,208,.5),inset 0 1px 0 rgba(255,255,255,.3)}
+.toolbar{display:grid;grid-template-columns:1fr;gap:10px;padding:14px;margin-top:0}.toolbar>*{width:100%;min-width:0}.toolbar #load-history{background:var(--card2);border:1px solid var(--line);color:var(--sub)}
+.requests{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin:14px 0;color:var(--sub);font-size:13px}
+.request{min-width:0;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0;box-shadow:0 4px 15px rgba(0,0,0,.1)}
+.request h3{color:var(--txt);border-bottom:1px solid var(--line);padding-bottom:11px;margin-bottom:9px}.request p{font-size:11.5px;padding:5px 0;margin:0;border-bottom:1px dashed var(--line);overflow-wrap:anywhere;color:var(--sub)}.request p:last-of-type{border-bottom:0}.request input{margin:12px 0 8px}.request .hint{color:var(--warn);font-size:11px;line-height:1.9}.request button{margin-top:10px;max-width:100%;white-space:normal;background:linear-gradient(90deg,#16a34a,#15803d);font-size:11.5px}.request button.danger{background:linear-gradient(90deg,#dc2626,#b91c1c);margin-inline-start:8px}
+#address-form button,#lookup-form button{width:100%;margin-top:18px}#address-list{margin-top:18px}#address-list p{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;direction:ltr;text-align:left;font-size:11.5px;overflow-wrap:anywhere}
+pre{direction:ltr;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;background:#081226;border:1px solid var(--line);padding:14px;border-radius:12px;font:11px/1.9 monospace;margin:16px 0;color:#cfe4ff}pre:empty{display:none}code{direction:ltr;unicode-bidi:isolate;color:#7cc4ff;font-size:11px}
+details.panel{padding:14px;margin-top:24px;background:rgba(10,21,38,.65)}summary{cursor:pointer;color:var(--sub);font-size:12px;font-weight:600}details p{font-size:11px;color:var(--sub);line-height:1.95}details strong{color:#cfe4ff}
+@media(max-width:350px){main{padding-inline:10px}header{margin-inline:-10px;padding-inline:12px}#login-box{padding:25px 18px}.stats .lb{font-size:10px}.request button{display:block;width:100%}.request button.danger{margin-inline-start:0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
-const hist=Feed.genHistorical(500);series.setData(hist);chart.timeScale().scrollToRealTime();updateInfo(hist[hist.length-1],hist[hist.length-2]);
-setInterval(()=>{const bar=Feed.tick();series.update(bar);const prev=Feed.bars[Feed.bars.length-2];updateInfo(bar,prev);Draw.render()},1000);
-document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('dblclick',e=>e.preventDefault());
-
-/* ============ DRAWING SYSTEM (overlay, لا يمس منطق الشارت) ============ */
-const Draw=(()=>{
-  const cv=document.getElementById('draw');const cx=cv.getContext('2d');
-  const wrap=document.getElementById('chartWrap');
-  const txtIn=document.getElementById('txtIn');const ctxMenu=document.getElementById('ctx');
-  let tool='cursor';let shapes=[];let sel=null;let drawing=null;let drag=null;let hoverHandle=null;
-  const COLOR='#2962ff';const COLOR_SEL='#f0b90b';const HANDLE=5;
-
-  // ---- تحويل الإحداثيات: نخزّن time+price (منطقي) ونحوّل لـ x/y عند الرسم ----
-  const ts=chart.timeScale();
-  function p2x(time){const x=ts.timeToCoordinate(time);return x!==null?x:null}
-  function y2y(price){return series.priceToCoordinate(price)}
-  function x2p(x){const t=ts.coordinateToTime(x);return t}
-  function y2p(y){return series.coordinateToPrice(y)}
-  // للنقاط خارج المدى المرئي: نستخدم logical index + استقراء
-  function timeToX(time){let x=ts.timeToCoordinate(time);if(x!==null)return x;const bs=ts.options().barSpacing;const vr=ts.getVisibleLogicalRange();if(!vr)return null;const bars=Feed.bars;if(!bars.length)return null;const first=bars[0].time;const idx=(time-first)/Feed.interval;const cx0=ts.logicalToCoordinate(vr.from);const cx1=ts.logicalToCoordinate(vr.to);if(cx0===null||cx1===null)return null;const px=cx0+(idx-vr.from)*((cx1-cx0)/(vr.to-vr.from));return px}
-  function xToTime(x){let t=ts.coordinateToTime(x);if(t!==null)return t;const vr=ts.getVisibleLogicalRange();if(!vr)return null;const cx0=ts.logicalToCoordinate(vr.from);const cx1=ts.logicalToCoordinate(vr.to);if(cx0===null||cx1===null)return null;const logical=vr.from+(x-cx0)/((cx1-cx0)/(vr.to-vr.from));const bars=Feed.bars;if(!bars.length)return null;const first=bars[0].time;return Math.round(first+logical*Feed.interval)}
-
-  function resize(){const r=wrap.getBoundingClientRect();const dpr=window.devicePixelRatio||1;cv.style.width=r.width+'px';cv.style.height=r.height+'px';cv.width=r.width*dpr;cv.height=r.height*dpr;cx.setTransform(dpr,0,0,dpr,0,0);render()}
-  new ResizeObserver(resize).observe(wrap);
-
-  // ---- رسم شكل واحد ----
-  function pt(s,i){const p=s.pts[i];return{x:timeToX(p.t),y:y2y(p.p)}}
-  function drawShape(s){
-    const isSel=s===sel;const col=isSel?COLOR_SEL:(s.color||COLOR);
-    cx.strokeStyle=col;cx.fillStyle=col;cx.lineWidth=s.w||1.5;cx.setLineDash([]);
-    const P=s.pts.map((_,i)=>pt(s,i));
-    if(s.type==='trend'){if(P[0].x==null||P[1].x==null)return;cx.beginPath();cx.moveTo(P[0].x,P[0].y);cx.lineTo(P[1].x,P[1].y);cx.stroke()}
-    else if(s.type==='hline'){const y=P[0].y;if(y==null)return;cx.beginPath();cx.moveTo(0,y);cx.lineTo(cv.clientWidth,y);cx.stroke();cx.fillStyle='#0d1117';cx.fillRect(cv.clientWidth-70,y-9,68,18);cx.fillStyle=col;cx.font='11px sans-serif';cx.textAlign='right';cx.fillText(fmt(s.pts[0].p),cv.clientWidth-4,y+4)}
-    else if(s.type==='vline'){const x=P[0].x;if(x==null)return;cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,cv.clientHeight);cx.stroke()}
-    else if(s.type==='rect'){if(P[0].x==null||P[1].x==null)return;const x=Math.min(P[0].x,P[1].x),y=Math.min(P[0].y,P[1].y),w=Math.abs(P[1].x-P[0].x),h=Math.abs(P[1].y-P[0].y);cx.globalAlpha=0.15;cx.fillRect(x,y,w,h);cx.globalAlpha=1;cx.strokeRect(x,y,w,h)}
-    else if(s.type==='circle'){if(P[0].x==null||P[1].x==null)return;const cxp=P[0].x,cyp=P[0].y;const r=Math.hypot(P[1].x-cxp,P[1].y-cyp);cx.globalAlpha=0.12;cx.beginPath();cx.arc(cxp,cyp,r,0,Math.PI*2);cx.fill();cx.globalAlpha=1;cx.stroke()}
-    else if(s.type==='arrow'){if(P[0].x==null||P[1].x==null)return;cx.beginPath();cx.moveTo(P[0].x,P[0].y);cx.lineTo(P[1].x,P[1].y);cx.stroke();const a=Math.atan2(P[1].y-P[0].y,P[1].x-P[0].x);const sz=10;cx.beginPath();cx.moveTo(P[1].x,P[1].y);cx.lineTo(P[1].x-sz*Math.cos(a-.4),P[1].y-sz*Math.sin(a-.4));cx.lineTo(P[1].x-sz*Math.cos(a+.4),P[1].y-sz*Math.sin(a+.4));cx.closePath();cx.fill()}
-    else if(s.type==='fib'){if(P[0].x==null||P[1].x==null)return;const levels=[0,0.236,0.382,0.5,0.618,0.786,1];const p1=s.pts[0].p,p2=s.pts[1].p;const x1=Math.min(P[0].x,P[1].x),x2=Math.max(P[0].x,P[1].x);cx.beginPath();cx.moveTo(P[0].x,P[0].y);cx.lineTo(P[1].x,P[1].y);cx.stroke();cx.font='10px sans-serif';cx.textAlign='left';levels.forEach((lv,i)=>{const price=p1+(p2-p1)*lv;const y=y2y(price);if(y==null)return;const clr=['#787b86','#ef5350','#ff9800','#ffeb3b','#4caf50','#00bcd4','#2962ff'][i];cx.strokeStyle=isSel?COLOR_SEL:clr;cx.globalAlpha=0.8;cx.beginPath();cx.moveTo(x1,y);cx.lineTo(x2,y);cx.stroke();cx.globalAlpha=1;cx.fillStyle=isSel?COLOR_SEL:clr;cx.fillText(lv.toFixed(3)+' ('+fmt(price)+')',x1+4,y-3)})}
-    else if(s.type==='measure'){if(P[0].x==null||P[1].x==null)return;const p1=s.pts[0].p,p2=s.pts[1].p;const t1=s.pts[0].t,t2=s.pts[1].t;const diff=p2-p1;const pct=(diff/p1*100);const bars=Math.abs(Math.round((t2-t1)/Feed.interval));const up=diff>=0;const c=up?'#26a69a':'#ef5350';cx.strokeStyle=isSel?COLOR_SEL:c;cx.fillStyle=c;const x=Math.min(P[0].x,P[1].x),y=Math.min(P[0].y,P[1].y),w=Math.abs(P[1].x-P[0].x),h=Math.abs(P[1].y-P[0].y);cx.globalAlpha=0.15;cx.fillRect(x,y,w,h);cx.globalAlpha=1;cx.strokeRect(x,y,w,h);cx.beginPath();cx.moveTo(P[0].x,P[0].y);cx.lineTo(P[1].x,P[1].y);cx.stroke();const mx=(P[0].x+P[1].x)/2,my=(P[0].y+P[1].y)/2;const txt=`${up?'+':''}${fmt(diff)} (${up?'+':''}${pct.toFixed(2)}%) · ${bars} bars`;cx.font='bold 11px sans-serif';const tw=cx.measureText(txt).width;cx.fillStyle='#131722';cx.fillRect(mx-tw/2-6,my-10,tw+12,20);cx.strokeStyle=c;cx.strokeRect(mx-tw/2-6,my-10,tw+12,20);cx.fillStyle=c;cx.textAlign='center';cx.fillText(txt,mx,my+4)}
-    else if(s.type==='text'){if(P[0].x==null)return;cx.font='13px sans-serif';cx.textAlign='left';cx.fillStyle=col;const tw=cx.measureText(s.text||'').width;if(isSel){cx.strokeStyle=COLOR_SEL;cx.strokeRect(P[0].x-3,P[0].y-14,tw+6,20)}cx.fillText(s.text||'',P[0].x,P[0].y)}
-    // مقابض التحديد
-    if(isSel&&s.type!=='text'){P.forEach(p=>{if(p.x==null||p.y==null)return;cx.fillStyle='#fff';cx.strokeStyle=COLOR_SEL;cx.lineWidth=2;cx.beginPath();cx.arc(p.x,p.y,HANDLE,0,Math.PI*2);cx.fill();cx.stroke()})}
+</style></head><body><main><header><div><h1>Marex — لوحة <span>التحكم</span></h1><p id="identity">جارٍ استعادة الجلسة…</p></div><button id="logout" title="خروج" aria-label="خروج"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></header><div id="message" role="status" aria-live="polite"></div>
+<section id="login-box" class="panel"><div class="lgLogo"><div class="t1" dir="ltr">Marex</div><div class="t2" dir="ltr">ADMIN CONTROL PANEL</div></div><h2>دخول الإدارة</h2><div class="lgSub">منطقة محظورة — الدخول للمشرفين فقط</div><form id="login-form"><label for="admin-pin">رمز فتح اللوحة</label><input id="admin-pin" type="password" inputmode="numeric" autocomplete="off" required><label for="admin-email">بريد حساب Firebase</label><input id="admin-email" type="email" dir="ltr" autocomplete="username"><label for="admin-password">كلمة مرور الحساب</label><input id="admin-password" type="password" autocomplete="current-password"><button id="login-button" type="submit">دخول</button></form><p class="hint">إذا كانت جلسة حسابك موجودة على نفس النطاق، يكفي إدخال رمز فتح اللوحة. وإلا أدخل أيضًا البريد وكلمة مرور حسابك الموجود. رمز الواجهة وحده لا يمنح صلاحيات مالية.</p></section>
+<section id="dashboard" hidden><div class="dashboard-heading"><h2>نظرة عامة</h2><span>Marex · الإدارة</span></div><div class="stats"><div class="stat"><div class="lb"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg>إيداعات تنتظر المراجعة</div><strong id="pending-deposits">0</strong></div><div class="stat"><div class="lb"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3m-5 5 5-5 5 5M5 16v5h14v-5"/></svg>سحوبات تنتظر المراجعة</div><strong id="pending-withdrawals">0</strong></div></div><nav aria-label="أقسام الإدارة"><button class="active" data-tab="requests"><span class="nic"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 9h6M9 13h6M9 17h4"/></svg></span><span>الطلبات</span></button><button data-tab="addresses"><span class="nic"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h15V8H5a3 3 0 0 1 0-6"/><path d="M20 12h-5v5h5M16 14.5h.01"/></svg></span><span>عناوين الإيداع</span></button><button data-tab="accounts"><span class="nic"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M23 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>الحساب والإحالة</span></button></nav>
+<section data-panel="requests"><div class="panel toolbar"><select id="status-filter" aria-label="فلترة حالة الطلب"><option value="pending">قيد المراجعة</option><option value="all">الجميع</option><option value="approved">مقبول</option><option value="rejected">مرفوض</option></select><input id="search" placeholder="بحث بمعرف الحساب أو الطلب أو الشبكة" aria-label="البحث"><button id="load-history">تحميل السجل المعالج</button></div><p class="hint">الطلبات المعلقة تتابع دون حد عددي. تحميل السجل يعرض حتى 200 مستند معالج لكل نوع، وليس بالضرورة أحدثها.</p><div id="requests" class="requests"></div></section>
+<section data-panel="addresses" hidden class="panel"><h2>عناوين الإيداع</h2><form id="address-form"><label for="address-network">الشبكة</label><select id="address-network"><option value="BEP20-USDT">BEP20-USDT</option><option value="TRC20-USDT">TRC20-USDT</option><option value="POLYGON-USDT">POLYGON-USDT</option><option value="ETH-USDT">ETH-USDT</option><option value="BEP20-USDC">BEP20-USDC</option><option value="POLYGON-USDC">POLYGON-USDC</option><option value="ETH-USDC">ETH-USDC</option><option value="POLYGON">POLYGON</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option value="TRX">TRX</option><option value="ETH-PYUSD">ETH-PYUSD</option></select><label for="address-value">عنوان الاستقبال</label><input id="address-value" dir="ltr" required autocomplete="off"><button id="save-address">حفظ العنوان</button></form><div id="address-list"></div></section>
+<section data-panel="accounts" hidden class="panel"><h2>بيانات الحساب والإحالة</h2><form id="lookup-form"><label for="lookup-uid">معرف Firebase UID</label><input id="lookup-uid" dir="ltr" required><button>عرض البيانات</button></form><pre id="lookup-result"></pre><p class="hint">تعرض البيانات الحالية دون تعديل يدوي للأرصدة أو تغيير المحيل. ربط الإحالة يتم عند إنشاء الحساب، وتُحدّث الإجماليات عند اعتماد طلباته.</p></section></section>
+<details class="panel"><summary>إعداد Firebase المطلوب قبل التشغيل</summary><p>الملفان يستخدمان نفس المشروع الموجود: <code>hhhxh-5ebe4</code>. ارفعهما على HTTPS وأضف النطاق إلى Authorized domains إذا لم يكن مسجلاً. لا توجد مفاتيح خادم أو Service Account داخل الملفين.</p><p><strong>تفويض الأدمن:</strong> سجل الدخول بحسابك الحالي، وانسخ UID الظاهر أعلى الصفحة. من Firebase Console → Firestore أنشئ المستند <code>admins/UID</code> بالحقل المنطقي <code>enabled: true</code>. يجب منع المتصفحات من إنشاء أو تعديل هذه المجموعة. الرمز <code>1234567</code> يفتح الواجهة فقط؛ إنشاء أدمن تلقائيًا بهذا الرمز المكشوف ليس حماية.</p><p><strong>القواعد لا تُنشر من HTML:</strong> تحتاج قواعد المشروع الحالية إلى السماح للأدمن المفوّض بقراءة وإدارة الطلبات والأرصدة وعناوين الإيداع والعمولات وبيانات الفريق. لا تستبدل القواعد الحالية بقواعد عامة؛ الملف المصدر لا يتضمن القواعد المنشورة، لذلك لا يمكن التحقق منها هنا.</p><p><strong>المسارات الإضافية:</strong> <code>inviteCodes/{code}</code> لفهرس الرموز، <code>referralMembers/{memberUid}</code> لعضوية الفريق وإجمالياته، و<code>admins/{uid}</code> للتفويض. تمت إضافة حقول إلى <code>users</code> و<code>commissionTransactions</code> دون حذف حقولك أو تغيير مشروع المصادقة.</p><p><strong>ضوابط يجب دمجها مع قواعدك:</strong> اسمح بقراءة رمز واحد من inviteCodes قبل تسجيل الحساب للتحقق من الدعوة، مع منع سرد المجموعة. لا تسمح بحجز الرمز إلا لصاحبه وفي نفس معاملة إنشاء/تحديث users.inviteCode، مع عدم الاستيلاء على رمز محجوز. اسمح للمستخدم بقراءة عضويته، وللمحيل بقراءة أعضاء فريقه بواسطة referrerUid. إنشاء العضوية يقتصر على صاحبها، بإجماليات صفرية ومحيل مطابق لملفه وغير نفسه؛ تعديل الإجماليات للأدمن فقط. يجب أن تكون referredBy وusedInviteCode وreferralAssigned غير قابلة لإعادة التعيين بعد تثبيتها، وأن يطابق referredBy صاحب usedInviteCode في الفهرس.</p><p>المستخدم ينشئ طلبه فقط بحالة pending ولا يستطيع قبوله أو تعديل المبلغ بعد الإرسال. يجب حماية balance وcommissionTransactions بقواعد مطابقة لكل عملية؛ لا تمنح المستخدم حق كتابة رصيد أو عمولة بلا تحقق. قواعد العجلة والتعدين الأصلية تحتاج أيضًا إلى تحقق مستقل، ولا يجعل مؤقت المتصفح نظامًا ماليًا موثوقًا.</p><p><strong>الحساب عند الموافقة:</strong> قبول الإيداع يزيد رصيد العضو ورأس ماله، ويزيد إيداعات فريق المحيل ويضيف <code>floor(amount / 50) × 3.50</code> إلى عمولة المحيل. إيداع 50 = 3.50، 100 = 7، 150 = 10.50. كل طلب يحسب مرة واحدة فقط. السحب المعتمد ينقص رصيد العضو ورأس ماله ويزيد سحوبات الفريق بالمبلغ الإجمالي للطلب. الرفض لا يغير أي رصيد.</p><p>العمولة للأعضاء المباشرين فقط؛ لم تُضف نسبًا للمستويين الثاني والثالث. العمليات التي اعتمدت قبل هذا التعديل لا تُحتسب مجددًا ولا تُرحّل تلقائيًا. اللوحة لا تنقل أموالاً على البلوكتشين ولا تتحقق من وصولها تلقائيًا؛ تحقق من التحويل الفعلي قبل الموافقة. لا تعدّل status من Firebase Console وحده إذا أردت تنفيذ التسوية؛ استخدم زر الموافقة هنا.</p><p><strong>حدود التحقق:</strong> لم تُنشر قواعد أو خدمات على مشروعك ولم تُجر اختبارات مالية على حساباتك الحقيقية. ظهور permission-denied يعني أن الصلاحيات غير مهيأة. تشغيل الملفين لا يمنح سلطة نشر قواعد أو إنشاء أدمن موثوق من تلقاء نفسه.</p></details></main><script type="module">import {initializeApp} from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js';
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js';
+import {getFirestore,doc,getDoc,collection,query,where,limit,onSnapshot,runTransaction,serverTimestamp,setDoc} from 'https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js';
+const firebaseConfig={apiKey:'AIzaSyBvzfJOOjRFZnTgTUrwEZQPr8Ba7zKKlNg',authDomain:'hhhxh-5ebe4.firebaseapp.com',projectId:'hhhxh-5ebe4',storageBucket:'hhhxh-5ebe4.firebasestorage.app',messagingSenderId:'79243000696',appId:'1:79243000696:web:ee0fb2d2ccce791954e68d',measurementId:'G-08BR6LN6PT'};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),$=s=>document.querySelector(s);
+let unlocked=false,authorized=false,subscriptions=[],rows={deposit:[],withdraw:[]},generation=0,roleUnsubscribe=null,historyRows=[];
+const pending=r=>['pending','waiting','processing'].includes(String(r.status||'pending').toLowerCase());
+const accepted=r=>['approved','completed'].includes(String(r.status).toLowerCase());
+const round=v=>Math.round(v*1e6)/1e6;
+const stamp=v=>typeof v?.toMillis==='function'?v.toMillis():0;
+const number=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0;
+function message(text,error=false){$('#message').textContent=text;$('#message').className=error?'message error':'message'}
+function clean(){subscriptions.splice(0).forEach(f=>f());rows={deposit:[],withdraw:[]};historyRows=[];$('#load-history').disabled=false;authorized=false;$('#dashboard').hidden=true;$('#login-box').hidden=false;render()}
+function stopRole(){if(roleUnsubscribe)roleUnsubscribe();roleUnsubscribe=null}
+function errorText(e){return e?.code==='permission-denied'?'رفضت قواعد Firestore العملية. راجع صلاحيات حساب الإدارة والقواعد الحالية، ولا تفتح القاعدة للعامة.':e?.code?.startsWith('auth/')?'تعذر تسجيل الدخول. تحقق من البريد وكلمة المرور والنطاق المصرح به.':e?.message||'تعذر الاتصال بـ Firebase'}
+async function checkRole(){
+ const version=++generation;stopRole();clean();const user=auth.currentUser;
+ $('#identity').textContent=user?'UID: '+user.uid:'لم يتم تسجيل الدخول';
+ if(!user||!unlocked)return;
+ try{
+  const role=await getDoc(doc(db,'admins',user.uid));
+  if(version!==generation||auth.currentUser?.uid!==user.uid)return;
+  if(!role.exists()||role.data().enabled!==true){message('الحساب غير مفوّض كأدمن. أنشئ admins/'+user.uid+' بالحقل enabled: true من Firebase Console، مع حماية هذه المجموعة من كتابة المستخدمين.',true);return}
+  authorized=true;$('#dashboard').hidden=false;$('#login-box').hidden=true;message('متصل — لا تُحسب الأموال والإحالات إلا بعد تأكيد المعاملة من Firebase.');watch();
+  roleUnsubscribe=onSnapshot(doc(db,'admins',user.uid),s=>{if(!s.exists()||s.data().enabled!==true){unlocked=false;generation++;stopRole();clean();message('تم إيقاف صلاحية الإدارة.',true)}},e=>{unlocked=false;generation++;stopRole();clean();message(errorText(e),true)});
+ }catch(e){if(version===generation)message(errorText(e),true)}
+}
+onAuthStateChanged(auth,checkRole);
+$('#login-form').onsubmit=async e=>{
+ e.preventDefault();const button=$('#login-button');if(button.disabled)return;button.disabled=true;
+ try{
+  if($('#admin-pin').value!=='1234567')throw new Error('رمز فتح اللوحة غير صحيح');
+  unlocked=true;
+  const email=$('#admin-email').value.trim(),password=$('#admin-password').value;
+  if(email||password){if(!email||!password)throw new Error('أدخل البريد وكلمة مرور الحساب معًا');await signInWithEmailAndPassword(auth,email,password)}
+  if(!auth.currentUser)throw new Error('سجل الدخول بحساب Firebase الحالي أولًا');
+  await checkRole();
+ }catch(err){unlocked=false;message(errorText(err),true)}finally{button.disabled=false;$('#admin-password').value='';$('#admin-pin').value=''}
+};
+$('#logout').onclick=async()=>{unlocked=false;generation++;stopRole();clean();try{await signOut(auth)}catch(e){message(errorText(e),true)}};
+for(const b of document.querySelectorAll('[data-tab]'))b.onclick=()=>{
+ for(const x of document.querySelectorAll('[data-tab]'))x.classList.toggle('active',x===b);
+ for(const panel of document.querySelectorAll('[data-panel]'))panel.hidden=panel.dataset.panel!==b.dataset.tab;
+};
+$('#status-filter').onchange=render;$('#search').oninput=render;
+function watch(){
+ const version=generation;
+ for(const [kind,path] of [['deposit','depositRequests'],['withdraw','withdrawalRequests']]){
+  subscriptions.push(onSnapshot(query(collection(db,path),where('status','in',['pending','waiting','processing'])),snap=>{if(version!==generation||!authorized)return;rows[kind]=snap.docs.map(d=>({...d.data(),id:d.id,kind}));render()},e=>message(errorText(e),true)));
+ }
+ // Completed history is explicitly fetched on demand, so pending requests are never hidden by a limit.
+ subscriptions.push(onSnapshot(query(collection(db,'depositAddresses')),snap=>{if(version!==generation||!authorized)return;const panel=$('#address-list');panel.replaceChildren();for(const d of snap.docs){const row=document.createElement('p');row.textContent=d.id+' : '+(d.data().address||'غير مضبوط');panel.append(row)}},e=>message(errorText(e),true)));
+}
+$('#load-history').onclick=async()=>{
+ if(!authorized)return;
+ subscriptions.push(onSnapshot(query(collection(db,'depositRequests'),where('status','in',['approved','completed','rejected','cancelled']),limit(200)),snap=>{if(!authorized)return;historyRows=historyRows.filter(r=>r.kind!=='deposit').concat(snap.docs.map(d=>({...d.data(),id:d.id,kind:'deposit'})));render()},e=>message(errorText(e),true)));
+ subscriptions.push(onSnapshot(query(collection(db,'withdrawalRequests'),where('status','in',['approved','completed','rejected','cancelled']),limit(200)),snap=>{if(!authorized)return;historyRows=historyRows.filter(r=>r.kind!=='withdraw').concat(snap.docs.map(d=>({...d.data(),id:d.id,kind:'withdraw'})));render()},e=>message(errorText(e),true)));
+ $('#load-history').disabled=true;
+};
+function render(){
+ const panel=$('#requests');if(!panel)return;panel.replaceChildren();
+ const all=[...rows.deposit,...rows.withdraw,...historyRows],filter=$('#status-filter').value,search=$('#search').value.trim().toLowerCase();
+ const unique=[...new Map(all.map(r=>[r.kind+':'+r.id,r])).values()];
+ const visible=unique.filter(r=>(filter==='all'||filter==='pending'&&pending(r)||filter==='approved'&&accepted(r)||filter==='rejected'&&r.status==='rejected')&&(!search||[r.uid,r.id,r.network].some(x=>String(x||'').toLowerCase().includes(search)))).sort((a,b)=>stamp(b.createdAt)-stamp(a.createdAt));
+ $('#pending-deposits').textContent=rows.deposit.length;$('#pending-withdrawals').textContent=rows.withdraw.length;
+ if(!visible.length){panel.textContent='لا توجد طلبات مطابقة';return}
+ for(const r of visible){
+  const card=document.createElement('article');card.className='request';
+  const head=document.createElement('h3');head.textContent=(r.kind==='deposit'?'طلب إيداع':'طلب سحب')+' — '+r.amount+' USDT';card.append(head);
+  for(const [label,value] of [['الحالة',r.status],['الحساب',r.uid],['الطلب',r.id],['الشبكة',r.network],['العنوان',r.kind==='deposit'?r.depositAddress:r.address],['الصافي',r.netAmount],['التاريخ',stamp(r.createdAt)?new Date(stamp(r.createdAt)).toLocaleString('ar'):'—']]){if(value===undefined)continue;const p=document.createElement('p');p.textContent=label+': '+value;card.append(p)}
+  if(pending(r)){
+   const note=document.createElement('input');note.placeholder='ملاحظة الإدارة (اختياري)';note.maxLength=500;note.setAttribute('aria-label','ملاحظة الإدارة');card.append(note);
+   if(r.kind==='withdraw'){const hint=document.createElement('p');hint.className='hint';hint.textContent='الموافقة تسجل الصرف وتخصم الرصيد؛ لا ترسل تحويلًا على البلوكتشين. نفذ التحويل الفعلي خارج اللوحة أولًا.';card.append(hint)}
+   const yes=document.createElement('button'),no=document.createElement('button');yes.textContent=r.kind==='withdraw'?'تأكيد تنفيذ السحب والموافقة':'قبول الإيداع';no.textContent='رفض';no.className='danger';card.append(yes,no);
+   const perform=async approve=>{yes.disabled=no.disabled=true;try{const result=await settleRequest(r.kind,r.id,approve,note.value.trim());message(result==='already'?'تمت معالجة الطلب سابقًا؛ لم يُحتسب مرة ثانية.':approve?'تم اعتماد الطلب وتحديث الرصيد والإحالة في معاملة واحدة.':'تم رفض الطلب دون تغيير الأرصدة.')}catch(e){message(errorText(e),true);yes.disabled=no.disabled=false}};
+   yes.onclick=()=>perform(true);no.onclick=()=>perform(false);
   }
-
-  function render(){cx.clearRect(0,0,cv.clientWidth,cv.clientHeight);shapes.forEach(drawShape);if(drawing)drawShape(drawing)}
-
-  // اشتراك بأحداث تغيّر النطاق لإعادة الرسم مع الشارت
-  ts.subscribeVisibleTimeRangeChange(render);
-  ts.subscribeVisibleLogicalRangeChange(render);
-  chart.subscribeCrosshairMove(()=>{});// no-op keep alive
-
-  // ---- Hit testing ----
-  function distToSeg(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay;const L=dx*dx+dy*dy;if(!L)return Math.hypot(px-ax,py-ay);let t=((px-ax)*dx+(py-ay)*dy)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(px-(ax+t*dx),py-(ay+t*dy))}
-  function hitShape(s,x,y){const P=s.pts.map((_,i)=>pt(s,i));const th=7;
-    if(s.type==='trend'||s.type==='arrow'||s.type==='measure'){if(P[0].x==null||P[1].x==null)return false;if(s.type==='measure'){const xa=Math.min(P[0].x,P[1].x),ya=Math.min(P[0].y,P[1].y),w=Math.abs(P[1].x-P[0].x),h=Math.abs(P[1].y-P[0].y);if(x>=xa&&x<=xa+w&&y>=ya&&y<=ya+h)return true}return distToSeg(x,y,P[0].x,P[0].y,P[1].x,P[1].y)<th}
-    if(s.type==='hline')return Math.abs(y-P[0].y)<th;
-    if(s.type==='vline')return Math.abs(x-P[0].x)<th;
-    if(s.type==='rect'){const xa=Math.min(P[0].x,P[1].x),ya=Math.min(P[0].y,P[1].y),w=Math.abs(P[1].x-P[0].x),h=Math.abs(P[1].y-P[0].y);return x>=xa-th&&x<=xa+w+th&&y>=ya-th&&y<=ya+h+th&&(Math.abs(x-xa)<th||Math.abs(x-(xa+w))<th||Math.abs(y-ya)<th||Math.abs(y-(ya+h))<th||(x>=xa&&x<=xa+w&&y>=ya&&y<=ya+h))}
-    if(s.type==='circle'){const r=Math.hypot(P[1].x-P[0].x,P[1].y-P[0].y);const d=Math.hypot(x-P[0].x,y-P[0].y);return Math.abs(d-r)<th||d<r}
-    if(s.type==='fib'){const p1=s.pts[0].p,p2=s.pts[1].p;const x1=Math.min(P[0].x,P[1].x),x2=Math.max(P[0].x,P[1].x);if(x<x1-th||x>x2+th)return false;return[0,0.236,0.382,0.5,0.618,0.786,1].some(lv=>{const py=y2y(p1+(p2-p1)*lv);return py!=null&&Math.abs(y-py)<th})}
-    if(s.type==='text'){if(P[0].x==null)return false;cx.font='13px sans-serif';const tw=cx.measureText(s.text||'').width;return x>=P[0].x-3&&x<=P[0].x+tw+3&&y>=P[0].y-14&&y<=P[0].y+6}
-    return false}
-  function hitHandle(s,x,y){if(!s)return -1;for(let i=0;i<s.pts.length;i++){const p=pt(s,i);if(p.x==null||p.y==null)continue;if(Math.hypot(x-p.x,y-p.y)<=HANDLE+3)return i}return -1}
-
-  // ---- Mouse/Touch ----
-  function getXY(e){const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}}
-  function makePt(x,y){const t=xToTime(x);const p=y2p(y);return{t:t,p:p}}
-
-  cv.addEventListener('mousedown',onDown);cv.addEventListener('mousemove',onMove);window.addEventListener('mouseup',onUp);
-  cv.addEventListener('touchstart',e=>{e.preventDefault();onDown(e)},{passive:false});
-  cv.addEventListener('touchmove',e=>{e.preventDefault();onMove(e)},{passive:false});
-  cv.addEventListener('touchend',onUp);
-  cv.addEventListener('contextmenu',e=>{e.preventDefault();const{x,y}=getXY(e);const s=findShape(x,y);if(s){sel=s;showCtx(e.clientX,e.clientY,s);render()}});
-
-  function findShape(x,y){for(let i=shapes.length-1;i>=0;i--)if(hitShape(shapes[i],x,y))return shapes[i];return null}
-
-  function onDown(e){const{x,y}=getXY(e);hideCtx();
-    if(tool==='text'&&!drawing){const pt0=makePt(x,y);if(pt0.t==null||pt0.p==null)return;const s={type:'text',pts:[pt0],text:'',color:COLOR};showTextInput(x,y,s);return}
-    if(tool==='cursor'){const hh=hitHandle(sel,x,y);if(hh>=0){drag={mode:'handle',idx:hh,s:sel};return}const s=findShape(x,y);if(s){sel=s;const p0=pt(s,0);drag={mode:'move',s:s,ox:x,oy:y,orig:s.pts.map(p=>({...p}))}}else{sel=null}render();return}
-    // start drawing
-    const pt0=makePt(x,y);if(pt0.t==null||pt0.p==null)return;
-    if(tool==='hline'||tool==='vline'){shapes.push({type:tool,pts:[pt0],color:COLOR});setTool('cursor');render();return}
-    drawing={type:tool==='measure'?'measure':tool,pts:[pt0,pt0],color:COLOR}
+  panel.append(card);
+ }
+}
+// All request state, wallet and referral updates commit atomically. Transaction retries do not duplicate credits.
+async function settleRequest(kind,id,approve,note=''){
+ if(!authorized||!auth.currentUser)throw new Error('يلزم تسجيل الدخول بصلاحية إدارة');
+ const adminUid=auth.currentUser.uid;
+ return runTransaction(db,async tx=>{
+  const requestRef=doc(db,kind==='deposit'?'depositRequests':'withdrawalRequests',id);
+  const requestSnap=await tx.get(requestRef);if(!requestSnap.exists())throw new Error('الطلب غير موجود');
+  const r=requestSnap.data();if(!pending(r))return 'already';
+  if(typeof r.uid!=='string'||!number(r.amount)||r.amount<(kind==='deposit'?50:5)||r.amount>99999999||round(r.amount)!==r.amount)throw new Error('بيانات المبلغ غير صالحة');
+  if(!approve){tx.update(requestRef,{status:'rejected',reviewedBy:adminUid,reviewedAt:serverTimestamp(),adminNote:note});return 'rejected'}
+  const walletRef=doc(db,'balance',r.uid),profileRef=doc(db,'users',r.uid),memberRef=doc(db,'referralMembers',r.uid);
+  const [walletSnap,profileSnap,memberSnap]=await Promise.all([tx.get(walletRef),tx.get(profileRef),tx.get(memberRef)]);
+  const b=walletSnap.exists()?walletSnap.data():{amount:0,commissionAmount:0};
+  if(!number(b.amount)||!number(b.commissionAmount??0)||!number(b.capital??b.amount))throw new Error('الرصيد الحالي غير صالح؛ لم يتم تغيير الطلب');
+  if(kind==='withdraw'&&b.amount<r.amount)throw new Error('الرصيد الحالي لا يكفي لاعتماد السحب');
+  const profile=profileSnap.exists()?profileSnap.data():{};
+  const member=memberSnap.exists()?memberSnap.data():null;
+  const referrer=profile.referredBy||member?.referrerUid||null;
+  if(referrer===r.uid)throw new Error('إحالة ذاتية غير صالحة');
+  if(member&&profile.referredBy&&member.referrerUid!==profile.referredBy)throw new Error('بيانات المحيل غير متطابقة');
+  const reward=kind==='deposit'&&referrer?round(Math.floor(Math.round(r.amount*1e6)/50000000)*3.5):0;
+  let refBalanceRef=null,refBalanceSnap=null,commissionRef=null,commissionSnap=null;
+  if(reward>0){refBalanceRef=doc(db,'balance',referrer);commissionRef=doc(db,'commissionTransactions','referral_deposit_'+id);[refBalanceSnap,commissionSnap]=await Promise.all([tx.get(refBalanceRef),tx.get(commissionRef)]);if(commissionSnap.exists())throw new Error('سجل عمولة سابق موجود لهذا الطلب؛ أوقف الاعتماد وراجع البيانات')}
+  const oldMember=member||{uid:r.uid,referrerUid:referrer,depositTotal:0,withdrawalTotal:0,commissionTotal:0};
+  if(referrer&&(!number(oldMember.depositTotal??0)||!number(oldMember.withdrawalTotal??0)||!number(oldMember.commissionTotal??0)))throw new Error('إجماليات الفريق غير صالحة');
+  const delta=kind==='deposit'?r.amount:-r.amount;
+  const walletPatch={uid:r.uid,currency:'USDT',amount:round(b.amount+delta),capital:round(Math.max(0,(b.capital??b.amount)+delta)),updatedAt:serverTimestamp()};
+  tx.set(walletRef,walletPatch,{merge:true});
+  if(referrer){
+   const patch={uid:r.uid,referrerUid:referrer,updatedAt:serverTimestamp()};
+   if(!member)Object.assign(patch,{depositTotal:0,withdrawalTotal:0,commissionTotal:0,createdAt:serverTimestamp()});
+   if(kind==='deposit'){patch.depositTotal=round((oldMember.depositTotal||0)+r.amount);patch.commissionTotal=round((oldMember.commissionTotal||0)+reward)}else patch.withdrawalTotal=round((oldMember.withdrawalTotal||0)+r.amount);
+   tx.set(memberRef,patch,{merge:true});
   }
-  function onMove(e){const{x,y}=getXY(e);
-    if(drawing){const p=makePt(x,y);if(p.t!=null&&p.p!=null)drawing.pts[1]=p;render();return}
-    if(drag){const p=makePt(x,y);if(p.t==null||p.p==null)return;if(drag.mode==='handle'){drag.s.pts[drag.idx]=p}else if(drag.mode==='move'){const t0=xToTime(drag.ox),p0=y2p(drag.oy);if(t0==null||p0==null)return;const dt=p.t-t0,dp=p.p-p0;drag.s.pts=drag.orig.map(o=>({t:o.t+dt,p:o.p+dp}))}render();return}
-    // hover cursor
-    if(tool==='cursor'){const hh=hitHandle(sel,x,y);const s=hh>=0?sel:findShape(x,y);cv.classList.toggle('mv',!!s)}
+  if(reward>0){
+   const rb=refBalanceSnap.exists()?refBalanceSnap.data():{amount:0,commissionAmount:0};
+   if(!number(rb.amount)||!number(rb.commissionAmount??0))throw new Error('رصيد المحيل غير صالح');
+   tx.set(refBalanceRef,{uid:referrer,currency:'USDT',...(refBalanceSnap.exists()?{}:{amount:0}),commissionAmount:round((rb.commissionAmount||0)+reward),updatedAt:serverTimestamp()},{merge:true});
+   tx.set(commissionRef,{uid:referrer,kind:'referral',memberUid:r.uid,depositRequestId:id,depositAmount:r.amount,amount:reward,wallet:'commission',currency:'USDT',status:'completed',createdAt:serverTimestamp()});
   }
-  function onUp(){if(drawing){shapes.push(drawing);sel=drawing;drawing=null;setTool('cursor');render()}drag=null}
-
-  // ---- Text input ----
-  function showTextInput(x,y,s){const r=wrap.getBoundingClientRect();txtIn.style.left=(x)+'px';txtIn.style.top=(y-10)+'px';txtIn.style.display='block';txtIn.value='';txtIn.focus();const commit=()=>{if(txtIn.value.trim()){s.text=txtIn.value;shapes.push(s);sel=s}txtIn.style.display='none';txtIn.onblur=null;txtIn.onkeydown=null;setTool('cursor');render()};txtIn.onblur=commit;txtIn.onkeydown=ev=>{if(ev.key==='Enter')commit();else if(ev.key==='Escape'){txtIn.style.display='none';setTool('cursor')}}}
-
-  // ---- Context menu ----
-  function showCtx(x,y,s){ctxMenu.innerHTML='';const colors=['#2962ff','#f0b90b','#26a69a','#ef5350','#ab47bc','#ffffff'];const sw=document.createElement('div');sw.className='sw';colors.forEach(c=>{const d=document.createElement('div');d.style.background=c;if(s.color===c)d.className='on';d.onclick=()=>{s.color=c;hideCtx();render()};sw.appendChild(d)});ctxMenu.appendChild(sw);const del=document.createElement('div');del.className='ci del';del.textContent='🗑 حذف';del.onclick=()=>{shapes=shapes.filter(x=>x!==s);sel=null;hideCtx();render()};ctxMenu.appendChild(del);const wr=wrap.getBoundingClientRect();ctxMenu.style.left=(x-wr.left)+'px';ctxMenu.style.top=(y-wr.top)+'px';ctxMenu.style.display='block'}
-  function hideCtx(){ctxMenu.style.display='none'}
-  document.addEventListener('click',e=>{if(!ctxMenu.contains(e.target))hideCtx()});
-  document.addEventListener('keydown',e=>{if((e.key==='Delete'||e.key==='Backspace')&&sel&&document.activeElement!==txtIn){shapes=shapes.filter(x=>x!==sel);sel=null;render()}if(e.key==='Escape'){sel=null;drawing=null;setTool('cursor');render()}});
-
-  // ---- Toolbar ----
-  function setTool(t){tool=t;document.querySelectorAll('.tool').forEach(e=>e.classList.toggle('active',e.dataset.t===t));const active=t!=='cursor';cv.classList.toggle('act',active);if(!active)cv.classList.remove('mv')}
-  document.querySelectorAll('.tool').forEach(e=>{e.onclick=()=>{const t=e.dataset.t;if(t==='clear'){if(confirm('مسح جميع الرسومات؟')){shapes=[];sel=null;render()}return}setTool(t)}});
-  setTool('cursor');resize();
-
-  return{render}
-})();
-})();
+  tx.update(requestRef,{status:'approved',settled:true,settlementVersion:1,referrerUid:referrer,referralCommission:reward,reviewedBy:adminUid,reviewedAt:serverTimestamp(),updatedAt:serverTimestamp(),adminNote:note});
+  return 'approved';
+ });
+}
+$('#address-form').onsubmit=async e=>{
+ e.preventDefault();if(!authorized)return;const network=$('#address-network').value,address=$('#address-value').value.trim();
+ const valid=(network.startsWith('TRC20')||network==='TRX')?/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(address):/^0x[0-9a-fA-F]{40}$/.test(address);
+ if(!valid){message('العنوان غير صحيح للشبكة المختارة.',true);return}
+ const button=$('#save-address');button.disabled=true;
+ try{await setDoc(doc(db,'depositAddresses',network),{address,updatedAt:serverTimestamp(),updatedBy:auth.currentUser.uid},{merge:true});message('تم حفظ عنوان الإيداع')}catch(err){message(errorText(err),true)}finally{button.disabled=false}
+};
+$('#lookup-form').onsubmit=async e=>{
+ e.preventDefault();if(!authorized)return;const uid=$('#lookup-uid').value.trim();if(!uid||uid.includes('/'))return;
+ try{const [p,b,m]=await Promise.all([getDoc(doc(db,'users',uid)),getDoc(doc(db,'balance',uid)),getDoc(doc(db,'referralMembers',uid))]);const data={uid,profile:p.exists()?p.data():null,balance:b.exists()?b.data():null,referral:m.exists()?m.data():null};$('#lookup-result').textContent=JSON.stringify(data,(k,v)=>v?.toDate?v.toDate().toISOString():v,2)}catch(err){message(errorText(err),true)}
+};
+window.addEventListener('pagehide',()=>{generation++;stopRole();clean()});
 </script></body></html>
