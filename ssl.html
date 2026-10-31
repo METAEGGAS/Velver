@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Goldrix Admin — لوحة التحكم</title>
+<style>
+:root{--bg:#0a0e17;--panel:#121826;--line:#1f2a3d;--muted:#8a9bb5;--blue:#3b82f6;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--gold:#d4af37}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#e6edf7;font:14px/1.6 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+button{cursor:pointer;border:0;border-radius:8px;padding:9px 16px;background:var(--blue);color:#fff;font-weight:600;font-size:13px}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.secondary{background:#1f2a3d;color:#c9d6e8}
+button.danger{background:#3b1d28;color:#f8a5b8}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#0d1421;color:#fff;font-size:13px;outline:none}
+input:focus,select:focus{border-color:var(--blue)}
+label{display:block;margin:12px 0 5px;color:var(--muted);font-size:12px}
+h1,h2,h3,p{margin:0 0 12px}
+h1{font-size:22px}
+h2{font-size:17px}
+.wrap{width:min(1400px,95%);margin:24px auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+.login{width:min(420px,92%);margin:10vh auto}
+.brand{display:inline-block;width:48px;height:48px;background:linear-gradient(135deg,#d4af37,#b8860b);border-radius:12px;display:grid;place-items:center;font-weight:800;color:#0a0e17;font-size:20px;margin-bottom:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.stat strong{display:block;font-size:24px;font-weight:700;margin-top:4px}
+.stat span{color:var(--muted);font-size:12px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:14px 0}
+.tablebox{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:900px;text-align:right}
+th,td{border-bottom:1px solid var(--line);padding:11px 12px;vertical-align:top}
+th{background:#0d1421;color:#93a5c0;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+td{font-size:13px}
+.mono{font-family:ui-monospace,Menlo,monospace;direction:ltr;unicode-bidi:plaintext;font-size:12px;word-break:break-all}
+.muted{color:var(--muted);font-size:12px}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.pending{background:#3d2f10;color:#f59e0b}
+.badge.approved{background:#0f3a2a;color:#10b981}
+.badge.rejected{background:#3d1a24;color:#ef4444}
+.badge.dep{background:#0f2a3d;color:#3b82f6}
+.badge.wd{background:#3d1f10;color:#f59e0b}
+.badge.type-other{background:#2a2a3d;color:#a78bfa}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.error{color:#f8a5b8;font-size:13px;margin:8px 0;white-space:pre-wrap}
+.ok{color:var(--green)}
+.warn{background:#3d2f10;border:1px solid #6b4f1a;color:#fcd34d;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px}
+.critical{background:#3d1a24;border:1px solid #6b1a2a;color:#f8a5b8;padding:12px 16px;border-radius:10px;font-size:13px;margin-bottom:16px}
+.detail-panel{background:#0d1421;border-radius:10px;padding:14px;max-height:400px;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:11px;direction:ltr;text-align:left}
+dialog{width:min(700px,95vw);background:var(--panel);color:#e6edf7;border:1px solid var(--line);border-radius:14px;padding:22px;max-height:90vh;overflow:auto}
+dialog::backdrop{background:#000a}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e3a5c;padding:11px 20px;border:1px solid #3b82f6;border-radius:10px;z-index:99;font-size:13px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══ شاشة تسجيل الدخول ═══ -->
+<section id="loginView" class="card login">
+  <div class="brand">G</div>
+  <h1>Goldrix Admin</h1>
+  <p class="muted">لوحة تحكم الأدمن — تتطلب حساب Firebase Auth</p>
+  <form id="loginForm">
+    <label for="email">البريد الإلكتروني</label>
+    <input id="email" type="email" required autocomplete="username" dir="ltr" placeholder="admin@example.com">
+    <label for="password">كلمة المرور</label>
+    <input id="password" type="password" required autocomplete="current-password" dir="ltr">
+    <div style="margin-top:18px"><button id="loginBtn" type="submit" style="width:100%" disabled>جارٍ التهيئة…</button></div>
+  </form>
+  <p id="loginError" class="error" role="alert"></p>
+  <p class="muted" style="margin-top:14px">تُدار كلمة المرور في Firebase Authentication. لا توجد كلمة مرور في هذا الملف.</p>
+</section>
+
+<!-- ═══ لوحة التحكم ═══ -->
+<main id="dashboard" class="wrap" hidden>
+  <header class="top">
+    <div>
+      <h1>Goldrix — لوحة التحكم</h1>
+      <p class="muted" id="projectInfo">جارٍ الاتصال…</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <small id="adminEmail" class="muted"></small>
+      <button id="refreshBtn" class="secondary">تحديث</button>
+      <button id="logoutBtn" class="danger">خروج</button>
+    </div>
+  </header>
+
+  <div id="securityBanner"></div>
+
+  <section class="stats">
+    <div class="stat"><span>إجمالي المستخدمين</span><strong id="userCount">—</strong></div>
+    <div class="stat"><span>طلبات إيداع</span><strong id="depCount">—</strong></div>
+    <div class="stat"><span>طلبات سحب</span><strong id="wdCount">—</strong></div>
+    <div class="stat"><span>إجمالي USDT (إيداع - سحب)</span><strong id="netTotal">—</strong></div>
+  </section>
+
+  <section class="card">
+    <div class="top">
+      <h2>سجل الطلبات (كشف تلقائي للحقول)</h2>
+      <span id="connection" class="muted" role="status">جارٍ التحميل…</span>
+    </div>
+    <div class="filters">
+      <input id="search" placeholder="بحث بالاسم، البريد، UID، العنوان…" aria-label="بحث">
+      <select id="typeFilter" aria-label="النوع">
+        <option value="all">كل الأنواع</option>
+        <option value="deposit">إيداع</option>
+        <option value="withdraw">سحب</option>
+        <option value="other">أخرى</option>
+      </select>
+      <select id="statusFilter" aria-label="الحالة">
+        <option value="all">كل الحالات</option>
+        <option value="pending">معلق</option>
+        <option value="approved">مقبول</option>
+        <option value="rejected">مرفوض</option>
+      </select>
+    </div>
+    <p id="dataError" class="error" role="alert"></p>
+    <div class="tablebox">
+      <table>
+        <thead><tr>
+          <th>المستخدم</th><th>النوع</th><th>المبلغ</th><th>العملة</th>
+          <th>العنوان / المرجع</th><th>التاريخ</th><th>الحالة</th><th>الحقل الأصلي</th><th></th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <div id="empty" class="empty" hidden>لا توجد طلبات مطابقة.</div>
+    </div>
+    <div class="top" style="margin-top:12px">
+      <small id="resultCount" class="muted"></small>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="prevPage" class="secondary">السابق</button>
+        <span id="pageLabel" class="muted"></span>
+        <button id="nextPage" class="secondary">التالي</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>المستخدمون</h2>
+    <p class="muted">قائمة بكل مستندات <code class="mono">users</code> مع عدد الطلبات لكل مستخدم.</p>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>UID</th><th>الاسم</th><th>البريد</th><th>الرصيد</th><th>طلبات</th><th></th></tr></thead>
+        <tbody id="userRows"></tbody>
+      </table>
+      <div id="userEmpty" class="empty" hidden>لا يوجد مستخدمون.</div>
+    </div>
+  </section>
+</main>
+
+<!-- ═══ نافذة التفاصيل ═══ -->
+<dialog id="detailDialog">
+  <h2 id="detailTitle">تفاصيل</h2>
+  <div id="detailBody"></div>
+  <div style="margin-top:16px;text-align:left">
+    <button onclick="document.getElementById('detailDialog').close()" class="secondary">إغلاق</button>
+  </div>
+</dialog>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module">
+// ═══════════════════════════════════════════════════════════════
+// إعدادات Firebase — من مشروعك (عامة بطبيعتها، ليست سراً)
+// ═══════════════════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBvzfJOOjRFZnTgTUrwEZQPr8Ba7zKKlNg",
+  authDomain: "gen-lang-client-0589567342.firebaseapp.com",
+  projectId: "gen-lang-client-0589567342",
+  storageBucket: "gen-lang-client-0589567342.firebasestorage.app",
+  messagingSenderId: "384258034144",
+  appId: "1:384258034144:web:dd06e26ce38651190c4385"
+};
+const FIRESTORE_DB_ID = "ai-studio-goldrixdigitalas-80bc2c2b-b4d6-4bcc-9fdd-4715b1d01508";
+
+// ═══════════════════════════════════════════════════════════════
+// ✏️ ضع UID الأدمن هنا — من Firebase Console → Authentication
+// ═══════════════════════════════════════════════════════════════
+const ADMIN_UID = "PUT_ADMIN_UID_HERE";
+
+// اسم مجموعة المستخدمين — عدّله إن كانت مختلفة
+const USERS_COLLECTION = "users";
+
+// الحد الأقصى لعدد المستندات (لحماية الأداء)
+const MAX_USERS = 500;
+
+// ═══════════════════════════════════════════════════════════════
+const SDK = "https://www.gstatic.com/firebasejs/12.19.0/";
+const $ = id => document.getElementById(id);
+
+let auth, db, authAPI, fs;
+let entries = [];       // كل الطلبات الموحدة
+let users = [];         // كل المستخدمين
+let page = 1;
+const PAGE_SIZE = 30;
+let unsubscribe = null;
+let busy = false;
+let toastTimer;
+
+// ─── أدوات ───
+function toast(text) {
+  $("toast").textContent = text;
+  $("toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").hidden = true, 5000);
+}
+function errText(e) {
+  const c = String(e?.code || "");
+  if (c.includes("permission-denied")) return "الصالحيات مرفوضة. تحقق من UID الأدمن وقواعد Firestore.";
+  if (c.includes("invalid-credential") || c.includes("wrong-password") || c.includes("user-not-found")) return "بيانات الدخول غير صحيحة.";
+  if (c.includes("too-many-requests")) return "محاولات كثيرة. انتظر قليلاً.";
+  if (c.includes("network") || c.includes("unavailable")) return "تعذر الاتصال. تحقق من الإنترنت.";
+  return e?.message || "خطأ غير متوقع.";
+}
+function fmt(n) {
+  return Number.isFinite(n) ? new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 8 }).format(n) : "—";
+}
+function timeOf(v) {
+  if (!v) return NaN;
+  if (typeof v.toMillis === "function") return v.toMillis();
+  if (typeof v.seconds === "number") return v.seconds * 1000;
+  if (typeof v === "number") return v;
+  if (typeof v === "string") return Number(v) || Date.parse(v) || NaN;
+  return NaN;
+}
+function dateStr(v) {
+  const t = timeOf(v);
+  return Number.isFinite(t) ? new Date(t).toLocaleString("ar-EG") : "—";
+}
+
+// ═══════════════════════════════════════════════════════════════
+// كشف أسماء الحقول — هذا هو "الاحتياط" الذي طلبته
+// يبحث عن أي اسم حقل يشبه الإيداع أو السحب، بالعربية والإنجليزية
+// ═══════════════════════════════════════════════════════════════
+const DEPOSIT_PATTERNS = [
+  /^dep$/, /^deposit$/, /^deposits$/, /^depositrequest$/, /^depositrequests$/,
+  /^deposit_request$/, /^deposit_requests$/, /^topup$/, /^top_up$/, /^topups$/,
+  /^recharge$/, /^recharges$/, /^charge$/, /^charges$/, /^fund$/, /^funds$/,
+  /^funding$/, /^payin$/, /^pay_in$/, /^payins$/, /^in$/, /^incoming$/,
+  /^إيداع$/, /^ايداع$/, /^إيداعات$/, /^ايداعات$/, /^شحن$/, /^شحنة$/,
+  /^طلبات_إيداع$/, /^طلبات_ايداع$/, /^طلبات_شحن$/, /^دفع$/, /^مدفوعات$/,
+  /^دخل$/, /^واردة$/
+];
+const WITHDRAW_PATTERNS = [
+  /^wd$/, /^withdraw$/, /^withdraws$/, /^withdrawal$/, /^withdrawals$/,
+  /^withdrawrequest$/, /^withdrawrequests$/, /^withdraw_request$/, /^withdraw_requests$/,
+  /^payout$/, /^payouts$/, /^pay_out$/, /^cashout$/, /^cash_out$/, /^cashouts$/,
+  /^out$/, /^outgoing$/, /^transfer_out$/, /^transfers_out$/,
+  /^سحب$/, /^سحوبات$/, /^سحب_الأرباح$/, /^طلبات_سحب$/, /^طلبات_سحب_الأرباح$/,
+  /^صرف$/, /^مدفوعات_خارجة$/, /^خارجة$/, /^تحويل_خارجي$/, /^مسحوبات$/
+];
+
+function classifyField(name) {
+  const n = String(name || "").toLowerCase().trim();
+  if (!n) return null;
+  if (DEPOSIT_PATTERNS.some(p => p.test(n))) return "deposit";
+  if (WITHDRAW_PATTERNS.some(p => p.test(n))) return "withdraw";
+  return null;
+}
+
+// استخراج كل الطلبات من مستند مستخدم واحد
+function extractEntries(uid, docData) {
+  const out = [];
+  const userName = docData?.name || docData?.fullName || docData?.displayName || docData?.username || docData?.email || uid;
+  const userEmail = docData?.email || "";
+
+  // 1) البحث في كل حقول المستخدم عن مصفوفات طلبات
+  for (const [key, val] of Object.entries(docData || {})) {
+    const kind = classifyField(key);
+    if (!kind) continue;
+
+    // مصفوفة طلبات
+    if (Array.isArray(val)) {
+      val.forEach((item, idx) => {
+        if (item && typeof item === "object") {
+          out.push(normalizeEntry(uid, userName, userEmail, kind, key, idx, item));
+        }
+      });
+    }
+    // كائن واحد (طلب مفرد)
+    else if (val && typeof val === "object" && !Array.isArray(val)) {
+      out.push(normalizeEntry(uid, userName, userEmail, kind, key, null, val));
+    }
+  }
+
+  // 2) البحث في مجموعات فرعية شائعة داخل المستند
+  const nestedKeys = ["transactions", "txs", "history", "requests", "operations", "records", "activity"];
+  for (const nk of nestedKeys) {
+    const arr = docData?.[nk];
+    if (Array.isArray(arr)) {
+      arr.forEach((item, idx) => {
+        if (!item || typeof item !== "object") return;
+        // حدد النوع من حقل type/direction/kind داخل العنصر نفسه
+        const t = String(item.type || item.direction || item.kind || item.operation || "").toLowerCase();
+        let kind = null;
+        if (/dep|deposit|in|إيداع|ايداع|شحن/.test(t)) kind = "deposit";
+        else if (/wd|withdraw|out|سحب|صرف/.test(t)) kind = "withdraw";
+        if (kind) out.push(normalizeEntry(uid, userName, userEmail, kind, `${nk}[].type`, idx, item));
+      });
+    }
+  }
+
+  return out;
+}
+
+function normalizeEntry(uid, userName, userEmail, kind, fieldName, index, item) {
+  const amount = pickNumber(item, ["amount", "value", "sum", "total", "usdt", "price", "qty", "quantity", "المبلغ", "القيمة"]);
+  const currency = item.currency || item.asset || item.coin || item.token || item.network || item.net || "USDT";
+  const addr = item.address || item.wallet || item.to || item.from || item.addr || item.target || item.العنوان || "—";
+  const txid = item.txid || item.txHash || item.hash || item.tx || item.reference || item.ref || item.مرجع || "—";
+  const statusRaw = String(item.status || item.state || item.الحالة || "pending").toLowerCase();
+  let status = "pending";
+  if (/approv|accept|complete|success|done|مقبول|مكتمل|ناجح/.test(statusRaw)) status = "approved";
+  else if (/reject|fail|cancel|declin|مرفوض|ملغى|فاشل/.test(statusRaw)) status = "rejected";
+  const at = item.at || item.createdAt || item.date || item.time || item.timestamp || item.التاريخ;
+
+  return {
+    uid, userName, userEmail,
+    kind, fieldName,
+    index,
+    raw: item,
+    amount,
+    currency,
+    address: addr,
+    txid,
+    status,
+    at,
+    id: `${uid}::${fieldName}::${index ?? "single"}`
+  };
+}
+
+function pickNumber(obj, keys) {
+  for (const k of keys) {
+    const v = obj?.[k];
+    if (typeof v === "number" && Number.isFinite(v)) return v;
+    if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
+  }
+  return NaN;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// تحميل البيانات
+// ═══════════════════════════════════════════════════════════════
+function subscribeAll() {
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  $("dataError").textContent = "";
+  $("connection").textContent = "جارٍ التحميل…";
+
+  unsubscribe = fs.onSnapshot(
+    fs.collection(db, USERS_COLLECTION),
+    { includeMetadataChanges: true },
+    snap => {
+      users = [];
+      entries = [];
+      snap.forEach(doc => {
+        const data = doc.data() || {};
+        const u = {
+          uid: doc.id,
+          name: data.name || data.fullName || data.displayName || data.username || "",
+          email: data.email || "",
+          balance: typeof data.balance === "number" ? data.balance : pickNumber(data, ["balance", "wallet", "usdtBalance", "الرصيد"]),
+          docData: data
+        };
+        users.push(u);
+        const ex = extractEntries(doc.id, data);
+        entries.push(...ex);
+      });
+      entries.sort((a, b) => (timeOf(b.at) || 0) - (timeOf(a.at) || 0));
+      $("connection").textContent = snap.metadata.fromCache ? "بيانات مخزنة — في انتظار التحديث" : "متصل · تحديث لحظي";
+      $("dataError").textContent = "";
+      renderAll();
+      checkFirestoreRules();
+    },
+    error => {
+      users = []; entries = [];
+      renderAll();
+      $("connection").textContent = "تعذر الاتصال";
+      $("dataError").textContent = errText(error);
+    }
+  );
+}
+
+// فحص مبسط لقواعد Firestore: هل القراءة العامة ممكنة؟
+async function checkFirestoreRules() {
+  const banner = $("securityBanner");
+  banner.innerHTML = "";
+  try {
+    const res = await fetch(`https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/${FIRESTORE_DB_ID}/documents/${USERS_COLLECTION}?pageSize=1&key=${FIREBASE_CONFIG.apiKey}`);
+    const data = await res.json();
+    if (res.ok && data.documents) {
+      banner.innerHTML = `<div class="critical"><b>⚠️ خطر حرج:</b> قواعد Firestore تسمح بالقراءة العامة بدون مصادقة. أي شخص في العالم يمكنه قراءة بيانات كل مستخدميك. <b>صحح القواعد فوراً</b> إلى: <code>allow read, write: if request.auth != null;</code></div>`;
+    } else {
+      banner.innerHTML = `<div class="ok" style="padding:10px 14px;background:#0f3a2a;border-radius:10px;font-size:13px">✓ قواعد Firestore لا تسمح بالقراءة العامة. جيد.</div>`;
+    }
+  } catch (e) {
+    banner.innerHTML = `<div class="warn">تعذر فحص قواعد Firestore تلقائياً. تحقق يدوياً من Firebase Console → Firestore → Rules.</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// العرض
+// ═══════════════════════════════════════════════════════════════
+function renderAll() { renderStats(); renderEntries(); renderUsers(); }
+
+function renderStats() {
+  const dep = entries.filter(e => e.kind === "deposit");
+  const wd = entries.filter(e => e.kind === "withdraw");
+  const sum = arr => arr.reduce((s, e) => s + (Number.isFinite(e.amount) ? e.amount : 0), 0);
+  $("userCount").textContent = users.length;
+  $("depCount").textContent = dep.length;
+  $("wdCount").textContent = wd.length;
+  $("netTotal").textContent = fmt(sum(dep) - sum(wd)) + " USDT";
+}
+
+function renderEntries() {
+  const q = $("search").value.trim().toLowerCase();
+  const tf = $("typeFilter").value;
+  const sf = $("statusFilter").value;
+  const filtered = entries.filter(e => {
+    if (tf !== "all" && e.kind !== tf) return false;
+    if (sf !== "all" && e.status !== sf) return false;
+    if (q) {
+      const hay = [e.uid, e.userName, e.userEmail, e.address, e.txid, e.fieldName].join(" ").toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  page = Math.max(1, Math.min(page, pages));
+  const slice = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const tbody = $("rows");
+  tbody.replaceChildren();
+
+  for (const e of slice) {
+    const tr = document.createElement("tr");
+    // المستخدم
+    const tdUser = document.createElement("td");
+    const b = document.createElement("b"); b.textContent = e.userName || e.userEmail || "مستخدم"; tdUser.appendChild(b);
+    const divEmail = document.createElement("div"); divEmail.className = "muted"; divEmail.textContent = e.userEmail || ""; tdUser.appendChild(divEmail);
+    const divUid = document.createElement("div"); divUid.className = "mono muted"; divUid.textContent = e.uid; tdUser.appendChild(divUid);
+    tr.appendChild(tdUser);
+    // النوع
+    const tdType = document.createElement("td");
+    const spanType = document.createElement("span");
+    spanType.className = "badge " + (e.kind === "deposit" ? "dep" : e.kind === "withdraw" ? "wd" : "type-other");
+    spanType.textContent = e.kind === "deposit" ? "إيداع" : e.kind === "withdraw" ? "سحب" : e.kind;
+    tdType.appendChild(spanType); tr.appendChild(tdType);
+    // المبلغ
+    const tdAmt = document.createElement("td"); tdAmt.className = "mono"; tdAmt.textContent = fmt(e.amount); tr.appendChild(tdAmt);
+    // العملة
+    const tdCur = document.createElement("td"); tdCur.textContent = e.currency; tr.appendChild(tdCur);
+    // العنوان
+    const tdAddr = document.createElement("td"); tdAddr.className = "mono"; tdAddr.style.maxWidth = "180px";
+    tdAddr.textContent = e.address !== "—" ? e.address : (e.txid !== "—" ? "TX: " + e.txid : "—"); tr.appendChild(tdAddr);
+    // التاريخ
+    const tdDate = document.createElement("td"); tdDate.textContent = dateStr(e.at); tr.appendChild(tdDate);
+    // الحالة
+    const tdStatus = document.createElement("td");
+    const sBadge = document.createElement("span"); sBadge.className = "badge " + e.status;
+    sBadge.textContent = e.status === "approved" ? "مقبول" : e.status === "rejected" ? "مرفوض" : "معلق";
+    tdStatus.appendChild(sBadge); tr.appendChild(tdStatus);
+    // الحقل الأصلي (مهم — يكشف اسم الحقل الذي عُثر عليه)
+    const tdField = document.createElement("td"); tdField.className = "mono"; tdField.style.fontSize = "11px"; tdField.style.color = "#8a9bb5";
+    tdField.textContent = e.fieldName + (e.index != null ? `[${e.index}]` : "");
+    tr.appendChild(tdField);
+    // تفاصيل
+    const tdBtn = document.createElement("td");
+    const btn = document.createElement("button"); btn.className = "secondary"; btn.textContent = "تفاصيل";
+    btn.onclick = () => showDetail(e);
+    tdBtn.appendChild(btn); tr.appendChild(tdBtn);
+
+    tbody.appendChild(tr);
+  }
+
+  $("empty").hidden = filtered.length > 0;
+  $("resultCount").textContent = `${filtered.length} طلب من ${entries.length}`;
+  $("pageLabel").textContent = `${page} / ${pages}`;
+  $("prevPage").disabled = page <= 1;
+  $("nextPage").disabled = page >= pages;
+}
+
+function renderUsers() {
+  const tbody = $("userRows");
+  tbody.replaceChildren();
+  if (users.length === 0) { $("userEmpty").hidden = false; return; }
+  $("userEmpty").hidden = true;
+  for (const u of users.slice(0, MAX_USERS)) {
+    const count = entries.filter(e => e.uid === u.uid).length;
+    const tr = document.createElement("tr");
+    const tdUid = document.createElement("td"); tdUid.className = "mono"; tdUid.textContent = u.uid; tr.appendChild(tdUid);
+    const tdName = document.createElement("td"); tdName.textContent = u.name || "—"; tr.appendChild(tdName);
+    const tdEmail = document.createElement("td"); tdEmail.textContent = u.email || "—"; tr.appendChild(tdEmail);
+    const tdBal = document.createElement("td"); tdBal.className = "mono"; tdBal.textContent = fmt(u.balance); tr.appendChild(tdBal);
+    const tdCnt = document.createElement("td"); tdCnt.textContent = count; tr.appendChild(tdCnt);
+    const tdB = document.createElement("td");
+    const btn = document.createElement("button"); btn.className = "secondary"; btn.textContent = "عرض";
+    btn.onclick = () => showUser(u);
+    tdB.appendChild(btn); tr.appendChild(tdB);
+    tbody.appendChild(tr);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// نوافذ التفاصيل
+// ═══════════════════════════════════════════════════════════════
+function showDetail(e) {
+  $("detailTitle").textContent = `طلب ${e.kind === "deposit" ? "إيداع" : "سحب"} — ${e.userName}`;
+  $("detailBody").innerHTML = `
+    <p><b>المستخدم:</b> ${escapeHtml(e.userName)}</p>
+    <p><b>UID:</b> <span class="mono">${escapeHtml(e.uid)}</span></p>
+    <p><b>البريد:</b> ${escapeHtml(e.userEmail || "—")}</p>
+    <p><b>النوع:</b> ${e.kind === "deposit" ? "إيداع" : "سحب"}</p>
+    <p><b>الحقل الأصلي:</
