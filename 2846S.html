@@ -4,67 +4,175 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
   <title>إنشاء حساب الإدارة</title>
+
   <style>
     * { box-sizing: border-box; }
+
     body {
-      margin: 0; min-height: 100vh; display: grid; place-items: center;
-      background: #111827; color: #fff;
-      font-family: Arial, sans-serif; padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
+      display: grid;
+      place-items: center;
+      background: #111827;
+      color: #fff;
+      font-family: Arial, sans-serif;
     }
+
     .card {
-      width: 100%; max-width: 370px; padding: 26px;
-      background: #1f2937; border: 1px solid #374151;
+      width: 100%;
+      max-width: 390px;
+      padding: 26px;
+      background: #1f2937;
+      border: 1px solid #374151;
       border-radius: 18px;
+      box-shadow: 0 15px 45px #0003;
     }
-    h2 { margin: 0 0 8px; }
-    p { color: #9ca3af; font-size: 14px; line-height: 1.7; }
-    label { display: block; margin: 16px 0 7px; font-size: 14px; }
-    input, button {
-      width: 100%; padding: 13px; border-radius: 9px;
-      font-size: 15px;
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 23px;
     }
+
+    .subtitle {
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 8px;
+      font-size: 14px;
+    }
+
     input {
-      background: #111827; color: white;
-      border: 1px solid #4b5563; outline: none;
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border-radius: 9px;
+      background: #111827;
+      color: white;
+      border: 1px solid #4b5563;
+      font-size: 15px;
+      outline: none;
+      direction: ltr;
+      text-align: left;
     }
+
+    input:focus {
+      border-color: #818cf8;
+    }
+
     button {
-      margin-top: 20px; border: 0; background: #6366f1;
-      color: white; font-weight: bold; cursor: pointer;
+      width: 100%;
+      padding: 14px;
+      margin-top: 22px;
+      border: 0;
+      border-radius: 9px;
+      background: #6366f1;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
     }
-    button:disabled { opacity: .6; cursor: wait; }
-    #msg { margin-top: 15px; font-size: 14px; overflow-wrap: anywhere; }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #msg {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    #msg.success {
+      display: block;
+      color: #bbf7d0;
+      background: #14532d55;
+      border: 1px solid #166534;
+    }
+
+    #msg.error {
+      display: block;
+      color: #fecaca;
+      background: #7f1d1d44;
+      border: 1px solid #991b1b;
+    }
+
+    #msg.info {
+      display: block;
+      color: #bfdbfe;
+      background: #1e3a8a44;
+      border: 1px solid #1d4ed8;
+    }
+
+    .foot {
+      margin-top: 18px;
+      color: #9ca3af;
+      font-size: 12px;
+      line-height: 1.8;
+    }
   </style>
 </head>
+
 <body>
   <main class="card">
-    <h2>إنشاء حساب الإدارة</h2>
-    <p>أنشئ حسابًا جديدًا باستخدام بيانات البريد الإلكتروني.</p>
+    <h2>إنشاء حساب جديد</h2>
+    <div class="subtitle">
+      إنشاء حساب باستخدام Firebase Authentication.
+    </div>
 
     <form id="registerForm">
       <label for="email">البريد الإلكتروني</label>
-      <input id="email" type="email"
-        value="ttwt09191@gmail.com" required autocomplete="email">
+      <input
+        id="email"
+        type="email"
+        value="ttwt09191@gmail.com"
+        autocomplete="email"
+        required
+      >
 
       <label for="password">كلمة المرور</label>
-      <input id="password" type="password"
-        value="05318352256" required minlength="6"
-        autocomplete="new-password">
+      <input
+        id="password"
+        type="password"
+        value="05318352256"
+        autocomplete="new-password"
+        minlength="6"
+        required
+      >
 
-      <button id="submitBtn" type="submit">إنشاء حساب جديد</button>
-      <div id="msg" role="status"></div>
+      <button id="submitBtn" type="submit">
+        إنشاء حساب جديد
+      </button>
     </form>
+
+    <div id="msg" role="status" aria-live="polite"></div>
+
+    <div class="foot">
+      إذا فشل إنشاء الحساب، ستظهر رسالة توضح السبب ورمز الخطأ.
+    </div>
   </main>
 
   <script type="module">
-    import { initializeApp } from
-      "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+
     import {
-      getAuth, createUserWithEmailAndPassword
+      getAuth,
+      createUserWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-    import {
-      getFirestore, doc, setDoc, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBbGpHW0ItpWrffXntHaF_BP8A2NjaLC6w",
@@ -77,45 +185,138 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app, 
-      "ai-studio-goldrixdigitalas-80bc2c2b-b4d6-4bcc-9fdd-4715b1d01508");
 
     const form = document.getElementById("registerForm");
     const btn = document.getElementById("submitBtn");
     const msg = document.getElementById("msg");
 
+    function showMessage(text, type = "info") {
+      msg.className = type;
+      msg.textContent = text;
+    }
+
+    function explainError(error) {
+      const code = error?.code || "unknown";
+
+      const errors = {
+        "auth/email-already-in-use":
+          "هذا البريد مسجل مسبقًا في Firebase Authentication. لم يتم إنشاء حساب جديد.",
+
+        "auth/invalid-email":
+          "عنوان البريد الإلكتروني غير صحيح. تحقق من كتابته.",
+
+        "auth/weak-password":
+          "كلمة المرور ضعيفة. استخدم كلمة مرور أقوى لا تقل عن 6 أحرف.",
+
+        "auth/missing-password":
+          "لم تدخل كلمة مرور.",
+
+        "auth/missing-email":
+          "لم تدخل البريد الإلكتروني.",
+
+        "auth/operation-not-allowed":
+          "طريقة إنشاء الحساب بالبريد وكلمة المرور غير مفعّلة. افتح Firebase Console ثم Authentication ثم Sign-in method، وفعّل Email/Password.",
+
+        "auth/network-request-failed":
+          "تعذر الاتصال بخوادم Firebase. تحقق من الإنترنت أو إعدادات الشبكة.",
+
+        "auth/too-many-requests":
+          "تم إجراء محاولات كثيرة. انتظر قليلًا قبل إعادة المحاولة.",
+
+        "auth/invalid-api-key":
+          "مفتاح API غير صالح. تحقق من إعدادات Firebase التي وضعتها في الكود.",
+
+        "auth/app-not-authorized":
+          "التطبيق غير مخوّل لهذا المشروع. تحقق من إعدادات التطبيق في Firebase.",
+
+        "auth/unauthorized-domain":
+          "النطاق الذي تستضيف عليه الصفحة غير مسموح. أضفه ضمن Authorized domains في إعدادات Firebase Authentication.",
+
+        "auth/invalid-credential":
+          "بيانات الاعتماد غير مقبولة. تحقق من إعدادات المشروع وطريقة المصادقة.",
+
+        "auth/internal-error":
+          "حدث خطأ داخلي في Firebase. راجع سجل الأخطاء وحاول لاحقًا.",
+
+        "auth/requests-from-referer-are-blocked":
+          "تم حظر الطلب بسبب إعدادات مفتاح API أو قيود النطاق. تحقق من قيود المفتاح في Google Cloud.",
+
+        "auth/quota-exceeded":
+          "تم تجاوز الحصة المسموحة لخدمة المصادقة. راجع حدود المشروع في Firebase.",
+
+        "auth/administrator-only-operation":
+          "هذه العملية تتطلب صلاحيات إدارية على مشروع Firebase."
+      };
+
+      const reason = errors[code] ||
+        error?.message ||
+        "لم يرسل Firebase تفاصيل إضافية عن الخطأ.";
+
+      return {
+        code,
+        reason: String(reason).replace(/https?:\/\/\S+/g, "[رابط]")
+      };
+    }
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
+
+      const email =
+        document.getElementById("email").value.trim();
+
+      const password =
+        document.getElementById("password").value;
+
+      if (!email || !password) {
+        showMessage(
+          "أدخل البريد الإلكتروني وكلمة المرور أولًا.",
+          "error"
+        );
+        return;
+      }
+
       btn.disabled = true;
-      msg.textContent = "جارٍ إنشاء الحساب...";
-      msg.style.color = "#d1d5db";
+      btn.textContent = "جارٍ إنشاء الحساب...";
+
+      showMessage(
+        "جارٍ إرسال طلب إنشاء الحساب إلى Firebase...",
+        "info"
+      );
 
       try {
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-
-        const credential = await createUserWithEmailAndPassword(
-          auth, email, password
+        const result = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
         );
 
-        msg.style.color = "#86efac";
-        msg.textContent =
-          "تم إنشاء الحساب بنجاح. UID: " + credential.user.uid +
-          ". لم تُمنح صلاحية الإدارة تلقائيًا.";
+        showMessage(
+          "تم إنشاء الحساب بنجاح.\n" +
+          "البريد: " + result.user.email + "\n" +
+          "UID: " + result.user.uid + "\n\n" +
+          "تم إنشاء حساب المصادقة فقط. لم تُمنح صلاحيات الإدارة تلقائيًا.",
+          "success"
+        );
 
       } catch (error) {
-        const errors = {
-          "auth/email-already-in-use": "هذا البريد مسجل مسبقًا.",
-          "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
-          "auth/weak-password": "كلمة المرور ضعيفة.",
-          "auth/operation-not-allowed": "فعّل Email/Password من إعدادات Firebase Authentication.",
-          "auth/network-request-failed": "تحقق من اتصال الإنترنت."
-        };
-        msg.style.color = "#fca5a5";
-        msg.textContent = errors[error.code] ||
-          ("تعذر إنشاء الحساب: " + error.message);
+        const details = explainError(error);
+
+        showMessage(
+          "فشل إنشاء الحساب\n\n" +
+          "السبب: " + details.reason + "\n\n" +
+          "رمز الخطأ: " + details.code,
+          "error"
+        );
+
+        console.error("Firebase create-account error:", {
+          code: error?.code,
+          message: error?.message,
+          error
+        });
+
       } finally {
         btn.disabled = false;
+        btn.textContent = "إنشاء حساب جديد";
       }
     });
   </script>
