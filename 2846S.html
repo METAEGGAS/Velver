@@ -1,308 +1,176 @@
-
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GOLDRIX | لوحة التحكم</title>
 <style>
-*{box-sizing:border-box}
-body{
- margin:0;background:#080d16;color:#edf2fa;
- font:15px Tahoma,Arial,sans-serif;padding:18px
-}
-main{max-width:1100px;margin:auto}
-.brand{text-align:center;color:#e6bf6d;font-size:30px;font-weight:bold;letter-spacing:4px}
-h2{font-size:21px}
-.card{
- background:#101a29;border:1px solid #26354a;
- border-radius:16px;padding:18px;margin:16px 0
-}
-input,button{
- width:100%;padding:12px;margin:6px 0;
- border:1px solid #26354a;border-radius:9px;
- background:#0b1320;color:white;font-size:15px
-}
-button{cursor:pointer}
-.primary{background:#4de0b1;color:#062a20;font-weight:bold;border:0}
-.muted{color:#9eacc1;font-size:12px;line-height:1.8}
-.status{padding:12px;background:#0b1320;border-radius:9px;overflow-wrap:anywhere}
-.error{color:#ff8798}
-.success{color:#4de0b1}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.row>*{flex:1;min-width:130px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap}
-.toolbar>*{flex:1;min-width:140px}
-.table-wrap{overflow:auto}
-table{border-collapse:collapse;width:100%;min-width:650px}
-th,td{padding:11px;border-bottom:1px solid #26354a;text-align:right;overflow-wrap:anywhere}
-th{color:#e6bf6d}
-[hidden]{display:none!important}
-label{display:block;color:#9eacc1;margin-top:10px}
-@media(max-width:500px){body{padding:10px}.card{padding:12px}}
+:root{color-scheme:dark;--bg:#080d16;--panel:#101a29;--line:#26354a;--text:#edf2fa;--muted:#9eacc1;--accent:#4de0b1;--gold:#e6bf6d;--danger:#ff8798}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#163540 0,transparent 55%),var(--bg);color:var(--text);font:15px/1.7 Tahoma,Arial,sans-serif;min-height:100vh;padding:20px 12px}
+main{max-width:1100px;margin:auto}.brand{text-align:center;color:var(--gold);font:800 29px Arial;letter-spacing:4px;margin:10px}
+h1,h2{margin:8px 0 14px}h1{text-align:center;font-size:23px}p{color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 15px 45px #0003}
+label{display:block;margin:10px 0 5px;color:var(--muted);font-size:13px}input,button,select{font:inherit;border-radius:10px;border:1px solid var(--line);padding:11px 12px;background:#0b1320;color:var(--text);width:100%}button{cursor:pointer}button.primary{background:var(--accent);color:#062a20;border:0;font-weight:bold}button:disabled{opacity:.5;cursor:wait}.login{max-width:440px;margin:35px auto}.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.toolbar>*{flex:1;min-width:140px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.stat{padding:14px;background:#0b1421;border:1px solid var(--line);border-radius:13px}.stat b{display:block;font-size:23px;color:var(--accent);direction:ltr;text-align:right}.muted{font-size:12px;color:var(--muted)}.status{padding:11px;border-radius:10px;background:#0b1421;overflow-wrap:anywhere;white-space:pre-wrap}.error{color:var(--danger)}.success{color:var(--accent)}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}th{color:var(--gold);font-size:13px}td{font-size:13px}.pill{display:inline-block;padding:2px 8px;border-radius:20px;background:#1a2b3e;color:var(--muted)}[hidden]{display:none!important}pre{white-space:pre-wrap;overflow-wrap:anywhere;direction:ltr;text-align:left;font-size:12px;color:var(--muted)}.danger{border-color:#63303a}.foot{text-align:center;font-size:12px;color:var(--muted)}@media(max-width:600px){body{padding:12px 8px}.card{padding:13px}.stats{grid-template-columns:1fr}.stat b{font-size:20px}.brand{font-size:25px}}
 </style>
 </head>
 <body>
 <main>
 <div class="brand">GOLDRIX</div>
-<h2 style="text-align:center">لوحة تحكم المستخدمين</h2>
-
-<section class="card" id="login">
+<h1>لوحة التحكم — حسابات المستخدمين</h1>
+<section class="card login" id="loginCard">
 <h2>دخول المسؤول</h2>
-<label for="password">كلمة المرور</label>
-<input id="password" type="password" placeholder="أدخل كلمة المرور">
-<button class="primary" id="loginBtn">دخول</button>
-<div id="loginStatus" class="status">أدخل كلمة المرور للمتابعة.</div>
+<p>أدخل كلمة المرور لفتح واجهة عرض الحسابات.</p>
+<form id="loginForm">
+<label for="adminPassword">كلمة مرور اللوحة</label>
+<input id="adminPassword" type="password" autocomplete="current-password" required>
+<button class="primary" type="submit" style="margin-top:14px">دخول</button>
+</form>
+<div id="loginStatus" class="status" role="status" aria-live="polite" style="margin-top:12px">أدخل كلمة المرور لفتح لوحة Admin.</div>
+<p class="muted">تنبيه: كلمة المرور الموجودة في HTML يمكن استخراجها من مصدر الصفحة، لذلك هذه بوابة تجريبية فقط وليست حماية إدارية حقيقية.</p>
 </section>
 
-<section id="panel" hidden>
-<div class="card">
-<h2>حسابات المستخدمين</h2>
-<p class="muted">
-أدخل إعدادات Firebase العامة، ثم اسم مجموعة الحسابات الموجودة في Firestore.
-</p>
-
-<label for="apiKey">Firebase API Key</label>
-<input id="apiKey" placeholder="apiKey" dir="ltr">
-
-<label for="authDomain">Auth Domain</label>
-<input id="authDomain" placeholder="project.firebaseapp.com" dir="ltr">
-
-<label for="projectId">Project ID</label>
-<input id="projectId" placeholder="project-id" dir="ltr">
-
-<label for="appId">App ID</label>
-<input id="appId" placeholder="appId" dir="ltr">
-
-<label for="databaseId">Firestore Database ID</label>
-<input id="databaseId" placeholder="اتركه فارغًا لاستخدام قاعدة default" dir="ltr">
-
-<label for="collectionName">اسم مجموعة المستخدمين</label>
-<input id="collectionName" value="users" dir="ltr">
-
-<div class="row">
-<button class="primary" id="loadBtn">جلب الحسابات</button>
-<button id="logoutBtn">تسجيل الخروج</button>
-</div>
-
-<div id="status" class="status">لم يتم الاتصال بقاعدة البيانات بعد.</div>
-</div>
-
+<section id="dashboard" hidden>
 <div class="card">
 <div class="toolbar">
-<input id="search" placeholder="بحث بالاسم أو البريد أو المعرّف">
-<button id="exportBtn">تصدير CSV</button>
+<div><h2 style="margin:0">الحسابات</h2><div class="muted">عرض فقط، لا تعديل أو حذف</div></div>
+<button id="loadUsers" class="primary">جلب الحسابات</button>
+<button id="logout">تسجيل الخروج</button>
+</div>
+<div id="status" class="status" role="status" aria-live="polite" style="margin-top:13px">سجّل الدخول ثم اضغط «جلب الحسابات».</div>
+</div>
+<div class="stats">
+<div class="stat"><span class="muted">عدد الحسابات المعروضة</span><b id="count">0</b></div>
+<div class="stat"><span class="muted">مصدر البيانات</span><div>Cloud Firestore</div></div>
+<div class="stat"><span class="muted">نمط العمل</span><div>قراءة فقط</div></div>
+</div>
+<div class="card">
+<div class="toolbar">
+<input id="search" type="search" placeholder="بحث بالاسم أو البريد أو المعرّف" aria-label="بحث بالحسابات">
+<button id="export" type="button">تصدير CSV</button>
 </div>
 <div class="table-wrap">
 <table>
-<thead>
-<tr>
-<th>الاسم</th>
-<th>البريد</th>
-<th>معرّف المستخدم</th>
-<th>الدولة</th>
-<th>تاريخ الإنشاء</th>
-</tr>
-</thead>
-<tbody id="usersBody">
-<tr><td colspan="5">لا توجد بيانات حتى الآن.</td></tr>
-</tbody>
+<thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>معرّف المستخدم</th><th>الدولة</th><th>تاريخ الإنشاء</th><th>حقول إضافية</th></tr></thead>
+<tbody id="usersBody"><tr><td colspan="6">لم يتم جلب البيانات بعد.</td></tr></tbody>
 </table>
 </div>
-<p id="count" class="muted">عدد الحسابات: 0</p>
 </div>
-
-<p class="muted">
-تنبيه: كلمة المرور الموجودة داخل HTML هي بوابة للواجهة فقط.
-لا تمنح صلاحيات Firebase الفعلية. إذا رفضت قواعد Firestore القراءة،
-فلن تظهر الحسابات؛ يجب أن تتم الصلاحية عبر خادم موثوق.
-</p>
+<div class="card">
+<h2>إعداد اتصال Firebase</h2>
+<p>إعدادات Firebase ومجموعة المستخدمين مملوءة تلقائيًا. كلمة المرور تفتح الواجهة فقط؛ صلاحيات Firestore الفعلية تظل مطلوبة.</p>
+<label for="apiKey">apiKey</label><input id="apiKey" autocomplete="off" dir="ltr" readonly>
+<label for="authDomain">authDomain</label><input id="authDomain" autocomplete="off" dir="ltr" readonly>
+<label for="projectId">projectId</label><input id="projectId" autocomplete="off" dir="ltr" readonly>
+<label for="appId">appId</label><input id="appId" autocomplete="off" dir="ltr" readonly>
+<label for="databaseId">معرّف قاعدة Firestore</label><input id="databaseId" autocomplete="off" dir="ltr" readonly>
+<p class="muted">تم تعبئة إعدادات المشروع تلقائيًا. مجموعة الحسابات الافتراضية: users.</p>
+<p class="muted">يتم استخدام الإعدادات تلقائيًا. لا تتجاوز الصفحة قواعد Firestore ولا تمنح نفسها صلاحية قراءة الحسابات.</p>
+</div>
+<div class="card">
+<h2>ملاحظات الربط</h2>
+<p>كلمة المرور وحدها لا تغيّر صلاحيات قاعدة البيانات. إذا ظهرت permission-denied، فلا يمكن لصفحة HTML منح نفسها صلاحية قراءة الحسابات؛ يلزم ضبط الوصول في الخادم أو Firebase.</p>
+<details><summary>تفاصيل الخطأ</summary><pre id="errorDetails">لا توجد أخطاء بعد.</pre></details>
+</div>
 </section>
+<p class="foot">لوحة عرض تجريبية. تسجيل الدخول المحلي لا يحمي البيانات؛ صلاحيات Firebase هي التي تتحكم في الوصول الحقيقي.</p>
 </main>
-
-<script>
-const ADMIN_PASSWORD = "1234567";
-
+<script type="module">
 const $ = id => document.getElementById(id);
+const DEMO_PASSWORD = '1234567'; // واجهة تجريبية فقط: لا تعتبر كلمة المرور هذه مصادقة آمنة
+
+const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyBbGpHW0ItpWrffXntHaF_BP8A2NjaLC6w',
+  authDomain: 'gen-lang-client-0589567342.firebaseapp.com',
+  projectId: 'gen-lang-client-0589567342',
+  appId: '1:384258034144:web:dd06e26ce38651190c4385',
+  databaseId: 'ai-studio-goldrixdigitalas-80bc2c2b-b4d6-4bcc-9fdd-4715b1d01508'
+};
+const USERS_COLLECTION = 'users';
+for (const [key, value] of Object.entries(FIREBASE_CONFIG)) {
+  const input = document.getElementById(key);
+  if (input) input.value = value;
+}
 let users = [];
-let firebaseApp = null;
+let firebase = null;
 let signedIn = false;
 
-$("loginBtn").addEventListener("click", () => {
-  if ($("password").value !== ADMIN_PASSWORD) {
-    $("loginStatus").textContent = "كلمة المرور غير صحيحة.";
-    $("loginStatus").className = "status error";
-    return;
-  }
-
-  signedIn = true;
-  $("login").hidden = true;
-  $("panel").hidden = false;
-  $("status").textContent =
-    "تم فتح الواجهة. اضغط جلب الحسابات بعد إدخال إعدادات Firebase.";
-});
-
-$("password").addEventListener("keydown", e => {
-  if (e.key === "Enter") $("loginBtn").click();
-});
-
-function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#39;"
-  }[c]));
+function setStatus(text, kind=''){ $('status').textContent=text; $('status').className='status '+kind; }
+function esc(value){ return String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function dateText(v){
+  if(!v) return '—';
+  if(typeof v.toDate==='function') v=v.toDate();
+  else if(typeof v==='object' && typeof v.seconds==='number') v=new Date(v.seconds*1000);
+  const d = v instanceof Date ? v : new Date(v);
+  return Number.isNaN(d.getTime()) ? String(v) : d.toLocaleString('ar');
 }
-
-function displayUsers() {
-  const q = $("search").value.trim().toLowerCase();
-
-  const filtered = users.filter(u =>
-    [u.name, u.fullName, u.displayName, u.email, u.uid, u.id, u.country]
-      .some(v => String(v ?? "").toLowerCase().includes(q))
-  );
-
-  $("count").textContent = "عدد الحسابات: " + filtered.length;
-
-  $("usersBody").innerHTML = filtered.map(u => `
-    <tr>
-      <td>${escapeHTML(u.fullName || u.displayName || u.name || "—")}</td>
-      <td dir="ltr">${escapeHTML(u.email || "—")}</td>
-      <td dir="ltr">${escapeHTML(u.uid || u.id || u.docId || "—")}</td>
-      <td>${escapeHTML(u.country || "—")}</td>
-      <td>${escapeHTML(formatDate(u.createdAt || u.created_at))}</td>
-    </tr>
-  `).join("") || '<tr><td colspan="5">لا توجد نتائج.</td></tr>';
+function fieldsText(u){
+  const omit = new Set(['fullName','displayName','name','email','id','uid','country','createdAt','created_at','password','passwordHash','token']);
+  const pairs = Object.entries(u||{}).filter(([k,v])=>!omit.has(k) && !/password|token|secret|private.?key/i.test(k) && ['string','number','boolean'].includes(typeof v)).slice(0,8);
+  return pairs.map(([k,v])=>`${k}: ${v}`).join(' | ') || '—';
 }
-
-function formatDate(value) {
-  if (!value) return "—";
-  if (value.seconds) value = value.seconds * 1000;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString("ar");
+function render(){
+  const q=$('search').value.trim().toLowerCase();
+  const filtered=users.filter(u=>[u.fullName,u.displayName,u.name,u.email,u.id,u.uid,u.country].some(v=>String(v??'').toLowerCase().includes(q)));
+  $('count').textContent=String(filtered.length);
+  $('usersBody').innerHTML=filtered.map(u=>`<tr><td>${esc(u.fullName||u.displayName||u.name||'—')}</td><td dir="ltr">${esc(u.email||'—')}</td><td dir="ltr">${esc(u.id||u.uid||u.docId||'—')}</td><td>${esc(u.country||'—')}</td><td>${esc(dateText(u.createdAt||u.created_at))}</td><td>${esc(fieldsText(u))}</td></tr>`).join('') || '<tr><td colspan="6">لا توجد نتائج مطابقة.</td></tr>';
 }
-
-$("loadBtn").addEventListener("click", async () => {
-  if (!signedIn) return;
-
-  const apiKey = $("apiKey").value.trim();
-  const authDomain = $("authDomain").value.trim();
-  const projectId = $("projectId").value.trim();
-  const appId = $("appId").value.trim();
-  const databaseId = $("databaseId").value.trim();
-  const collectionName = $("collectionName").value.trim();
-
-  if (!apiKey || !authDomain || !projectId || !appId || !collectionName) {
-    $("status").textContent = "أكمل إعدادات Firebase واسم المجموعة.";
-    $("status").className = "status error";
-    return;
-  }
-
-  $("loadBtn").disabled = true;
-  $("status").textContent = "جارٍ الاتصال بقاعدة البيانات…";
-
-  try {
-    const appSDK = await import(
-      "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
-    );
-    const dbSDK = await import(
-      "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
-    );
-
-    const config = {apiKey, authDomain, projectId, appId};
-
-    if (!firebaseApp) {
-      firebaseApp = appSDK.initializeApp(config, "goldrix-admin");
-    }
-
-    let db;
-
-    if (databaseId) {
-      db = dbSDK.initializeFirestore(firebaseApp, {}, databaseId);
-    } else {
-      db = dbSDK.getFirestore(firebaseApp);
-    }
-
-    const result = await dbSDK.getDocs(
-      dbSDK.query(
-        dbSDK.collection(db, collectionName),
-        dbSDK.limit(500)
-      )
-    );
-
-    users = result.docs.map(doc => ({
-      docId: doc.id,
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    displayUsers();
-
-    $("status").textContent =
-      "تم جلب " + users.length + " حساب.";
-    $("status").className = "status success";
-
-  } catch (error) {
-    $("status").textContent =
-      "فشل جلب الحسابات: " +
-      (error.code ? error.code + " - " : "") +
-      error.message;
-
-    $("status").className = "status error";
-  } finally {
-    $("loadBtn").disabled = false;
-  }
+function getConfig(){ return {...FIREBASE_CONFIG}; }
+$('loginForm').addEventListener('submit', e=>{
+ e.preventDefault();
+ if($('adminPassword').value !== DEMO_PASSWORD){$('loginStatus').textContent='كلمة المرور غير صحيحة.';$('loginStatus').className='status error';return;}
+ // كلمة المرور تمنح صفة admin داخل واجهة هذه الصفحة فقط.
+ // صلاحية قراءة Firestore الفعلية لا يمكن إنشاؤها من HTML وحده.
+ signedIn=true;
+ sessionStorage.setItem('goldrix_ui_role','admin');
+ $('loginCard').hidden=true; $('dashboard').hidden=false;
+ $('loginStatus').textContent='تم فتح اللوحة. جارٍ جلب الحسابات تلقائيًا…'; $('adminPassword').value=''; setTimeout(() => $('loadUsers').click(), 0);
 });
-
-$("search").addEventListener("input", displayUsers);
-
-$("exportBtn").addEventListener("click", () => {
-  if (!users.length) {
-    $("status").textContent = "لا توجد حسابات لتصديرها.";
-    return;
-  }
-
-  const rows = [
-    ["name", "email", "userId", "country", "createdAt"],
-    ...users.map(u => [
-      u.fullName || u.displayName || u.name || "",
-      u.email || "",
-      u.uid || u.id || u.docId || "",
-      u.country || "",
-      formatDate(u.createdAt || u.created_at)
-    ])
-  ];
-
-  const csv = "\uFEFF" + rows.map(row =>
-    row.map(value =>
-      '"' + String(value).replace(/"/g, '""') + '"'
-    ).join(",")
-  ).join("\r\n");
-
-  const url = URL.createObjectURL(
-    new Blob([csv], {type:"text/csv;charset=utf-8;"})
-  );
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "goldrix-users.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+$('logout').addEventListener('click', async ()=>{
+ signedIn=false; users=[]; render();
+ if(firebase?.authMod && firebase?.auth) { try{await firebase.authMod.signOut(firebase.auth)}catch{} }
+ firebase=null; $('dashboard').hidden=true; $('loginCard').hidden=false;
+ setStatus('تم تسجيل الخروج.','success');
 });
-
-$("logoutBtn").addEventListener("click", () => {
-  signedIn = false;
-  users = [];
-  firebaseApp = null;
-  $("panel").hidden = true;
-  $("login").hidden = false;
-  $("password").value = "";
-  $("usersBody").innerHTML =
-    '<tr><td colspan="5">لا توجد بيانات.</td></tr>';
-  $("count").textContent = "عدد الحسابات: 0";
-  $("loginStatus").textContent = "تم تسجيل الخروج.";
+async function loadFirebase(){
+ if (firebase) return firebase;
+ const c=getConfig();
+ if(!c.apiKey||!c.authDomain||!c.projectId||!c.appId) throw new Error('أدخل إعدادات Firebase العامة في القسم أدناه ثم اضغط «استخدام الإعدادات لهذه الجلسة».');
+ const appSdk=await import('https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js');
+ const authSdk=await import('https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js');
+ const fsSdk=await import('https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js');
+ const app=appSdk.initializeApp(c, 'goldrix-admin-readonly');
+ const auth=authSdk.getAuth(app);
+ let db;
+ try { db=c.databaseId && c.databaseId!=='(default)' ? fsSdk.initializeFirestore(app,{},c.databaseId) : fsSdk.getFirestore(app); }
+ catch { db=fsSdk.getFirestore(app); }
+ firebase={app,auth,authMod:authSdk,fs:fsSdk,db,config:c};
+ // لا يُطلب حساب Firebase إضافي: يتم استخدام صلاحيات Firestore المضبوطة للمشروع.
+ // إذا كانت القراءة مقيدة للمستخدمين المسجلين فقط، فيجب منح الوصول عبر خادم موثوق.
+ return firebase;
+}
+$('loadUsers').addEventListener('click', async()=>{
+ if(!signedIn)return;
+ $('loadUsers').disabled=true; $('errorDetails').textContent=''; setStatus('جارٍ الاتصال بـ Firebase…');
+ try{
+  const f=await loadFirebase();
+  const {collection,getDocs,query,limit}=f.fs;
+  // The collection name is configurable in the next step; users is the conventional default.
+  const collectionName=USERS_COLLECTION;
+  const snap=await getDocs(query(collection(f.db,collectionName),limit(500)));
+  users=snap.docs.map(d=>({docId:d.id,id:d.id,...d.data()}));
+  render();
+  setStatus(`تم جلب ${users.length} سجلًا من مجموعة "${collectionName}". إن كانت هذه ليست مجموعة الحسابات الصحيحة، استخدم اسم المجموعة الفعلي.`, 'success');
+ }catch(err){
+  $('errorDetails').textContent=(err?.code?err.code+': ':'')+(err?.message||String(err));
+  setStatus('تعذر جلب الحسابات. تحقق من إعدادات المشروع، ومجموعة المستخدمين، وتسجيل دخول Firebase وصلاحيات Firestore.','error');
+ }finally{$('loadUsers').disabled=false;}
+});
+$('search').addEventListener('input',render);
+$('export').addEventListener('click',()=>{
+ if(!users.length){setStatus('لا توجد بيانات لتصديرها.','error');return;}
+ const rows=[['name','email','userId','country','createdAt'],...users.map(u=>[u.fullName||u.displayName||u.name||'',u.email||'',u.id||u.uid||u.docId||'',u.country||'',dateText(u.createdAt||u.created_at)])];
+ const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+ const a=document.createElement('a');a.href=url;a.download='goldrix-users.csv';a.click();URL.revokeObjectURL(url);
 });
 </script>
 </body>
