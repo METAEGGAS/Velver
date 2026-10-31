@@ -1,458 +1,309 @@
+
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GOLDRIX | الدخول وإنشاء الحساب</title>
+<title>GOLDRIX | لوحة التحكم</title>
 <style>
-:root{color-scheme:dark;--bg:#080d16;--panel:#101a29;--line:#26354a;--text:#edf2fa;--muted:#a1b0c6;--accent:#4de0b1;--gold:#e6bf6d}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at top,#163540 0,transparent 55%),var(--bg);color:var(--text);font:16px/1.8 Tahoma,Arial,sans-serif;min-height:100vh;padding:28px 16px}
-main{max-width:600px;margin:auto}
-.brand{text-align:center;font:800 34px Arial;letter-spacing:5px;color:var(--gold);margin:15px}
-h1{text-align:center;font-size:23px;margin:8px}
-p{color:var(--muted);margin:8px 0}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:24px;margin:18px 0;box-shadow:0 20px 60px #0005}
-.tabs{display:flex;gap:8px;margin:20px 0}
-.tabs button{flex:1}
-.tabs button.active{background:var(--accent);color:#062a20}
-label{display:block;font-size:14px;margin-top:14px}
-input,select,button{font:inherit;border-radius:12px;border:1px solid var(--line);padding:12px;width:100%;background:#0b1320;color:var(--text)}
-input:focus,select:focus{outline:2px solid var(--accent)}
-button{cursor:pointer;margin-top:12px}
-button.primary{background:var(--accent);color:#072b22;font-weight:bold;border:0}
-button:disabled{opacity:.5;cursor:wait}
-.row{display:flex;gap:10px}
-.row>*{flex:1}
-.muted,.notice{font-size:13px;color:var(--muted)}
-.notice{border-right:3px solid var(--gold);padding:10px;background:#e6bf6d0a}
-.status{white-space:pre-wrap;border-radius:12px;padding:12px;background:#0a1520;overflow-wrap:anywhere}
-.status.error{color:#ffa5b2}
-.status.success{color:var(--accent)}
+body{
+ margin:0;background:#080d16;color:#edf2fa;
+ font:15px Tahoma,Arial,sans-serif;padding:18px
+}
+main{max-width:1100px;margin:auto}
+.brand{text-align:center;color:#e6bf6d;font-size:30px;font-weight:bold;letter-spacing:4px}
+h2{font-size:21px}
+.card{
+ background:#101a29;border:1px solid #26354a;
+ border-radius:16px;padding:18px;margin:16px 0
+}
+input,button{
+ width:100%;padding:12px;margin:6px 0;
+ border:1px solid #26354a;border-radius:9px;
+ background:#0b1320;color:white;font-size:15px
+}
+button{cursor:pointer}
+.primary{background:#4de0b1;color:#062a20;font-weight:bold;border:0}
+.muted{color:#9eacc1;font-size:12px;line-height:1.8}
+.status{padding:12px;background:#0b1320;border-radius:9px;overflow-wrap:anywhere}
+.error{color:#ff8798}
+.success{color:#4de0b1}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1;min-width:130px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}
+.toolbar>*{flex:1;min-width:140px}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:650px}
+th,td{padding:11px;border-bottom:1px solid #26354a;text-align:right;overflow-wrap:anywhere}
+th{color:#e6bf6d}
 [hidden]{display:none!important}
-details{font-size:13px;margin-top:15px}
-summary{cursor:pointer;color:var(--gold)}
-pre{white-space:pre-wrap;direction:ltr;text-align:left;overflow-wrap:anywhere;font:12px/1.6 monospace;max-height:230px;overflow:auto}
-a{color:var(--accent)}
-.foot{text-align:center;font-size:12px}
-#otp{letter-spacing:12px;text-align:center;font-size:24px}
-.small{font-size:13px;padding:9px}
-#profile{white-space:pre-wrap;overflow-wrap:anywhere}
+label{display:block;color:#9eacc1;margin-top:10px}
+@media(max-width:500px){body{padding:10px}.card{padding:12px}}
 </style>
 </head>
 <body>
 <main>
 <div class="brand">GOLDRIX</div>
-<h1>تسجيل الدخول وإنشاء الحساب</h1>
-<p style="text-align:center">واجهة مستقلة مرتبطة بمسارات الموقع الأصلية</p>
+<h2 style="text-align:center">لوحة تحكم المستخدمين</h2>
 
-<div class="notice">هذه الصفحة ترسل الطلبات إلى goldrix-o3gl.onrender.com فقط. استضفها على نفس نطاق الموقع؛ فتحها كملف محلي أو على نطاق آخر قد يُمنع بسبب CORS. لا تُخزّن كلمة المرور أو رمز التحقق.</div>
-
-<section class="card" id="authCard">
-  <div class="tabs">
-    <button type="button" data-mode="LOGIN" class="active">تسجيل الدخول</button>
-    <button type="button" data-mode="REGISTER">حساب جديد</button>
-  </div>
-
-  <form id="authForm">
-    <div id="nameGroup" hidden>
-      <label for="fullName">الاسم الكامل</label>
-      <input id="fullName" autocomplete="name" maxlength="120">
-    </div>
-
-    <label for="email">البريد الإلكتروني</label>
-    <input id="email" type="email" required autocomplete="username" placeholder="example@gmail.com" dir="ltr">
-
-    <label for="password" id="passwordLabel">كلمة المرور</label>
-    <div class="row">
-      <input id="password" type="password" required minlength="6" autocomplete="current-password" dir="ltr">
-      <button id="showPassword" type="button" class="small" style="max-width:82px">إظهار</button>
-    </div>
-
-    <div id="registerGroup" hidden>
-      <label for="country">الدولة</label>
-      <select id="country"></select>
-      <label for="referral">كود الدعوة — اختياري</label>
-      <input id="referral" placeholder="GOLD2VXO" dir="ltr" maxlength="100">
-    </div>
-
-    <button type="submit" id="submit" class="primary">تسجيل الدخول</button>
-    <button id="forgot" type="button" class="small">نسيت كلمة المرور</button>
-  </form>
-
-  <div id="otpPanel" hidden>
-    <h2 id="otpHeading">تأكيد البريد الإلكتروني</h2>
-    <p id="otpDescription"></p>
-    <label for="otp">رمز التحقق المكوّن من 6 أرقام</label>
-    <input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" dir="ltr">
-    <button id="verify" class="primary" type="button">تأكيد وإنشاء الحساب</button>
-    <div class="row">
-      <button id="resend" type="button">إعادة إرسال الرمز</button>
-      <button id="back" type="button">رجوع</button>
-    </div>
-  </div>
-
-  <details>
-    <summary>تسجيل Google — إعدادات Firebase الأصلية</summary>
-    <p class="notice">هذا المسار يطابق طلب الواجهة الأصلية الذي يرسل بيانات المستخدم إلى /auth/firebase دون ID token. لا تعتمد عليه للإنتاج قبل إصلاح التحقق على الخادم. نجاح Firebase وحده ليس دليلاً على أمان ربط جلسة الموقع.</p>
-    <button id="google" type="button">المتابعة باستخدام Google</button>
-    <p class="muted">يتطلب تفعيل Google في Firebase وإضافة النطاق المستضيف إلى Authorized domains. لا ينشئ التسجيل البريدي حساب Firebase منفصلاً.</p>
-  </details>
+<section class="card" id="login">
+<h2>دخول المسؤول</h2>
+<label for="password">كلمة المرور</label>
+<input id="password" type="password" placeholder="أدخل كلمة المرور">
+<button class="primary" id="loginBtn">دخول</button>
+<div id="loginStatus" class="status">أدخل كلمة المرور للمتابعة.</div>
 </section>
 
-<section id="sessionCard" class="card" hidden>
-  <h2>تم تسجيل الدخول</h2>
-  <p id="profile"></p>
-  <div class="row">
-    <button id="refresh" type="button">التحقق من الجلسة</button>
-    <button id="logout" type="button">تسجيل الخروج</button>
-  </div>
-  <a href="https://goldrix-o3gl.onrender.com/">فتح الموقع الأصلي</a>
-</section>
-
+<section id="panel" hidden>
 <div class="card">
-  <div id="status" class="status" role="status" aria-live="polite">جاهز. لا تُرسل أي طلبات إنشاء حساب إلا بعد ضغطك على الأزرار.</div>
-  <details>
-    <summary>تشخيص الطلبات — دون كلمات مرور أو رموز</summary>
-    <pre id="diagnostics"></pre>
-  </details>
-  <details>
-    <summary>بيانات Firebase العامة المستخدمة</summary>
-    <pre id="configView"></pre>
-  </details>
+<h2>حسابات المستخدمين</h2>
+<p class="muted">
+أدخل إعدادات Firebase العامة، ثم اسم مجموعة الحسابات الموجودة في Firestore.
+</p>
+
+<label for="apiKey">Firebase API Key</label>
+<input id="apiKey" placeholder="apiKey" dir="ltr">
+
+<label for="authDomain">Auth Domain</label>
+<input id="authDomain" placeholder="project.firebaseapp.com" dir="ltr">
+
+<label for="projectId">Project ID</label>
+<input id="projectId" placeholder="project-id" dir="ltr">
+
+<label for="appId">App ID</label>
+<input id="appId" placeholder="appId" dir="ltr">
+
+<label for="databaseId">Firestore Database ID</label>
+<input id="databaseId" placeholder="اتركه فارغًا لاستخدام قاعدة default" dir="ltr">
+
+<label for="collectionName">اسم مجموعة المستخدمين</label>
+<input id="collectionName" value="users" dir="ltr">
+
+<div class="row">
+<button class="primary" id="loadBtn">جلب الحسابات</button>
+<button id="logoutBtn">تسجيل الخروج</button>
 </div>
 
-<p class="foot">التسجيل: إرسال رمز ← التحقق بإنشاء الحساب ← حفظ جلسة الموقع. هذه ليست نسخة من خادم الموقع أو قاعدة بياناته.</p>
+<div id="status" class="status">لم يتم الاتصال بقاعدة البيانات بعد.</div>
+</div>
+
+<div class="card">
+<div class="toolbar">
+<input id="search" placeholder="بحث بالاسم أو البريد أو المعرّف">
+<button id="exportBtn">تصدير CSV</button>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>الاسم</th>
+<th>البريد</th>
+<th>معرّف المستخدم</th>
+<th>الدولة</th>
+<th>تاريخ الإنشاء</th>
+</tr>
+</thead>
+<tbody id="usersBody">
+<tr><td colspan="5">لا توجد بيانات حتى الآن.</td></tr>
+</tbody>
+</table>
+</div>
+<p id="count" class="muted">عدد الحسابات: 0</p>
+</div>
+
+<p class="muted">
+تنبيه: كلمة المرور الموجودة داخل HTML هي بوابة للواجهة فقط.
+لا تمنح صلاحيات Firebase الفعلية. إذا رفضت قواعد Firestore القراءة،
+فلن تظهر الحسابات؛ يجب أن تتم الصلاحية عبر خادم موثوق.
+</p>
+</section>
 </main>
 
 <script>
-'use strict';
-(() => {
-const SITE_ORIGIN = 'https://goldrix-o3gl.onrender.com';
-const API_BASE = SITE_ORIGIN + '/api/v1';
-const TOKEN_KEY = 'goldrix_member_token';
-
-const FIREBASE_CONFIG = {
-  "projectId": "gen-lang-client-0589567342",
-  "appId": "1:384258034144:web:dd06e26ce38651190c4385",
-  "apiKey": "AIzaSyBbGpHW0ItpWrffXntHaF_BP8A2NjaLC6w",
-  "authDomain": "gen-lang-client-0589567342.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-goldrixdigitalas-80bc2c2b-b4d6-4bcc-9fdd-4715b1d01508",
-  "storageBucket": "gen-lang-client-0589567342.firebasestorage.app",
-  "messagingSenderId": "384258034144",
-  "measurementId": "",
-  "oAuthClientId": "384258034144-me9lc3j6qeuubo949on20dmojgdpu2n3.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
-};
-
-const COUNTRIES = [{"iso":"SA","nameEn":"Saudi Arabia","nameAr":"المملكة العربية السعودية","dialCode":"+966"},{"iso":"AE","nameEn":"United Arab Emirates","nameAr":"الإمارات العربية المتحدة","dialCode":"+971"},{"iso":"KW","nameEn":"Kuwait","nameAr":"الكويت","dialCode":"+965"},{"iso":"QA","nameEn":"Qatar","nameAr":"قطر","dialCode":"+974"},{"iso":"BH","nameEn":"Bahrain","nameAr":"البحرين","dialCode":"+973"},{"iso":"OM","nameEn":"Oman","nameAr":"سلطنة عُمان","dialCode":"+968"},{"iso":"IQ","nameEn":"Iraq","nameAr":"العراق","dialCode":"+964"},{"iso":"JO","nameEn":"Jordan","nameAr":"الأردن","dialCode":"+962"},{"iso":"LB","nameEn":"Lebanon","nameAr":"لبنان","dialCode":"+961"},{"iso":"SY","nameEn":"Syria","nameAr":"سوريا","dialCode":"+963"},{"iso":"PS","nameEn":"Palestine","nameAr":"فلسطين","dialCode":"+970"},{"iso":"YE","nameEn":"Yemen","nameAr":"اليمن","dialCode":"+967"},{"iso":"EG","nameEn":"Egypt","nameAr":"مصر","dialCode":"+20"},{"iso":"DZ","nameEn":"Algeria","nameAr":"الجزائر","dialCode":"+213"},{"iso":"MA","nameEn":"Morocco","nameAr":"المغرب","dialCode":"+212"},{"iso":"TN","nameEn":"Tunisia","nameAr":"تونس","dialCode":"+216"},{"iso":"LY","nameEn":"Libya","nameAr":"ليبيا","dialCode":"+218"},{"iso":"SD","nameEn":"Sudan","nameAr":"السودان","dialCode":"+249"},{"iso":"MR","nameEn":"Mauritania","nameAr":"موريتانيا","dialCode":"+222"},{"iso":"TR","nameEn":"Turkey","nameAr":"تركيا","dialCode":"+90"},{"iso":"US","nameEn":"United States","nameAr":"الولايات المتحدة الأمريكية","dialCode":"+1"},{"iso":"CA","nameEn":"Canada","nameAr":"كندا","dialCode":"+1"},{"iso":"AU","nameEn":"Australia","nameAr":"أستراليا","dialCode":"+61"},{"iso":"IN","nameEn":"India","nameAr":"الهند","dialCode":"+91"},{"iso":"GB","nameEn":"United Kingdom","nameAr":"المملكة المتحدة","dialCode":"+44"},{"iso":"DE","nameEn":"Germany","nameAr":"ألمانيا","dialCode":"+49"},{"iso":"FR","nameEn":"France","nameAr":"فرنسا","dialCode":"+33"},{"iso":"IT","nameEn":"Italy","nameAr":"إيطاليا","dialCode":"+39"},{"iso":"ES","nameEn":"Spain","nameAr":"إسبانيا","dialCode":"+34"},{"iso":"NL","nameEn":"Netherlands","nameAr":"هولندا","dialCode":"+31"},{"iso":"BE","nameEn":"Belgium","nameAr":"بلجيكا","dialCode":"+32"},{"iso":"CH","nameEn":"Switzerland","nameAr":"سويسرا","dialCode":"+41"},{"iso":"AT","nameEn":"Austria","nameAr":"النمسا","dialCode":"+43"},{"iso":"SE","nameEn":"Sweden","nameAr":"السويد","dialCode":"+46"},{"iso":"NO","nameEn":"Norway","nameAr":"النرويج","dialCode":"+47"},{"iso":"DK","nameEn":"Denmark","nameAr":"الدنمارك","dialCode":"+45"},{"iso":"FI","nameEn":"Finland","nameAr":"فنلندا","dialCode":"+358"},{"iso":"IE","nameEn":"Ireland","nameAr":"أيرلندا","dialCode":"+353"},{"iso":"PT","nameEn":"Portugal","nameAr":"البرتغال","dialCode":"+351"},{"iso":"GR","nameEn":"Greece","nameAr":"اليونان","dialCode":"+30"},{"iso":"PL","nameEn":"Poland","nameAr":"بولندا","dialCode":"+48"},{"iso":"CZ","nameEn":"Czech Republic","nameAr":"التشيك","dialCode":"+420"},{"iso":"RO","nameEn":"Romania","nameAr":"رومانيا","dialCode":"+40"},{"iso":"CY","nameEn":"Cyprus","nameAr":"قبرص","dialCode":"+357"}];
+const ADMIN_PASSWORD = "1234567";
 
 const $ = id => document.getElementById(id);
-const state = {mode:'LOGIN', busy:false, pending:null, cooldownUntil:0, token:localStorage.getItem(TOKEN_KEY), firebase:null};
+let users = [];
+let firebaseApp = null;
+let signedIn = false;
 
-function message(text,kind=''){ $('status').textContent=text; $('status').className='status '+kind; }
-
-function diagnostic(method,path,status){
-  const line=new Date().toLocaleTimeString('ar')+' '+method+' '+path+' → '+status;
-  $('diagnostics').textContent=(line+'\n'+$('diagnostics').textContent).slice(0,6000);
-}
-
-function setBusy(value){
-  state.busy=value;
-  document.querySelectorAll('button').forEach(b=>b.disabled=value);
-  updateCooldown();
-}
-
-async function task(work){
-  if(state.busy)return;
-  setBusy(true);
-  try{ await work(); }
-  catch(error){ message(error.message||'تعذر إكمال الطلب','error'); }
-  finally{ setBusy(false); }
-}
-
-async function api(path,{method='GET',body,authenticated=false}={}){
-  const headers={'Content-Type':'application/json',Accept:'application/json'};
-  if(authenticated&&state.token)headers.Authorization='Bearer '+state.token;
-  let response;
-  try{
-    response=await fetch(API_BASE+path,{
-      method,headers,
-      credentials:'same-origin',
-      body:body===undefined?undefined:JSON.stringify(body),
-      signal:AbortSignal.timeout(45000)
-    });
-  }catch(e){
-    diagnostic(method,path,'NETWORK');
-    throw new Error('تعذر الاتصال: تحقق من الإنترنت والاستضافة على نطاق الموقع وسياسة CORS. لا تعِد إرسال إنشاء الحساب قبل التحقق من نتيجته.');
+$("loginBtn").addEventListener("click", () => {
+  if ($("password").value !== ADMIN_PASSWORD) {
+    $("loginStatus").textContent = "كلمة المرور غير صحيحة.";
+    $("loginStatus").className = "status error";
+    return;
   }
-  const text=(await response.text()).trim();
-  diagnostic(method,path,response.status);
-  let data={};
-  try{ data=text?JSON.parse(text):{}; }
-  catch{ throw new Error('استجابة غير JSON (HTTP '+response.status+'). قد يكون الخادم يستيقظ أو أن مسار الصفحة غير صحيح.'); }
-  if(!response.ok){
-    if(authenticated&&response.status===401)clearSession();
-    throw new Error(typeof data.error==='string'?data.error:'فشل الطلب: HTTP '+response.status);
-  }
-  return data;
-}
 
-function normalizeEmail(value){
-  const text=value.trim().toLowerCase();
-  return text&&!text.includes('@')?text+'@gmail.com':text;
-}
-
-function validateForm(){
-  const email=normalizeEmail($('email').value), password=$('password').value;
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email))throw new Error('أدخل بريداً إلكترونياً صحيحاً.');
-  if(password.length<6)throw new Error('كلمة المرور لا تقل عن 6 أحرف أو أرقام.');
-  if(state.mode==='REGISTER'&&!$('fullName').value.trim())throw new Error('أدخل الاسم الكامل.');
-  $('email').value=email;
-  return{email,password};
-}
-
-function showSession(user){
-  $('authCard').hidden=true;
-  $('sessionCard').hidden=false;
-  $('profile').textContent=
-    'الاسم: '+(user?.fullName||user?.displayName||'—')+'\n'+
-    'البريد: '+(user?.email||'—')+'\n'+
-    'معرّف المستخدم: '+(user?.id||'—');
-}
-
-function saveSession(data){
-  if(typeof data.token!=='string'||!data.token)throw new Error('لم يرجع الخادم رمز جلسة صالحاً.');
-  state.token=data.token;
-  localStorage.setItem(TOKEN_KEY,data.token);
-  sessionStorage.removeItem('goldrix_manual_logout');
-  showSession(data.user);
-  $('password').value='';
-  $('otp').value='';
-  state.pending=null;
-}
-
-function clearSession(){
-  state.token=null;
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem('goldrix_token');
-  $('sessionCard').hidden=true;
-  $('authCard').hidden=false;
-  $('profile').textContent='';
-}
-
-async function refreshSession(){
-  const data=await api('/auth/me',{authenticated:true});
-  if(data.token){ state.token=data.token; localStorage.setItem(TOKEN_KEY,data.token); }
-  showSession(data.user);
-  message('أكد الخادم أن جلسة الموقع صالحة.','success');
-}
-
-function setMode(mode){
-  state.mode=mode;
-  state.pending=null;
-  $('otpPanel').hidden=true;
-  $('authForm').hidden=false;
-  $('nameGroup').hidden=mode!=='REGISTER';
-  $('fullName').required=mode==='REGISTER';
-  $('registerGroup').hidden=mode!=='REGISTER';
-  $('password').autocomplete=mode==='LOGIN'?'current-password':'new-password';
-  $('passwordLabel').textContent=mode==='FORGOT'?'كلمة المرور الجديدة':'كلمة المرور';
-  $('submit').textContent=mode==='LOGIN'?'تسجيل الدخول':mode==='REGISTER'?'إرسال رمز التحقق':'إرسال رمز الاستعادة';
-  $('forgot').hidden=mode==='FORGOT';
-  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
-  message('جاهز.');
-}
-
-function updateCooldown(){
-  const left=Math.max(0,Math.ceil((state.cooldownUntil-Date.now())/1000));
-  $('resend').textContent=left?'إعادة الإرسال ('+left+' ث)':'إعادة إرسال الرمز';
-  $('resend').disabled=state.busy||left>0;
-}
-
-function beginOtp(pending,data){
-  state.pending=pending;
-  state.cooldownUntil=Date.now()+(Number(data.cooldownSeconds)||60)*1000;
-  $('authForm').hidden=true;
-  $('otpPanel').hidden=false;
-  $('otp').value='';
-  $('otpHeading').textContent=pending.mode==='REGISTER'?'تأكيد البريد الإلكتروني':'تأكيد استعادة كلمة المرور';
-  $('otpDescription').textContent='أُرسل الرمز إلى '+pending.email;
-  $('verify').textContent=pending.mode==='REGISTER'?'تأكيد وإنشاء الحساب':'تغيير كلمة المرور وتسجيل الدخول';
-  updateCooldown();
-  $('otp').focus();
-  message('تم إرسال رمز التحقق. راجع البريد الوارد والرسائل غير المرغوب فيها.','success');
-}
-
-$('authForm').addEventListener('submit',event=>{
-  event.preventDefault();
-  task(async()=>{
-    const {email,password}=validateForm();
-
-    if(state.mode==='LOGIN'){
-      const data=await api('/auth/login',{method:'POST',body:{emailOrPhone:email,password}});
-      saveSession(data);
-      try{ await api('/assets/summary',{authenticated:true}); }
-      catch{ message('تم تسجيل الدخول، لكن تعذر تحديث الرصيد.','error'); return; }
-      message('تم تسجيل الدخول بنجاح.','success');
-      return;
-    }
-
-    const pending={mode:state.mode,email,password};
-
-    if(state.mode==='REGISTER'){
-      const country=COUNTRIES.find(c=>c.iso===$('country').value);
-      if(!country)throw new Error('اختر الدولة.');
-      Object.assign(pending,{
-        fullName:$('fullName').value.trim(),
-        country:country.nameEn,
-        countryCode:country.iso,
-        dialCode:country.dialCode,
-        referredBy:$('referral').value.trim()||undefined
-      });
-    }
-
-    const path=state.mode==='REGISTER'?'/email/send-code':'/auth/forgot-password/send-code';
-    const data=await api(path,{method:'POST',body:{email,isResend:false}});
-    beginOtp(pending,data);
-  });
+  signedIn = true;
+  $("login").hidden = true;
+  $("panel").hidden = false;
+  $("status").textContent =
+    "تم فتح الواجهة. اضغط جلب الحسابات بعد إدخال إعدادات Firebase.";
 });
 
-$('verify').addEventListener('click',()=>task(async()=>{
-  const pending=state.pending;
-  if(!pending)throw new Error('ابدأ بإرسال رمز التحقق.');
-  const code=$('otp').value.replace(/[^0-9]/g,'');
-  if(code.length!==6)throw new Error('أدخل رمزاً مكوّناً من 6 أرقام.');
+$("password").addEventListener("keydown", e => {
+  if (e.key === "Enter") $("loginBtn").click();
+});
 
-  if(pending.mode==='REGISTER'){
-    const body={
-      email:pending.email,
-      password:pending.password,
-      fullName:pending.fullName,
-      country:pending.country,
-      countryCode:pending.countryCode,
-      dialCode:pending.dialCode,
-      isEmailVerified:true,
-      referredBy:pending.referredBy,
-      otpCode:code
-    };
-    const data=await api('/auth/register',{method:'POST',body});
-    saveSession(data);
-    try{ await api('/assets/summary',{authenticated:true}); }
-    catch{ message('أُنشئ الحساب، لكن تعذر تحميل الرصيد.','error'); return; }
-    message('أُنشئ الحساب وحُفظت جلسة الموقع بنجاح.','success');
-  }else{
-    await api('/auth/forgot-password/reset',{method:'POST',body:{email:pending.email,code,newPassword:pending.password}});
-    const data=await api('/auth/login',{method:'POST',body:{emailOrPhone:pending.email,password:pending.password}});
-    saveSession(data);
-    message('تم تغيير كلمة المرور وتسجيل الدخول.','success');
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
+
+function displayUsers() {
+  const q = $("search").value.trim().toLowerCase();
+
+  const filtered = users.filter(u =>
+    [u.name, u.fullName, u.displayName, u.email, u.uid, u.id, u.country]
+      .some(v => String(v ?? "").toLowerCase().includes(q))
+  );
+
+  $("count").textContent = "عدد الحسابات: " + filtered.length;
+
+  $("usersBody").innerHTML = filtered.map(u => `
+    <tr>
+      <td>${escapeHTML(u.fullName || u.displayName || u.name || "—")}</td>
+      <td dir="ltr">${escapeHTML(u.email || "—")}</td>
+      <td dir="ltr">${escapeHTML(u.uid || u.id || u.docId || "—")}</td>
+      <td>${escapeHTML(u.country || "—")}</td>
+      <td>${escapeHTML(formatDate(u.createdAt || u.created_at))}</td>
+    </tr>
+  `).join("") || '<tr><td colspan="5">لا توجد نتائج.</td></tr>';
+}
+
+function formatDate(value) {
+  if (!value) return "—";
+  if (value.seconds) value = value.seconds * 1000;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString("ar");
+}
+
+$("loadBtn").addEventListener("click", async () => {
+  if (!signedIn) return;
+
+  const apiKey = $("apiKey").value.trim();
+  const authDomain = $("authDomain").value.trim();
+  const projectId = $("projectId").value.trim();
+  const appId = $("appId").value.trim();
+  const databaseId = $("databaseId").value.trim();
+  const collectionName = $("collectionName").value.trim();
+
+  if (!apiKey || !authDomain || !projectId || !appId || !collectionName) {
+    $("status").textContent = "أكمل إعدادات Firebase واسم المجموعة.";
+    $("status").className = "status error";
+    return;
   }
-}));
 
-$('resend').addEventListener('click',()=>{
-  if(Date.now()<state.cooldownUntil)return;
-  task(async()=>{
-    const pending=state.pending;
-    if(!pending)throw new Error('لا توجد عملية تحقق نشطة.');
-    const data=await api(
-      pending.mode==='REGISTER'?'/email/send-code':'/auth/forgot-password/send-code',
-      {method:'POST',body:{email:pending.email,isResend:true}}
+  $("loadBtn").disabled = true;
+  $("status").textContent = "جارٍ الاتصال بقاعدة البيانات…";
+
+  try {
+    const appSDK = await import(
+      "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"
     );
-    beginOtp(pending,data);
-  });
-});
+    const dbSDK = await import(
+      "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
+    );
 
-$('otp').addEventListener('input',()=>{
-  $('otp').value=$('otp').value.replace(/[^0-9]/g,'').slice(0,6);
-});
+    const config = {apiKey, authDomain, projectId, appId};
 
-$('back').addEventListener('click',()=>setMode(state.mode));
-$('forgot').addEventListener('click',()=>setMode('FORGOT'));
-document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
-
-$('showPassword').addEventListener('click',()=>{
-  const visible=$('password').type==='password';
-  $('password').type=visible?'text':'password';
-  $('showPassword').textContent=visible?'إخفاء':'إظهار';
-});
-
-$('refresh').addEventListener('click',()=>task(refreshSession));
-
-$('logout').addEventListener('click',()=>task(async()=>{
-  sessionStorage.setItem('goldrix_manual_logout','1');
-  clearSession();
-  state.pending=null;
-  $('password').value='';
-  $('otp').value='';
-  if(state.firebase)await state.firebase.signOut(state.firebase.auth);
-  setMode('LOGIN');
-  message('تم حذف الجلسة المحلية وتسجيل خروج Firebase إن كان مفعّلاً. لا يظهر مسار لإبطال رمز الخادم في الواجهة الأصلية.');
-}));
-
-async function loadFirebase(){
-  if(state.firebase)return state.firebase;
-  const [appSdk,authSdk]=await Promise.all([
-    import('https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js'),
-    import('https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js')
-  ]);
-  const app=appSdk.initializeApp(FIREBASE_CONFIG);
-  const auth=authSdk.getAuth(app);
-  auth.languageCode='ar';
-  const provider=new authSdk.GoogleAuthProvider();
-  provider.setCustomParameters({prompt:'select_account'});
-  state.firebase={auth,provider,...authSdk};
-  return state.firebase;
-}
-
-$('google').addEventListener('click',()=>task(async()=>{
-  if(location.protocol==='file:')throw new Error('استضف الملف عبر HTTPS أو localhost وأضف النطاق في Firebase قبل تسجيل Google.');
-  const fb=await loadFirebase();
-  const result=await fb.signInWithPopup(fb.auth,fb.provider);
-  const user=result.user;
-  if(!user.email)throw new Error('لم يُرجع Google بريداً إلكترونياً.');
-  const data=await api('/auth/firebase',{
-    method:'POST',
-    body:{
-      uid:user.uid,
-      email:user.email,
-      displayName:user.displayName||undefined,
-      photoURL:user.photoURL||undefined
+    if (!firebaseApp) {
+      firebaseApp = appSDK.initializeApp(config, "goldrix-admin");
     }
-  });
-  saveSession(data);
-  message('نجح مسار Google وجلسة الموقع. هذه الصفحة لا تكتب الأرصدة أو الأدوار أو نسخاً مالية إلى Firestore.','success');
-}));
 
-$('configView').textContent=JSON.stringify(FIREBASE_CONFIG,null,2);
+    let db;
 
-for(const country of COUNTRIES){
-  const option=document.createElement('option');
-  option.value=country.iso;
-  option.textContent=country.nameAr+' ('+country.dialCode+')';
-  $('country').append(option);
-}
-$('country').value='SA';
+    if (databaseId) {
+      db = dbSDK.initializeFirestore(firebaseApp, {}, databaseId);
+    } else {
+      db = dbSDK.getFirestore(firebaseApp);
+    }
 
-let manualCountry=false;
-$('country').addEventListener('change',()=>manualCountry=true);
+    const result = await dbSDK.getDocs(
+      dbSDK.query(
+        dbSDK.collection(db, collectionName),
+        dbSDK.limit(500)
+      )
+    );
 
-const referral=new URLSearchParams(location.search).get('ref');
-if(referral)$('referral').value=referral.trim().toUpperCase();
+    users = result.docs.map(doc => ({
+      docId: doc.id,
+      id: doc.id,
+      ...doc.data()
+    }));
 
-setInterval(updateCooldown,500);
+    displayUsers();
 
-if(location.protocol==='file:'){
-  message('الملف مفتوح محلياً: العرض متاح، لكن المصادقة قد تُمنع. استضفه على نطاق الموقع الأصلي.','error');
-}
+    $("status").textContent =
+      "تم جلب " + users.length + " حساب.";
+    $("status").className = "status success";
 
-if(state.token){
-  task(refreshSession);
-}else{
-  api('/geo/detect').then(data=>{
-    if(!manualCountry&&COUNTRIES.some(c=>c.iso===data.countryCode))$('country').value=data.countryCode;
-  }).catch(()=>{});
-}
-})();
+  } catch (error) {
+    $("status").textContent =
+      "فشل جلب الحسابات: " +
+      (error.code ? error.code + " - " : "") +
+      error.message;
+
+    $("status").className = "status error";
+  } finally {
+    $("loadBtn").disabled = false;
+  }
+});
+
+$("search").addEventListener("input", displayUsers);
+
+$("exportBtn").addEventListener("click", () => {
+  if (!users.length) {
+    $("status").textContent = "لا توجد حسابات لتصديرها.";
+    return;
+  }
+
+  const rows = [
+    ["name", "email", "userId", "country", "createdAt"],
+    ...users.map(u => [
+      u.fullName || u.displayName || u.name || "",
+      u.email || "",
+      u.uid || u.id || u.docId || "",
+      u.country || "",
+      formatDate(u.createdAt || u.created_at)
+    ])
+  ];
+
+  const csv = "\uFEFF" + rows.map(row =>
+    row.map(value =>
+      '"' + String(value).replace(/"/g, '""') + '"'
+    ).join(",")
+  ).join("\r\n");
+
+  const url = URL.createObjectURL(
+    new Blob([csv], {type:"text/csv;charset=utf-8;"})
+  );
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "goldrix-users.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("logoutBtn").addEventListener("click", () => {
+  signedIn = false;
+  users = [];
+  firebaseApp = null;
+  $("panel").hidden = true;
+  $("login").hidden = false;
+  $("password").value = "";
+  $("usersBody").innerHTML =
+    '<tr><td colspan="5">لا توجد بيانات.</td></tr>';
+  $("count").textContent = "عدد الحسابات: 0";
+  $("loginStatus").textContent = "تم تسجيل الخروج.";
+});
 </script>
 </body>
 </html>
