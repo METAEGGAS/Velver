@@ -1,571 +1,233 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GOLDRIX | لوحة التحكم</title>
-<style>
-:root{
- color-scheme:dark;
- --bg:#080d16;--panel:#101a29;--line:#26354a;
- --text:#edf2fa;--muted:#9eacc1;--accent:#4de0b1;
- --gold:#e6bf6d;--danger:#ff8798
-}
-*{box-sizing:border-box}
-body{
- margin:0;
- background:radial-gradient(ellipse at top,#163540 0,transparent 55%),var(--bg);
- color:var(--text);font:15px/1.7 Tahoma,Arial,sans-serif;
- min-height:100vh;padding:20px 12px
-}
-main{max-width:1100px;margin:auto}
-.brand{text-align:center;color:var(--gold);font:800 29px Arial;letter-spacing:4px;margin:10px}
-h1,h2{margin:8px 0 14px}
-h1{text-align:center;font-size:23px}
-p{color:var(--muted)}
-.card{
- background:var(--panel);border:1px solid var(--line);
- border-radius:18px;padding:18px;margin:14px 0;
- box-shadow:0 15px 45px #0003
-}
-label{display:block;margin:10px 0 5px;color:var(--muted);font-size:13px}
-input,button{
- font:inherit;border-radius:10px;border:1px solid var(--line);
- padding:11px 12px;background:#0b1320;color:var(--text);width:100%
-}
-button{cursor:pointer}
-button.primary{background:var(--accent);color:#062a20;border:0;font-weight:bold}
-button:disabled{opacity:.5;cursor:wait}
-.login{max-width:440px;margin:35px auto}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.toolbar>*{flex:1;min-width:140px}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.stat{padding:14px;background:#0b1421;border:1px solid var(--line);border-radius:13px}
-.stat b{display:block;font-size:23px;color:var(--accent);direction:ltr;text-align:right}
-.muted{font-size:12px;color:var(--muted)}
-.status{
- padding:12px;border-radius:10px;background:#0b1421;
- overflow-wrap:anywhere;white-space:pre-wrap
-}
-.error{color:var(--danger)}
-.success{color:var(--accent)}
-.table-wrap{overflow:auto}
-table{width:100%;border-collapse:collapse;min-width:680px}
-th,td{
- text-align:right;padding:11px;border-bottom:1px solid var(--line);
- vertical-align:top;overflow-wrap:anywhere
-}
-th{color:var(--gold);font-size:13px}
-td{font-size:13px}
-[hidden]{display:none!important}
-pre{
- white-space:pre-wrap;overflow-wrap:anywhere;direction:ltr;
- text-align:left;font-size:12px;color:var(--muted)
-}
-.foot{text-align:center;font-size:12px;color:var(--muted)}
-.error-card{border-color:#63303a}
-@media(max-width:600px){
- body{padding:12px 8px}
- .card{padding:13px}
- .stats{grid-template-columns:1fr}
- .stat b{font-size:20px}
- .brand{font-size:25px}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إنشاء حساب جديد</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: #0b1220;
+      color: #f1f5f9;
+      font-family: Arial, sans-serif;
+    }
+    .card {
+      width: 100%;
+      max-width: 390px;
+      padding: 28px;
+      background: #131e30;
+      border: 1px solid #29374d;
+      border-radius: 18px;
+      box-shadow: 0 15px 45px #0004;
+    }
+    h2 { margin: 0 0 8px; text-align: center; }
+    .sub {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      background: #0b1220;
+      color: white;
+      outline: none;
+      font-size: 15px;
+    }
+    input:focus { border-color: #3b82f6; }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 22px;
+      border: 0;
+      border-radius: 9px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    #message {
+      display: none;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+    .success { display: block !important; background: #123a2c; color: #86efac; }
+    .error { display: block !important; background: #451a22; color: #fca5a5; }
+    .note {
+      margin-top: 20px;
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.7;
+      text-align: center;
+    }
+  </style>
 </head>
-
 <body>
-<main>
-<div class="brand">GOLDRIX</div>
-<h1>لوحة التحكم — حسابات المستخدمين</h1>
+  <main class="card">
+    <h2>إنشاء حساب جديد</h2>
+    <div class="sub">أنشئ حسابك للبدء</div>
 
-<section class="card login" id="loginCard">
-  <h2>دخول المسؤول</h2>
-  <p>أدخل كلمة المرور لفتح واجهة عرض الحسابات.</p>
+    <form id="registerForm">
+      <label for="name">الاسم</label>
+      <input id="name" type="text" autocomplete="name"
+             maxlength="80" required placeholder="أدخل اسمك">
 
-  <form id="loginForm">
-    <label for="adminPassword">كلمة مرور اللوحة</label>
-    <input id="adminPassword" type="password"
-           autocomplete="current-password" required>
-    <button class="primary" type="submit" style="margin-top:14px">
-      دخول
-    </button>
-  </form>
+      <label for="email">البريد الإلكتروني</label>
+      <input id="email" type="email" autocomplete="email"
+             required placeholder="name@example.com">
 
-  <div id="loginStatus" class="status" role="status"
-       aria-live="polite" style="margin-top:12px">
-    أدخل كلمة المرور لفتح لوحة التحكم.
-  </div>
+      <label for="password">كلمة المرور</label>
+      <input id="password" type="password"
+             autocomplete="new-password" minlength="8"
+             required placeholder="8 أحرف على الأقل">
 
-  <p class="muted">
-    هذه كلمة مرور محلية للواجهة فقط، وليست مصادقة إدارية آمنة.
-  </p>
-</section>
+      <label for="confirm">تأكيد كلمة المرور</label>
+      <input id="confirm" type="password"
+             autocomplete="new-password" minlength="8"
+             required placeholder="أعد كتابة كلمة المرور">
 
-<section id="dashboard" hidden>
-  <div class="card">
-    <div class="toolbar">
-      <div>
-        <h2 style="margin:0">الحسابات</h2>
-        <div class="muted">عرض فقط، دون تعديل أو حذف</div>
-      </div>
-      <button id="loadUsers" class="primary" type="button">
-        جلب الحسابات
-      </button>
-      <button id="logout" type="button">تسجيل الخروج</button>
+      <button id="submitBtn" type="submit">إنشاء الحساب</button>
+    </form>
+
+    <div id="message" role="status" aria-live="polite"></div>
+    <div class="note">
+      تُنشأ الحسابات بصلاحية مستخدم عادي. لا تُدخل بيانات حساسة
+      إلا على موقعك الرسمي وبعد التأكد من إعدادات الأمان.
     </div>
-
-    <div id="status" class="status" role="status"
-         aria-live="polite" style="margin-top:13px">
-      سيتم عرض تفاصيل الاتصال هنا.
-    </div>
-  </div>
-
-  <div class="stats">
-    <div class="stat">
-      <span class="muted">عدد الحسابات المعروضة</span>
-      <b id="count">0</b>
-    </div>
-    <div class="stat">
-      <span class="muted">مصدر البيانات</span>
-      <div>Cloud Firestore</div>
-    </div>
-    <div class="stat">
-      <span class="muted">نمط العمل</span>
-      <div>قراءة فقط</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="toolbar">
-      <input id="search" type="search"
-             placeholder="بحث بالاسم أو البريد أو المعرّف"
-             aria-label="بحث بالحسابات">
-      <button id="export" type="button">تصدير CSV</button>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>الاسم</th>
-            <th>البريد الإلكتروني</th>
-            <th>معرّف المستخدم</th>
-            <th>الدولة</th>
-            <th>تاريخ الإنشاء</th>
-            <th>حقول إضافية</th>
-          </tr>
-        </thead>
-        <tbody id="usersBody">
-          <tr><td colspan="6">لم يتم جلب البيانات بعد.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>إعدادات Firebase</h2>
-    <p class="muted">تم ملء إعدادات المشروع تلقائيًا.</p>
-
-    <label for="apiKey">apiKey</label>
-    <input id="apiKey" readonly dir="ltr">
-
-    <label for="authDomain">authDomain</label>
-    <input id="authDomain" readonly dir="ltr">
-
-    <label for="projectId">projectId</label>
-    <input id="projectId" readonly dir="ltr">
-
-    <label for="appId">appId</label>
-    <input id="appId" readonly dir="ltr">
-
-    <label for="databaseId">معرّف قاعدة Firestore</label>
-    <input id="databaseId" readonly dir="ltr">
-
-    <label for="collectionName">مجموعة المستخدمين</label>
-    <input id="collectionName" readonly dir="ltr">
-
-    <p class="muted">
-      إذا كانت مجموعة المستخدمين في مشروعك تحمل اسمًا مختلفًا،
-      فستحتاج إلى استخدام اسمها الفعلي.
-    </p>
-  </div>
-
-  <div class="card error-card">
-    <h2>تفاصيل الخطأ الفعلي</h2>
-    <p>
-      يعرض هذا القسم رمز الخطأ والرسالة التي أعادتها العملية،
-      والمرحلة التي حدث فيها الفشل.
-    </p>
-    <pre id="errorDetails">لا توجد أخطاء حتى الآن.</pre>
-  </div>
-</section>
-
-<p class="foot">
-  صلاحيات Firebase هي التي تحدد الوصول الحقيقي إلى بيانات المستخدمين.
-</p>
-</main>
-
-<script type="module">
-const $ = id => document.getElementById(id);
-
-const DEMO_PASSWORD = '1234567';
-
-const FIREBASE_CONFIG = {
-  apiKey: 'AIzaSyBbGpHW0ItpWrffXntHaF_BP8A2NjaLC6w',
-  authDomain: 'gen-lang-client-0589567342.firebaseapp.com',
-  projectId: 'gen-lang-client-0589567342',
-  appId: '1:384258034144:web:dd06e26ce38651190c4385',
-  databaseId: 'ai-studio-goldrixdigitalas-80bc2c2b-b4d6-4bcc-9fdd-4715b1d01508'
-};
-
-const USERS_COLLECTION = 'users';
-
-for (const [key, value] of Object.entries(FIREBASE_CONFIG)) {
-  if ($(key)) $(key).value = value;
-}
-$('collectionName').value = USERS_COLLECTION;
-
-let users = [];
-let firebase = null;
-let signedIn = false;
-let currentStage = 'لم تبدأ العملية';
-
-function setStatus(message, kind = '') {
-  $('status').textContent = message;
-  $('status').className = 'status ' + kind;
-}
-
-function esc(value) {
-  return String(value ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  }[c]));
-}
-
-function dateText(value) {
-  if (!value) return '—';
-
-  if (typeof value.toDate === 'function') {
-    value = value.toDate();
-  } else if (
-    typeof value === 'object' &&
-    typeof value.seconds === 'number'
-  ) {
-    value = new Date(value.seconds * 1000);
-  }
-
-  const date = value instanceof Date ? value : new Date(value);
-
-  return Number.isNaN(date.getTime())
-    ? String(value)
-    : date.toLocaleString('ar');
-}
-
-function fieldsText(user) {
-  const omit = new Set([
-    'fullName','displayName','name','email','id','uid',
-    'country','createdAt','created_at','password',
-    'passwordHash','token'
-  ]);
-
-  const pairs = Object.entries(user || {}).filter(([key, value]) =>
-    !omit.has(key) &&
-    !/password|token|secret|private.?key/i.test(key) &&
-    ['string','number','boolean'].includes(typeof value)
-  ).slice(0, 8);
-
-  return pairs.map(([key, value]) => `${key}: ${value}`).join(' | ') || '—';
-}
-
-function render() {
-  const query = $('search').value.trim().toLowerCase();
-
-  const filtered = users.filter(user =>
-    [
-      user.fullName, user.displayName, user.name,
-      user.email, user.id, user.uid, user.country
-    ].some(value => String(value ?? '').toLowerCase().includes(query))
-  );
-
-  $('count').textContent = String(filtered.length);
-
-  $('usersBody').innerHTML = filtered.map(user => `
-    <tr>
-      <td>${esc(user.fullName || user.displayName || user.name || '—')}</td>
-      <td dir="ltr">${esc(user.email || '—')}</td>
-      <td dir="ltr">${esc(user.id || user.uid || user.docId || '—')}</td>
-      <td>${esc(user.country || '—')}</td>
-      <td>${esc(dateText(user.createdAt || user.created_at))}</td>
-      <td>${esc(fieldsText(user))}</td>
-    </tr>
-  `).join('') || '<tr><td colspan="6">لا توجد نتائج مطابقة.</td></tr>';
-}
-
-/* تفسير مساعد فقط؛ يبقى رمز Firebase ورسالة الخطأ الأصلية ظاهرين. */
-function explainError(error) {
-  const code = error?.code || '';
-  const message = error?.message || String(error);
-
-  if (code.includes('permission-denied')) {
-    return 'رفضت قواعد Firestore عملية القراءة. يلزم منح وصول مناسب للمستخدم المصرح به عبر قواعد آمنة أو خادم موثوق.';
-  }
-
-  if (code.includes('unauthenticated')) {
-    return 'العملية تتطلب هوية مصادقًا عليها، لكن الطلب الحالي غير مصادق.';
-  }
-
-  if (code.includes('not-found')) {
-    return 'لم يتم العثور على قاعدة البيانات أو المورد المطلوب. تحقق من معرّف قاعدة Firestore واسم المشروع.';
-  }
-
-  if (code.includes('unavailable')) {
-    return 'خدمة Firestore غير متاحة حاليًا أو يوجد خلل في الاتصال. تحقق من الشبكة وحالة الخدمة.';
-  }
-
-  if (code.includes('failed-precondition')) {
-    return 'لم تتحقق شروط تنفيذ العملية. راجع الرسالة الأصلية، فقد تشير إلى إعداد أو فهرس مطلوب.';
-  }
-
-  if (code.includes('invalid-argument')) {
-    return 'أحد إعدادات الطلب أو قيمه غير مقبول. تحقق من إعدادات Firebase ومعرّف قاعدة البيانات.';
-  }
-
-  if (code.includes('already-exists')) {
-    return 'يوجد مورد بالاسم نفسه مسبقًا. قد تكون تهيئة Firebase قد تكررت.';
-  }
-
-  if (
-    error?.name === 'TypeError' ||
-    /fetch|network|failed to fetch/i.test(message)
-  ) {
-    return 'يبدو أن العملية واجهت مشكلة تحميل أو اتصال. تحقق من الإنترنت، وإمكانية الوصول إلى مكتبات Firebase، وأن الصفحة تعمل عبر HTTPS أو localhost.';
-  }
-
-  return 'لم يتم تحديد سبب إضافي تلقائيًا. راجع رمز الخطأ والرسالة الأصلية أدناه.';
-}
-
-function showRealError(error, stage) {
-  const name = error?.name || 'UnknownError';
-  const code = error?.code || '(لا يوجد رمز Firebase)';
-  const message = error?.message || String(error);
-  const hint = explainError(error);
-
-  const details = [
-    'المرحلة: ' + stage,
-    'نوع الخطأ: ' + name,
-    'رمز الخطأ: ' + code,
-    'رسالة الخطأ الأصلية: ' + message,
-    '',
-    'التفسير المحتمل:',
-    hint
-  ];
-
-  if (error?.stack) {
-    details.push('', 'Stack:', error.stack);
-  }
-
-  $('errorDetails').textContent = details.join('\n');
-
-  setStatus(
-    'فشل التنفيذ في المرحلة: ' + stage +
-    '\nرمز الخطأ: ' + code +
-    '\nالرسالة: ' + message,
-    'error'
-  );
-}
-
-function getConfig() {
-  return {...FIREBASE_CONFIG};
-}
-
-$('loginForm').addEventListener('submit', event => {
-  event.preventDefault();
-
-  if ($('adminPassword').value !== DEMO_PASSWORD) {
-    $('loginStatus').textContent = 'كلمة المرور غير صحيحة.';
-    $('loginStatus').className = 'status error';
-    return;
-  }
-
-  signedIn = true;
-  $('loginCard').hidden = true;
-  $('dashboard').hidden = false;
-  $('adminPassword').value = '';
-
-  $('loginStatus').textContent = 'تم فتح اللوحة. جارٍ جلب الحسابات تلقائيًا…';
-
-  setTimeout(() => $('loadUsers').click(), 0);
-});
-
-$('logout').addEventListener('click', () => {
-  signedIn = false;
-  users = [];
-  firebase = null;
-
-  $('dashboard').hidden = true;
-  $('loginCard').hidden = false;
-  $('usersBody').innerHTML =
-    '<tr><td colspan="6">لم يتم جلب البيانات بعد.</td></tr>';
-
-  $('count').textContent = '0';
-  $('errorDetails').textContent = 'تم تسجيل الخروج.';
-  $('loginStatus').textContent = 'تم تسجيل الخروج.';
-  $('loginStatus').className = 'status success';
-
-  $('search').value = '';
-  setStatus('تم تسجيل الخروج.', 'success');
-  render();
-});
-
-async function loadFirebase() {
-  if (firebase) return firebase;
-
-  const config = getConfig();
-
-  currentStage = 'التحقق من إعدادات Firebase';
-
-  if (
-    !config.apiKey ||
-    !config.authDomain ||
-    !config.projectId ||
-    !config.appId
-  ) {
-    throw new Error('أحد إعدادات Firebase المطلوبة فارغ.');
-  }
-
-  currentStage = 'تحميل مكتبة Firebase';
-
-  const appSdk = await import(
-    'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'
-  );
-
-  const fsSdk = await import(
-    'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js'
-  );
-
-  currentStage = 'تهيئة تطبيق Firebase';
-
-  let app;
-
-  try {
-    app = appSdk.getApp('goldrix-admin-readonly');
-  } catch {
-    app = appSdk.initializeApp(config, 'goldrix-admin-readonly');
-  }
-
-  currentStage = 'الاتصال بقاعدة Firestore';
-
-  /*
-   * لا نستخدم fallback صامتًا إلى قاعدة أخرى؛
-   * لأن ذلك قد يخفي السبب الحقيقي أو يتصل بقاعدة غير مقصودة.
-   */
-  const db = config.databaseId
-    ? fsSdk.initializeFirestore(app, {}, config.databaseId)
-    : fsSdk.getFirestore(app);
-
-  firebase = {app, fs: fsSdk, db, config};
-
-  return firebase;
-}
-
-$('loadUsers').addEventListener('click', async () => {
-  if (!signedIn) return;
-
-  $('loadUsers').disabled = true;
-  $('errorDetails').textContent = 'جارٍ تنفيذ العملية…';
-  setStatus('جارٍ الاتصال بـ Firebase…');
-
-  try {
-    currentStage = 'تهيئة Firebase';
-    const connection = await loadFirebase();
-
-    currentStage = 'الوصول إلى مجموعة ' + USERS_COLLECTION;
-
-    const {collection, getDocs, query, limit} = connection.fs;
-
-    const usersCollection = collection(
-      connection.db,
-      USERS_COLLECTION
-    );
-
-    currentStage = 'قراءة مستندات المجموعة ' + USERS_COLLECTION;
-
-    const snapshot = await getDocs(
-      query(usersCollection, limit(500))
-    );
-
-    currentStage = 'معالجة النتائج';
-
-    users = snapshot.docs.map(doc => ({
-      docId: doc.id,
-      id: doc.id,
-      ...doc.data()
-    }));
-
-    render();
-
-    $('errorDetails').textContent =
-      'لا يوجد خطأ.\n' +
-      'المشروع: ' + connection.config.projectId + '\n' +
-      'قاعدة البيانات: ' + connection.config.databaseId + '\n' +
-      'المجموعة: ' + USERS_COLLECTION + '\n' +
-      'عدد المستندات المسترجعة: ' + users.length;
-
-    setStatus(
-      'نجح الاتصال.\n' +
-      'المجموعة: ' + USERS_COLLECTION + '\n' +
-      'عدد الحسابات المسترجعة: ' + users.length,
-      'success'
-    );
-
-  } catch (error) {
-    showRealError(error, currentStage);
-  } finally {
-    $('loadUsers').disabled = false;
-  }
-});
-
-$('search').addEventListener('input', render);
-
-$('export').addEventListener('click', () => {
-  if (!users.length) {
-    setStatus('لا توجد بيانات لتصديرها.', 'error');
-    return;
-  }
-
-  const rows = [
-    ['name','email','userId','country','createdAt'],
-    ...users.map(user => [
-      user.fullName || user.displayName || user.name || '',
-      user.email || '',
-      user.id || user.uid || user.docId || '',
-      user.country || '',
-      dateText(user.createdAt || user.created_at)
-    ])
-  ];
-
-  const csv = '\ufeff' + rows.map(row =>
-    row.map(value =>
-      '"' + String(value ?? '').replace(/"/g, '""') + '"'
-    ).join(',')
-  ).join('\r\n');
-
-  const url = URL.createObjectURL(
-    new Blob([csv], {type:'text/csv;charset=utf-8;'})
-  );
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'goldrix-users.csv';
-  link.click();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
-</script>
+  </main>
+
+  <script type="module">
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    // ضع إعدادات مشروع Firebase الخاص بك هنا.
+    const firebaseConfig = {
+      apiKey: "YOUR_FIREBASE_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_FIREBASE_APP_ID"
+    };
+
+    const message = document.getElementById("message");
+    const button = document.getElementById("submitBtn");
+    const form = document.getElementById("registerForm");
+
+    function showMessage(text, type) {
+      message.textContent = text;
+      message.className = type;
+    }
+
+    let auth;
+
+    try {
+      if (
+        !firebaseConfig.apiKey.startsWith("YOUR_") &&
+        !firebaseConfig.projectId.startsWith("YOUR_") &&
+        !firebaseConfig.appId.startsWith("YOUR_")
+      ) {
+        auth = getAuth(initializeApp(firebaseConfig));
+      }
+    } catch {
+      auth = null;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+
+      if (!auth) {
+        showMessage(
+          "يجب وضع إعدادات Firebase الصحيحة أولاً.",
+          "error"
+        );
+        return;
+      }
+
+      if (!name) {
+        showMessage("يرجى إدخال الاسم.", "error");
+        return;
+      }
+
+      if (password !== confirm) {
+        showMessage("كلمتا المرور غير متطابقتين.", "error");
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "جارٍ إنشاء الحساب...";
+
+      try {
+        const credential = await createUserWithEmailAndPassword(
+          auth, email, password
+        );
+
+        await updateProfile(credential.user, {
+          displayName: name
+        });
+
+        showMessage(
+          "تم إنشاء الحساب بنجاح. معرّف المستخدم: " +
+          credential.user.uid,
+          "success"
+        );
+
+        form.reset();
+      } catch (error) {
+        const errors = {
+          "auth/email-already-in-use": "هذا البريد مسجل مسبقاً.",
+          "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
+          "auth/weak-password": "كلمة المرور ضعيفة.",
+          "auth/operation-not-allowed":
+            "إنشاء الحساب بالبريد غير مفعّل في Firebase.",
+          "auth/network-request-failed":
+            "تعذر الاتصال. تحقق من الإنترنت.",
+          "auth/too-many-requests":
+            "محاولات كثيرة. انتظر قليلاً ثم حاول مجدداً.",
+          "auth/invalid-api-key":
+            "مفتاح Firebase غير صحيح."
+        };
+
+        showMessage(
+          errors[error.code] ||
+          "تعذر إنشاء الحساب. رمز الخطأ: " +
+          (error.code || "unknown"),
+          "error"
+        );
+      } finally {
+        button.disabled = false;
+        button.textContent = "إنشاء الحساب";
+      }
+    });
+  </script>
 </body>
 </html>
