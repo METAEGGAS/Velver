@@ -1,233 +1,252 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>إنشاء حساب جديد</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: #0b1220;
-      color: #f1f5f9;
-      font-family: Arial, sans-serif;
-    }
-    .card {
-      width: 100%;
-      max-width: 390px;
-      padding: 28px;
-      background: #131e30;
-      border: 1px solid #29374d;
-      border-radius: 18px;
-      box-shadow: 0 15px 45px #0004;
-    }
-    h2 { margin: 0 0 8px; text-align: center; }
-    .sub {
-      text-align: center;
-      color: #94a3b8;
-      font-size: 14px;
-      margin-bottom: 25px;
-    }
-    label {
-      display: block;
-      margin: 15px 0 7px;
-      font-size: 14px;
-    }
-    input {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #334155;
-      border-radius: 9px;
-      background: #0b1220;
-      color: white;
-      outline: none;
-      font-size: 15px;
-    }
-    input:focus { border-color: #3b82f6; }
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 22px;
-      border: 0;
-      border-radius: 9px;
-      background: #2563eb;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:disabled { opacity: .6; cursor: wait; }
-    #message {
-      display: none;
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-    .success { display: block !important; background: #123a2c; color: #86efac; }
-    .error { display: block !important; background: #451a22; color: #fca5a5; }
-    .note {
-      margin-top: 20px;
-      color: #94a3b8;
-      font-size: 12px;
-      line-height: 1.7;
-      text-align: center;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firebase Security Audit</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:#e8edf7;font:15px Arial,sans-serif}
+main{max-width:850px;margin:auto;padding:20px}
+h1{font-size:24px}
+p{color:#aab6cc;line-height:1.8}
+.card{background:#131c30;border:1px solid #293650;border-radius:14px;padding:16px;margin:14px 0}
+label{display:block;margin:12px 0 6px}
+input,textarea,button{width:100%;padding:12px;border-radius:8px;border:1px solid #34435e;background:#0b1325;color:#fff;font:inherit}
+button{background:#2764e7;border:0;margin-top:10px;cursor:pointer}
+button.secondary{background:#34435e}
+button:disabled{opacity:.5}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.status{padding:12px;border-radius:8px;background:#0b1325;white-space:pre-wrap;overflow-wrap:anywhere}
+.pass{color:#5be0a1}.fail{color:#ff7777}.warn{color:#ffd479}
+small{color:#aab6cc}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <main class="card">
-    <h2>إنشاء حساب جديد</h2>
-    <div class="sub">أنشئ حسابك للبدء</div>
+<main>
+<h1>Firebase Security Audit</h1>
+<p>اختبار محدود بصلاحيات حساب عادي. لا توجد صلاحيات إدارية مضمّنة، ولا تُعدّل بيانات المستخدمين.</p>
 
-    <form id="registerForm">
-      <label for="name">الاسم</label>
-      <input id="name" type="text" autocomplete="name"
-             maxlength="80" required placeholder="أدخل اسمك">
+<div class="card">
+<h3>1. إعداد الاتصال</h3>
+<label>Firebase API Key</label>
+<input id="apiKey" autocomplete="off" placeholder="مفتاح Web API العام">
+<label>Auth Domain</label>
+<input id="authDomain" placeholder="project.firebaseapp.com">
+<label>Project ID</label>
+<input id="projectId" placeholder="project-id">
+<label>App ID</label>
+<input id="appId" placeholder="1:...:web:...">
+<label>Firestore Database ID</label>
+<input id="dbId" value="(default)" placeholder="(default) أو اسم قاعدة البيانات">
+<small>هذه القيم لا تمنح صلاحيات إدارية. لا تضع Service Account أو مفاتيح خاصة هنا.</small>
+</div>
 
-      <label for="email">البريد الإلكتروني</label>
-      <input id="email" type="email" autocomplete="email"
-             required placeholder="name@example.com">
+<div class="card">
+<h3>2. تسجيل الدخول بحساب الاختبار العادي</h3>
+<label>البريد الإلكتروني</label>
+<input id="email" type="email" autocomplete="username">
+<label>كلمة مرور حساب الاختبار</label>
+<input id="password" type="password" autocomplete="current-password">
+<button id="login">تسجيل الدخول</button>
+<button id="logout" class="secondary" disabled>تسجيل الخروج</button>
+<div id="authStatus" class="status">غير متصل</div>
+</div>
 
-      <label for="password">كلمة المرور</label>
-      <input id="password" type="password"
-             autocomplete="new-password" minlength="8"
-             required placeholder="8 أحرف على الأقل">
+<div class="card">
+<h3>3. اختبار مستند تملكه للاختبار فقط</h3>
+<p>أنشئ مستندًا تجريبيًا لا يحتوي بيانات حقيقية، واستخدم المسار نفسه في قواعد الاختبار لديك.</p>
+<label>مسار مستند الاختبار</label>
+<input id="docPath" value="security_test/probe">
+<label>حقل الاختبار</label>
+<input id="fieldName" value="securityAuditProbe">
+<label>قيمة الاختبار</label>
+<input id="fieldValue" value="temporary-test-value">
+<button id="read">اختبار القراءة</button>
+<button id="write">اختبار الكتابة</button>
+<button id="delete" class="secondary">حذف حقل الاختبار فقط</button>
+<div id="testStatus" class="status">بانتظار الاختبار</div>
+</div>
 
-      <label for="confirm">تأكيد كلمة المرور</label>
-      <input id="confirm" type="password"
-             autocomplete="new-password" minlength="8"
-             required placeholder="أعد كتابة كلمة المرور">
+<div class="card">
+<h3>4. سجل النتائج</h3>
+<button id="export" class="secondary">تصدير التقرير TXT</button>
+<div id="report" class="status">لم تُجرَ اختبارات بعد.</div>
+</div>
+</main>
 
-      <button id="submitBtn" type="submit">إنشاء الحساب</button>
-    </form>
+<script type="module">
+import {initializeApp, getApps} from
+"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+import {
+  initializeFirestore, getFirestore, doc, getDoc,
+  setDoc, updateDoc, deleteField
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-    <div id="message" role="status" aria-live="polite"></div>
-    <div class="note">
-      تُنشأ الحسابات بصلاحية مستخدم عادي. لا تُدخل بيانات حساسة
-      إلا على موقعك الرسمي وبعد التأكد من إعدادات الأمان.
-    </div>
-  </main>
+const $ = id => document.getElementById(id);
+let app, auth, db, currentUser = null;
+let logs = [];
 
-  <script type="module">
-    import { initializeApp }
-      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+function log(title, result, detail="") {
+  const item = {
+    time: new Date().toISOString(),
+    test: title,
+    result,
+    detail
+  };
+  logs.unshift(item);
+  $("report").textContent = logs.map(x =>
+    `[${x.time}] ${x.test}: ${x.result}` +
+    (x.detail ? `\n${x.detail}` : "")
+  ).join("\n\n");
+  $("testStatus").textContent =
+    `${title}: ${result}${detail ? "\n"+detail : ""}`;
+}
 
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      updateProfile
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+function safeError(e) {
+  const known = {
+    "permission-denied":"قواعد Firestore رفضت العملية.",
+    "unauthenticated":"الطلب غير مصادق عليه.",
+    "not-found":"المستند غير موجود.",
+    "unavailable":"الخدمة غير متاحة مؤقتًا.",
+    "auth/operation-not-allowed":"طريقة تسجيل الدخول غير مفعلة.",
+    "auth/invalid-credential":"بيانات تسجيل الدخول غير صحيحة."
+  };
+  return known[e.code] || `${e.code || "error"}: ${e.message || "حدث خطأ"}`;
+}
 
-    // ضع إعدادات مشروع Firebase الخاص بك هنا.
-    const firebaseConfig = {
-      apiKey: "AIzaSyBbGpHW0ItpWrffXntHaF_BP8A2NjaLC6w",
-      authDomain: "gen-lang-client-0589567342.firebaseapp.com",
-      projectId: "gen-lang-client-0589567342",
-      appId: "1:384258034144:web:dd06e26ce38651190c4385"
-    };
+function getConfig() {
+  const c = {
+    apiKey: $("apiKey").value.trim(),
+    authDomain: $("authDomain").value.trim(),
+    projectId: $("projectId").value.trim(),
+    appId: $("appId").value.trim()
+  };
+  if (Object.values(c).some(v => !v))
+    throw Error("أكمل إعدادات Firebase الأربعة.");
+  return c;
+}
 
-    const message = document.getElementById("message");
-    const button = document.getElementById("submitBtn");
-    const form = document.getElementById("registerForm");
+function getPath() {
+  const path = $("docPath").value.trim().replace(/^\/|\/$/g,"");
+  const parts = path.split("/");
+  if (parts.length < 2 || parts.length % 2 !== 0 ||
+      parts.some(x => !x || x === "." || x === ".."))
+    throw Error("مسار المستند غير صالح. استخدم مسارًا ينتهي بمعرّف مستند.");
+  return path;
+}
 
-    function showMessage(text, type) {
-      message.textContent = text;
-      message.className = type;
-    }
+function getField() {
+  const field = $("fieldName").value.trim();
+  if (!/^[A-Za-z][A-Za-z0-9_]{0,49}$/.test(field))
+    throw Error("اسم الحقل غير صالح.");
+  return field;
+}
 
-    let auth;
+function connect() {
+  const config = getConfig();
+  app = getApps().find(a => a.name === "security-audit")
+    || initializeApp(config, "security-audit");
+  auth = getAuth(app);
+  const databaseId = $("dbId").value.trim() || "(default)";
+  db = databaseId === "(default)"
+    ? getFirestore(app)
+    : getFirestore(app, databaseId);
+}
 
-    try {
-      if (
-        !firebaseConfig.apiKey.startsWith("YOUR_") &&
-        !firebaseConfig.projectId.startsWith("YOUR_") &&
-        !firebaseConfig.appId.startsWith("YOUR_")
-      ) {
-        auth = getAuth(initializeApp(firebaseConfig));
-      }
-    } catch {
-      auth = null;
-    }
+$("login").onclick = async () => {
+  try {
+    connect();
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    if (!email || !password) throw Error("أدخل بريد حساب الاختبار وكلمة مروره.");
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    currentUser = result.user;
+    $("authStatus").textContent =
+      `متصل بحساب الاختبار\nUID: ${currentUser.uid}\nالبريد: ${currentUser.email}`;
+    $("logout").disabled = false;
+    log("تسجيل الدخول", "نجح", "تم تسجيل الدخول بحساب الاختبار.");
+  } catch(e) {
+    log("تسجيل الدخول", "فشل", safeError(e));
+  }
+};
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
+$("logout").onclick = async () => {
+  if (!auth) return;
+  try {
+    await signOut(auth);
+    currentUser = null;
+    $("authStatus").textContent = "تم تسجيل الخروج";
+    $("logout").disabled = true;
+    log("تسجيل الخروج", "نجح");
+  } catch(e) {
+    log("تسجيل الخروج", "فشل", safeError(e));
+  }
+};
 
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const confirm = document.getElementById("confirm").value;
+$("read").onclick = async () => {
+  try {
+    if (!currentUser) throw Error("سجّل الدخول أولًا.");
+    const ref = doc(db, getPath());
+    const snap = await getDoc(ref);
+    log("قراءة مستند الاختبار",
+      snap.exists() ? "سُمح بالقراءة" : "القراءة تمت والمستند غير موجود",
+      "هذا يثبت نتيجة هذا المسار والحساب فقط، ولا يثبت صلاحيات بقية المشروع.");
+  } catch(e) {
+    log("قراءة مستند الاختبار", "فشل أو رُفض", safeError(e));
+  }
+};
 
-      if (!auth) {
-        showMessage(
-          "يجب وضع إعدادات Firebase الصحيحة أولاً.",
-          "error"
-        );
-        return;
-      }
+$("write").onclick = async () => {
+  try {
+    if (!currentUser) throw Error("سجّل الدخول أولًا.");
+    const field = getField();
+    const ref = doc(db, getPath());
+    // تحديث حقل واحد فقط؛ لا ينشئ المستند إن لم يكن موجودًا.
+    await updateDoc(ref, {[field]: $("fieldValue").value});
+    log("كتابة حقل الاختبار", "سُمح بالكتابة",
+      "تم تعديل الحقل التجريبي المحدد فقط. تحقق من القيمة بعد الاختبار.");
+  } catch(e) {
+    log("كتابة حقل الاختبار", "فشل أو رُفض", safeError(e));
+  }
+};
 
-      if (!name) {
-        showMessage("يرجى إدخال الاسم.", "error");
-        return;
-      }
+$("delete").onclick = async () => {
+  try {
+    if (!currentUser) throw Error("سجّل الدخول أولًا.");
+    if (!confirm("سيُحذف حقل الاختبار المحدد فقط من المستند التجريبي. متابعة؟"))
+      return;
+    const ref = doc(db, getPath());
+    await updateDoc(ref, {[getField()]: deleteField()});
+    log("حذف حقل الاختبار", "سُمح بالحذف",
+      "حُذف الحقل المحدد فقط من مستند الاختبار.");
+  } catch(e) {
+    log("حذف حقل الاختبار", "فشل أو رُفض", safeError(e));
+  }
+};
 
-      if (password !== confirm) {
-        showMessage("كلمتا المرور غير متطابقتين.", "error");
-        return;
-      }
+$("export").onclick = () => {
+  const blob = new Blob([
+    "Firebase Security Audit\n",
+    "نتائج اختبارات محدودة، وليست إثباتًا شاملًا لأمان المشروع.\n\n",
+    JSON.stringify(logs, null, 2)
+  ], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "firebase-security-report.txt";
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
-      button.disabled = true;
-      button.textContent = "جارٍ إنشاء الحساب...";
-
-      try {
-        const credential = await createUserWithEmailAndPassword(
-          auth, email, password
-        );
-
-        await updateProfile(credential.user, {
-          displayName: name
-        });
-
-        showMessage(
-          "تم إنشاء الحساب بنجاح. معرّف المستخدم: " +
-          credential.user.uid,
-          "success"
-        );
-
-        form.reset();
-      } catch (error) {
-        const errors = {
-          "auth/email-already-in-use": "هذا البريد مسجل مسبقاً.",
-          "auth/invalid-email": "صيغة البريد الإلكتروني غير صحيحة.",
-          "auth/weak-password": "كلمة المرور ضعيفة.",
-          "auth/operation-not-allowed":
-            "إنشاء الحساب بالبريد غير مفعّل في Firebase.",
-          "auth/network-request-failed":
-            "تعذر الاتصال. تحقق من الإنترنت.",
-          "auth/too-many-requests":
-            "محاولات كثيرة. انتظر قليلاً ثم حاول مجدداً.",
-          "auth/invalid-api-key":
-            "مفتاح Firebase غير صحيح."
-        };
-
-        showMessage(
-          errors[error.code] ||
-          "تعذر إنشاء الحساب. رمز الخطأ: " +
-          (error.code || "unknown"),
-          "error"
-        );
-      } finally {
-        button.disabled = false;
-        button.textContent = "إنشاء الحساب";
-      }
-    });
-  </script>
+window.addEventListener("beforeunload", () => {
+  if (auth) signOut(auth).catch(()=>{});
+});
+</script>
 </body>
 </html>
